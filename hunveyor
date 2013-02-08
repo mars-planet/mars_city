@@ -13,6 +13,8 @@ class UniqueMessageQueueWithDelay(object):
         self.remote = remote
         self.local = local
         self.redis = redis.Redis(host='gwelican.eu', port = 443)
+        # clean queue
+        self.redis.delete(local)
 
     def add(self, data, delay=0):
         temp = json.loads(data)
@@ -56,11 +58,12 @@ class PyHunveyorDevice(PyTango.Device_4Impl):
 
     def read_temp(self, the_att):
         self.info_stream("read_temp")
-        result = self.hunveyor.pop()
-        print 'read_temp: result is', result
-        if result != False:
+        data = self.hunveyor.pop()
+        print 'read_temp: result is', data
+        if data != False:
+            result = json.loads(data)
             the_att.set_value(result['value'])
-            u.remove(result)
+            self.hunveyor.remove(data)
 
         # request a new value
         data = {"command": "readtemp", "arguments": {"address": 0x92}}
