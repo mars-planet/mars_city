@@ -3,7 +3,7 @@
 import sys
 import urllib
 import PyTango
-import matplotlib.pyplot as plot
+#import matplotlib.pyplot as plot
 
 class Entry(object):
     def __init__(self, values):
@@ -57,8 +57,8 @@ class PyDeviceExp(PyTango.Device_4Impl):
             if line.startswith((':', '#')):
                 continue
             data.append(Entry(line.split()))
-        plot.plot([d.mev10 for d in data if d.status10 != 9])
-        plot.savefig('proton.png')
+        #plot.plot([d.mev10 for d in data if d.status10 != 9])
+        #plot.savefig('proton.png')
 
         the_att.set_value(data[-1].mev10)
 
