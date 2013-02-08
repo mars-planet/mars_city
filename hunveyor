@@ -12,7 +12,7 @@ class UniqueMessageQueueWithDelay(object):
     def __init__(self, remote='hunveyor_test', local='local_test'):
         self.remote = remote
         self.local = local
-        self.redis = redis.Redis(host='gwelican.eu', port = 443)
+        self.redis = redis.Redis(host='gwelican.eu', port=443)
         # clean queue
         self.redis.delete(local)
 
