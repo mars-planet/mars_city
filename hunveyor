@@ -1,0 +1,82 @@
+#!/usr/bin/python
+
+import sys
+import time
+import json
+import redis
+import PyTango
+import matplotlib.pyplot as plot
+
+
+class UniqueMessageQueueWithDelay(object):
+    def __init__(self, name):
+        self.name = name
+        self.redis = redis.Redis(host='gwelican.eu', port = 443)
+
+    def add(self, data, delay=0):
+        temp = json.loads(data)
+        temp["time"] = time.time()
+        score = time.time() + delay
+        self.redis.zadd(self.name, json.dumps(temp), score)
+
+    def pop(self):
+        min_score = 0
+        max_score = time.time()
+        result = self.redis.zrangebyscore(
+            self.name, min_score, max_score, start=0, num=1, withscores=False)
+        if result is None:
+            return False
+        if len(result) == 1:
+            return result[0]
+        else:
+            return False
+
+    def remove(self, data):
+        return self.redis.zrem(self.name, data)
+
+
+class PyDevice(PyTango.DeviceClass):
+    cmd_list = {}
+    attr_list = {'temp': [[PyTango.ArgType.DevFloat,
+                            PyTango.AttrDataFormat.SCALAR,
+                            PyTango.AttrWriteType.READ],
+                           {'polling period': 2000}]}
+    def __init__(self, name):
+        PyTango.DeviceClass.__init__(self, name)
+        self.set_type("TestDevice")
+
+
+class PyHunveyorDevice(PyTango.Device_4Impl):
+    def __init__(self, cl, name):
+        PyTango.Device_4Impl.__init__(self, cl, name)
+        self.info_stream('In PyHunveyorDevice.__init__')
+        self.hunveyor = UniqueMessageQueueWithDelay('hunveyor')
+        self.local = UniqueMessageQueueWithDelay('local_test')
+        PyHunveyorDevice.init_device(self)
+
+    def read_temp(self, the_att):
+        self.info_stream("read_temp")
+        result = self.local.pop()
+        print 'read_temp: result is', result
+        if result != False:
+            the_att.set_value(result['value'])
+            u.remove(result)
+
+        # request a new value
+        data = {"command": "readtemp", "arguments": {"address": 0x92}}
+        self.hunveyor.add(json.dumps(data))
+
+    def is_temp_allowed(self, req_type):
+        return self.get_state() == PyTango.DevState.ON
+
+    def init_device(self):
+        self.info_stream('In Python init_device method')
+        self.set_state(PyTango.DevState.ON)
+
+if __name__ == '__main__':
+    util = PyTango.Util(sys.argv)
+    util.add_class(PyDevice, PyHunveyorDevice)
+
+    U = PyTango.Util.instance()
+    U.server_init()
+    U.server_run()

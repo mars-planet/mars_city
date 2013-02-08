@@ -1,0 +1,78 @@
+#!/usr/bin/python
+
+import sys
+import urllib
+import PyTango
+import matplotlib.pyplot as plot
+
+class Entry(object):
+    def __init__(self, values):
+        self.date = '-'.join(values[:3])
+        self.time = values[4]
+        self.status10 = int(values[6])
+        self.mev10 = float(values[7])
+        self.status30 = int(values[8])
+        self.mev30 = float(values[9])
+
+    def __repr__(self):
+        return ('<{0.date} {0.time}; >10Mev {0.mev10} ({0.status10}); '
+                '>30Mev {0.mev30} ({0.status30})>'.format(self))
+
+
+class PyDevice(PyTango.DeviceClass):
+    cmd_list = {}
+    attr_list = {'mev10': [[PyTango.ArgType.DevFloat,
+                            PyTango.AttrDataFormat.SCALAR,
+                            PyTango.AttrWriteType.READ],
+                           {'polling period': 20000}]}
+    def __init__(self, name):
+        PyTango.DeviceClass.__init__(self, name)
+        self.set_type("TestDevice")
+
+
+class PyDeviceExp(PyTango.Device_4Impl):
+    def __init__(self, cl, name):
+        PyTango.Device_4Impl.__init__(self, cl, name)
+        self.info_stream('In PyDeviceExp.__init__')
+        PyDeviceExp.init_device(self)
+
+    def is_get_data_allowed(self):
+        return self.get_state() == PyTango.DevState.ON
+
+    def get_data(self):
+        self.data = data = []
+        with open('ace_sis_5m.txt') as datafile:
+            for line in datafile:
+                if line.startswith((':', '#')):
+                    continue
+                data.append(Entry(line.split()))
+
+        print data
+
+    def read_mev10(self, the_att):
+        self.data = data = []
+        self.info_stream("read_mev10")
+        page = urllib.urlopen('http://www.swpc.noaa.gov/ftpdir/lists/ace/ace_sis_5m.txt')
+        for line in page:
+            if line.startswith((':', '#')):
+                continue
+            data.append(Entry(line.split()))
+        plot.plot([d.mev10 for d in data if d.status10 != 9])
+        plot.savefig('proton.png')
+
+        the_att.set_value(data[-1].mev10)
+
+    def is_mev10_allowed(self, req_type):
+        return self.get_state() in (PyTango.DevState.ON,)
+
+    def init_device(self):
+        self.info_stream('In Python init_device method')
+        self.set_state(PyTango.DevState.ON)
+
+if __name__ == '__main__':
+    util = PyTango.Util(sys.argv)
+    util.add_class(PyDevice, PyDeviceExp)
+
+    U = PyTango.Util.instance()
+    U.server_init()
+    U.server_run()
