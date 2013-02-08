@@ -9,21 +9,22 @@ import matplotlib.pyplot as plot
 
 
 class UniqueMessageQueueWithDelay(object):
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, remote='hunveyor_test', local='local_test'):
+        self.remote = remote
+        self.local = local
         self.redis = redis.Redis(host='gwelican.eu', port = 443)
 
     def add(self, data, delay=0):
         temp = json.loads(data)
         temp["time"] = time.time()
         score = time.time() + delay
-        self.redis.zadd(self.name, json.dumps(temp), score)
+        self.redis.zadd(self.remote, json.dumps(temp), score)
 
     def pop(self):
         min_score = 0
         max_score = time.time()
         result = self.redis.zrangebyscore(
-            self.name, min_score, max_score, start=0, num=1, withscores=False)
+            self.local, min_score, max_score, start=0, num=1, withscores=False)
         if result is None:
             return False
         if len(result) == 1:
@@ -32,7 +33,7 @@ class UniqueMessageQueueWithDelay(object):
             return False
 
     def remove(self, data):
-        return self.redis.zrem(self.name, data)
+        return self.redis.zrem(self.local, data)
 
 
 class PyDevice(PyTango.DeviceClass):
@@ -50,13 +51,12 @@ class PyHunveyorDevice(PyTango.Device_4Impl):
     def __init__(self, cl, name):
         PyTango.Device_4Impl.__init__(self, cl, name)
         self.info_stream('In PyHunveyorDevice.__init__')
-        self.hunveyor = UniqueMessageQueueWithDelay('hunveyor')
-        self.local = UniqueMessageQueueWithDelay('local_test')
+        self.hunveyor = UniqueMessageQueueWithDelay()
         PyHunveyorDevice.init_device(self)
 
     def read_temp(self, the_att):
         self.info_stream("read_temp")
-        result = self.local.pop()
+        result = self.hunveyor.pop()
         print 'read_temp: result is', result
         if result != False:
             the_att.set_value(result['value'])
