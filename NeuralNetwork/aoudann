@@ -26,14 +26,12 @@ class PyHRNet(PyTango.Device_4Impl):
         PyHRNet.init_device(self)
 
     def read_hrnn(self, the_att):
-        print 'in read_hrnn'
         dev = PyTango.DeviceProxy('C3/Aouda/AoudaOBDHJava')
-        print dev
         hr = dev['Heartrate'].value
         acc = dev['AccelerationBody'].value
-        print 'hr, acc:', hr, acc
+        print 'hr, acc, output:', hr, acc,
         output = self.net([hr, acc])
-        print 'output', output
+        print output
         the_att.set_value(output[0])
 
     def is_hrnn_allowed(self, req_type):
