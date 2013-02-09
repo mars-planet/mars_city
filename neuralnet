@@ -3,7 +3,6 @@
 import sys
 import urllib
 import PyTango
-import matplotlib.pyplot as plot
 from ffnet import ffnet, mlgraph
 
 class Entry(object):
