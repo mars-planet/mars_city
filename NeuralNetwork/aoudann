@@ -1,7 +1,10 @@
 #!/usr/bin/python
 
+from __future__ import division
+
 import sys
 import urllib
+import collections
 import PyTango
 from ffnet import loadnet
 
@@ -9,10 +12,18 @@ from ffnet import loadnet
 
 class PyDevice(PyTango.DeviceClass):
     cmd_list = {}
-    attr_list = {'hrnn': [[PyTango.ArgType.DevFloat,
-                           PyTango.AttrDataFormat.SCALAR,
-                           PyTango.AttrWriteType.READ],
-                           {'polling period': 2000}]}
+    attr_type = [
+        [PyTango.ArgType.DevFloat,
+         PyTango.AttrDataFormat.SCALAR,
+         PyTango.AttrWriteType.READ],
+        {'polling period': 2000}
+    ]
+    attr_list = {
+        'hr_avg': attr_type,
+        'acc_avg': attr_type,
+        'hr_forecast': attr_type,
+        'hr_diff': attr_type,
+    }
     def __init__(self, name):
         PyTango.DeviceClass.__init__(self, name)
         self.set_type("TestDevice")
@@ -21,20 +32,54 @@ class PyDevice(PyTango.DeviceClass):
 class PyHRNet(PyTango.Device_4Impl):
     def __init__(self, cl, name):
         self.net = loadnet('hrnet.net')
+        self.hr_avg = None
+        self.acc_avg = None
+        self.hr_values = collections.deque(maxlen=10)
+        self.acc_values = collections.deque(maxlen=10)
+        self.forecasts = collections.deque(maxlen=10)
+        self.aouda = PyTango.DeviceProxy('C3/Aouda/AoudaOBDHJava')
         PyTango.Device_4Impl.__init__(self, cl, name)
         self.info_stream('In PyHRNet.__init__')
         PyHRNet.init_device(self)
 
-    def read_hrnn(self, the_att):
-        dev = PyTango.DeviceProxy('C3/Aouda/AoudaOBDHJava')
-        hr = dev['Heartrate'].value
-        acc = dev['AccelerationBody'].value
-        print 'hr, acc, output:', hr, acc,
-        output = self.net([hr, acc])
-        print output
-        the_att.set_value(output[0])
+    def read_hr_avg(self, the_att):
+        the_att.set_value(self.hr_avg)
 
-    def is_hrnn_allowed(self, req_type):
+    def read_acc_avg(self, the_att):
+        the_att.set_value(self.acc_avg)
+
+    def read_hr_forecast(self, the_att):
+        the_att.set_value(self.forecasts[-1])
+
+    def read_hr_diff(self, the_att):
+        hr = self.aouda['Heartrate'].value
+        self.hr_values.append(hr)
+        hr_avg = sum(self.hr_values) / len(self.hr_values)
+        print 'hr avg, values:', hr_avg, self.hr_values
+
+        acc = self.aouda['AccelerationBody'].value
+        self.acc_values.append(acc)
+        acc_avg = sum(self.acc_values) / len(self.acc_values)
+        print 'acc avg, values:', acc_avg, self.acc_values
+
+        self.hr_avg, self.acc_avg = hr_avg, acc_avg
+
+        if len(self.forecasts) < 10:
+            the_att.set_value(0.0)
+        else:
+            the_att.set_value(hr_avg - self.forecasts[0])
+
+        output = self.net([hr_avg, acc_avg])[0]
+        print 'forecast:', output
+        self.forecasts.append(output)
+
+    def is_hr_avg_allowed(self, req_type):
+        return self.get_state() == PyTango.DevState.ON
+
+    def is_acc_avg_allowed(self, req_type):
+        return self.get_state() == PyTango.DevState.ON
+
+    def is_hr_forecast_allowed(self, req_type):
         return self.get_state() == PyTango.DevState.ON
 
     def init_device(self):
