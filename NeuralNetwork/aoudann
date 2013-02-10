@@ -76,7 +76,12 @@ class PyHRNet(PyTango.Device_4Impl):
         else:
             the_att.set_value(hr_avg - self.forecasts[0])
 
-        output = self.net([hr_avg, acc_avg])[0]
+        acc_values = list(self.acc_values)
+        acc_diffs = [abs(fst-snd) for fst, snd in zip(acc_values[:-1],
+                                                      acc_values[1:])]
+        #acc_diffs = [abs(self.acc_values[x]-self.acc_values[x+1]) for x in range(len(self.acc_values)-1)]
+        diff_avg = sum(acc_diffs) / len(acc_diffs)
+        output = self.net([hr_avg, diff_avg])[0]
         print 'forecast:', output
         self.forecasts.append(output)
 
