@@ -3,6 +3,8 @@
 from __future__ import division
 
 import sys
+import json
+import time
 import urllib
 import collections
 import PyTango
@@ -38,6 +40,7 @@ class PyHRNet(PyTango.Device_4Impl):
         self.acc_values = collections.deque(maxlen=10)
         self.forecasts = collections.deque(maxlen=10)
         self.aouda = PyTango.DeviceProxy('C3/Aouda/AoudaOBDHJava')
+        self.f = open('aoudax.data', 'a')
         PyTango.Device_4Impl.__init__(self, cl, name)
         self.info_stream('In PyHRNet.__init__')
         PyHRNet.init_device(self)
@@ -61,6 +64,10 @@ class PyHRNet(PyTango.Device_4Impl):
         self.acc_values.append(acc)
         acc_avg = sum(self.acc_values) / len(self.acc_values)
         print 'acc avg, values:', acc_avg, self.acc_values
+
+        # log the data received from aouda
+        self.f.write(json.dumps(dict(hr=hr, acc=acc, t=time.time())) + '\n')
+        self.f.flush()
 
         self.hr_avg, self.acc_avg = hr_avg, acc_avg
 
