@@ -1,0 +1,96 @@
+#!/usr/bin/python
+
+from __future__ import division
+
+import sys
+import json
+import urllib
+import collections
+import PyTango
+from ffnet import loadnet
+import matplotlib.pyplot as plot
+
+
+
+class PyDevice(PyTango.DeviceClass):
+    cmd_list = {'add_device': [[PyTango.ArgType.DevVarStringArray],
+                               [PyTango.ArgType.DevVoid]],
+                'plot': [[PyTango.ArgType.DevVoid],
+                         [PyTango.ArgType.DevVoid]],
+                'get_data': [[PyTango.ArgType.DevVoid],
+                             [PyTango.ArgType.DevVoid],
+                             {'polling period': 2000}],}
+    attr_type = [
+        [PyTango.ArgType.DevFloat,
+         PyTango.AttrDataFormat.SCALAR,
+         PyTango.AttrWriteType.READ],
+        {'polling period': 2000}
+    ]
+    attr_list = {}
+    def __init__(self, name):
+        PyTango.DeviceClass.__init__(self, name)
+        self.set_type("TestDevice")
+
+
+class PyPlotter(PyTango.Device_4Impl):
+    def __init__(self, cl, name):
+        self.devices = {}
+        with open('plotting.data') as f:
+            self.plotting_data = json.load(f)
+        for device in self.plotting_data:
+            self.devices[device] = {
+                'dev': PyTango.DeviceProxy(device.encode('ascii')),
+                'values': collections.deque(maxlen=100),
+                'attrs': self.plotting_data[device],
+            }
+        PyTango.Device_4Impl.__init__(self, cl, name)
+        self.info_stream('In PyPlotter.__init__')
+        PyPlotter.init_device(self)
+
+    def get_data(self):
+        #print 'get_data',
+        for device, values in self.devices.items():
+            dev = values['dev']
+            data = dict((attr, dev[attr.encode('ascii')].value)
+                        for attr in values['attrs'])
+            values['values'].append(data)
+            #print values['values']
+
+    def add_device(self, device_attrs):
+        device = device_attrs[0]
+        attrs = device_attrs[1:]
+        self.plotting_data[device] = attrs
+        with open('plotting.data', 'w') as f:
+            json.dump(self.plotting_data, f)
+        self.devices[device] = {
+            'dev': PyTango.DeviceProxy(device),
+            'values': collections.deque(maxlen=100),
+            'attrs': attrs,
+        }
+
+    def plot(self):
+        # this should be polled
+        for device, vals in self.devices.items():
+            queue = vals['values']
+            x = range(len(queue))
+            data = []
+            for attr in vals['attrs']:
+                data.extend((x, [e[attr] for e in queue]))
+            print 'plot data', data
+            plot.plot(*data)
+            plot.axis([0, len(queue), 0, 200])
+            plot.savefig(device.replace('/', '_') + '.png')
+            plot.close()
+
+    def init_device(self):
+        self.info_stream('In Python init_device method')
+        self.set_state(PyTango.DevState.ON)
+
+
+if __name__ == '__main__':
+    util = PyTango.Util(sys.argv)
+    util.add_class(PyDevice, PyPlotter)
+
+    U = PyTango.Util.instance()
+    U.server_init()
+    U.server_run()
