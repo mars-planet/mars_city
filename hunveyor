@@ -22,17 +22,15 @@ class UniqueMessageQueueWithDelay(object):
         score = time.time() + delay
         self.redis.zadd(self.remote, json.dumps(temp), score)
 
-    def pop(self):
-        min_score = 0
-        max_score = time.time()
-        result = self.redis.zrangebyscore(
-            self.local, min_score, max_score, start=0, num=1, withscores=False)
-        if result is None:
-            return False
-        if len(result) == 1:
-            return result[0]
-        else:
-            return False
+    def pop(self, type):
+        #min_score = 0
+        #max_score = time.time()
+        #result = self.redis.zrangebyscore(
+            #self.local, min_score, max_score, start=0, num=1, withscores=False)
+        for entry in self.redis.zrange(self.local, 0, -1):
+            if type in entry:
+                return entry
+        return False
 
     def remove(self, data):
         return self.redis.zrem(self.local, data)
@@ -44,9 +42,13 @@ class PyDevice(PyTango.DeviceClass):
                 'stop_simulation': [[PyTango.ArgType.DevVoid],
                                     [PyTango.ArgType.DevVoid]]}
     attr_list = {'temp': [[PyTango.ArgType.DevFloat,
-                            PyTango.AttrDataFormat.SCALAR,
-                            PyTango.AttrWriteType.READ],
-                           {'polling period': 2000}]}
+                           PyTango.AttrDataFormat.SCALAR,
+                           PyTango.AttrWriteType.READ],
+                          {'polling period': 2000}],
+                'humidity': [[PyTango.ArgType.DevFloat,
+                              PyTango.AttrDataFormat.SCALAR,
+                              PyTango.AttrWriteType.READ],
+                             {'polling period': 2000}]}
     def __init__(self, name):
         PyTango.DeviceClass.__init__(self, name)
         self.set_type("TestDevice")
@@ -61,6 +63,9 @@ class PyHunveyorDevice(PyTango.Device_4Impl):
         self.simulation = False
         self.f = open(self.datafilename, 'a')
         PyHunveyorDevice.init_device(self)
+
+    # XXX: simulation is currently broken
+    # XXX: in the file there are now both temperature and humidity
 
     def start_simulation(self):
         if self.simulation:
@@ -80,6 +85,11 @@ class PyHunveyorDevice(PyTango.Device_4Impl):
         self.f.close()
         self.f = open(self.datafilename, 'a')
 
+    def write_data(self, data):
+        #print 'writing', repr(data + '\n')
+        self.f.write(data + '\n')
+        self.f.flush()
+
     def read_temp(self, the_att):
         if self.simulation:
             self.simulation_read_temp(the_att)
@@ -88,13 +98,12 @@ class PyHunveyorDevice(PyTango.Device_4Impl):
 
     def real_read_temp(self, the_att):
         self.info_stream("read_temp")
-        data = self.hunveyor.pop()
+        data = self.hunveyor.pop('temperature')
         print 'read_temp: result is', data
         if data != False:
             result = json.loads(data)
             the_att.set_value(result['value'])
-            print 'writing', repr(data + '\n')
-            self.f.write(data + '\n')
+            self.write_data(data)
             self.hunveyor.remove(data)
 
         # request a new value
@@ -103,7 +112,7 @@ class PyHunveyorDevice(PyTango.Device_4Impl):
 
     def simulation_read_temp(self, the_att):
         self.info_stream("read_temp")
-        data = self.f.readline().strip()
+        data = self.f.readline().strip() #XXX: must read temperature
         if not data:
             print 'Restarting simulation...'
             self.f.seek(0)
@@ -112,7 +121,39 @@ class PyHunveyorDevice(PyTango.Device_4Impl):
         result = json.loads(data)
         the_att.set_value(result['value'])
 
-    def is_temp_allowed(self, req_type):
+
+    def read_humidity(self, the_att):
+        if self.simulation:
+            self.simulation_read_humidity(the_att)
+        else:
+            self.real_read_humidity(the_att)
+
+    def real_read_humidity(self, the_att):
+        self.info_stream("read_humidity")
+        data = self.hunveyor.pop('humidity')
+        print 'read_humidity: result is', data
+        if data != False:
+            result = json.loads(data)
+            the_att.set_value(result['value'])
+            self.write_data(data)
+            self.hunveyor.remove(data)
+
+        # request a new value
+        data = {"command": "readhumidity", "arguments": {}}
+        self.hunveyor.add(json.dumps(data))
+
+    def simulation_read_humidity(self, the_att):
+        self.info_stream("read_humidity")
+        data = self.f.readline().strip() #XXX: must read humidity
+        if not data:
+            print 'Restarting simulation...'
+            self.f.seek(0)
+            data = self.f.readline().strip()
+        print 'read_humidity (sim): result is', data
+        result = json.loads(data)
+        the_att.set_value(result['value'])
+
+    def is_humidity_allowed(self, req_type):
         return self.get_state() == PyTango.DevState.ON
 
     def init_device(self):
