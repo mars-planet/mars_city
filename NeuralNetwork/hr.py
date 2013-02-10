@@ -28,14 +28,10 @@ with open('aoudax.data') as f:
         j = json.loads(line.strip())
         hr_data.append(j['hr'])
         pa_data.append(j['acc'])
-print hr_data
-print pa_data
 
 # make sure the number of readings is a multiple of N
 hr_data = hr_data[:len(hr_data)//N*N]
 pa_data = pa_data[:len(pa_data)//N*N]
-print hr_data
-print pa_data
 
 limit = len(hr_data)
 
@@ -43,6 +39,7 @@ hr_input = [sum(hr_data[x:x+N])/N for x in range(0, limit-N, N)]
 hr_target = [sum(hr_data[x:x+N])/N for x in range(N, limit, N)]
 
 pa_diffs = [abs(pa_data[x]-pa_data[x+1]) for x in range(limit-N)]
+#acc_diffs = [abs(fst-snd) for fst, snd in zip(pa_data[:-1], pa_data[1:])]
 pa_input = [sum(pa_diffs[x:x+N])/N for x in range(0, limit-N, N)]
 
 
@@ -57,7 +54,7 @@ net.train_tnc(input, target)
 
 #output, regression = net.test(input, hr_target, iprint=3)
 output, regression = net.test(input, target, iprint=2)
-print
+#print
 #print output
 #print regression
 
