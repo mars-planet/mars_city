@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8">
+        <meta name="description" content="Some experiment that makes no sense.">
+        <meta name="author" content="Ezio Melotti">
+        <title>Plots and stuff</title>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+        <script type="text/javascript" src="http://cachedcommons.org/cache/jqplot/0.9.7/javascripts/jqplot-min.js"></script>
+        <script type="text/javascript">
+$(document).ready(function() {
+    var hr = [];
+    var acc = []
+    function plot() {
+        $.get('/hunveyor', function(res) {
+            hr.push(res.hr);
+            acc.push(res.acc);
+            if (hr.length > 30) {
+                hr.shift();
+                acc.shift();
+            }
+            $('#plot').empty();
+            $.jqplot('plot', [hr, acc]);
+            setTimeout(plot, 1000);
+        });
+    }
+    plot();
+});
+        </script>
+</head>
+
+<body>
+<p>Here there should be some kind of graph or something:</p>
+<div id="plot"></div>
+
+</body>
+</html>
