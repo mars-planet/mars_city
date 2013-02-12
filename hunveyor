@@ -5,7 +5,6 @@ import time
 import json
 import redis
 import PyTango
-import matplotlib.pyplot as plot
 
 
 class UniqueMessageQueueWithDelay(object):
