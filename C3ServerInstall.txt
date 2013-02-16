@@ -1,0 +1,28 @@
+- Standard Ubuntu 12.4 Installation from cdrom
+
+- Installation of mysql from Sofware Center
+
+- Tango Installation
+sudo add-apt-repository ppa:abogani/tango
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F141B61E
+sudo apt-get update
+sudo apt-get install tango-common tango-db tango-starter tango-test python-pytango libtango7-doc omninotify libtango7-dev libtango-java tango-starter
+
+
+- Installation of g++ and javac
+sudo apt-get install g++
+sudo apt-get install  default-jdk
+
+- Install ssh daemon
+sudo apt-get install openssh-server
+sudo restart ssh
+
+- Installed OpenVPN
+Installed OpenVPN from Software Center
+Unzip the attached configuration and copy all files directly into the directory "/etc/openvpn/"
+Rename the file "PolAres.ovpn" to "PolAres.conf"
+Make sure the private key file "polares.key" is only accessible by root (command: "chown root polares.key; chmod 600 polares.key")
+Restart the OpenVPN service by executing "/etc/init.d/openvpn restart"
+Usage (as normal user):
+OpenVPN is started automatically, you can verify the connection by pinging the address of the server: "10.123.42.1".
+
