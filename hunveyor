@@ -4,9 +4,16 @@ import sys
 import time
 import json
 import redis
+import collections
 import PyTango
 
+# entries received from redis and stored in the file look like:
+# {"type": "temperature", "command": "return", "value": 20, "time": 1360689618.9144821}
+# {"type": "humidity", "command": "return", "value": 40, "time": 1360689619.886636}
 
+
+#XXX: this could have an API similar to BufferedLineReader,
+#     where pop(type) does the same as read_json_line(type)
 class UniqueMessageQueueWithDelay(object):
     def __init__(self, remote='hunveyor_test', local='local_test'):
         self.remote = remote
@@ -33,6 +40,60 @@ class UniqueMessageQueueWithDelay(object):
 
     def remove(self, data):
         return self.redis.zrem(self.local, data)
+
+
+class BufferedLineReader(object):
+    """
+    Read a few lines from the file and keep them in a buffer.
+    When read_json_line(type) is called, find the right line in the buffer
+    and return it.
+    """
+    def __init__(self, fname):
+        self.f = open(fname)
+        self.buffer = collections.deque()
+        # add 5 lines to the buffer
+        self.add_lines_to_buffer(5)
+
+    def add_line_to_buffer(self):
+        """
+        Read one line from the file and add it to the buffer.
+        If we reached the end of file, restarts from the beginning of the file.
+        """
+        data = self.f.readline().strip()
+        if not data:
+            print ('Reached end of simulation data. '
+                   'Restarting from the beginning of the file...')
+            self.f.seek(0)
+            data = self.f.readline().strip()
+        self.buffer.append(json.loads(data))
+
+    def add_lines_to_buffer(self, n):
+        """
+        Read n lines from the file and add them to the buffer.
+        """
+        for x in range(n):
+            self.add_line_to_buffer()
+
+    def read_json_line(self, type):
+        """
+        Search in the buffer a line of the right type and return it.
+        If the line can't be found in the buffer, read 5 more lines and retry.
+        """
+        for value in self.buffer:
+            if value['type'] == type:
+                self.buffer.remove(value)
+                if len(self.buffer) < 5:
+                    self.add_line_to_buffer()
+                print 'read_%s (sim): %s' % (type, value)
+                return value
+        else:
+            # couldn't find a line with that type in the buffer,
+            # so add 5 lines and retry
+            self.add_lines_to_buffer(5)
+            self.read_json_line(type)
+
+    def close(self):
+        self.f.close()
 
 
 class PyDevice(PyTango.DeviceClass):
@@ -63,9 +124,6 @@ class PyHunveyorDevice(PyTango.Device_4Impl):
         self.f = open(self.datafilename, 'a')
         PyHunveyorDevice.init_device(self)
 
-    # XXX: simulation is currently broken
-    # XXX: in the file there are now both temperature and humidity
-
     def start_simulation(self):
         if self.simulation:
             print 'Simulation already started...'
@@ -73,7 +131,7 @@ class PyHunveyorDevice(PyTango.Device_4Impl):
         print 'Starting simulation...'
         self.simulation = True
         self.f.close()
-        self.f = open(self.datafilename)
+        self.f = BufferedLineReader(self.datafilename)
 
     def stop_simulation(self):
         if not self.simulation:
@@ -111,14 +169,8 @@ class PyHunveyorDevice(PyTango.Device_4Impl):
 
     def simulation_read_temp(self, the_att):
         self.info_stream("read_temp")
-        data = self.f.readline().strip() #XXX: must read temperature
-        if not data:
-            print 'Restarting simulation...'
-            self.f.seek(0)
-            data = self.f.readline().strip()
-        print 'read_temp (sim): result is', data
-        result = json.loads(data)
-        the_att.set_value(result['value'])
+        data = self.f.read_json_line('temperature')
+        the_att.set_value(data['value'])
 
 
     def read_humidity(self, the_att):
@@ -143,14 +195,8 @@ class PyHunveyorDevice(PyTango.Device_4Impl):
 
     def simulation_read_humidity(self, the_att):
         self.info_stream("read_humidity")
-        data = self.f.readline().strip() #XXX: must read humidity
-        if not data:
-            print 'Restarting simulation...'
-            self.f.seek(0)
-            data = self.f.readline().strip()
-        print 'read_humidity (sim): result is', data
-        result = json.loads(data)
-        the_att.set_value(result['value'])
+        data = self.f.read_json_line('humidity')
+        the_att.set_value(data['value'])
 
     def is_humidity_allowed(self, req_type):
         return self.get_state() == PyTango.DevState.ON
