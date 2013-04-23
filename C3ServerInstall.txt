@@ -1,23 +1,43 @@
-- Standard Ubuntu 12.4 Installation from cdrom
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Installing ERAS project in ubuntu 12.04 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-- Installation of mysql from Sofware Center
-
-- Tango Installation
-sudo add-apt-repository ppa:abogani/tango
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F141B61E
-sudo apt-get update
-sudo apt-get install tango-common tango-db tango-starter tango-test python-pytango libtango7-doc omninotify libtango7-dev libtango-java tango-starter
+-> With automated shell script "install.sh" you can skip the first 5 steps, it installs the necessary packages realted to this project. 
+Just run "sh install.sh" 
 
 
-- Installation of g++ and javac
+-> To install the necessary packages manually please follow these steps :
+
+1) sudo apt-get update
+
+2) Install MySql 
+sudo apt-get install mysql-server mysql-client
+sudo apt-get install python-mysqldb
+
+3) Installation of g++ and javac
 sudo apt-get install g++
 sudo apt-get install  default-jdk
 
-- Install ssh daemon
+4) Install ssh daemon
 sudo apt-get install openssh-server
 sudo restart ssh
 
-- At this point it should be possible to run Tango locally on the machine via 
+5) Tango Installtion :
+	- Installing dependences :
+		 The current PyTango version has three major dependencies:
+		    - Boost-python :
+		   	    sudo apt-get install libboost-python-dev
+	   		- Numpy installtion :
+	   	    	sudo apt-get install python-numpy
+	   	    - IPython Installtion (optional) :
+	   	    	sudo apt-get install ipython
+
+
+	- Installing PyTango :
+		PyTango is available on linux as an official debian/ubuntu package (python-pytango).
+			sudo apt-get install tango-common tango-db tango-starter tango-test python-pytango libtango7-doc libtango7-dev tango-starter
+
+6) At this point it should be possible to run Tango locally on the machine via 
 tools like "Astor"
 
-- Then declare on the Tango database the (via Jive) the python server (neuralnet, hunveyor, etc.) you want to run and run it.
+7) Then declare on the Tango database the (via Jive) the python server (neuralnet, hunveyor, etc.) you want to run and run it.
