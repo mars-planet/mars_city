@@ -2,6 +2,8 @@
 Installing ERAS project in ubuntu 12.04 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+-> Please refer to the "Setup" page in the documentation for updated instructions.
+
 -> With automated shell script "install.sh" you can skip the first 5 steps, it installs the necessary packages realted to this project. 
 Just run "sh install.sh" 
 
