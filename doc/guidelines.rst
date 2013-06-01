@@ -2,7 +2,7 @@
 Engineering Practices Guidelines for the ERAS Project Software
 ==============================================================
 
-This document intends to provide an overview of the Software Engineering (SE) practices for the ERAS Project Software. The main areas covered are: Coding Standards, Version Control, Change Management, Development Environment, Static and Dynamic Verification and Documentation.
+This document intends to provide an overview of the Software Engineering (SE) practices for the ERAS Project Software. The main areas covered are: Coding Standards, Version Control, Change Management, Static and Dynamic Verification and Documentation.
 
 If an answer cannot be found here, use the existing code as an example or ask on the mailing list: erasproject@googlegroups.com
 
@@ -134,7 +134,7 @@ Before committing use ``hg diff`` and ``hg status`` to make sure that what
 you are committing is OK and that all the files are included and that there
 are no unrelated changes.  If necessary you can update the ``.hgignore`` file.
 
-Descriptive, non-empty comments are required for each commit. They must be complete and readable, making reference to SPR entries when applicable and explaining briefly what the changeset does in the present tense.  ``"Implement new feature XXX."``,
+Descriptive, non-empty comments are required for each commit. They must be complete and readable, making reference to issue entries when applicable and explaining briefly what the changeset does in the present tense.  ``"Implement new feature XXX."``,
 ``"Fix bug XXX by using YYY."``, ``"Add tests for the XXX class."``,
 ``"Improve documentation for XXX."`` are *good* commit messages.
 ``Fix a bug.``, ``fix a bug``, ``improve the code`` are *bad* commit messages.
