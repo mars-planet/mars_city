@@ -2,6 +2,8 @@
 Engineering Practices Guidelines for the ERAS Project Software
 ==============================================================
 
+.. warning:: DRAFT still under development.
+
 This document intends to provide an overview of the Software Engineering (SE) practices for the ERAS Project Software. The main areas covered are: Coding Standards, Version Control, Change Management, Static and Dynamic Verification and Documentation.
 
 If an answer cannot be found here, use the existing code as an example or ask on the mailing list: erasproject@googlegroups.com
