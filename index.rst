@@ -7,6 +7,7 @@ Contents:
    :maxdepth: 2
 
    doc/setup
+   doc/guidelines
    doc/templates/templates
    doc/glossary
 
