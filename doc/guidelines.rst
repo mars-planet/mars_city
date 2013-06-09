@@ -16,7 +16,7 @@ Reference Documents
 
 * [1]   PEP 8 -- `Style Guide for Python Code <http://www.python.org/dev/peps/pep-0008>`_
 * [2]   Mercurial -- `Mercurial Home Page <http://mercurial.selenic.com/>`_
-* [3]   Hg Init -- `A Mercurial Tutorial <http://mercurial.selenic.com/>`_
+* [3]   Hg Init -- `A Mercurial Tutorial <http://hginit.com/>`_
 * [4]   pep8 -- `Python style guide checker <https://pypi.python.org/pypi/pep8>`_
 * [5]   radon -- `Python static code analysis tool <https://github.com/rubik/radon>`_
 * [6]   unittest -- `Python Unit Testing Framework <http://docs.python.org/3/library/unittest.html?highlight=unittest#module-unittest>`_ 
