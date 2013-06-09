@@ -1,5 +1,5 @@
-Welcome to ERAS's documentation!
-================================
+Welcome to ERAS's software documentation!
+=========================================
 
 Contents:
 
