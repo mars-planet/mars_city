@@ -5,7 +5,8 @@ Contents:
 
 .. toctree::
    :maxdepth: 2
-    
+
+   servers/servers
    doc/setup
    doc/guidelines
    doc/templates/templates
