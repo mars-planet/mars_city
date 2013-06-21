@@ -80,7 +80,7 @@ User objectives
 User1
 ~~~~~
 
-Describe all the users and there expectations for this package
+Describe all the users and their expectations for this package
 
 Constraints
 -----------
@@ -226,9 +226,17 @@ Notes
 Appendix A: Use Case template
 =============================
 
-Use Cases drive the whole software process and bind together all the phases from requirements capture to final delivery of the system and maintenance. They are a very effective way of communicating with customers and among team members. Before every discussion always provide the partners with a set of relevant Use Cases.
+Use Cases drive the whole software process and bind together all the phases
+from requirements capture to final delivery of the system and maintenance.
+They are a very effective way of communicating with customers and among team
+members. Before every discussion always provide the partners with a set of
+relevant Use Cases.
 
-During meetings, they stimulate focused discussions and help identifying important details. It is important to keep in mind that Use Cases have to describe WHAT the system has to do in response to certain external stimuli and NOT HOW it will do it. The HOW is part of the architecture and of the design.
+During meetings, they stimulate focused discussions and help identifying
+important details. It is important to keep in mind that Use Cases have to
+describe WHAT the system has to do in response to certain external stimuli
+and NOT HOW it will do it. The HOW is part of the architecture and of the
+design.
 
 What follows is the empty template:
 
