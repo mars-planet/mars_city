@@ -7,3 +7,4 @@ Tango Servers
 
    neurohs/doc/swrs.rst
    hr_monitor/doc/swrs.rst
+   kim/doc/source/kim-sw-reqs.rst
