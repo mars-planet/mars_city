@@ -8,7 +8,9 @@ Software Requirements Specification for the Heart Rate Monitor
 1. Change Record
 ================
 
-2013.06.18 - Document created
+2013.06.18 - Document created.
+2013.06.26 - Fixed typos and formatting.
+2013.06.26 - Added Use Cases and Sequence diagrams.
 
 2. Introduction
 ===============
