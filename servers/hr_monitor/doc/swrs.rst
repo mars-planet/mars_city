@@ -146,6 +146,8 @@ The schedule is as defined in [4], with deliverables as follows:
 --------------------------------------------------------
 The Client request the Server its DevState
 
+.. image:: images/UCRequestforServerDevState.png
+
 6.1.1. Actors
 ~~~~~~~~~~~~~
 Client: a TANGO client that makes the request.
@@ -178,10 +180,16 @@ None
 ~~~~~~~~~~~~~~~~~~~~~
 None
 
+6.1.8. Sequence diagram
+~~~~~~~~~~~~~~~~~~~~~~~
+.. image:: images/SeqRequestforServerDevState.png 
+
 6.2. Use Case: Request for current average Heart Rate
 -----------------------------------------------------
 The Client request the Server the average Heart Rate
 over the last T seconds.
+
+.. image:: images/UCRequestforcurrentavgheartrate.png 
 
 6.2.1. Actors
 ~~~~~~~~~~~~~
@@ -217,10 +225,16 @@ None
 ~~~~~~~~~~~~~~~~~~~~~
 None
 
+6.2.8. Sequence diagram
+~~~~~~~~~~~~~~~~~~~~~~~
+.. image:: images/SeqRequestforcurrentavgheartrate.png 
+
 6.3. Use Case: Request for current average level of physical activity
 ---------------------------------------------------------------------
 The Client request the Server the average level of physical activity
 over the last T seconds.
+
+.. image:: images/UCRequestforcurrentavglvlofphysicalactivity.png
 
 6.3.1. Actors
 ~~~~~~~~~~~~~
@@ -257,10 +271,16 @@ None
 ~~~~~~~~~~~~~~~~~~~~~
 None
 
+6.3.8. Sequence diagram
+~~~~~~~~~~~~~~~~~~~~~~~
+.. image:: images/SeqRequestforcurrentavglvlofphysicalactivity.png
+
 6.4. Use Case: Request for current alarms
 -----------------------------------------
 The Client request the Server the list of alarms raised over
 the last T seconds.
+
+.. image:: images/UCRequestforcurrentalarms.png
 
 6.4.1. Actors
 ~~~~~~~~~~~~~
@@ -293,11 +313,17 @@ None
 ~~~~~~~~~~~~~~~~~~~~~
 None
 
+6.4.8. Sequence diagram
+~~~~~~~~~~~~~~~~~~~~~~~
+.. image:: images/SeqRequestforcurrentalarms.png
+
 6.5. Use Case: Alarm event raised [:term:`TBC`]
 -----------------------------------------------
 The Server notices an abnormal ratio of heart rate to level of
 physical activity that persists for more than T seconds, and raises an
 alarm event to be handled by any client listening to it.
+
+.. image:: images/UCAlarmeventraised.png
 
 6.5.1. Actors
 ~~~~~~~~~~~~~
@@ -329,4 +355,8 @@ None
 6.5.7. Postconditions
 ~~~~~~~~~~~~~~~~~~~~~
 None
+
+6.5.8. Sequence diagram
+~~~~~~~~~~~~~~~~~~~~~~~
+.. image:: images/SeqAlarmeventraised.png
 
