@@ -28,14 +28,10 @@ module, which in turn is part of the Crew Mission Assistant system.
 - [3] -- `Software Engineering Practices Guidelines for the ERAS Project`_
 - [4] -- `ERAS 2013 GSoC Strategic Plan`_
 
-.. _`C3 Prototype document v.4`:
-<http://www.erasproject.org/index.php?option=com_joomdoc&view=documents&path=C3+Subsystem/ERAS-C3Prototype_v4.pdf&Itemid=148>
-.. _`PAMAP2 Physical Activity Monitoring`:
-<http://archive.ics.uci.edu/ml/datasets/PAMAP2+Physical+Activity+Monitoring>
-.. _`Software Engineering Practices Guidelines for the ERAS Project`:
-<https://eras.readthedocs.org/en/latest/doc/guidelines.html>
-.. _`ERAS 2013 GSoC Strategic Plan`:
-<https://bitbucket.org/italianmarssociety/eras/wiki/Google%20Summer%20of%20Code%202013>
+.. _`C3 Prototype document v.4`: <http://www.erasproject.org/index.php?option=com_joomdoc&view=documents&path=C3+Subsystem/ERAS-C3Prototype_v4.pdf&Itemid=148>
+.. _`PAMAP2 Physical Activity Monitoring`: <http://archive.ics.uci.edu/ml/datasets/PAMAP2+Physical+Activity+Monitoring>
+.. _`Software Engineering Practices Guidelines for the ERAS Project`: <https://eras.readthedocs.org/en/latest/doc/guidelines.html>
+.. _`ERAS 2013 GSoC Strategic Plan`: <https://bitbucket.org/italianmarssociety/eras/wiki/Google%20Summer%20of%20Code%202013>
 
 
 2.3. Glossary
@@ -57,13 +53,6 @@ module, which in turn is part of the Crew Mission Assistant system.
 
     ``TBC``
         To Be confirmed
-
-
-2.4. *Overview*
----------------
-
-.. Provides a brief overview of the package defined as a result of the
-.. requirements elicitation process.
 
 
 3. General Description
@@ -100,20 +89,8 @@ of each crew member performing :term:`EVA`, in order to raise alarms
 if the reported crew member's heart rate is abnormal for his or her
 current physical stress level.
 
-3.3. *Environment*
-------------------
 
-.. Describes the environment in which this software will function.
-
-3.4. User objectives
---------------------
-
-3.4.1. User1
-~~~~~~~~~~~~~
-
-Describe all the users and there expectations for this package
-
-3.5. Constraints
+3.3. Constraints
 ----------------
 
 As described in [1], the available heart rate and accelerometer data from the
@@ -122,54 +99,13 @@ Therefore the data found in [2] will be used instead as a way to simulate
 a reliable data stream from the suit.
 
 
-4. *Functional Requirements*
-============================
-
-.. This section lists the functional requirements in ranked order. Functional
-.. requirements describe the possible effects of a software system, in other
-.. words, what the system must accomplish. Other kinds of requirements (such as
-.. interface requirements, performance requirements, or reliability requirements)
-.. describe how the system accomplishes its functional requirements.
-.. Each functional requirement should be specified in a format similar to the
-.. following.:
-
-.. Requirement
-.. -----------
-
-.. Description
-.. ~~~~~~~~~~~
-
-.. Criticality
-.. ~~~~~~~~~~~
-
-.. * High | Normal | Low
-
-.. Dependency
-.. ~~~~~~~~~~
-.. Indicate if this requirement is dependant on another.
-
-
-5. Interface Requirements
+4. Interface Requirements
 =========================
 
-.. This section describes how the software interfaces with other software products
-.. or users for input or output. Examples of such interfaces include library
-.. routines, token streams, shared memory, data streams, and so forth.
-
-5.1. *User Interfaces*
-----------------------
-
-.. Describes how this product interfaces with the user.
-
-5.1.1 *Diagnostics*
-~~~~~~~~~~~~~~~~~~~
-
-.. Describes how to obtain debugging information or other diagnostic data.
-
-5.2. Software Interfaces
+4.1. Software Interfaces
 ------------------------
 
-5.2.1. Communication Interfaces
+4.1.1. Communication Interfaces
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This module will be implemented as a Python TANGO server, which will expose
@@ -178,15 +114,15 @@ heart rate alarms, if they exist. Moreover the alarms should be optionally
 declared as events, to enable push request from the server to the clients.
 
 
-6. Development and Test Factors
+5. Development and Test Factors
 ===============================
 
-6.1. Standards Compliance
+5.1. Standards Compliance
 -------------------------
 
 The guidelines defined in [3] should be followed.
 
-6.2. Planning
+5.2. Planning
 -------------
 
 The schedule is as defined in [4], with deliverables as follows:
@@ -203,75 +139,75 @@ The schedule is as defined in [4], with deliverables as follows:
     - User Manual.
 
 
-7. Use-Cases
+6. Use-Cases
 ============
 
-7.1. Use Case: Request for Server DevState [:term:`TBC`]
+6.1. Use Case: Request for Server DevState [:term:`TBC`]
 --------------------------------------------------------
 The Client request the Server its DevState
 
-7.1.1. Actors
+6.1.1. Actors
 ~~~~~~~~~~~~~
 Client: a TANGO client that makes the request.
 Server: the Heart Rate Monitor TANGO server.
 
-7.1.2. Priority
+6.1.2. Priority
 ~~~~~~~~~~~~~~~
 Normal
 
-7.1.3. Preconditions
+6.1.3. Preconditions
 ~~~~~~~~~~~~~~~~~~~~
 None
 
-7.1.4. Basic Course
+6.1.4. Basic Course
 ~~~~~~~~~~~~~~~~~~~
 1. The Client calls the appropriate method on the Server.
 2. The Server answers ON.
 
-7.1.5. Alternate Course
+6.1.5. Alternate Course
 ~~~~~~~~~~~~~~~~~~~~~~~
 None
 
-7.1.6. Exception Course
+6.1.6. Exception Course
 ~~~~~~~~~~~~~~~~~~~~~~~
 1. The Client calls the appropriate method on the Server.
 2. The Server notices an inconsistent internal state.
 3. The Server answers FAULT.
 
-7.1.7. Postconditions
+6.1.7. Postconditions
 ~~~~~~~~~~~~~~~~~~~~~
 None
 
-7.2. Use Case: Request for current average Heart Rate
+6.2. Use Case: Request for current average Heart Rate
 -----------------------------------------------------
 The Client request the Server the average Heart Rate
 over the last T seconds.
 
-7.2.1. Actors
+6.2.1. Actors
 ~~~~~~~~~~~~~
 Client: a TANGO client that makes the request.
 Server: the Heart Rate Monitor TANGO server.
 
-7.2.2. Priority
+6.2.2. Priority
 ~~~~~~~~~~~~~~~
 Normal
 
-7.2.3. Preconditions
+6.2.3. Preconditions
 ~~~~~~~~~~~~~~~~~~~~
 The Server is running and its DevState is ON.
 
-7.2.4. Basic Course
+6.2.4. Basic Course
 ~~~~~~~~~~~~~~~~~~~
 1. The Client calls the appropriate method on the Server,
 passing T as argument.
 2. The Server calculates the average heart rate over the last T seconds.
 3. The Server returns the calculated value.
 
-7.2.5. Alternate Course
+6.2.5. Alternate Course
 ~~~~~~~~~~~~~~~~~~~~~~~
 None
 
-7.2.6. Exception Course
+6.2.6. Exception Course
 ~~~~~~~~~~~~~~~~~~~~~~~
 1. The Client calls the appropriate method on the Server,
 passing T as argument.
@@ -279,29 +215,29 @@ passing T as argument.
 3. No data is available.
 4. The Server returns an error.
 
-7.2.7. Postconditions
+6.2.7. Postconditions
 ~~~~~~~~~~~~~~~~~~~~~
 None
 
-7.3. Use Case: Request for current average level of physical activity
+6.3. Use Case: Request for current average level of physical activity
 ---------------------------------------------------------------------
 The Client request the Server the average level of physical activity
 over the last T seconds.
 
-7.3.1. Actors
+6.3.1. Actors
 ~~~~~~~~~~~~~
 Client: a TANGO client that makes the request.
 Server: the Heart Rate Monitor TANGO server.
 
-7.3.2. Priority
+6.3.2. Priority
 ~~~~~~~~~~~~~~~
 Normal
 
-7.3.3. Preconditions
+6.3.3. Preconditions
 ~~~~~~~~~~~~~~~~~~~~
 The Server is running and its DevState is ON.
 
-7.3.4. Basic Course
+6.3.4. Basic Course
 ~~~~~~~~~~~~~~~~~~~
 1. The Client calls the appropriate method on the Server,
 passing T as argument.
@@ -309,11 +245,11 @@ passing T as argument.
 T seconds, based on accelerometer data.
 3. The Server returns the calculated value.
 
-7.3.5. Alternate Course
+6.3.5. Alternate Course
 ~~~~~~~~~~~~~~~~~~~~~~~
 None
 
-7.3.6. Exception Course
+6.3.6. Exception Course
 ~~~~~~~~~~~~~~~~~~~~~~~
 1. The Client calls the appropriate method on the Server,
 passing T as argument.
@@ -321,81 +257,81 @@ passing T as argument.
 3. No data is available.
 4. The Server returns an error.
 
-7.3.7. Postconditions
+6.3.7. Postconditions
 ~~~~~~~~~~~~~~~~~~~~~
 None
 
-7.4. Use Case: Request for current alarms
+6.4. Use Case: Request for current alarms
 -----------------------------------------
 The Client request the Server the list of alarms raised over
 the last T seconds.
 
-7.4.1. Actors
+6.4.1. Actors
 ~~~~~~~~~~~~~
 Client: a TANGO client that makes the request.
 Server: the Heart Rate Monitor TANGO server.
 
-7.4.2. Priority
+6.4.2. Priority
 ~~~~~~~~~~~~~~~
 High
 
-7.4.3. Preconditions
+6.4.3. Preconditions
 ~~~~~~~~~~~~~~~~~~~~
 The Server is running and its DevState is ON.
 
-7.4.4. Basic Course
+6.4.4. Basic Course
 ~~~~~~~~~~~~~~~~~~~
 1. The Client calls the appropriate method on the Server,
 passing T as argument.
 2. The Server returns the list of alarms raised over the last T seconds.
 
-7.4.5. Alternate Course
+6.4.5. Alternate Course
 ~~~~~~~~~~~~~~~~~~~~~~~
 None
 
-7.4.6. Exception Course
+6.4.6. Exception Course
 ~~~~~~~~~~~~~~~~~~~~~~~
 None
 
-7.4.7. Postconditions
+6.4.7. Postconditions
 ~~~~~~~~~~~~~~~~~~~~~
 None
 
-7.5. Use Case: Alarm event raised [:term:`TBC`]
+6.5. Use Case: Alarm event raised [:term:`TBC`]
 -----------------------------------------------
 The Server notices an abnormal ratio of heart rate to level of
 physical activity that persists for more than T seconds, and raises an
 alarm event to be handled by any client listening to it.
 
-7.5.1. Actors
+6.5.1. Actors
 ~~~~~~~~~~~~~
 Client: a TANGO client that listens to alarm events.
 Server: the Heart Rate Monitor TANGO server.
 
-7.5.2. Priority
+6.5.2. Priority
 ~~~~~~~~~~~~~~~
 High
 
-7.5.3. Preconditions
+6.5.3. Preconditions
 ~~~~~~~~~~~~~~~~~~~~
 The Server is running and its DevState is ON.
 
-7.5.4. Basic Course
+6.5.4. Basic Course
 ~~~~~~~~~~~~~~~~~~~
 1. The Server notices an abnormal ratio of heart rate to level of
 physical activity that persists for more than T seconds.
 2. The Server raises an alarm event.
 3. The Client handles it.
 
-7.5.5. Alternate Course
+6.5.5. Alternate Course
 ~~~~~~~~~~~~~~~~~~~~~~~
 None
 
-7.5.6. Exception Course
+6.5.6. Exception Course
 ~~~~~~~~~~~~~~~~~~~~~~~
 None
 
-7.5.7. Postconditions
+6.5.7. Postconditions
 ~~~~~~~~~~~~~~~~~~~~~
 None
 
