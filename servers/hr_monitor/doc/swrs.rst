@@ -198,8 +198,7 @@ The Server is running and its DevState is ON.
 
 6.2.4. Basic Course
 ~~~~~~~~~~~~~~~~~~~
-1. The Client calls the appropriate method on the Server,
-passing T as argument.
+1. The Client calls the appropriate method on the Server, passing T as argument.
 2. The Server calculates the average heart rate over the last T seconds.
 3. The Server returns the calculated value.
 
@@ -209,8 +208,7 @@ None
 
 6.2.6. Exception Course
 ~~~~~~~~~~~~~~~~~~~~~~~
-1. The Client calls the appropriate method on the Server,
-passing T as argument.
+1. The Client calls the appropriate method on the Server, passing T as argument.
 2. The Server tries calculates the average heart rate.
 3. No data is available.
 4. The Server returns an error.
@@ -239,10 +237,8 @@ The Server is running and its DevState is ON.
 
 6.3.4. Basic Course
 ~~~~~~~~~~~~~~~~~~~
-1. The Client calls the appropriate method on the Server,
-passing T as argument.
-2. The Server calculates the average level of physical activity over the last
-T seconds, based on accelerometer data.
+1. The Client calls the appropriate method on the Server, passing T as argument.
+2. The Server calculates the average level of physical activity over the last T seconds, based on accelerometer data.
 3. The Server returns the calculated value.
 
 6.3.5. Alternate Course
@@ -251,8 +247,8 @@ None
 
 6.3.6. Exception Course
 ~~~~~~~~~~~~~~~~~~~~~~~
-1. The Client calls the appropriate method on the Server,
-passing T as argument.
+
+1. The Client calls the appropriate method on the Server, passing T as argument.
 2. The Server tries calculates the average level of physical activity.
 3. No data is available.
 4. The Server returns an error.
@@ -281,8 +277,8 @@ The Server is running and its DevState is ON.
 
 6.4.4. Basic Course
 ~~~~~~~~~~~~~~~~~~~
-1. The Client calls the appropriate method on the Server,
-passing T as argument.
+
+1. The Client calls the appropriate method on the Server, passing T as argument.
 2. The Server returns the list of alarms raised over the last T seconds.
 
 6.4.5. Alternate Course
@@ -318,8 +314,7 @@ The Server is running and its DevState is ON.
 
 6.5.4. Basic Course
 ~~~~~~~~~~~~~~~~~~~
-1. The Server notices an abnormal ratio of heart rate to level of
-physical activity that persists for more than T seconds.
+1. The Server notices an abnormal ratio of heart rate to level of physical activity that persists for more than T seconds.
 2. The Server raises an alarm event.
 3. The Client handles it.
 
