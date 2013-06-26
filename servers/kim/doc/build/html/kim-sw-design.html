@@ -1,0 +1,317 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Software Design Study for kim &mdash; kim a1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     'a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="kim a1 documentation" href="index.html" />
+    <link rel="next" title="kim Software User and Maintenance Manual" href="kim-sw-um-man.html" />
+    <link rel="prev" title="Software Requirements Specification for kim" href="kim-sw-reqs.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="kim-sw-um-man.html" title="kim Software User and Maintenance Manual"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="kim-sw-reqs.html" title="Software Requirements Specification for kim"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">kim a1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="software-design-study-for-kim">
+<h1>Software Design Study for kim<a class="headerlink" href="#software-design-study-for-kim" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Author:</th><td class="field-body">Eric Meinhardt</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="change-record">
+<h2>Change Record<a class="headerlink" href="#change-record" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="purpose">
+<h3>Purpose<a class="headerlink" href="#purpose" title="Permalink to this headline">¶</a></h3>
+<p>Describes the purpose of the document, and the intended audience.</p>
+</div>
+<div class="section" id="scope">
+<h3>Scope<a class="headerlink" href="#scope" title="Permalink to this headline">¶</a></h3>
+<p>Describes the scope of this requirements specification.</p>
+</div>
+<div class="section" id="applicable-documents">
+<h3>Applicable Documents<a class="headerlink" href="#applicable-documents" title="Permalink to this headline">¶</a></h3>
+<p>Software Requirement Specification for the &lt;Application&gt;</p>
+</div>
+<div class="section" id="reference-documents">
+<h3>Reference Documents<a class="headerlink" href="#reference-documents" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="glossary">
+<h3>Glossary<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="overview">
+<h3>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h3>
+<p>Provides a brief overview of the package defined as a result of the
+requirements elicitation process.</p>
+</div>
+</div>
+<div class="section" id="design-considerations">
+<h2>Design Considerations<a class="headerlink" href="#design-considerations" title="Permalink to this headline">¶</a></h2>
+<p>This section describes many of the issues, which need to be addressed or
+resolved before attempting to devise a complete design solution.</p>
+<div class="section" id="assumptions-and-dependencies">
+<h3>Assumptions and dependencies<a class="headerlink" href="#assumptions-and-dependencies" title="Permalink to this headline">¶</a></h3>
+<p>Describe any assumptions or dependencies regarding the software and its use.
+These may concern such issues as:</p>
+<ul class="simple">
+<li>Related software or hardware</li>
+<li>Operating systems</li>
+<li>End-user characteristics</li>
+<li>Possible and/or probable changes in functionality</li>
+</ul>
+</div>
+<div class="section" id="general-constraints">
+<h3>General Constraints<a class="headerlink" href="#general-constraints" title="Permalink to this headline">¶</a></h3>
+<p>Describe any global limitations or constraints that have a significant impact
+on the design of the system&#8217;s software (and describe the associated impact).
+Such constraints may be imposed by any of the following (the list is not
+exhaustive):</p>
+<ul class="simple">
+<li>Hardware or software environment</li>
+<li>End-user environment</li>
+<li>Availability or volatility of resources</li>
+<li>Standards compliance</li>
+<li>Interoperability requirements</li>
+<li>Interface/protocol requirements</li>
+<li>Data repository and distribution requirements</li>
+<li>Security requirements (or other such regulations)</li>
+<li>Memory and other capacity limitations</li>
+<li>Performance requirements</li>
+<li>Network communications</li>
+<li>Verification and validation requirements (testing)</li>
+<li>Other means of addressing quality goals</li>
+<li>Other requirements described in the requirements specification</li>
+</ul>
+</div>
+<div class="section" id="objectives">
+<h3>Objectives<a class="headerlink" href="#objectives" title="Permalink to this headline">¶</a></h3>
+<p>Describe any goals, guidelines, principles, or priorities, which dominate
+or embody the design of the system&#8217;s software. Such goals might be:</p>
+<ul class="simple">
+<li>Emphasis on speed versus memory use</li>
+<li>Keeping it simple and easy to maintain, extend</li>
+<li>working, looking, or &#8220;feeling&#8221; like an existing product</li>
+</ul>
+<p>For each such goal or guideline, unless it is implicitly obvious, describe
+the reason for its desirability. Feel free to state and describe each goal
+in its own sub subsection if you wish.</p>
+</div>
+</div>
+<div class="section" id="software-architecture">
+<h2>Software Architecture<a class="headerlink" href="#software-architecture" title="Permalink to this headline">¶</a></h2>
+<p>This section should provide a high-level overview of how the functionality
+and responsibilities of the system were partitioned and then assigned to
+subsystems or components. Don&#8217;t go into too much detail about the individual
+components themselves (there is a subsequent section for detailed component
+descriptions). The main purpose here is to gain a general understanding of
+how and why the system was decomposed, and how the individual parts work
+together to provide the desired functionality.</p>
+<p>At the top-most level, describe the major responsibilities that the software
+must undertake and the various roles that the system (or portions of the
+system) must play. Describe how the system was broken down into its
+components/subsystems (identifying each top-level component/subsystem
+and the roles/responsibilities assigned to it). Describe how the higher-level
+components collaborate with each other in order to achieve the required
+results. Don&#8217;t forget to provide some sort of rationale for choosing this
+particular decomposition of the system (perhaps discussing other proposed
+decompositions and why they were rejected).</p>
+<p>If there are any diagrams, models, flowcharts, documented scenarios or
+use-cases of the system behavior and/or structure, they may be included here.
+Detailed diagrams that describe a particular component or class should
+be included within the particular subsection that describes that component
+or subsystem.</p>
+</div>
+<div class="section" id="software-design">
+<h2>Software Design<a class="headerlink" href="#software-design" title="Permalink to this headline">¶</a></h2>
+<p>The class diagrams containing all the classes can be put here.</p>
+<div class="section" id="unit-n">
+<h3>Unit n<a class="headerlink" href="#unit-n" title="Permalink to this headline">¶</a></h3>
+<p>Most components described in the System Architecture section will require
+a more detailed discussion. Other lower-level components and subcomponents
+may need to be described as well. Each subsection of this section will refer
+to or contain a detailed description of a system software component. The
+discussion provided should cover the following software component attributes:</p>
+</div>
+<div class="section" id="classification">
+<h3>Classification<a class="headerlink" href="#classification" title="Permalink to this headline">¶</a></h3>
+<p>The kind of component, such as a subsystem, module, class, package, function,
+file, etc.</p>
+</div>
+<div class="section" id="definition">
+<h3>Definition<a class="headerlink" href="#definition" title="Permalink to this headline">¶</a></h3>
+<p>The kind of component, such as a subsystem, module, class, package, function,
+file, etc.</p>
+</div>
+<div class="section" id="responsibilities">
+<h3>Responsibilities<a class="headerlink" href="#responsibilities" title="Permalink to this headline">¶</a></h3>
+<p>The primary responsibilities and/or behavior of this component. What does
+this component accomplish? What roles does it play? What kinds of services
+does it provide to its clients? For some components, this may need to refer
+back to the requirements specification.</p>
+</div>
+<div class="section" id="constraints">
+<h3>Constraints<a class="headerlink" href="#constraints" title="Permalink to this headline">¶</a></h3>
+<p>Any relevant assumptions, limitations, or constraints for this component.
+This should include constraints on timing, storage, or component state,
+and might include rules for interacting with this component (encompassing
+preconditions, postconditions, invariants, other constraints on input or
+output values and local or global values, data formats and data access,
+synchronization, exceptions, etc.)</p>
+</div>
+<div class="section" id="composition">
+<h3>Composition<a class="headerlink" href="#composition" title="Permalink to this headline">¶</a></h3>
+<p>A description of the use and meaning of the subcomponents that are a part
+of this component.</p>
+</div>
+<div class="section" id="uses-interactions">
+<h3>Uses/Interactions<a class="headerlink" href="#uses-interactions" title="Permalink to this headline">¶</a></h3>
+<p>A description of this components collaborations with other components.
+What other components is this entity used by? What other components does
+this entity use (this would include any side-effects this entity might
+have on other parts of the system)? This concerns the method of interaction
+as well as the interaction itself. Object-oriented designs should include
+a description of any known or anticipated subclasses, super-classes, and
+meta-classes.</p>
+</div>
+<div class="section" id="unit-n-1">
+<h3>Unit n+1<a class="headerlink" href="#unit-n-1" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Software Design Study for kim</a><ul>
+<li><a class="reference internal" href="#change-record">Change Record</a></li>
+<li><a class="reference internal" href="#introduction">Introduction</a><ul>
+<li><a class="reference internal" href="#purpose">Purpose</a></li>
+<li><a class="reference internal" href="#scope">Scope</a></li>
+<li><a class="reference internal" href="#applicable-documents">Applicable Documents</a></li>
+<li><a class="reference internal" href="#reference-documents">Reference Documents</a></li>
+<li><a class="reference internal" href="#glossary">Glossary</a></li>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#design-considerations">Design Considerations</a><ul>
+<li><a class="reference internal" href="#assumptions-and-dependencies">Assumptions and dependencies</a></li>
+<li><a class="reference internal" href="#general-constraints">General Constraints</a></li>
+<li><a class="reference internal" href="#objectives">Objectives</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#software-architecture">Software Architecture</a></li>
+<li><a class="reference internal" href="#software-design">Software Design</a><ul>
+<li><a class="reference internal" href="#unit-n">Unit n</a></li>
+<li><a class="reference internal" href="#classification">Classification</a></li>
+<li><a class="reference internal" href="#definition">Definition</a></li>
+<li><a class="reference internal" href="#responsibilities">Responsibilities</a></li>
+<li><a class="reference internal" href="#constraints">Constraints</a></li>
+<li><a class="reference internal" href="#composition">Composition</a></li>
+<li><a class="reference internal" href="#uses-interactions">Uses/Interactions</a></li>
+<li><a class="reference internal" href="#unit-n-1">Unit n+1</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="kim-sw-reqs.html"
+                        title="previous chapter">Software Requirements Specification for kim</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="kim-sw-um-man.html"
+                        title="next chapter">kim Software User and Maintenance Manual</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/kim-sw-design.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="kim-sw-um-man.html" title="kim Software User and Maintenance Manual"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="kim-sw-reqs.html" title="Software Requirements Specification for kim"
+             >previous</a> |</li>
+        <li><a href="index.html">kim a1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Eric Meinhardt.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,8 +1,8 @@
-=========================================================
-Software Requirements Specification for the <XXX package>
-=========================================================
+================================================================
+Software Requirements Specification for the Neuro Headset Server
+================================================================
 
-:Author: Name Surname
+:Author: Ezio Melotti
 
 
 Change Record
@@ -20,7 +20,8 @@ Introduction
 Purpose
 -------
 
-Describes the purpose of the document, and the intended audience.
+This document describes the software requirements specification for the neuro
+headset server.
 
 Scope
 -----
@@ -49,8 +50,9 @@ Glossary
 Overview
 --------
 
-Provides a brief overview of the package defined as a result of the
-requirements elicitation process.
+The package will initially provide low-level access to the data sent by the
+neuro headset.  The package will also provide training software and ways to
+define an higher-level interface used to control several different devices.
 
 
 General Description
@@ -59,20 +61,28 @@ General Description
 Problem Statement
 -----------------
 
-This section describes the essential problem(s) currently confronted by the
-user community. In other words, this section should discuss what purpose this
-software package fulfills.
+In a manned mission on Mars, astronauts need to control a number of devices
+(e.g. a Mars rover) but often have limited mobility.  Ideally, the best
+approach consists in an hand-free input control, such as voice command or
+brain waves.  These input methods would allow astronauts to operate devices
+without needing specific hardware (e.g. a joystick), and even in situations
+of limited mobility (e.g. while wearing a space suit).
+While these input methods clearly have advantages, they might not be as
+accurate as traditional input methods.
 
 Functional Description
 ----------------------
 
-Describes the general functionality of the software, which will be discussed
-in more detail below.
+The package will offer an interface between Tango and the EPOC neuro headset.
+Developers can use then use the data provided by the package to control
+different kind of devices.
 
 Environment
 -----------
 
-Describes the environment in which this software will function.
+The neuro headset can be used in the habitat or even during EVAs while
+wearing a space suit, but will requires a nearby computer that will receive
+and process the signal.
 
 User objectives
 ---------------
@@ -131,26 +141,18 @@ Describes how this product interfaces with the user.
 GUI (Graphical User Interface)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Describes the graphical user interface if present. This section should include
-a set of screen dumps or mockups to illustrate user interface features.
-If the system is menu-driven, a description of all menus and their components
-should be provided.
 
 CLI (Command Line Interface)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Describes the command-line interface if present. For each command, a
-description of all arguments and example values and invocations should be
-provided.
 
 API (Application Programming Interface)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Describes the application programming interface, if present. Foreach public
-interface function, the name, arguments, return values, examples of invocation,
-and interactions with other functions should be provided. If this package is a
-library, the functions that the library provides should be described here
-together with the parameters.
+The Tango server will provide a low-level API to access the raw data for
+the neuro headset.  This low level API, in combination with a training
+software, will be used to create higher-level APIs, possibly as new servers.
+The actual APIs are still to be determined.
 
 Diagnostics
 ~~~~~~~~~~~
@@ -226,52 +228,59 @@ Notes
 Appendix A: Use Case template
 =============================
 
-Use Cases drive the whole software process and bind together all the phases
-from requirements capture to final delivery of the system and maintenance.
-They are a very effective way of communicating with customers and among team
-members. Before every discussion always provide the partners with a set of
-relevant Use Cases.
+Use Case: Controlling a rover with the neuro headset
+====================================================
 
-During meetings, they stimulate focused discussions and help identifying
-important details. It is important to keep in mind that Use Cases have to
-describe WHAT the system has to do in response to certain external stimuli
-and NOT HOW it will do it. The HOW is part of the architecture and of the
-design.
+The user wants to control a rover using the neuro headset.
 
-What follows is the empty template:
-
-Use Case: <Name>
-================
-<Short description>
 
 Actors
 ------
-<List of Actors>
+User, rover.
 
 Priority
 --------
-<Low, Normal, Critical>
+Normal
 
 Preconditions
 -------------
-<List of preconditions that must be fulfilled>
+
+The user should be wearing a charged neuro headset and be within wireless
+range of a computer that will receive and process the data, making them
+available on Tango.  The user might be required to do a training before
+being able to use the neuro headset successfully.
 
 Basic Course
 ------------
-<Step-by-step description of the basic course>
+
+1. If the user didn't do the training yet, he should do it in order to
+   associate specific thoughts to specific movements.
+2. After the training, he should be able to just think at the movements the
+   rover should do.
+3. The server will process the inputs sent by the headset and convert them
+   to higher level signals, accoding to the data collected during the
+   training.
+4. The higher level signals can be accessed by other servers (e.g. the rover
+   server) and used to determine what actions should be taken.
 
 Alternate Course
 ----------------
-<Step-by-step description of the alternate course>
+
+None
 
 Exception Course
 ----------------
-<Step-by-step description of the exception course>
+
+If any of the preconditions are not met, the user should make sure to
+address the problems before continuing with the basic course.
 
 Postconditions
 --------------
-<List of postconditions (if apply)>
+
+At the end of the session the user should turn off and remove the neuro
+headset, and recharge it if needed.
 
 Notes
 -----
 
+None
