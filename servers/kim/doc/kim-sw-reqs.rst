@@ -9,6 +9,10 @@ Change Record
 
 2013.06.20 - Draft 1 completed.
 
+2013.06.27 - Draft 2 - first revisions - completed. Typos fixed, hyperlinks
+changed, Franco's architecture comments integrated, added example of macro
+use.
+
 Introduction
 ============
 
@@ -16,11 +20,11 @@ Purpose & Scope
 ---------------
 
 This document is intended to detail for developers of kim and other
-:term:``ERAS C3`` components what ERAS's voice interface library is predicted
-    to be needed for, relevant details about who is predicted to have those
-    needs, and what features kim has (or will have) to meet those anticipated
-    needs. This requirements specification is intended to cover a software
-    library and associated documentation.
+:term:`ERAS C3` components what ERAS's voice interface library is predicted
+to be needed for, relevant details about who is predicted to have those
+needs, and what features kim has (or will have) to meet those anticipated
+needs. This requirements specification is intended to cover a software
+library and associated documentation.
 
 Reference Documents
 -------------------
@@ -29,20 +33,11 @@ Reference Documents
   (2006). Are you talking to me? dialogue systems supporting mixed teams of
   humans and robots. In AAAI Fall Symposium on Aurally Informed Performance:
   Integrating Machine Listening and Auditory Presentation in Robotic Systems,
-  Arlington, Virginia.`_
-- [2] -- `Software Engineering Practices Guidelines for the ERAS Project`_
-- [3] -- `ERAS 2013 GSoC Strategic Plan`_
-
-.. _`Dowding, J., Alena, R., Clancey, W. J., Sierhuis, M., & Graham, J.
-  (2006). Are you talking to me? dialogue systems supporting mixed teams of
-  humans and robots. In AAAI Fall Symposium on Aurally Informed Performance:
-  Integrating Machine Listening and Auditory Presentation in Robotic Systems,
-  Arlington, Virginia.`: <http://ti.arc.nasa.gov/m/pub-
-  archive/archive/1240.pdf>
-.. _`Software Engineering Practices Guidelines for the ERAS Project`:
-.. <https://eras.readthedocs.org/en/latest/doc/guidelines.html> _`ERAS 2013
-.. GSoC Strategic Plan`: <https://bitbucket.org/italianmarssociety/eras/wiki/G
-.. oogle%20Summer%20of%20Code%202013>
+  Arlington, Virginia.
+  <http://ti.arc.nasa.gov/m/pub-archive/archive/1240.pdf>`_
+- [2] -- `Software Engineering Practices Guidelines for the ERAS Project.
+  <https://eras.readthedocs.org/en/latest/doc/guidelines.html>`_
+- [3] -- `ERAS 2013 GSoC Strategic Plan. <https://bitbucket.org/italianmarssociety/eras/wiki/Google%20Summer%20of%20Code%202013>`_
 
 Glossary
 --------
@@ -62,7 +57,7 @@ Glossary
 
 ``IMS`` Italian Mars Society.
 
-``OeWF`` The Austrian Space Forum ("Österreichisches Weltraum Forum" auf
+``OeWF`` The Austrian Space Forum ("Österreichisches Weltraum Forum", auf
   Deutsch.)
 
 .. Use the main :ref:`glossary` for general terms, and :term:`Term` to link
@@ -110,22 +105,39 @@ For now, advanced features (in approximately this order of priority) include
 
 #. different types, degrees, and mediums of feedback (text, artificial speech,
    and more demanding graphical displays), with implementation dependent in
-   part on additional details about the Aouda.X :term:``HUD`` and/or MARVIN.
+   part on additional details about the Aouda.X :term:`HUD` and/or MARVIN.
 #. support for a dialog manager (for managing conversation-related inference)
    and other more advanced natural language processing capabilities built on
    top of other components of the rover software executive
 #. easy-to-use, low maintenance learning mechanisms, starting with the
    capacity for simple user-definable macros that can be 'written' entirely in
-   the field and 'on the fly'.
+   the field and 'on the fly'. For example, suppose an astronaut decides, in
+   the field, that she or he wants the rover to take 2 pictures (each with
+   different camera settings) with, say, him- or herself at the center, at
+   multiple locations. Without macros and without pre-EVA scripting of this
+   task, the astronaut will have to go through this loop
+
+      #. With the rover following, proceed to the next location where pictures
+         are desired.
+      #. Tell the rover to take a picture of the astronaut with parameter set
+         1.
+      #. Tell the rover to take a picture of the astronaut with parameter set
+         2.
+   every time a pair of pictures at a new location is desired. With the
+   ability to record simple macros, the astronaut can instead tell the rover
+   to 'start recording', give instructions to the rover - in the case of the
+   example above, 'Follow closely.'...'Stop.'...'Take a picture of me using
+   <settings abc>.'...'Take a picture of me using <settings xyz>.'...'Stop
+   recording. Label this macro <macro-name>.'
 
 Environment
 -----------
 
-Kim is intended to be written in Python, with an instance hosted on the rover
-server (wrapped in a Tango distributed control system object) running Ubuntu
-12.04 (LTS), and to interact well with other elements of the :term:``ERAS C3``
-Prototype; probably at minimum receiving audio (eventually) from the Aouda.X
-Spacesuit Communication Server via the associated Aouda OBDH Tango object.
+Kim is intended to be written in Python, with an instance hosted on the
+onboard computer of the analogue space suit (Aouda.X), (wrapped in a Tango
+distributed control system object) running Ubuntu 12.04 (LTS), and to interact
+well with other elements of the :term:`ERAS C3` Prototype, namely the rover
+executive / planning agent.
 
 User classes & objectives
 -------------------------
@@ -160,7 +172,7 @@ Requirement 1: Receive audio stream
 -----------------------------------
 Description
 ~~~~~~~~~~~
-The kim instance should be able to receive an external audio stream.
+The kim instance should be able to receive a local audio stream.
 
 Criticality
 ~~~~~~~~~~~
@@ -242,7 +254,7 @@ To start, a kim agent will be able to send text error messages more useful and
 informative to an end-user who knows little or nothing about kim, Tango, or
 how voice recognition works than what a developer would use for debugging
 - stack traces and programmer/scientific jargon will NOT be acceptable. These
-  can either be transmitted (and viewed) as text or via synthesized speech.
+can either be transmitted (and viewed) as text or via synthesized speech.
 
 Criticality
 ~~~~~~~~~~~
@@ -348,10 +360,11 @@ Specific areas of improvement are below:
       models is unknown at the time of writing; in any case, such training
       does not take very long for substantial gains in accuracy to be
       realized.
-    * language models (if more than one working language will be used). NB
-      that language variety models (simplistically, "dialect") are *probably*
-      not worth pursuing unless there are large numbers of people in testing
-      or use that fall into language variety clusters.
+    * NB that language variety models (simplistically, "dialect") are
+      *probably* not worth pursuing unless there are large numbers of people
+      in testing or use that fall into language variety clusters where
+      performance is sufficiently poor when accent is not modeled (at all or
+      explicitly).
 * classifying speech as rover-directed or not
 * grammar extensions - more general, flexible models of language will permit
   astronauts to interact more naturally, rather than trying to remember the
@@ -387,9 +400,9 @@ Software Interfaces
 -------------------
 The Tango object representing the server hosting the kim instance should have
 access to appropriate (currently not well defined) Tango objects related to
-the rover and a flexible number of slots for Tango objects (Aouda OBDH
-classes) associated with Aouda.X Spacesuit Communication Servers (assuming
-each suit has one such object associated with it).
+the rover and a flexible number of slots for Tango objects for suit-related
+interfaces, like receiving microphone audio and/or updates about the state of
+the astronaut - useful for modeling utterance context.
 
 Externally, a kim instance Tango object should have exposed methods for the
 rover planner/executive to call for the purpose of deciding what feedback to
@@ -412,7 +425,7 @@ Word recognition error rate on actual rover-directed speech (%)
 A reasonable goal, based on consultation of a review of early/mid-2000s NASA
 technology and field tests ([1]), is for around ~6.5% of actual rover-directed
 words to be incorrectly recognized. A possible catch here is that the
-:term:``IMS``/:term:``OeWF`` volunteers may have varying types and degrees of
+:term:`IMS`/:term:`OeWF` volunteers may have varying types and degrees of
 accents.
 
 False accept rate (attending to non-rover-directed speech)
@@ -454,7 +467,7 @@ Software validation and verification
 The kim library code will be unit-tested, behaviorally tested by cases, using
 speech recorded on inexpensive consumer-model laptop microphones, possibly
 tested in simulation (provided a simulation exists at some point), and later
-field-tested by :term:``IMS``/:term:``OeWF`` volunteers.
+field-tested by :term:`IMS`/:term:`OeWF` volunteers.
 
 Planning
 --------
@@ -474,7 +487,7 @@ milestones are below.
 * Sep 23: User/Maintenance Manual frozen.
 * Sep 27: Final evaluation.
 * Oct 2013: Project integration on Bergamo C3 prototype.
-* Within 2013?: Field testing with :term:``OeWF``.
+* Within 2013?: Field testing with :term:`OeWF`.
 
 
 The preferred schedule, intended to provide some slack for unanticipated
@@ -488,8 +501,8 @@ Use Case: Important features common to all use cases
 ----------------------------------------------------
 Actors
 ~~~~~~
-One or more astronauts/:term:``IMS`` or :term:``OeWF`` volunteers conducting
-(mock) :term:``EVA`` and using rovers to assist them.
+One or more astronauts/:term:`IMS` or :term:`OeWF` volunteers conducting
+(mock) :term:`EVA` and using rovers to assist them.
 
 Contextual Goals
 ~~~~~~~~~~~~~~~~
@@ -501,8 +514,7 @@ Critical.
 
 Preconditions
 -------------
-The astronaut(s) need(s) a functioning connection from their microphone(s) to
-the rover's voice interface agent - something like a common radio channel.
+The kim instance needs a functioning audio stream input.
 
 Course
 ------------
@@ -529,14 +541,14 @@ Course
             * If the request will be straightforwardly granted, a short
               restatement including parameters (e.g. distance to move or
               rotate, destination) will be forwarded by the kim instance to
-              the astronauts on :term:``EVA``.
+              the astronauts on :term:`EVA`.
                 * Alternately, to cut down on useless chatter, if there is
-                  some kind of :term:``HUD`` indicator of what each rover on
-                  :term:``EVA`` is doing (i.e. a short status summary),
-                      updating this could be a better alternative than
-                      :term:``HUD`` text or synthesized speech.
+                  some kind of :term:`HUD` indicator of what each rover on
+                  :term:`EVA` is doing (i.e. a short status summary), updating
+                  this could be a better alternative than :term:`HUD` text or
+                  synthesized speech.
             * If there's a conflict, the kim instance should pass on a message
-              (via text-in-:term:``HUD`` or via synthesized speech) as to what
+              (via text-in-:term:`HUD` or via synthesized speech) as to what
               conflicts with the request (e.g. "CONFLICT: Travel to <name-of-
               requested- destination> conflicts with existing goal <goal
               id/description>.") and ask for confirmation of the request (e.g.
@@ -630,6 +642,7 @@ with other current or future goals.
 Examples of realistic, naturalistic trigger utterances
 ------------------------------------------------------
 (NB that almost all of these are of a goal-directed nature.)
+
 * “<Watch/Record> <named-entity> (for-some-duration)."
 * “Take a <photo, panorama, video, capture> of <named-entity> (and label it
   <name for photo/data capture>).”
@@ -659,9 +672,10 @@ rover executive.
 
 Examples of trigger utterances
 ------------------------------
-"What's your current status, <rover name>?" "Run <name of diagnostic
-routine>." "What's the status of your <webcam, other rover-software-or-
-hardware- component>?"
+* "What's your current status, <rover name>?"
+* "Run <name of diagnostic routine>."
+* "What's the status of your <webcam, other rover-software-or-hardware-
+  component>?"
 
 Notes
 -----
@@ -674,7 +688,7 @@ rover if one too heavy to drag back to safety breaks in the field?
 Postconditions
 --------------
 A more or less detailed message of what is or isn't OK with the requested item
-is sent via text to the astronaut's :term:``HUD`` or via voice-synthesis to
+is sent via text to the astronaut's :term:`HUD` or via voice-synthesis to
 the current common voice channel.
 
 Notes
