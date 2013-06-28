@@ -368,3 +368,52 @@ None
 ~~~~~~~~~~~~~~~~~~~~~~~
 .. image:: images/SeqAlarmeventraised.png
 
+6.6. Use Case: Server aquires new data
+--------------------------------------
+The Server reads new data from the Framework Software Bus, ands sends it to the
+Anomaly Detector for analysis.
+
+.. image:: images/UCServeraquiresnewdata.png
+
+6.6.1. Actors
+~~~~~~~~~~~~~
+Server: the Heart Rate Monitor TANGO server.
+Anomaly Detector: the module in charge of detecting anomalies.
+Framework Software Bus: channel that interconnects all TANGO modules.
+
+6.6.2. Priority
+~~~~~~~~~~~~~~~
+High
+
+6.6.3. Preconditions
+~~~~~~~~~~~~~~~~~~~~
+The Server is running and its DevState is ON.
+
+6.6.4. Basic Course
+~~~~~~~~~~~~~~~~~~~
+1. The Server request new data from the Framework Software Bus,
+   passing as argument the suit's ID.
+2. The Server sends the new heart rate and accelerometer data
+   to the Anomaly Detector
+3. The Anomaly Detector notices an anomaly and returns it to the Server.
+
+6.6.5. Alternate Course
+~~~~~~~~~~~~~~~~~~~~~~~
+None
+
+6.6.6. Exception Course
+~~~~~~~~~~~~~~~~~~~~~~~
+1. The Server request new data from the Framework Software Bus,
+   passing as argument the suit's ID.
+2. The Server sends the new heart rate and accelerometer data
+   to the Anomaly Detector
+3. The Anomaly Detector does not notice any anomalies.
+
+6.6.7. Postconditions
+~~~~~~~~~~~~~~~~~~~~~
+None
+
+6.6.8. Sequence diagram
+~~~~~~~~~~~~~~~~~~~~~~~
+.. image:: images/SeqServeraquiresnewdata.png
+
