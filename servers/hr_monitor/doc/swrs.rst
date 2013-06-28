@@ -9,8 +9,11 @@ Software Requirements Specification for the Heart Rate Monitor
 ================
 
 2013.06.18 - Document created.
+
 2013.06.26 - Fixed typos and formatting.
+
 2013.06.26 - Removed unused sections.
+
 2013.06.26 - Added Use Cases and Sequence diagrams.
 
 2. Introduction
@@ -255,7 +258,8 @@ The Server is running and its DevState is ON.
 6.3.4. Basic Course
 ~~~~~~~~~~~~~~~~~~~
 1. The Client calls the appropriate method on the Server, passing T as argument.
-2. The Server calculates the average level of physical activity over the last T seconds, based on accelerometer data.
+2. The Server calculates the average level of physical activity over the
+   last T seconds, based on accelerometer data.
 3. The Server returns the calculated value.
 
 6.3.5. Alternate Course
@@ -343,7 +347,8 @@ The Server is running and its DevState is ON.
 
 6.5.4. Basic Course
 ~~~~~~~~~~~~~~~~~~~
-1. The Server notices an abnormal ratio of heart rate to level of physical activity that persists for more than T seconds.
+1. The Server notices an abnormal ratio of heart rate to level of
+   physical activity that persists for more than T seconds.
 2. The Server raises an alarm event.
 3. The Client handles it.
 
