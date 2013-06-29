@@ -94,3 +94,19 @@ If you are still having problem you can try the following things:
 
     sudo /etc/init.d/tango-db start
     sudo /etc/init.d/tango-starter start
+
+Adding a new server in Tango
+----------------------------
+To register a new server run **jive**, select ``Edit -> Create Server`` and provide:
+
+* the executable name and the instance name (ex: legorcx/c1b8)
+* the Class name 
+* the device name in the format: ``C3/subsystem/device``
+
+Then start the java/python/C++ application always providing the instance name, example::
+
+  python legorcx c1b8
+
+and the Class properties will be automatically filled in the database
+
+
