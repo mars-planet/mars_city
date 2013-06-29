@@ -1,12 +1,17 @@
 Welcome to ERAS's software documentation!
 =========================================
 
-Contents:
-
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    servers/servers
+
+
+Developers' docs:
+
+.. toctree::
+   :maxdepth: 1
+
    doc/setup
    doc/guidelines
    doc/templates/templates
