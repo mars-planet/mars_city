@@ -6,7 +6,6 @@ Tango Servers
    :maxdepth: 2
 
    neurohs/doc/index
-   hr_monitor/doc/swrs.rst
-   hr_monitor/doc/swds.rst
-   kim/doc/source/kim-sw-reqs.rst
-   solarstorm/doc/swrs.rst
+   hr_monitor/doc/index
+   kim/doc/index
+   solarstorm/doc/index

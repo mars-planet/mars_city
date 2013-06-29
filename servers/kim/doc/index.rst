@@ -1,18 +1,10 @@
-Welcome to kim's software documentation!
-=========================================
-
-Contents:
+**********
+kim Server
+**********
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    kim-sw-reqs
    kim-sw-design
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`search`
-
+   kim-sw-um-man
