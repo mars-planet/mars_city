@@ -133,10 +133,11 @@ contain the following:
   won't be able to use it.
 * a ``test_xxx.py`` that includes unittests for ``xxx.py``.
 * a ``doc`` directory containing:
-    - ``xxx.rst`` file that includes generic documentation for ``xxx.py``.
-    - ``swrs_xxx.rst`` User Requirements Specification for ``xxx.py``.
-    - ``swds_xxx.rst`` Design Study for ``xxx.py``.
-    - ``swum_xxx.rst`` User and Maintenance Manual for ``xxx.py``.
+    - ``index.rst`` that contains the toctree for the server docs.
+    - ``xxx.rst`` that includes generic documentation for ``xxx.py``.
+    - ``swrs.rst`` User Requirements Specification for ``xxx.py``.
+    - ``swds.rst`` Design Study for ``xxx.py``.
+    - ``swum.rst`` User and Maintenance Manual for ``xxx.py``.
 * possibly additional files required by the server/client.
 
 HG Repository structure
