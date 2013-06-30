@@ -3,12 +3,11 @@
 from __future__ import division
 
 import sys
+from math import sqrt, atan2, degrees
+
+import gevent
 import PyTango
 from emokit import emotiv
-from math import sqrt, atan2, degrees
-import gevent
-
-
 
 
 class PyDevice(PyTango.DeviceClass):
@@ -20,8 +19,8 @@ class PyDevice(PyTango.DeviceClass):
         {'polling period': 1000}
     ]
     attr_list = {
-	'speed': attr_type,
-	'steering': attr_type,
+        'speed': attr_type,
+        'steering': attr_type,
     }
 
     def __init__(self, name):
@@ -37,43 +36,44 @@ class PyNeuroHS(PyTango.Device_4Impl):
         PyNeuroHS.init_device(self)
 
     def read_speed(self, the_att):
-	#read from EPOC
-	packet = self.headset.dequeue()
-	xdiff = self.x-packet.gyroX
+        #read from EPOC
+        packet = self.headset.dequeue()
+        xdiff = self.x-packet.gyroX
         ydiff = self.y-packet.gyroY
         print 'gyroX gyroY xdiff ydiff', packet.gyroX, packet.gyroY, xdiff, ydiff
-	if abs(xdiff) > 0:
-                self.xspeed += xdiff
-                self.xpos += int(round(self.xspeed))
-	if abs(ydiff) > 0:
-                self.yspeed -= ydiff
-                self.ypos += int(round(self.yspeed))
+        if abs(xdiff) > 0:
+            self.xspeed += xdiff
+            self.xpos += int(round(self.xspeed))
+        if abs(ydiff) > 0:
+            self.yspeed -= ydiff
+            self.ypos += int(round(self.yspeed))
 
-	#conversion from Cartesian coordinates to Polar coordinates to obtain speed and steering
-        speed=sqrt(self.xpos**2 + self.ypos**2)		
-	self.steering=degrees(atan2(self.xpos, self.ypos))
-	self.x, self.y = packet.gyroX, packet.gyroY
-	the_att.set_value(speed)
-        print 'xpos ypos', self.xpos, self.ypos  
-        print 'speed', speed 
+        #conversion from Cartesian coordinates to Polar coordinates
+        # to obtain speed and steering
+        speed = sqrt(self.xpos**2 + self.ypos**2)
+        self.steering = degrees(atan2(self.xpos, self.ypos))
+        self.x, self.y = packet.gyroX, packet.gyroY
+        the_att.set_value(speed)
+        print 'xpos ypos', self.xpos, self.ypos
+        print 'speed', speed
 
     def read_steering(self, the_att):
-	#read from EPOC
-	the_att.set_value(self.steering)
+        #read from EPOC
+        the_att.set_value(self.steering)
         print 'steering', self.steering
- 
+
     def init_device(self):
         self.info_stream('In Python init_device method')
-	self.headset = emotiv.Emotiv()
-    	gevent.spawn(self.headset.setup)
-	gevent.sleep(1)
-    	# don't move the headset while reading this
-   	packet = self.headset.dequeue()
-    	self.x, self.y = packet.gyroX, packet.gyroY
-	self.xspeed, self.yspeed = 0, 0
-	self.xpos, self.ypos = 0, 0
+        self.headset = emotiv.Emotiv()
+        gevent.spawn(self.headset.setup)
+        gevent.sleep(1)
+        # don't move the headset while reading this
+        packet = self.headset.dequeue()
+        self.x, self.y = packet.gyroX, packet.gyroY
+        self.xspeed, self.yspeed = 0, 0
+        self.xpos, self.ypos = 0, 0
         self.set_state(PyTango.DevState.ON)
-    
+
 
 if __name__ == '__main__':
     util = PyTango.Util(sys.argv)
