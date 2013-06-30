@@ -10,6 +10,10 @@ class PyDevice(PyTango.DeviceClass):
                           [PyTango.ArgType.DevVoid]],
                 'stop': [[PyTango.ArgType.DevVoid],
                          [PyTango.ArgType.DevVoid]],
+                'set_speed': [[PyTango.ArgType.DevFloat],
+                         [PyTango.ArgType.DevVoid]],
+                'set_steering': [[PyTango.ArgType.DevFloat],
+                         [PyTango.ArgType.DevVoid]],
                 'drive': [[PyTango.ArgType.DevVoid],
                           [PyTango.ArgType.DevVoid],
                           {'polling period': 500}],}
@@ -32,19 +36,20 @@ class PyDevice(PyTango.DeviceClass):
 class PyLegoRCX(PyTango.Device_4Impl):
     def __init__(self, cl, name):
         self.rcx = rcxlib.RCX()
-        self.neurohs = PyTango.DeviceProxy('c3/neurohs/epoc')
+        #self.neurohs = PyTango.DeviceProxy('c3/neurohs/epoc')
         self.devices = {}
         PyTango.Device_4Impl.__init__(self, cl, name)
         self.info_stream('In PyLegoRCX.__init__')
         PyLegoRCX.init_device(self)
+	self.MAXSPEED = 400
 
     def read_speed(self, the_att):
-        self.speed = self.neurohs['speed'].value
+        #self.speed = self.neurohs['speed'].value
         the_att.set_value(self.speed)
         print 'speed', self.speed
 
     def read_steering(self, the_att):
-        self.steering = self.neurohs['steering'].value
+        #self.steering = self.neurohs['steering'].value
         the_att.set_value(self.steering)
         print 'steering', self.steering
 
@@ -56,11 +61,37 @@ class PyLegoRCX(PyTango.Device_4Impl):
         self.rcx.set_motors(0, 0, 0)
         print 'stop'
 
+    def set_speed(self, speed_value):
+        self.speed =  speed_value
+        print 'set_speed'
+
+    def set_steering(self, steering_value):
+        self.steering =  steering_value
+        print 'set_steering'
+
     def drive(self):
-        print 'drive'
+	normalized_speed=self.speed/self.MAXSPEED
+        if -45 < self.steering < 45:
+                if normalized_speed > 0.5:
+                        A, C = 8, 8
+                else:
+                        A, C = 1, -1 
+        if 45 < self.steering < 135:
+                A, C = 1, -1
+        if 135 < self.steering < 180:
+                A, C = 8, -8
+        if -135 < self.steering < -45:
+                A, C = -1, 1
+        if -180 < self.steering < -135:
+                A, C = -8, 8
+                
+                set_speeds(A, 0, C)
+        print 'drive A C', A, C
 
     def init_device(self):
         self.info_stream('In Python init_device method')
+        self.speed = 0
+        self.steering = 0
         self.set_state(PyTango.DevState.ON)
 
 
