@@ -3,6 +3,7 @@
 import sys
 import PyTango
 
+import rcxlib
 
 class PyDevice(PyTango.DeviceClass):
     cmd_list = {'start': [[PyTango.ArgType.DevVoid],
@@ -30,27 +31,29 @@ class PyDevice(PyTango.DeviceClass):
 
 class PyLegoRCX(PyTango.Device_4Impl):
     def __init__(self, cl, name):
+        self.rcx = rcxlib.RCX()
+        self.neurohs = PyTango.DeviceProxy('c3/neurohs/epoc')
         self.devices = {}
         PyTango.Device_4Impl.__init__(self, cl, name)
         self.info_stream('In PyLegoRCX.__init__')
         PyLegoRCX.init_device(self)
 
     def read_speed(self, the_att):
-        # speed = self.neurohs['speed'].value
-        speed = 11
-        the_att.set_value(speed)
-        print 'speed', speed
+        self.speed = self.neurohs['speed'].value
+        the_att.set_value(self.speed)
+        print 'speed', self.speed
 
     def read_steering(self, the_att):
-        # steering = self.neurohs['steering'].value
-        steering = 12
-        the_att.set_value(steering)
-        print 'steering', steering
+        self.steering = self.neurohs['steering'].value
+        the_att.set_value(self.steering)
+        print 'steering', self.steering
 
     def start(self):
+        self.rcx.set_motors(1, 0, 1)
         print 'start'
 
     def stop(self):
+        self.rcx.set_motors(0, 0, 0)
         print 'stop'
 
     def drive(self):
