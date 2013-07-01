@@ -22,6 +22,7 @@ class RCX(object):
         self.motors_on = [0, 0, 0]
         self.motors_speeds = [0, 0, 0]
         self.motors_directions = [1, 1, 1]
+        self.default_directions = [1, 1, 1]
 
     def set_motors(self, A, B, C):
         motors = [A, B, C]
@@ -40,34 +41,41 @@ class RCX(object):
 
     def set_speeds(self, A, B, C):
         speeds = [A, B, C]
-        if speeds == self.motors_speeds:
-            return
-        if A != self.motors_speeds[0]:
-            self._send('\x13\x01\x02' + chr(abs(A)-1))
+        absspeeds = map(abs, speeds)
+        a, b, c = absspeeds
+        if a != self.motors_speeds[0]:
+            self._send('\x13\x01\x02' + chr(a-1))
             sleep(0.1)
-        if B != self.motors_speeds[1]:
-            self._send('\x13\x02\x02' + chr(abs(B)-1))
+        if b != self.motors_speeds[1]:
+            self._send('\x13\x02\x02' + chr(b-1))
             sleep(0.1)
-        if C != self.motors_speeds[2]:
-            self._send('\x13\x04\x02' + chr(abs(C)-1))
-        self.motors_speeds = speeds
+        if c != self.motors_speeds[2]:
+            self._send('\x13\x04\x02' + chr(c-1))
+            sleep(0.1)
+        self.motors_speeds = [a, b, c]
+        directions = [cmp(A, 0), cmp(B, 0), cmp(C, 0)]
+        if directions != self.motors_directions:
+            self.set_directions(*directions)
 
     def set_directions(self, A, B, C):
-        directions = [A, B, C]
+        a = A * self.default_directions[0]
+        b = B * self.default_directions[1]
+        c = C * self.default_directions[2]
+        directions = [a, b, c]
         if directions == self.motors_directions:
             return
-        if A:
-            self._send('\xe1\x81' if A > 0 else '\xe1\x01')
+        if a:
+            self._send('\xe1\x81' if a > 0 else '\xe1\x01')
             sleep(0.1)
-        if B:
-            self._send('\xe1\x82' if B > 0 else '\xe1\x02')
+        if b:
+            self._send('\xe1\x82' if b > 0 else '\xe1\x02')
             sleep(0.1)
-        if C:
-            self._send('\xe1\x84' if C > 0 else '\xe1\x04')
-        self.motors_directions = directions
+        if c:
+            self._send('\xe1\x84' if c > 0 else '\xe1\x04')
+        self.motors_directions = [A, B, C]
 
     def _send(self, msg):
-        print '>>>', [hex(ord(x)) for x in msg]
+        print '  >', ' '.join('%02X' % ord(x) for x in msg)
         # maximal length of msg is 125 bytes
         s = 0
         #create message to send
@@ -82,7 +90,7 @@ class RCX(object):
         s = s % 256 # cast to unsigned char
         sendbuf += chr(s)
         sendbuf += chr(s^0xff)
-        print [hex(ord(x)) for x in sendbuf]
+        #print [hex(ord(x)) for x in sendbuf]
         return self.ir.write(sendbuf)
 
     def beep(self, sound=1):
