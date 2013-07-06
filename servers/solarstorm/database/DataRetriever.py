@@ -12,8 +12,8 @@ class DataRetriever:
     def __init__(self):
         # Download data to a user specified local directory
         # Provide destination in such formats:
-        # 	ubuntu : /home/simar/Repos/eras
-        #	windows: C:/Repos/eras
+        #   ubuntu : /home/simar/Repos/eras
+        #   windows: C:/Repos/eras
         self.dest = raw_input("Provide download directory: ")
 
     def retriever(self,url,dest):
@@ -43,7 +43,7 @@ class DataRetriever:
         file_open.close()
 
     def dsd_retriever(self):
-        for n in range(2012,2013):
+        for n in range(1996,2013):
             url = "http://www.swpc.noaa.gov/ftpdir/warehouse/"+str(n)+\
                 "/"+str(n)+"_DSD.txt"
 
