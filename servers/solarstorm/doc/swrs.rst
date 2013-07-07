@@ -17,7 +17,7 @@ Introduction
 Purpose
 -------
 
-This document describes the software requirements specification for 
+This document describes the software requirements specification for
 the Solar Storm forecasting.
 
 Scope
@@ -29,22 +29,18 @@ Describes the scope of this requirements specification.
 Reference Documents
 -------------------
 
-- [1] -- `GOES Data warehouse`_
-- [2] -- `SXI Solar X-ray imager`_
-- [3] -- `Software Engineering Practices Guidelines`_
-- [4] -- `Solar Dynamics Observatory Data`_
-- [5] -- `Example DSD`_
+- [1] -- `GOES Data warehouse. <http://www.swpc.noaa.gov/ftpmenu/warehouse.html>`_
+- [2] -- `SXI Solar X-ray imager. <http://www.swpc.noaa.gov/sxi/index.html>`_
+- [3] -- `Software Engineering Practices Guidelines. <https://eras.readthedocs.org/en/latest/doc/guidelines.html>`_
+- [4] -- `ERAS 2013 GSoC Strategic Plan. <https://bitbucket.org/italianmarssociety/eras/wiki/Google%20Summer%20of%20Code%202013>`_
+- [5] -- `Solar Dynamics Observatory Data. <http://sdo.gsfc.nasa.gov/data/>`_
+- [6] -- `Example DSD. <http://www.swpc.noaa.gov/ftpdir/warehouse/2012/2012_DSD.txt>`_
 
-.. _`GOES Data warehouse`: <http://www.swpc.noaa.gov/ftpmenu/warehouse.html>
-.. _`SXI Solar X-ray imager`: <http://www.swpc.noaa.gov/sxi/index.html>
-.. _`Software Engineering Practices Guidelines`: <https://eras.readthedocs.org/en/latest/doc/guidelines.html>
-.. _`Solar Dynamics Observatory Data`: <http://sdo.gsfc.nasa.gov/data/>
-.. _`Example DSD`: <http://www.swpc.noaa.gov/ftpdir/warehouse/2012/2012_DSD.txt>
 
 Glossary
 --------
 
-..glossary::
+.. glossary::
 
     ``ERAS``
         European Mars Analog Station
@@ -80,12 +76,12 @@ General Description
 Problem Statement
 -----------------
 
-The magnetosphere around the Earth protects us to certain extent, from the 
-constant bombardment by charged particles from the sun. But, Much of Mars’ 
-atmosphere, on the other hand, is exposed directly to these fast-moving 
-particles from the sun and the effects of solar flares. These storms of 
-solar radiation can disrupt satellite communication, resource information, 
-electrical power, and radar. Energy in the form of hard x-rays can also 
+The magnetosphere around the Earth protects us to certain extent, from the
+constant bombardment by charged particles from the sun. But, Much of Mars’
+atmosphere, on the other hand, is exposed directly to these fast-moving
+particles from the sun and the effects of solar flares. These storms of
+solar radiation can disrupt satellite communication, resource information,
+electrical power, and radar. Energy in the form of hard x-rays can also
 damage space craft electronics. The module aims to forecst such events
 and issue relevant warning.
 
@@ -93,7 +89,7 @@ Functional Description
 ----------------------
 
 The goal of the module is to provide a Neural Network implementation trained
-using local database to be constructed. This trained Neural Net can then be 
+using local database to be constructed. This trained Neural Net can then be
 interfaced with the Tango to issue a warning based on the type of solar flare.
 
 
@@ -105,7 +101,7 @@ Describe all the users and their expectations for this package
 Constraints
 -----------
 
-Although, the archive data for the training is readily available in [1]. 
+Although, the archive data for the training is readily available in [1].
 The module is constrained by the continued availability of functional data
 from the respective satellites.
 
@@ -161,8 +157,8 @@ Software Interfaces
 Communication Interfaces
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-The module is to be implementhed as a Python Tango server, which issues 
-appropriate warnings in case of forecasted Solar storm. 
+The module is to be implementhed as a Python Tango server, which issues
+appropriate warnings in case of forecasted Solar storm.
 
 
 Development and Test Factors
@@ -188,9 +184,9 @@ The planned steps for the design and implementation of the model :
 7. Neural network training
 8. Implementation
 
-This procedure is not a single-pass one, and may require the revisiting of 
-previous steps especially between training and variable selection. Although, 
-the implementation step is listed as last one, it is being given careful 
+This procedure is not a single-pass one, and may require the revisiting of
+previous steps especially between training and variable selection. Although,
+the implementation step is listed as last one, it is being given careful
 consideration prior to collecting data.
 
 
@@ -218,23 +214,23 @@ The raw data (txt files) must be downloaded on lacal machine.
 Basic Course
 ~~~~~~~~~~~~
 
-The raw data from the warehouse in [1] is to be parsed and the data to be 
-stored on local database (preferably using Mysql ). The data collected from 
-the txt files will be integrated in database using the date as key. An example 
+The raw data from the warehouse in [1] is to be parsed and the data to be
+stored on local database (preferably using Mysql ). The data collected from
+the txt files will be integrated in database using the date as key. An example
 of the :term:`DSD` file is in [5]. Using this:
 
-The following feature sets will be extarcted 
+The following feature sets will be extarcted
 
 1. Radio flux
 2. :term:`SESC` Sunspot number
-3. Sunspot area 
+3. Sunspot area
 4. New regions
 5. X-ray background flux
 6. C-forecast
 7. M-forecast
 8. X-forecast
 
-The database will then be seperated into training and validation sets to be used 
+The database will then be seperated into training and validation sets to be used
 for the neural network training.
 
 
@@ -244,8 +240,8 @@ Alternate Course
 Although, it was initially thought of using image data from :term:`SDO` in [4]. But,
 it is presently generating about 1.5TB of data daily and even the downsampled images
 would require immense processing power and bandwidth (SDO is receiving about 700Mb every
-36 secs). Such processing power is not currently available for this implementation.Still, 
-attempts wil be made to find any source of processed data access points or APIs which may 
+36 secs). Such processing power is not currently available for this implementation.Still,
+attempts wil be made to find any source of processed data access points or APIs which may
 provide us the preprocessed data.
 
 
@@ -285,7 +281,7 @@ The following Neural Network paradigms will be considered :
 
 1. number of hidden layers
 2. number of hidden neurons
-3. transfer functions  
+3. transfer functions
 
 Additional factors considered for the training :
 
@@ -302,8 +298,8 @@ Alternate Course
 
 As an alternate course, a neural network consisting of multiple outputs to
 classify the features into the respective classes can be trained. Based on
-the input feature set, the output will be the corresponding class. The 
-performance of both the implementations can be analysed to identify the 
+the input feature set, the output will be the corresponding class. The
+performance of both the implementations can be analysed to identify the
 most suitable solution.
 
 Postconditions
@@ -318,7 +314,7 @@ Use Case: Solar storm warning
 
 Actors
 ~~~~~~
-Trained neural network as server, 
+Trained neural network as server,
 client that responds to warning
 
 Priority
@@ -332,10 +328,10 @@ The neural network has access to input data feed.
 Basic Course
 ~~~~~~~~~~~~
 
-The input features would be fed to the trained neural network. As the network has 
-already been trained offline, the implemented neural network should be able to 
-provide fast response. In case of a warning, the relevant warning will be issued 
-specifying the type of forecast.
+The input features would be fed to the trained neural network. As the 
+network has already been trained offline, the implemented neural network
+should be able to provide fast response. In case of a warning, the 
+relevant warning will be issued specifying the type of forecast.
 
 Alternate Course
 ~~~~~~~~~~~~~~~~
@@ -344,5 +340,3 @@ None
 Postconditions
 ~~~~~~~~~~~~~~
 None
-
-
