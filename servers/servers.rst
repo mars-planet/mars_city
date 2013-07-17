@@ -9,3 +9,4 @@ Tango Servers
    hr_monitor/doc/index
    kim/doc/index
    solarstorm/doc/index
+   myro/doc/myro
