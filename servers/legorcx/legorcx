@@ -1,11 +1,9 @@
 #!/usr/bin/python
 
-from __future__ import division
-
 import sys
 import PyTango
 
-import legorcx
+import rcxlib
 
 class PyDevice(PyTango.DeviceClass):
     cmd_list = {'start': [[PyTango.ArgType.DevVoid],
@@ -18,12 +16,12 @@ class PyDevice(PyTango.DeviceClass):
                          [PyTango.ArgType.DevVoid]],
                 'drive': [[PyTango.ArgType.DevVoid],
                           [PyTango.ArgType.DevVoid],
-                          {'polling period': 400}],}
+                          {'polling period': 500}],}
     attr_type = [
         [PyTango.ArgType.DevFloat,
          PyTango.AttrDataFormat.SCALAR,
          PyTango.AttrWriteType.READ],
-        {'polling period': 400}
+        {'polling period': 1000}
     ]
     attr_list = {
         'speed': attr_type,
@@ -37,34 +35,34 @@ class PyDevice(PyTango.DeviceClass):
 
 class PyLegoRCX(PyTango.Device_4Impl):
     def __init__(self, cl, name):
-        self.neurohs = PyTango.DeviceProxy('c3/neurohs/epoc')
+        self.rcx = rcxlib.RCX()
+        #self.neurohs = PyTango.DeviceProxy('c3/neurohs/epoc')
         self.devices = {}
         PyTango.Device_4Impl.__init__(self, cl, name)
         self.info_stream('In PyLegoRCX.__init__')
         PyLegoRCX.init_device(self)
+	self.MAXSPEED = 400
 
     def read_speed(self, the_att):
         #self.speed = self.neurohs['speed'].value
-        #self.speed = self.neurohs['y'].value
         the_att.set_value(self.speed)
-        #print 'speed', self.speed
+        print 'speed', self.speed
 
     def read_steering(self, the_att):
         #self.steering = self.neurohs['steering'].value
-        #self.steering = self.neurohs['x'].value
         the_att.set_value(self.steering)
-        #print 'steering', self.steering
+        print 'steering', self.steering
 
     def start(self):
-        self.drivercx.start()
+        self.rcx.set_motors(1, 0, 1)
         print 'start'
 
     def stop(self):
-        self.drivercx.stop()
+        self.rcx.set_motors(0, 0, 0)
         print 'stop'
 
     def set_speed(self, speed_value):
-        self.speed = speed_value
+        self.speed =  speed_value
         print 'set_speed'
 
     def set_steering(self, steering_value):
@@ -72,15 +70,29 @@ class PyLegoRCX(PyTango.Device_4Impl):
         print 'set_steering'
 
     def drive(self):
-        self.drivercx.drive(self.speed, self.steering)
-        print 'drive speed and steering with values:', self.speed, self.steering
+	normalized_speed=self.speed/self.MAXSPEED
+        if -45 < self.steering < 45:
+                if normalized_speed > 0.5:
+                        A, C = 8, 8
+                else:
+                        A, C = 1, -1 
+        if 45 < self.steering < 135:
+                A, C = 1, -1
+        if 135 < self.steering < 180:
+                A, C = 8, -8
+        if -135 < self.steering < -45:
+                A, C = -1, 1
+        if -180 < self.steering < -135:
+                A, C = -8, 8
+                
+                set_speeds(A, 0, C)
+        print 'drive A C', A, C
 
     def init_device(self):
         self.info_stream('In Python init_device method')
         self.speed = 0
         self.steering = 0
         self.set_state(PyTango.DevState.ON)
-        self.drivercx = legorcx.DriveRCX()
 
 
 if __name__ == '__main__':

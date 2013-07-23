@@ -40,24 +40,22 @@ class RCX(object):
         self.motors_on = motors
 
     def set_speeds(self, A, B, C):
-        #valid speeds are from -7 to 7
         speeds = [A, B, C]
         absspeeds = map(abs, speeds)
         a, b, c = absspeeds
         if a != self.motors_speeds[0]:
-            self._send('\x13\x01\x02' + chr(a))
+            self._send('\x13\x01\x02' + chr(a-1))
             sleep(0.1)
         if b != self.motors_speeds[1]:
-            self._send('\x13\x02\x02' + chr(b))
+            self._send('\x13\x02\x02' + chr(b-1))
             sleep(0.1)
         if c != self.motors_speeds[2]:
-            self._send('\x13\x04\x02' + chr(c))
+            self._send('\x13\x04\x02' + chr(c-1))
             sleep(0.1)
         self.motors_speeds = [a, b, c]
         directions = [cmp(A, 0), cmp(B, 0), cmp(C, 0)]
         if directions != self.motors_directions:
             self.set_directions(*directions)
-            print 'RCX.set_speeds: set directions'
 
     def set_directions(self, A, B, C):
         a = A * self.default_directions[0]
