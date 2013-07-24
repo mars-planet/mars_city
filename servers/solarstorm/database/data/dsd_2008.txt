@@ -1,4 +1,4 @@
-Product: Daily Solar Data         2008_DSD.txt
+:Product: Daily Solar Data         2008_DSD.txt
 :Issued: 1800 UT 07 Jan 2009
 #
 #  Prepared by the U.S. Dept. of Commerce, NOAA, Space Weather Prediction Center
