@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<PyBrain>
+	<Network class="pybrain.structure.networks.feedforward.FeedForwardNetwork" name="FeedForwardNetwork-8">
+		<name val="'FeedForwardNetwork-8'"/>
+		<Modules>
+			<LinearLayer class="pybrain.structure.modules.linearlayer.LinearLayer" inmodule="True" name="LinearLayer-4">
+				<dim val="6"/>
+			</LinearLayer>
+			<LinearLayer class="pybrain.structure.modules.linearlayer.LinearLayer" name="LinearLayer-9" outmodule="True">
+				<dim val="3"/>
+			</LinearLayer>
+			<SigmoidLayer class="pybrain.structure.modules.sigmoidlayer.SigmoidLayer" name="SigmoidLayer-10">
+				<dim val="4"/>
+			</SigmoidLayer>
+			<TanhLayer class="pybrain.structure.modules.tanhlayer.TanhLayer" name="TanhLayer-11">
+				<dim val="2"/>
+			</TanhLayer>
+		</Modules>
+		<Connections>
+			<FullConnection class="pybrain.structure.connections.full.FullConnection" name="FullConnection-5">
+				<inmod val="LinearLayer-4"/>
+				<outmod val="SigmoidLayer-10"/>
+				<Parameters>[2.4038244488626246, -0.69417674067453417, -0.021762470672458567, 0.1140417462141607, 1.2403515277715811, 0.033574748400950899, 1.0589280524937641, -0.0033601309821010032, 1.387359852564326, 1.1860116505192495, -1.1290957658071752, -1.39134143739187, -0.41340139891649164, 0.76586786046305122, -1.342396884602526, -1.4069015000428309, 0.10612531274352624, 0.61707845499326464, -0.37966899735341525, -3.3425441357239634, -0.11298018088793588, 0.21120340449326561, 0.24618306628841777, -0.38459015276067626]</Parameters>
+			</FullConnection>
+			<FullConnection class="pybrain.structure.connections.full.FullConnection" name="FullConnection-7">
+				<inmod val="SigmoidLayer-10"/>
+				<outmod val="TanhLayer-11"/>
+				<Parameters>[-0.0039286369628045766, -2.7603684984598384, 1.1774476895861192, 1.6543931581757578, 4.1175000254639835, 4.3403925927116616, 1.2760489775878743, -0.97686266110630815]</Parameters>
+			</FullConnection>
+			<FullConnection class="pybrain.structure.connections.full.FullConnection" name="FullConnection-6">
+				<inmod val="TanhLayer-11"/>
+				<outmod val="LinearLayer-9"/>
+				<Parameters>[-3.2011041782309313, -3.2045945659979536, 0.050388414904881128, 0.049966394619064852, 0.011488472819101633, 0.01138944680247175]</Parameters>
+			</FullConnection>
+		</Connections>
+	</Network>
+</PyBrain>
