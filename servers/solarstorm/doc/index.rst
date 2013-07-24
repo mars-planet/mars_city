@@ -6,3 +6,4 @@ Solar Storm Forecasting Server
    :maxdepth: 1
 
    swrs
+   swds
