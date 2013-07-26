@@ -25,7 +25,7 @@ Scope
 
 The scope of the Solar storm forecast server is to be able to issue
 warning in case of an expected solar storm, to prevent disruption of
-satellite communication and damage to space crat electronics.
+satellite communication and damage to space craft electronics.
 
 
 Reference Documents
@@ -78,10 +78,10 @@ Assumptions and dependencies
 
 Some of the dependencies for the module are PyBrain in [1] and PyTango
 in [5]. The PyTango library is used for the Python bindings of the Tango
-Distribution control system. The PyBrain library is being used for the
+distributed control system. The PyBrain library is being used for the
 construction of different possible neural network architectures. Please
 note that the documentation of the PyBrain library has not been updated
-for a long time. So there seem to be some diferences in the documentation
+for a long time. So there seem to be some differences in the documentation
 and the actual code. Thus, it is highly recommended that the PyBrain code
 be studied instead of just relying only on the documentation.
 
@@ -142,7 +142,7 @@ Responsibilities
 The responsibility of this module is to retrieve files and data from
 possibly different sources to create a common local database. The reason
 for creating a local offline database is that, such local database can be
-better managed and processed without any possible interuptions.
+better managed and processed without any possible interruptions.
 
 Constraints
 -----------
@@ -190,7 +190,7 @@ The correctness of the data files and their formatting is major constraint.
 As an instance `such data file from the GOES warehouse
 <http://www.swpc.noaa.gov/ftpdir/warehouse/2008/2008_DSD.txt>`_
 seems to be highly inconsistent. Almost all of the entries in such file
-have 0 as flare values. Such inconsistencis can harm the training of
+have 0 as flare values. Such inconsistencies can harm the training of
 the neural network.
 
 Composition
@@ -235,7 +235,7 @@ the training dataset.
 Composition
 -----------
 
-The unit is composed of the Neural Network archtecture. Various network
+The unit is composed of the Neural Network architecture. Various network
 architectures including Multiple output, or different Single output
 networks can be attempted.
 
@@ -281,7 +281,7 @@ Uses/Interactions
 This file contains the results from the neural network training unit.
 These results can then be used to implement the final trained neural
 network. So, this will avoid the need to retrain the neural network
-everytime, as the training results are made available in this file.
+every time, as the training results are made available in this file.
 
 
 
