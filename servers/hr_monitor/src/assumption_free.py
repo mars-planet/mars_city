@@ -156,14 +156,14 @@ class AssumptionFreeAA(object):
 
 
     @classmethod
-    def get_words(cls, window, factor, feature_size, word_size):
+    def _get_words(cls, window, factor, feature_size, word_size):
         """
         Splits window in feature_size sized chunks, calculates
         their SAX representation and returns a list with those representations.
         """
         lead_words = []
         for i in range(factor):
-            window_slice = list(islice(window, i, (i+1)*feature_size))
+            window_slice = list(islice(window, i*feature_size, (i+1)*feature_size))
             lead_words += cls._sax(data=np.array([window_slice]),
                                     word_size=word_size)
 
@@ -185,11 +185,11 @@ class AssumptionFreeAA(object):
             if (len(self._lead_window) == self._lead_window_size
                     and len(self._lag_window) == self._lag_window_size):
 
-                lead_words = self.get_words(window=self._lead_window,
+                lead_words = self._get_words(window=self._lead_window,
                                             factor=self._lead_window_factor,
                                             feature_size=self._window_size,
                                             word_size=self._word_size)
-                lag_words = self.get_words(self._lag_window,
+                lag_words = self._get_words(self._lag_window,
                                            self._lag_window_factor,
                                            self._window_size,
                                            self._word_size)
