@@ -1,6 +1,6 @@
-=========================================================
-Software Requirements Specification for kim
-=========================================================
+===============================================================
+Software Requirements Specification for Voice Interface Library
+===============================================================
 
 :Author: Eric Meinhardt
 
@@ -13,18 +13,22 @@ Change Record
 changed, Franco's architecture comments integrated, added example of macro
 use.
 
+2013.07.11 - Draft 3. Name change, made Aouda.X suit simply an example of
+an analogue suit rather than the only specific target for integration, minor
+edits for clarity.
+
 Introduction
 ============
 
 Purpose & Scope
 ---------------
 
-This document is intended to detail for developers of kim and other
-:term:`ERAS C3` components what ERAS's voice interface library is predicted
-to be needed for, relevant details about who is predicted to have those
-needs, and what features kim has (or will have) to meet those anticipated
-needs. This requirements specification is intended to cover a software
-library and associated documentation.
+This document is intended to detail for developers of the :term:`ERAS` voice
+interface library and other :term:`ERAS C3` components what ERAS's voice
+interface library is predicted to be needed for, relevant details about who is
+predicted to have those needs, and what features the voice interface has (or
+will have) to meet those anticipated needs. This requirements specification is
+intended to cover a software library and associated documentation.
 
 Reference Documents
 -------------------
@@ -33,11 +37,12 @@ Reference Documents
   (2006). Are you talking to me? dialogue systems supporting mixed teams of
   humans and robots. In AAAI Fall Symposium on Aurally Informed Performance:
   Integrating Machine Listening and Auditory Presentation in Robotic Systems,
-  Arlington, Virginia.
-  <http://ti.arc.nasa.gov/m/pub-archive/archive/1240.pdf>`_
+  Arlington, Virginia. <http://ti.arc.nasa.gov/m/pub-
+  archive/archive/1240.pdf>`_
 - [2] -- `Software Engineering Practices Guidelines for the ERAS Project.
   <https://eras.readthedocs.org/en/latest/doc/guidelines.html>`_
-- [3] -- `ERAS 2013 GSoC Strategic Plan. <https://bitbucket.org/italianmarssociety/eras/wiki/Google%20Summer%20of%20Code%202013>`_
+- [3] -- `ERAS 2013 GSoC Strategic Plan. <https://bitbucket.org/italianmarssoc
+  iety/eras/wiki/Google%20Summer%20of%20Code%202013>`_
 
 Glossary
 --------
@@ -83,7 +88,8 @@ hardware.
 Functional Description
 ----------------------
 
-The kim library will support the creation of software agents capable of
+The voice interface library will support the creation of software agents
+capable of
 
 #. accepting an audio signal,
 #. deciding whether the audio signal is addressed to the software agent,
@@ -92,27 +98,28 @@ The kim library will support the creation of software agents capable of
    sequence,
 #. and providing appropriate feedback to the user.
 
-Kim's first release should allow for the simplest possible solution to these
-requirements; features that involve detailed (or more speculative) knowledge
-of the capabilities of the rover software agent(s) that control actuators
-(effectors) or take input from sensors (e.g. complex inference about context,
-richer feedback to the speaker about the internal state of the rover software,
-etc) are *not* part of the design goals for an initial release, although
-creating modularity and abstractions that allow for easier addition or
-interface with such code in later updates *is*.
+The voice interface library's first release should allow for the simplest
+possible solution to these requirements; features that involve detailed (or
+more speculative) knowledge of the capabilities of the rover software agent(s)
+that control actuators (effectors) or take input from sensors (e.g. complex
+inference about context, richer feedback to the speaker about the internal
+state of the rover software, etc) are *not* part of the design goals for an
+initial release, although creating modularity and abstractions that allow for
+easier addition or interface with such code in later updates *is*.
 
 For now, advanced features (in approximately this order of priority) include
 
 #. different types, degrees, and mediums of feedback (text, artificial speech,
-   and more demanding graphical displays), with implementation dependent in
-   part on additional details about the Aouda.X :term:`HUD` and/or MARVIN.
+   and more demanding graphical displays), with implementation independent of
+   specific details about any particular analogue spacesuit or component
+   thereof (e.g.the Aouda.X :term:`HUD` and/or MARVIN).
 #. support for a dialog manager (for managing conversation-related inference)
    and other more advanced natural language processing capabilities built on
    top of other components of the rover software executive
 #. easy-to-use, low maintenance learning mechanisms, starting with the
    capacity for simple user-definable macros that can be 'written' entirely in
    the field and 'on the fly'. For example, suppose an astronaut decides, in
-   the field, that she or he wants the rover to take 2 pictures (each with
+   the field, that she or he wants the rover to take two pictures (each with
    different camera settings) with, say, him- or herself at the center, at
    multiple locations. Without macros and without pre-EVA scripting of this
    task, the astronaut will have to go through this loop
@@ -128,16 +135,17 @@ For now, advanced features (in approximately this order of priority) include
    to 'start recording', give instructions to the rover - in the case of the
    example above, 'Follow closely.'...'Stop.'...'Take a picture of me using
    <settings abc>.'...'Take a picture of me using <settings xyz>.'...'Stop
-   recording. Label this macro <macro-name>.'
+   recording. Label this macro <macro-name>.' and then tell the rover in
+   question to invoke the macro.
 
 Environment
 -----------
 
-Kim is intended to be written in Python, with an instance hosted on the
-onboard computer of the analogue space suit (Aouda.X), (wrapped in a Tango
-distributed control system object) running Ubuntu 12.04 (LTS), and to interact
-well with other elements of the :term:`ERAS C3` Prototype, namely the rover
-executive / planning agent.
+The voice interface library is intended to be written in Python, with an
+instance hosted on an onboard computer of an analogue space suit (e.g.
+Aouda.X), wrapped in a Tango distributed control system object, running
+Ubuntu 12.04 (LTS), and to interact well with other elements of the
+:term:`ERAS C3` Prototype, namely the rover executive / planning agent.
 
 User classes & objectives
 -------------------------
@@ -148,11 +156,11 @@ are used to using speech - as with other human beings (see the :term:`ELIZA
 effect`), but probably have had enough experience talking to phone-based
 dialog agents and/or smartphone assistants to lower their expectations.
 
-In more detail, this means a kim instance must provide feedback (answering the
-user question "Did the rover hear me and understand what I asked?") and
-require a minimum of extra explicitness that a conversation with a human being
-would be unlikely to contain: i.e. a kim instance should have some means of
-modeling conversational context.
+In more detail, this means a voice interface instance must provide feedback
+(answering the user question "Did the rover hear me and understand what I
+asked?") and require a minimum of extra explicitness that a conversation with
+a human being would be unlikely to contain: i.e. a voice interface instance
+should have some means of modeling conversational context.
 
 As well, as a control interface, astronauts want as clearly as possible to
 know what options they have (i.e. what the rover is listening for) to direct
@@ -162,8 +170,9 @@ on how they can pursue those options (i.e. what they can reasonably expect the
 rover will or will not understand).
 
 Users will be expected to have extensive opportunities to learn the
-capabilities and limitations of the kim library and also to provide more than
-enough training data for speech recognition models prior to field testing.
+capabilities and limitations of the voice interface library and also to
+provide more than enough training data for speech recognition models prior to
+field testing.
 
 Functional Requirements
 =======================
@@ -172,7 +181,8 @@ Requirement 1: Receive audio stream
 -----------------------------------
 Description
 ~~~~~~~~~~~
-The kim instance should be able to receive a local audio stream.
+The voice interface instance should be able to receive a local audio
+stream.
 
 Criticality
 ~~~~~~~~~~~
@@ -187,8 +197,8 @@ Requirement 2: Classify audio signal addressee
 ----------------------------------------------
 Description
 ~~~~~~~~~~~
-A kim agent (instance) needs to be able to determine whether or not the stream
-it's receiving contains linguistic content directed at it.
+A voice interface agent (instance) needs to be able to determine whether or
+not the stream it's receiving contains linguistic content directed at it.
 
 Criticality
 ~~~~~~~~~~~
@@ -203,12 +213,12 @@ Requirement 3: Map relevant signal to word sequence
 ---------------------------------------------------
 Description
 ~~~~~~~~~~~
-A kim software agent needs to infer from the audio signal what a matching word
-sequence is; library availability and efficiency vs. effectiveness trade-offs
-will determine how complex this needs to be (e.g. committing to a single most-
-probable word stream from t=0 forward vs. holding some small number of
-candidate word sequences in parallel and dynamically reranking them as the
-signal unfolds).
+A voice interface software agent needs to infer from the audio signal what a
+matching word sequence is; library availability and efficiency vs.
+effectiveness trade-offs will determine how complex this needs to be (e.g.
+committing to a single most- probable word stream from t=0 forward vs. holding
+some small number of candidate word sequences in parallel and dynamically
+reranking them as the signal unfolds).
 
 Criticality
 ~~~~~~~~~~~
@@ -230,8 +240,8 @@ Requirement 4: Map word sequence to action request
 Description
 ~~~~~~~~~~~
 Given a word sequence (or probability estimates over a small number of the
-most probable word sequences), a kim software agent must attempt to determine
-what action(s) is (are) being requested of the rover.
+most probable word sequences), a voice interface software agent must attempt
+to determine what action(s) is (are) being requested of the rover.
 
 Criticality
 ~~~~~~~~~~~
@@ -247,12 +257,14 @@ Requirement 5: User Feedback
 Description
 ~~~~~~~~~~~
 The voice recognition software agent may not recognize or understand some or
-all of an utterance it believes directed at it; the kim instance ought, in
-such cases, be able to provide appropriate feedback to users.
+all of an utterance it believes directed at it; the voice interface
+instance ought, in such cases, be able to provide appropriate feedback to
+users.
 
-To start, a kim agent will be able to send text error messages more useful and
-informative to an end-user who knows little or nothing about kim, Tango, or
-how voice recognition works than what a developer would use for debugging
+To start, a voice interface agent will be able to send text error messages
+more useful and informative to an end-user who knows little or nothing about
+the ERAS voice interface library, Tango, or how voice recognition works than
+what a developer would use for debugging
 - stack traces and programmer/scientific jargon will NOT be acceptable. These
 can either be transmitted (and viewed) as text or via synthesized speech.
 
@@ -277,9 +289,9 @@ Description
 Synthesized speech (minimally text-to-speech versions of the text error
 messages), differential length/detail feedback, context-based-inference, and
 non-verbal graphical feedback are variations in feedback that will allow an
-astronaut to more easily able to understand why kim (or the rover) is not
-understanding or complying with the astronaut's request and what they can do
-to change this, as circumstances allow.
+astronaut to more easily able to understand why the voice interface (or the
+rover) is not understanding or complying with the astronaut's request and what
+they can do to change this, as circumstances allow.
 
 Criticality
 ~~~~~~~~~~~
@@ -308,7 +320,7 @@ much they need to adjust their answers for the primitiveness of the rover and
 what the recognized types and sequences of magic words are to make it do their
 bidding.
 
-Specifically, a part of speech tagger, proper name identification/named
+Specifically, a part of speech tagger, proper name identification/named-
 entity-extraction, more complex syntactic and semantic parsers, and a dialog
 manager, with the latter interfacing with a planning agent (and its associated
 formal framework) are starting areas for growth. In particular, investing time
@@ -325,10 +337,10 @@ Low/Medium.
 Criticality depends in part on testing; if a simpler system is good enough for
 intended uses, adding more complicated natural language processing components
 may end up at worst compromising performance (NLP/NLU is CPU-intensive and
-might be a bottleneck in voice command process), easy learning/training curve
-(the system may take a long time to learn enough data from users to function
-correctly where a simpler system may work well-enough 'out of the box'), and
-of course add to the tasks of software development and maintenance.
+might be a bottleneck in voice command processing), the learning/training
+curve (the system may take a long time to learn enough data from users to
+function correctly where a simpler system may work well-enough 'out of the
+box'), and of course add to the tasks of software development and maintenance.
 
 Dependency
 ~~~~~~~~~~~
@@ -344,11 +356,11 @@ After initial testing of each feature and use-case scenario, bottlenecks in
 functionality (at least earlier in the data-flow, given the nature of
 compounding errors and dependencies among functional requirements 1-5) should
 become identifiable; the ability to learn from each episode of each feature
-use and thereby both improve a kim instance's statistical models of speech,
-language, and understanding as well as to add new 'vocabulary' items ("voice
-macros") could be an important means of minimizing astronaut frustration and
-effort while maximizing an astronaut's ability to direct a rover as they
-please.
+use and thereby both improve a the voice interface instance's statistical
+models of speech, language, and understanding as well as to add new
+'vocabulary' items (named entities and 'voice macros') could be an important
+means of minimizing astronaut frustration and effort while maximizing an
+astronaut's ability to direct a rover as they please.
 
 Specific areas of improvement are below:
 
@@ -370,9 +382,9 @@ Specific areas of improvement are below:
   astronauts to interact more naturally, rather than trying to remember the
   hyperspecific, stilted forms that the rover recognizes.
 * vocabulary - astronauts will be able to add new atomic items (e.g. location
-  names) to a kim agent's knowledgebase and more complex procedures (e.g. let
-  the sequence of actions a, b, and then c be called 'X') composed of simpler
-  actions each associated with a voice command.
+  names) to a voice interface agent's knowledgebase and more complex
+  procedures (e.g. let the sequence of actions a, b, and then c be called 'X')
+  composed of simpler actions each associated with a voice command.
 
 Criticality
 ~~~~~~~~~~~
@@ -398,15 +410,15 @@ this point.
 
 Software Interfaces
 -------------------
-The Tango object representing the server hosting the kim instance should have
-access to appropriate (currently not well defined) Tango objects related to
-the rover and a flexible number of slots for Tango objects for suit-related
-interfaces, like receiving microphone audio and/or updates about the state of
-the astronaut - useful for modeling utterance context.
+The Tango object representing the server hosting the voice interface
+instance should have access to appropriate (currently not well defined) Tango
+objects related to a rover and a flexible number of slots for Tango objects
+for suit-related interfaces, like receiving microphone audio and/or updates
+about the state of an astronaut - useful for modeling utterance context.
 
-Externally, a kim instance Tango object should have exposed methods for the
-rover planner/executive to call for the purpose of deciding what feedback to
-send to the user.
+Externally, the voice interface instance Tango object should have exposed
+methods for the rover planner/executive to call for the purpose of deciding
+what feedback to send to a user.
 
 Performance Requirements
 ========================
@@ -423,10 +435,10 @@ stringent.
 Word recognition error rate on actual rover-directed speech (%)
 ---------------------------------------------------------------
 A reasonable goal, based on consultation of a review of early/mid-2000s NASA
-technology and field tests ([1]), is for around ~6.5% of actual rover-directed
-words to be incorrectly recognized. A possible catch here is that the
+technology and field tests ([1]), is for around ~6.5% or less of actual rover-
+directed words to be incorrectly recognized. A possible catch here is that the
 :term:`IMS`/:term:`OeWF` volunteers may have varying types and degrees of
-accents.
+accented English.
 
 False accept rate (attending to non-rover-directed speech)
 ----------------------------------------------------------
@@ -436,9 +448,9 @@ request directed at it. A reasonable goal based on consultation of [1] is for
 as directed at the rover.
 
 An easy fix for this to start with is a prefix-keyword (think Star Trek's
-"Computer, ..." - prefixing every command with the name of the rover);
-depending on how annoying this is, a separate classifier can be trained later
-to classify incoming utterances.
+"Computer, ..." - prefixing every command with the name of the rover being
+addressed); depending on how annoying this is, a separate classifier can be
+trained later to classify incoming utterances.
 
 False reject rate (ignoring rover-directed speech)
 --------------------------------------------------
@@ -457,17 +469,17 @@ All code will adhere to the guidelines outlined in the ERAS `Software
 Engineering Practices Guidelines
 <http://eras.readthedocs.org/en/latest/doc/guidelines.html/>`_
 
-In addition, a kim instance ought to be able to support receiving audio in a
-number of well-supported, non-proprietary audio formats - WAV, AAC, Ogg
-vorbis.
+In addition, a the voice interface instance ought to be able to support
+receiving audio in a number of well-supported, non-proprietary audio formats -
+WAV, AAC, Ogg vorbis.
 
 Software validation and verification
 ------------------------------------
 
-The kim library code will be unit-tested, behaviorally tested by cases, using
-speech recorded on inexpensive consumer-model laptop microphones, possibly
-tested in simulation (provided a simulation exists at some point), and later
-field-tested by :term:`IMS`/:term:`OeWF` volunteers.
+The voice interface library code will be unit-tested, behaviorally tested by
+cases, using speech recorded on inexpensive consumer-model laptop microphones,
+possibly tested in simulation (provided a simulation exists at some point),
+and later field-tested by :term:`IMS`/:term:`OeWF` volunteers.
 
 Planning
 --------
@@ -502,11 +514,11 @@ Use Case: Important features common to all use cases
 Actors
 ~~~~~~
 One or more astronauts/:term:`IMS` or :term:`OeWF` volunteers conducting
-(mock) :term:`EVA` and using rovers to assist them.
+(mock) :term:`EVA` and using one or more rovers to assist them.
 
 Contextual Goals
 ~~~~~~~~~~~~~~~~
-Direct the operation of the rover using naturalistic voice commands.
+Direct the operation of a rover using naturalistic voice commands.
 
 Priority
 --------
@@ -514,61 +526,64 @@ Critical.
 
 Preconditions
 -------------
-The kim instance needs a functioning audio stream input.
+The voice interface instance needs a functioning audio stream input.
 
 Course
 ------------
-1. Audio is transmitted from the astronaut(s) to the server hosting the voice
-   interface agent.
+1. Audio is transmitted from the astronaut(s) microphone to the server hosting
+   the voice interface agent.
 2. Language in the audio is classified as rover-directed or not.
 3. Rover-directed speech is mapped onto words (the mapping mechanism is
-   deliberately underspecified)
-4. The kim instance decides what to do with the utterance and therefore what
-   kind of feedback to give the user:
+   deliberately underspecified).
+4. The voice interface instance decides what to do with the utterance and
+   therefore what kind of feedback to give the user:
 
-   1. Utterances the kim instance is confident it understood:
+   1. Utterances the voice interface instance is confident it understood:
 
        1. The utterance is mapped onto an action request.
        2. The action request gets passed on to the rover executive (planning
           agent).
-       3. The rover executive then passes on to the kim instance whether the
-          request will be executed, if there's a conflict and the kim instance
-          should ask for confirmation/clarification, or if the request cannot
-          be completed.
-       4. Whatever action the rover planning agent takes, the kim instance
-          then decides appropriate feedback to pass onto the user.
+       3. The rover executive then passes on to the voice interface
+          instance whether the request will be executed, if there's a conflict
+          and the voice interface instance should ask for
+          confirmation/clarification, or if the request cannot be completed.
+       4. Whatever action the rover planning agent takes, the voice
+          interface instance then decides appropriate feedback to pass onto
+          the user.
 
-            * If the request will be straightforwardly granted, a short
+            1. If the request will be straightforwardly granted, a short
               restatement including parameters (e.g. distance to move or
-              rotate, destination) will be forwarded by the kim instance to
-              the astronauts on :term:`EVA`.
+              rotate, destination) will be forwarded by the voice
+              interface instance to the astronauts on :term:`EVA`.
                 * Alternately, to cut down on useless chatter, if there is
                   some kind of :term:`HUD` indicator of what each rover on
                   :term:`EVA` is doing (i.e. a short status summary), updating
-                  this could be a better alternative than :term:`HUD` text or
-                  synthesized speech.
-            * If there's a conflict, the kim instance should pass on a message
-              (via text-in-:term:`HUD` or via synthesized speech) as to what
-              conflicts with the request (e.g. "CONFLICT: Travel to <name-of-
-              requested- destination> conflicts with existing goal <goal
-              id/description>.") and ask for confirmation of the request (e.g.
-              "CONFIRM?: Travel to <destination-name>.")
-            * If the request cannot be complied with (due to precondition
-              violation distinct from a goal conflict), the kim agent should
-              pass along a message explaining as much: "REQUEST DENIED:
-              <explanation - precondition xyz violated.>"
-            * If the request was only partially understood or understood with
+                  this could be a better alternative than :term:`HUD` text
+                  or synthesized speech.
+            2. If there's a conflict, the voice interface instance should
+              pass on a message (via text-in-:term:`HUD` or via synthesized
+              speech) as to what conflicts with the request (e.g. "CONFLICT:
+              Travel to <name-of- requested- destination> conflicts with
+              existing goal <goal id/description>.") and ask for confirmation
+              of the request (e.g. "CONFIRM?: Travel to <destination-name>.")
+            3. If the request cannot be complied with (due to precondition
+              violation distinct from a goal conflict), the voice interface
+              agent should pass along a message explaining as much: "REQUEST
+              DENIED: <explanation - precondition xyz violated.>"
+            4. If the request was only partially understood or understood with
               confidence less than a to-be-experimentally-determined
-              threshold, then the kim instance should request clarification of
-              the remaining parameters while clarifying what it already
-              understands. For example, "Travel where?" "Move forward how
-              far?" "Track what?" "Follow who?"
+              threshold, then the voice interface instance should request
+              clarification of the remaining parameters while clarifying what
+              it already understands. For example, "Travel where?" "Move
+              forward how far?" "Track what?" "Follow who?"
 
-   2. Utterances the kim instance is NOT confident it understood:
-       1. The kim instance requests clarification a limited number of times:
+   2. Utterances the voice interface instance is NOT confident it
+      understood:
+       *. The voice interface instance requests clarification a limited
+          number of times:
 
-            * successful clarification puts the kim instance back at 4.1
-              above.
+            * successful clarification puts the voice interface instance
+              back at 4.1 above.
             * before returning to a state where it waits for a new command or
               until the user decides to break the clarification dialog loop
               (e.g. via "No more questions.", "Start over.", "Shut up.")
@@ -605,10 +620,10 @@ Examples of less definite duration, goal directed instructions
 * “Come here.”
 * “Follow me (closely, exactly).”
 
-Notably, the grammar template for this sort of command consists of some
-movement word, a target phrase (possibly including prepositions or adverbs),
-and optional arguments indicating the manner in which the rover should pursue
-movement towards the target.
+Notably, a (very) rough grammar template for this sort of command consists of
+some movement word, a target phrase (possibly including prepositions or
+adverbs), and optional arguments indicating the manner in which the rover
+should pursue movement towards the target.
 
 Examples of definite, direct instructions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -688,8 +703,8 @@ rover if one too heavy to drag back to safety breaks in the field?
 Postconditions
 --------------
 A more or less detailed message of what is or isn't OK with the requested item
-is sent via text to the astronaut's :term:`HUD` or via voice-synthesis to
-the current common voice channel.
+is sent via text to the astronaut's :term:`HUD` or via voice-synthesis to the
+current common voice channel.
 
 Notes
 =====

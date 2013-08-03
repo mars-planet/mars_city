@@ -1,6 +1,6 @@
-==================================================
-kim Software User and Maintenance Manual
-==================================================
+====================================================
+Voice Interface Software User and Maintenance Manual
+====================================================
 
 :Author: Eric Meinhardt
 
