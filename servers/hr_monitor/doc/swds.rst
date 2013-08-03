@@ -30,6 +30,9 @@ module, which in turn is part of the Crew Mission Assistant system.
 - [6] -- `TANGO distributed control system`_
 - [7] -- `PyTANGO - Python bindings for TANGO`_
 - [8] -- `F1 score`_
+- [9] -- A. Reiss and D. Stricker. Introducing a New Benchmarked Dataset for Activity Monitoring. The 16th IEEE International Symposium on Wearable Computers (ISWC), 2012.
+- [10] -- A. Reiss and D. Stricker. Creating and Benchmarking a New Dataset for Physical Activity Monitoring. The 5th Workshop on Affect and Behaviour Related Assistance (ABRA), 2012.
+
 
 .. _`C3 Prototype document v.4`: <http://www.erasproject.org/index.php?option=com_joomdoc&view=documents&path=C3+Subsystem/ERAS-C3Prototype_v4.pdf&Itemid=148>
 .. _`PAMAP2 Physical Activity Monitoring`: <http://archive.ics.uci.edu/ml/datasets/PAMAP2+Physical+Activity+Monitoring>
@@ -47,10 +50,10 @@ module, which in turn is part of the Crew Mission Assistant system.
 .. glossary::
 
     ``AD``
-        Anomaly Detection      
+        Anomaly Detection
 
     ``API``
-        Application Programming Interface       
+        Application Programming Interface
 
     ``ERAS``
         European Mars Analog Station
@@ -78,10 +81,10 @@ any directly applicable results.
 Therefore I deem necessary to investigate the available algorithms in the area
 of :term:`AD` in general, and make experiments to determine which one is more
 appropriate for the problem at hand. Those experiments are to be performed
-using [2].
-That said, at this moment **it is possible** to design the :term:`HRM` in a way
-that will leave the anomaly detector itself encapsulated, so it is easy to
-stub it or switch it for a better one if necessary.
+using [2] (see also [9] and [10]).
+That said, at this moment **it is possible** to design the :term:`HRM`
+in a way that will leave the anomaly detector itself encapsulated,
+so it is easy to stub it or switch it for a better one if necessary.
 
 
 3.1. Assumptions and dependencies
@@ -121,11 +124,11 @@ a TANGO Server, named HRMServer, and an Anomaly Detector, named HRMDetector.
 In order to test the :term:`HRM` -- and avoid the current problems with the
 Aouda.X suit -- an additional TANGO Server will be built, named SuitStubServer,
 from which the HRMServer will get the simulated heart rate
-and accelerometer data (in turn taken from [2]).
+and accelerometer data (in turn taken from [2] (see also [9] and [10])).
 
-A fourth and final component, named TestRunner, will automate the testing process by running both
-HRMServer and SuitStubServer and checking the results against a fixed
-test data set.
+A fourth and final component, named TestRunner, will automate the testing
+process by running both HRMServer and SuitStubServer and checking the results
+against a fixed test data set.
 
 **END**
 
@@ -314,4 +317,3 @@ The TestRunner has a single component.
 ------------------------
 
 The TestRunner should interact with all packages.
-

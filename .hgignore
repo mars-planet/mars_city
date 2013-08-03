@@ -3,3 +3,6 @@ doc/_build/*
 *~
 .project
 .pydevproject
+*.pyc
+.settings\org.eclipse.core.resources.prefs
+servers/hr_monitor/data_analysis/

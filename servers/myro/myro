@@ -1,0 +1,71 @@
+#!/usr/bin/python
+
+from __future__ import division
+
+import sys
+import PyTango
+from myro import *
+
+class PyDevice(PyTango.DeviceClass):
+    cmd_list = {'start': [[PyTango.ArgType.DevVoid],
+                          [PyTango.ArgType.DevVoid]],
+                'stop': [[PyTango.ArgType.DevVoid],
+                         [PyTango.ArgType.DevVoid]],
+                'move': [[PyTango.ArgType.DevVarFloatArray],
+                          [PyTango.ArgType.DevVoid]],}
+    attr_type = [
+        [PyTango.ArgType.DevFloat,
+         PyTango.AttrDataFormat.SCALAR,
+         PyTango.AttrWriteType.READ],
+        {'polling period': 400}
+    ]
+    attr_list = {
+        'translate_speed': attr_type,
+        'rotate_speed': attr_type,
+    }
+
+    def __init__(self, name):
+        PyTango.DeviceClass.__init__(self, name)
+        self.set_type("TestDevice")
+
+
+class PyMyro(PyTango.Device_4Impl):
+    def __init__(self, cl, name):
+        self.devices = {}
+        PyTango.Device_4Impl.__init__(self, cl, name)
+        self.info_stream('In PyMyro.__init__')
+        PyMyro.init_device(self)
+
+    def __del__(self):
+        print ("destructor")
+	#myro.destroy()
+	
+    def start(self):
+        print 'start'
+
+    def stop(self):
+        myro.stop()
+        print 'stop'
+        
+
+    def move(self, speed):
+        self.translate_speed = float(speed[0])
+        self.rotate_speed = float(speed[1])
+        print 'move with translate_speed and rotate_speed values:', self.translate_speed, self.rotate_speed
+        myro.move(self.translate_speed, self.rotate_speed)
+
+    def init_device(self):
+        self.info_stream('In Python init_device method')
+        self.translate_speed = 0
+        self.rotate_speed = 0
+        self.set_state(PyTango.DevState.ON)
+        myro.init("simulator")
+
+
+if __name__ == '__main__':
+    util = PyTango.Util(sys.argv)
+    util.add_class(PyDevice, PyMyro)
+
+    U = PyTango.Util.instance()
+    U.server_init()
+    U.server_run()
