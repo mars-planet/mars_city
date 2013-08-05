@@ -4,8 +4,6 @@ import os
 import gc
 import unittest
 
-import matplotlib.pyplot as plt
-
 from src.preprocessing import extract_hr_acc, read_data
 from src.assumption_free import AssumptionFreeAA
 
@@ -59,18 +57,6 @@ class AssumptionFreeTests(unittest.TestCase):
             else:
                 self._scores.append(0.)
                 self._bitmaps.append(([], []))
-
-
-        # TODO: remove plots
-        plt.figure()
-        plt.subplot(2,1,1)
-        (self._data.acc/self._data.acc.max()).plot()
-        (self._data.hr/self._data.hr.max()).plot()
-        self._data.ratio_log.plot()
-        plt.legend(loc='best')
-        plt.subplot(2,1,2)
-        plt.plot(self._data.index[:len(self._scores)], self._scores)
-
         self.assertTrue(True)
 
 

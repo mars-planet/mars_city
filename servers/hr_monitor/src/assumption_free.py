@@ -20,6 +20,8 @@ class AssumptionFreeAA(object):
         self._lead_window_size = lead_window_factor*window_size
         self._lag_window_factor = lag_window_factor
         self._lag_window_size = lag_window_factor*window_size
+        self.universe_size = self._lead_window_size + self._lag_window_size
+
         self._word_size = word_size
         self._recursion_level = recursion_level
         self._lead_window = deque(maxlen=self._lag_window_size)
