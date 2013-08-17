@@ -7,3 +7,4 @@ Solar Storm Forecasting Server
 
    swrs
    swds
+   readme
