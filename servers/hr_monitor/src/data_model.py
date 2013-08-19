@@ -1,6 +1,7 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, DateTime, Float
 from numpy import sqrt, power
+from datetime import datetime
 
 Base = declarative_base()
 
@@ -12,6 +13,7 @@ class Alarm(Base):
     alarm_lvl = Column(Float, nullable=False)
     sgmt_begin = Column(DateTime, nullable=False)
     sgmt_end = Column(DateTime, nullable=False)
+    doe = Column(DateTime, default=datetime.now)
 
     def __init__(self, timestamp, alarm_lvl, sgmt_begin, sgmt_end):
         self.timestamp = timestamp
@@ -35,6 +37,7 @@ class Datapoint(Base):
     acc_y = Column(Float)
     acc_z = Column(Float)
     acc_magn = Column(Float)
+    doe = Column(DateTime, default=datetime.now)
 
     def __init__(self, timestamp, hr, acc_x, acc_y, acc_z):
         self.timestamp = timestamp
