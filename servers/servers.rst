@@ -7,6 +7,6 @@ Tango Servers
 
    neurohs/doc/index
    hr_monitor/doc/index
-   kim/doc/index
+   voicelib/doc/index
    solarstorm/doc/index
    myro/doc/myro
