@@ -1,31 +1,48 @@
-from __future__ import division
+"""
+Implemented following
+[Wei, Li, et al. "Assumption-Free Anomaly Detection in Time Series."
+SSDBM. Vol. 5. 2005.]
+"""
+from __future__ import division, print_function
 import string
 from collections import deque, namedtuple
 from itertools import islice
+from datetime import datetime
 
 import numpy as np
 from numpy import sqrt
 from scipy.stats import norm
 
 
-Analysis = namedtuple('Analysis', 'score bitmp1 bitmp2')
+Analysis = namedtuple('Analysis', ['score', 'bitmp1', 'bitmp2'])
 
 
 class AssumptionFreeAA(object):
-    def __init__(self, window_size=1000, lead_window_factor=3,
-                 lag_window_factor=30, word_size=10,
+    def __init__(self, word_size=10, window_factor=100,
+                 lead_window_factor=3, lag_window_factor=30,
                  recursion_level=2):
-        self._window_size = window_size
+        """
+        window_size = word_size * window_factor
+        lead_window_factor = lead_window_factor
+        lead_window_size = lead_window_factor * window_size
+        lag_window_factor = lag_window_factor
+        lag_window_size = lag_window_factor * window_size
+        universe_size = lead_window_size + lag_window_size
+        """
+        self._window_factor = window_factor
+        self._window_size = window_factor * word_size
         self._lead_window_factor = lead_window_factor
-        self._lead_window_size = lead_window_factor*window_size
+        self._lead_window_size = lead_window_factor * self._window_size
         self._lag_window_factor = lag_window_factor
-        self._lag_window_size = lag_window_factor*window_size
+        self._lag_window_size = lag_window_factor * self._window_size
         self.universe_size = self._lead_window_size + self._lag_window_size
 
         self._word_size = word_size
         self._recursion_level = recursion_level
-        self._lead_window = deque(maxlen=self._lag_window_size)
+        self._lead_window = deque(maxlen=self._lead_window_size)
         self._lag_window = deque(maxlen=self._lag_window_size)
+
+        self.last_timestamp = datetime.min
 
 
     @classmethod
@@ -33,7 +50,8 @@ class AssumptionFreeAA(object):
         """
         calculates the SAX discretization for the given data.
         Input:
-            data:           sequential collection of datapoints
+            data:           sequential collection of datapoints.
+                            It must be a numpy array of shape (n,)
             alphbt_size:    the size of the alphabet
             word_size:      size of each SAX word
         Output:
@@ -43,32 +61,35 @@ class AssumptionFreeAA(object):
             by Stefan Novak
         """
         # Scale data to have a mean of 0 and a standard deviation of 1.
-        data -= np.split(np.mean(data, axis=1), data.shape[0])
-        data *= np.split(1.0/data.std(axis=1), data.shape[0])
+        scaled_data = data - np.mean(data)
+        scaled_data *= 1.0/scaled_data.std()
 
         # Calculate our breakpoint locations.
         breakpoints = norm.ppf(np.linspace(1./alphbt_size,
-                                        1-1./alphbt_size,
-                                        alphbt_size-1))
+                                           1-1./alphbt_size,
+                                           alphbt_size-1))
         breakpoints = np.concatenate((breakpoints, np.array([np.Inf])))
+        
+        # Split the scaled_data into phrase_length pieces.
+        scaled_data = np.array_split(scaled_data, word_size)
 
-        # Split the data into phrase_length pieces.
-        data = np.array_split(data, word_size, axis=1)
+        # Calculate the mean for each section.  
+        section_means = [np.mean(section) for section in scaled_data]
 
-        # Calculate the mean for each section.
-        section_means = [np.mean(section, axis=1) for section in data]
-
-        # Figure out which break each section is in based on the section_means
-        # and calculated breakpoints.
-        section_locations = [[np.where(breakpoints > axis_mean)[0][0]
-                                for axis_mean in section_mean]
-                                    for section_mean in section_means]
-        section_locations = zip(*section_locations)
-
-        # Convert the location into the corresponding letter.
-        sax_phrases = [''.join([string.ascii_letters[ind]
-                        for ind in section_location])
-                            for section_location in section_locations]
+        try:
+            # Figure out which break each section is in
+            # based on the section_means and calculated breakpoints.                                       
+            section_locations = [np.where(breakpoints > section_mean)[0][0]
+                                 for section_mean in section_means]
+        except:
+            print("data: %s" % data)
+            print("scaled_data: %s" % scaled_data)
+            print("section_means: %s" % section_means)
+            print("breakpoints: %s" % breakpoints)
+            raise
+        # Convert the location into the corresponding letter.                                   
+        sax_phrases = ''.join([string.ascii_letters[ind]
+                               for ind in section_locations])
 
         return sax_phrases
 
@@ -124,7 +145,7 @@ class AssumptionFreeAA(object):
         Builds a dictionary of frequencies, looking in the list words,
         of subwords of length subword_len.
         """
-        freqs = {c:0 for c in combinations}
+        freqs = {c:0. for c in combinations}
 
         for word in words:
             for key in freqs:
@@ -147,7 +168,11 @@ class AssumptionFreeAA(object):
         i = 0
         j = 0
         for key in ordered_keys:
-            freqs[key] /= max_value
+            if max_value != 0:
+                freqs[key] /= max_value
+            else:
+                freqs[key] = 0
+
             j = j % matrix_size
             bitmap[i, j] = freqs[key]
             j += 1
@@ -158,26 +183,31 @@ class AssumptionFreeAA(object):
 
 
     @classmethod
-    def _get_words(cls, window, factor, feature_size, word_size):
+    def _get_words(cls, window, feature_size, word_size):
         """
         Splits window in feature_size sized chunks, calculates
         their SAX representation and returns a list with those representations.
         """
-        lead_words = []
+        if len(window) % feature_size != 0:
+            print("%s\n%s\n%s"%(window, feature_size, word_size))
+            raise Exception()
+        words = []
+        factor = int(len(window)/feature_size)
         for i in range(factor):
             window_slice = list(islice(window, i*feature_size, (i+1)*feature_size))
-            lead_words += cls._sax(data=np.array([window_slice]),
-                                    word_size=word_size)
+            word = cls._sax(data=np.array(window_slice), word_size=word_size)
+            words.append(word)
 
-        return lead_words
+        return words
 
 
 
-    def detect_anomalies(self, datapoints):
+    def detect(self, datapoints, last_timestamp):
         """
         Calculates the datapoints' anomaly score according to:
         http://alumni.cs.ucr.edu/~ratana/SSDBM05.pdf
         """
+        self.last_timestamp = last_timestamp
         analysis_result = []
         for datapoint in datapoints:
             if len(self._lead_window) == self._lead_window_size:
@@ -186,13 +216,10 @@ class AssumptionFreeAA(object):
 
             if (len(self._lead_window) == self._lead_window_size
                     and len(self._lag_window) == self._lag_window_size):
-
                 lead_words = self._get_words(window=self._lead_window,
-                                            factor=self._lead_window_factor,
                                             feature_size=self._window_size,
                                             word_size=self._word_size)
                 lag_words = self._get_words(self._lag_window,
-                                           self._lag_window_factor,
                                            self._window_size,
                                            self._word_size)
 
@@ -200,6 +227,7 @@ class AssumptionFreeAA(object):
                                                     self._recursion_level)
                 lag_freqs = self._count_frequencies(lag_words, 'abcd',
                                                     self._recursion_level)
+
                 lead_bitmap = self._build_bitmap(lead_freqs)
                 lag_bitmap = self._build_bitmap(lag_freqs)
 
