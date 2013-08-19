@@ -1,8 +1,11 @@
 from __future__ import division
 
+import sys
 import os
 import gc
 import unittest
+
+import numpy as np
 
 from src.preprocessing import extract_hr_acc, read_data
 from src.assumption_free import AssumptionFreeAA
@@ -15,7 +18,7 @@ class AssumptionFreeTests(unittest.TestCase):
         Reads a test data set into memory
         """
         dirname = os.path.dirname(__file__)
-        filename = os.path.join(dirname, 'dataset.dat')
+        filename = os.path.join(dirname, 'dataset2.dat')
         cls._df = extract_hr_acc(read_data(filename))
 
 
@@ -26,10 +29,14 @@ class AssumptionFreeTests(unittest.TestCase):
               resampling_method='mean'):
         """
         Copies the data set to an test's instance variable
-        and instanciates an anomaly detector.
+        and instantiates an anomaly detector.
         """
         self._data = self._df.resample(rule=resampling_rate,
                                       how=resampling_method)
+        #fill NAs forward
+        self._data = self._data.fillna(method='ffill')
+        #fill NAs backwards (fill any NAs at the start of all series)
+        self._data = self._data.fillna(method='bfill')
         self._instance = AssumptionFreeAA(window_size=window_size,
                                          lead_window_factor=lead_window_factor,
                                          lag_window_factor=lag_window_factor,
@@ -46,11 +53,14 @@ class AssumptionFreeTests(unittest.TestCase):
         gc.collect()
 
 
-    def test_detect_anomalies(self):
+    def runTest(self):
         self._scores = []
         self._bitmaps = []
         for i in xrange(len(self._data)):
-            result = self._instance.detect_anomalies([self._data.ratio[i]])
+            if np.isnan(self._data.ratio[i]):
+                print self._data.ix[i]
+                sys.exit()
+            result = self._instance.detect([self._data.ratio[i]])
             if len(result) != 0:
                 self._scores.append(result[0].score)
                 self._bitmaps.append((result[0].bitmp1, result[0].bitmp2))
@@ -61,4 +71,7 @@ class AssumptionFreeTests(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    t = AssumptionFreeTests()
+    t.setUpClass()
+    t.setUp()
+    t.runTest()
