@@ -1,0 +1,108 @@
+#!/usr/bin/python
+from __future__ import division, print_function
+import sys
+
+import PyTango
+from PyTango import ArgType
+
+from hr_monitor import HRMonitor
+
+class PyDsExpClass(PyTango.DeviceClass):
+    cmd_list = {
+        'register_datapoint' : [[ArgType.DevVarFloatArray,
+                                 "[hr, acc_x, acc_y, acc_z]"],
+                                [ArgType.DevVoid]],
+
+        'get_avg_hr' : [[ArgType.DevLong, "Period"],
+                        [ArgType.DevFloat,
+                         "Average HR in last [Period] seconds"]],
+
+        'get_avg_acc' : [[ArgType.DevLong, "Period"],
+                         [ArgType.DevFloat,
+                          "Average acc in last [Period] seconds"]],
+
+        'get_current_alarms': [[ArgType.DevLong, "Period"],
+                               [ArgType.DevVarFloatArray,
+                                 "Alarm levels of the last [Period] seconds"]],
+                }
+
+    attr_list = { }
+
+
+    def __init__(self, name):
+        print('Constructing PyDsExpClass')
+        PyTango.DeviceClass.__init__(self, name)
+        self.set_type("TestDevice")
+        print('Finished constructing PyDsExpClass')
+
+
+class PyDsExp(PyTango.Device_4Impl):
+
+
+    def __init__(self, cl, name):
+        self.info_stream('Constructing PyDsExp')
+        PyTango.Device_4Impl.__init__(self, cl, name)
+        PyDsExp.init_device(self)
+        self.info_stream('Finished constructing PyDsExp')
+
+############## BEGIN register_datapoint ########################################
+    def is_register_datapoint_allowed(self, req_type):
+        return self.get_state() == PyTango.DevState.ON
+
+
+    def register_datapoint(self, args):
+        return self.hr_mon.register_datapoint(args)
+
+############### END register_datapoint #########################################
+
+
+############### BEGIN get_avg_hr ###############################################
+    def is_get_avg_hr_allowed(self, req_type):
+        return self.get_state() == PyTango.DevState.ON
+
+
+    def get_avg_hr(self, period):
+        return self.hr_mon.get_avg_hr(period)
+############### END get_avg_hr #################################################
+
+
+############### BEGIN get_acc_avg ##############################################
+    def is_get_avg_acc_allowed(self, req_type):
+        return self.get_state() == PyTango.DevState.ON
+
+
+    def get_avg_acc(self, period):
+        return self.hr_mon.get_avg_acc(period)
+############### END get_acc_avg ################################################
+
+
+############### BEGIN get_current_alarms #######################################
+    def is_get_current_alarms_allowed(self, req_type):
+        return self.get_state() == PyTango.DevState.ON
+
+
+    def get_current_alarms(self, period):
+        return self.hr_mon.get_current_alarms(period)
+############### END get_current_alarms #########################################
+
+
+    def init_device(self):
+        self.info_stream('Initializing device')
+        self.hr_mon = HRMonitor()
+        self.set_state(PyTango.DevState.ON)
+        self.info_stream('Finished initializing device')
+
+
+if __name__ == '__main__':
+    print(1)
+    util = PyTango.Util(sys.argv)
+    print(2)
+    util.add_class(PyDsExpClass, PyDsExp)
+
+    print(3)
+    U = PyTango.Util.instance()
+    print(4)
+    U.server_init()
+    print(5)
+    U.server_run()
+    print(6)

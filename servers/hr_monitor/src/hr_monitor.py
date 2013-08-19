@@ -1,159 +1,175 @@
-
 #!/usr/bin/python
 
-from __future__ import division
-import sys
+from __future__ import division, print_function
 from datetime import datetime, timedelta
 
-import PyTango
+from numpy import mean, nan
+from pandas import DataFrame
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from numpy import mean
+
 
 from data_model import Datapoint, Alarm, Base
-from assumtion_free import AssumptionFreeAA as Detector
+from assumption_free import AssumptionFreeAA as Detector
 
-class Device(PyTango.DeviceClass):
-    cmd_list = {
-        'register_datapoint' : [[PyTango.ArgType.DevVar_FloatArray,
-                                 "[hr, acc_x, acc_y, acc_z]"],
-                                [PyTango.ArgType.DevVoid]],
+class HRMonitor(object):
 
-        'get_avg_hr' : [[PyTango.ArgType.DevLong, "Period"],
-                        [PyTango.ArgType.DevFloat,
-                         "Average HR in last [Period] seconds"]],
+    def __init__(self, engine=None, conn_str='sqlite:///hr_monitor.db',
+                 commit_on_request=True):
+        print('Constructing HRMonitor')
 
-        'get_avg_acc' : [[PyTango.ArgType.DevLong, "Period"],
-                         [PyTango.ArgType.DevFloat,
-                          "Average acc. magn. in last [Period] seconds"]],
-
-        'get_current_alarms': [[PyTango.ArgType.DevLong, "Period"],
-                               [PyTango.ArgType.DevVar_FloatArray,
-                                "Alarm levels of the last [Period] seconds"]],
-                }
-
-    attr_list = { }
-
-
-    def __init__(self, name):
-        PyTango.DeviceClass.__init__(self, name)
-        self.set_type("TestDevice")
-
-
-class HRMonitor(PyTango.Device_4Impl):
-
-
-    def __init__(self, cl, name, conn_str='sqlite:///hr_monitor.db'):
-        PyTango.Device_4Impl.__init__(self, cl, name)
-        self.info_stream('In HRMonitor.__init__')
-        HRMonitor.init_device(self)
-
-        self.engine = create_engine(conn_str)
-        with self.engine.connect() as conn:
-            if not self.engine.dialect.has_table(conn, "alarms"):
+        if engine is not None:
+            self.engine = engine
+        else:
+            print('Setting up SQLite DB')
+            self.engine = create_engine(conn_str)
+            if not self.engine.dialect.has_table(self.engine.connect(), "alarms"):
+                print('Creating Tables')
                 Base.metadata.create_all(self.engine)
+
         self.Session = sessionmaker(bind=self.engine)
+        self._current_session = None
+        self._commit_on_request = commit_on_request
 
         self.resolution = 2000 # in millisecs
-        self.detector = Detector(window_size=500, lead_window_factor=3,
-                                lag_window_factor=30, word_size=10,
-                                recursion_level=2)
+        print('Constructing Detector')
+        self.detector = Detector(word_size=10, window_factor=3,
+                                 lead_window_factor=3, lag_window_factor=12,
+                                 recursion_level=2)
+        print('Finished constructing HRMonitor')
 
 
     def __del__(self):
-        self.engine.dispose()
-        del self.engine
+        print('Cleaning up HRMonitor')
+        self._get_session().commit()
         self.Session.close_all()
         del self.Session
+        self.engine.dispose()
+        del self.engine
+
+
+    def _get_session(self):
+        if not self._current_session:
+            self._current_session = self.Session()
+        return self._current_session
+
+
+    def _session_commit(self):
+        if self._commit_on_request:
+            self._current_session.commit()
+            self._current_session = None
+
+
+    def _session_close(self):
+        if self._commit_on_request:
+            self._current_session.close()
+            self._current_session = None
 
 
     def _get_avgs(self, period):
-        session = self.Session()
+        session = self._get_session()
         query = session.query(Datapoint)
         query = query.filter(Datapoint.timestamp
                             > datetime.now() - timedelta(seconds=period)
                             )
-        avgs = mean([[x.hr, x.acc_magn] for x in query.all()], axis=0)
-        session.close()
+        data = [[x.hr, x.acc_magn] for x in query.all()]
+        if len(data) > 0:
+            avgs = mean(data, axis=0)
+        else:
+            avgs = [nan, nan]
+
+        self._session_close()
 
         return {'hr': avgs[0], 'acc': avgs[1]}
 
-
 ############### BEGIN register_datapoint ###############################################
-    def is_register_datapoint_allowed(self, req_type):
-        return self.get_state() == PyTango.DevState.ON
-
-
     def register_datapoint(self, args):
-        dp = Datapoint(datetime.now(), *args)
+        dp = Datapoint(*args)
 
-        universe_size = self.resolution * self.detector.universe_size
-        universe_size = timedelta(milliseconds=universe_size)
-        session = self.Session()
-        query = session.query(Datapoint)
-        query = query.filter(Datapoint.timestamp > dp.timestamp - universe_size)
-        datapoints = query.all()
-        session.close()
-
-        datapoints += dp
-        anomaly_score = self.detector.detect_anomalies(datapoints)[0]
-        session = self.Session()
+        session = self._get_session()
         session.add(dp)
-        session.add(Alarm(dp.timestamp, anomaly_score,
-                          datapoints[0].timestamp, dp.timestamp))
-        session.commit()
+        self._session_commit()
 
+        query = session.query(Datapoint)
+        query = query.filter(Datapoint.timestamp > self.detector.last_timestamp)
+        datapoints = query.all()
+        self._session_close()
 
+        timerange = (dp.timestamp - datapoints[0].timestamp).total_seconds()
+        timerange *= 1000
+
+        if datapoints and  timerange >= self.resolution:
+            datapoints.append(dp)
+            first_dp = datapoints[0]
+            datapoints = DataFrame({'timestamp': [d.timestamp for d in datapoints],
+                                    'ratio': [d.hr/d.acc_magn for d in datapoints]})
+            datapoints.set_index('timestamp', inplace=True)
+            datapoints = datapoints.resample('%sms' % (self.resolution))
+
+            analysis = self.detector.detect(datapoints.ratio, dp.timestamp)
+            if analysis:
+                analysis = analysis[0]
+                session = self._get_session()
+                session.add(Alarm(dp.timestamp, analysis.score,
+                                  first_dp.timestamp, dp.timestamp))
+                self._session_commit()
+                self._session_close()
 ############### END register_datapoint #################################################
 
 
 ############### BEGIN get_avg_hr ###############################################
-    def is_get_avg_hr_allowed(self, req_type):
-        return self.get_state() == PyTango.DevState.ON
-
-
     def get_avg_hr(self, period):
         return self._get_avgs(period)['hr']
 ############### END get_avg_hr #################################################
 
 
 ############### BEGIN get_acc_avg ##############################################
-    def is_get_acc_avg_allowed(self, req_type):
-        return self.get_state() == PyTango.DevState.ON
-
-
-    def get_acc_avg(self, period):
+    def get_avg_acc(self, period):
         return self._get_avgs(period)['acc']
 ############### END get_acc_avg ################################################
 
 
 ############### BEGIN get_current_alarms #######################################
-    def is_get_current_alarms_allowed(self, req_type):
-        return self.get_state() == PyTango.DevState.ON
-
-
     def get_current_alarms(self, period):
-        session = self.Session()
+        session = self._get_session()
         query = session.query(Alarm)
         query = query.filter(Alarm.timestamp
                             > datetime.now() - timedelta(seconds=period)
                             )
         results = query.all()
-        session.close()
+        self._session_close()
 
         return results
 ############### END get_current_alarms #########################################
 
 
-    def init_device(self):
-        self.info_stream('In Python init_device method')
-        self.set_state(PyTango.DevState.ON)
-
-
 if __name__ == '__main__':
-    util = PyTango.Util(sys.argv)
-    util.add_class(Device, HRMonitor)
+    import os
+    from collections import namedtuple
+    from preprocessing import read_data, extract_hr_acc
+    
+    dirname = os.path.dirname(__file__)
+    dbfilename = os.path.join(dirname, 'hr_monitor.db')
+    engine = create_engine('sqlite:///' + dbfilename)
+    Base.metadata.drop_all(engine)
+    Base.metadata.create_all(engine)
 
-    U = PyTango.Util.instance()
-    U.server_init()
-    U.server_run()
+    hr_mon = HRMonitor(engine, commit_on_request=False)
+
+    dirname = os.path.join(dirname, 'tests')
+    filename = os.path.join(dirname, 'dataset.dat')
+    print(filename)
+    data = extract_hr_acc(read_data(filename))
+
+    DP = namedtuple("DP", ["timestamp", "hr", "acc_x", "acc_y", "acc_z"])
+    i = 0
+    percentiles = int(len(data)/1000)
+    for index, row in data.iterrows():
+        if i % percentiles == 0:
+            print("%s%%" % (i / percentiles))
+        datapoint = DP(timestamp=index.to_datetime(), hr=row['hr'],
+                       acc_x=row['acc_x'], acc_y=row['acc_y'], acc_z=row['acc_z'])
+        hr_mon.register_datapoint(datapoint)
+        i += 1
+
+    del hr_mon
