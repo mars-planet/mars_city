@@ -8,7 +8,7 @@ from pybrain.tools.customxml.networkwriter import NetworkWriter
 import csv
 #import pickle
 
-class NeuralNetworkTraining:
+class NeuralNetworkTraining(object):
     def getdata(self):
         # Currently, the Supervised dataset is being generated. The use
         # of other dataset types like Classification datasets will also
@@ -48,13 +48,13 @@ class NeuralNetworkTraining:
 
         # Training the neural network using Backpropagation
         t = BackpropTrainer(net, learningrate=0.1, momentum=0.45, verbose=True)
-        t.trainOnDataset(dataset,500)
+        t.trainOnDataset(dataset, 500)
         t.testOnData(verbose=False)
 
         # Saving the trained neural network information to file
         self.writetrainedinfo(net)
 
-    def writetrainedinfo( self, neuralnetwork ):
+    def writetrainedinfo(self, neuralnetwork):
         """
         # Using the Python pickle
         fileObject = open('traininfo', 'w')
