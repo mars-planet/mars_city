@@ -21,7 +21,6 @@ class AssumptionFreeTests(unittest.TestCase):
         filename = os.path.join(dirname, 'dataset2.dat')
         cls._df = extract_hr_acc(read_data(filename))
 
-
     def setUp(self,
               window_size=1000, lead_window_factor=3,
               lag_window_factor=30, word_size=10,
@@ -43,7 +42,6 @@ class AssumptionFreeTests(unittest.TestCase):
                                          word_size=word_size,
                                          recursion_level=recursion_level)
 
-
     def tearDown(self):
         """
         Deletes instance's data.
@@ -51,7 +49,6 @@ class AssumptionFreeTests(unittest.TestCase):
         del self._data
         del self._instance
         gc.collect()
-
 
     def runTest(self):
         self._scores = []
