@@ -60,6 +60,10 @@ class AssumptionFreeAA(object):
             based on https://gist.github.com/slnovak/912927
             by Stefan Novak
         """
+        if isinstance(data, np.array) or len(data.shape) != 1:
+            raise ValueError("data must be a numpy array of shape (n,)")
+        if len(data) % word_size != 0:
+            raise ValueError("len(data) must be divisible by word_size")
         # Scale data to have a mean of 0 and a standard deviation of 1.
         scaled_data = data - np.mean(data)
         scaled_data *= 1.0 / scaled_data.std()
@@ -68,21 +72,14 @@ class AssumptionFreeAA(object):
                                            1 - 1 / alphbt_size,
                                            alphbt_size - 1))
         breakpoints = np.concatenate((breakpoints, np.array([np.Inf])))
-        # Split the scaled_data into phrase_length pieces.
+        # Split the scaled_data into word_size pieces.
         scaled_data = np.array_split(scaled_data, word_size)
         # Calculate the mean for each section.
         section_means = [np.mean(section) for section in scaled_data]
-        try:
-            # Figure out which break each section is in
-            # based on the section_means and calculated breakpoints.
-            section_locations = [np.where(breakpoints > section_mean)[0][0]
-                                 for section_mean in section_means]
-        except:
-            print("data: %s" % data)
-            print("scaled_data: %s" % scaled_data)
-            print("section_means: %s" % section_means)
-            print("breakpoints: %s" % breakpoints)
-            raise
+        # Figure out which break each section is in
+        # based on the section_means and calculated breakpoints.
+        section_locations = [np.where(breakpoints > section_mean)[0][0]
+                             for section_mean in section_means]
         # Convert the location into the corresponding letter.
         sax_phrases = ''.join([string.ascii_letters[ind]
                                for ind in section_locations])
@@ -169,9 +166,6 @@ class AssumptionFreeAA(object):
         Splits window in feature_size sized chunks, calculates
         their SAX representation and returns a list with those representations.
         """
-        if len(window) % feature_size != 0:
-            print("%s\n%s\n%s" % (window, feature_size, word_size))
-            raise Exception()
         words = []
         factor = int(len(window) / feature_size)
         for i in range(factor):
