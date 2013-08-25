@@ -33,9 +33,9 @@ class AssumptionFreeTests(unittest.TestCase):
         """
         self._data = self._df.resample(rule=resampling_rate,
                                       how=resampling_method)
-        #fill NAs forward
+        # fill NAs forward
         self._data = self._data.fillna(method='ffill')
-        #fill NAs backwards (fill any NAs at the start of all series)
+        # fill NAs backwards (fill any NAs at the start of all series)
         self._data = self._data.fillna(method='bfill')
         self._instance = AssumptionFreeAA(window_size=window_size,
                                          lead_window_factor=lead_window_factor,
@@ -70,8 +70,5 @@ class AssumptionFreeTests(unittest.TestCase):
         self.assertTrue(True)
 
 
-if __name__ == '__main__':
-    t = AssumptionFreeTests()
-    t.setUpClass()
-    t.setUp()
-    t.runTest()
+#if __name__ == '__main__':
+#    unittest.main()
