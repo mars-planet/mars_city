@@ -14,7 +14,7 @@ from hr_monitor import HRMonitor
 class PyDsExpClass(PyTango.DeviceClass):
     cmd_list = {
         'register_datapoint': [[ArgType.DevVarDoubleArray,
-                                "[timestamp, hr, acc_x, acc_y, acc_z]"],
+                                "[timestamp(%s.%f), hr, acc_x, acc_y, acc_z]"],
                                [ArgType.DevVoid]],
 
         'get_avg_hr': [[ArgType.DevLong, "Period"],
@@ -26,7 +26,7 @@ class PyDsExpClass(PyTango.DeviceClass):
                          "Average acc in last [Period] seconds"]],
 
         'get_current_alarms': [[ArgType.DevLong, "Period"],
-                               [ArgType.DevVarFloatArray,
+                               [ArgType.DevVarDoubleStringArray,
                                 "Alarm levels of the last [Period] seconds"]],
                 }
 
@@ -82,7 +82,10 @@ class PyDsExp(PyTango.Device_4Impl):
         return self.get_state() == PyTango.DevState.ON
 
     def get_current_alarms(self, period):
-        return self.hr_mon.get_current_alarms(period)
+        alarms = self.hr_mon.get_current_alarms(period)
+        ret_val = [(a.alarm_lvl, a.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f'))
+                   for a in alarms]
+        return zip(*ret_val)
 ############### END get_current_alarms ########################################
 
     def init_device(self):
