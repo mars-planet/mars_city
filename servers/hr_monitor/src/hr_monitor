@@ -83,9 +83,13 @@ class PyDsExp(PyTango.Device_4Impl):
 
     def get_current_alarms(self, period):
         alarms = self.hr_mon.get_current_alarms(period)
-        ret_val = [(a.alarm_lvl, a.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f'))
-                   for a in alarms]
-        return zip(*ret_val)
+        if alarms:
+            ret_val = [(a.alarm_lvl,
+                        a.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f'))
+                       for a in alarms]
+            return zip(*ret_val)
+        else:
+            return [[], []]
 ############### END get_current_alarms ########################################
 
     def init_device(self):
