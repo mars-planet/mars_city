@@ -1,6 +1,9 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+
 from __future__ import division, print_function
 import sys
+#from multiprocessing import Process
+from datetime import datetime
 
 import PyTango
 from PyTango import ArgType
@@ -10,21 +13,21 @@ from hr_monitor import HRMonitor
 
 class PyDsExpClass(PyTango.DeviceClass):
     cmd_list = {
-        'register_datapoint': [[ArgType.DevVarFloatArray,
-                                 "[hr, acc_x, acc_y, acc_z]"],
-                                [ArgType.DevVoid]],
+        'register_datapoint': [[ArgType.DevVarDoubleArray,
+                                "[timestamp, hr, acc_x, acc_y, acc_z]"],
+                               [ArgType.DevVoid]],
 
         'get_avg_hr': [[ArgType.DevLong, "Period"],
-                        [ArgType.DevFloat,
-                         "Average HR in last [Period] seconds"]],
+                       [ArgType.DevFloat,
+                        "Average HR in last [Period] seconds"]],
 
         'get_avg_acc': [[ArgType.DevLong, "Period"],
-                         [ArgType.DevFloat,
-                          "Average acc in last [Period] seconds"]],
+                        [ArgType.DevFloat,
+                         "Average acc in last [Period] seconds"]],
 
         'get_current_alarms': [[ArgType.DevLong, "Period"],
                                [ArgType.DevVarFloatArray,
-                                 "Alarm levels of the last [Period] seconds"]],
+                                "Alarm levels of the last [Period] seconds"]],
                 }
 
     attr_list = {}
@@ -39,21 +42,27 @@ class PyDsExpClass(PyTango.DeviceClass):
 class PyDsExp(PyTango.Device_4Impl):
 
     def __init__(self, cl, name):
-        self.info_stream('Constructing PyDsExp')
+        print('Constructing PyDsExp')
         PyTango.Device_4Impl.__init__(self, cl, name)
         PyDsExp.init_device(self)
-        self.info_stream('Finished constructing PyDsExp')
+        print('Finished constructing PyDsExp')
 
 ############## BEGIN register_datapoint #######################################
-    def is_register_datapoint_allowed(self, req_type):
+    def is_register_datapoint_allowed(self):
         return self.get_state() == PyTango.DevState.ON
 
     def register_datapoint(self, args):
-        return self.hr_mon.register_datapoint(args)
+        timestamp = datetime.fromtimestamp(args[0])
+        new_args = args.tolist()
+        new_args[0] = timestamp
+        self.hr_mon.register_datapoint(*new_args)
+#        proc = Process(target=self.hr_mon.register_datapoint,
+#                       args=new_args)
+#        proc.start()
 ############### END register_datapoint ########################################
 
 ############### BEGIN get_avg_hr ##############################################
-    def is_get_avg_hr_allowed(self, req_type):
+    def is_get_avg_hr_allowed(self):
         return self.get_state() == PyTango.DevState.ON
 
     def get_avg_hr(self, period):
@@ -61,7 +70,7 @@ class PyDsExp(PyTango.Device_4Impl):
 ############### END get_avg_hr ################################################
 
 ############### BEGIN get_acc_avg #############################################
-    def is_get_avg_acc_allowed(self, req_type):
+    def is_get_avg_acc_allowed(self):
         return self.get_state() == PyTango.DevState.ON
 
     def get_avg_acc(self, period):
@@ -69,7 +78,7 @@ class PyDsExp(PyTango.Device_4Impl):
 ############### END get_acc_avg ###############################################
 
 ############### BEGIN get_current_alarms ######################################
-    def is_get_current_alarms_allowed(self, req_type):
+    def is_get_current_alarms_allowed(self):
         return self.get_state() == PyTango.DevState.ON
 
     def get_current_alarms(self, period):
@@ -77,10 +86,10 @@ class PyDsExp(PyTango.Device_4Impl):
 ############### END get_current_alarms ########################################
 
     def init_device(self):
-        self.info_stream('Initializing device')
+        print('Initializing device')
         self.hr_mon = HRMonitor()
         self.set_state(PyTango.DevState.ON)
-        self.info_stream('Finished initializing device')
+        print('Finished initializing device')
 
 
 if __name__ == '__main__':
