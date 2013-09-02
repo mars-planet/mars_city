@@ -152,9 +152,8 @@ class HRMonitor(object):
         session = self.Session()
         try:
             query = session.query(Alarm)
-            query = query.filter(Alarm.timestamp
-                                > datetime.now() - timedelta(seconds=period)
-                                )
+            query = query.filter(Alarm.timestamp >=
+                                 datetime.now() - timedelta(seconds=period))
             results = query.all()
         finally:
             session.close()
