@@ -60,13 +60,16 @@ class AssumptionFreeAA(object):
             based on https://gist.github.com/slnovak/912927
             by Stefan Novak
         """
-        if isinstance(data, np.array) or len(data.shape) != 1:
-            raise ValueError("data must be a numpy array of shape (n,)")
+        if not isinstance(data, np.ndarray) or len(data.shape) != 1:
+            raise ValueError("data must be a numpy array of shape (n,), not "
+                             + "%s of shape %s" % (data.__class__, data.shape))
         if len(data) % word_size != 0:
             raise ValueError("len(data) must be divisible by word_size")
         # Scale data to have a mean of 0 and a standard deviation of 1.
         scaled_data = data - np.mean(data)
-        scaled_data *= 1.0 / scaled_data.std()
+        std = scaled_data.std()
+        if std != 0:
+            scaled_data *= 1.0 / std
         # Calculate our breakpoint locations.
         breakpoints = norm.ppf(np.linspace(1 / alphbt_size,
                                            1 - 1 / alphbt_size,
@@ -200,8 +203,7 @@ class AssumptionFreeAA(object):
                                                     self._recursion_level)
                 lead_bitmap = self._build_bitmap(lead_freqs)
                 lag_bitmap = self._build_bitmap(lag_freqs)
-                result = Analysis(self._dist(lead_bitmap, lag_bitmap),
-                                  lead_bitmap,
-                                  lag_bitmap)
+                result = Analysis(score=self._dist(lead_bitmap, lag_bitmap),
+                                  bitmp1=lead_bitmap, bitmp2=lag_bitmap)
                 analysis_result.append(result)
         return analysis_result
