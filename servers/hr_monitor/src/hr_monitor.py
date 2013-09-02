@@ -1,10 +1,11 @@
 #!/usr/bin/python
 
 from __future__ import division, print_function
+
 from datetime import datetime, timedelta
 from collections import deque
-
-from threading import Thread
+from threading import Thread, Lock
+from random import randint
 
 from numpy import mean, nan
 from pandas import DataFrame
@@ -20,8 +21,7 @@ class HRMonitor(object):
 
     # for sqlite use conn_str='sqlite:///hr_monitor.db'
     def __init__(self, engine=None,
-                 conn_str='mysql+mysqldb://root@localhost/hr_monitor',
-                 commit_on_request=True):
+                 conn_str='mysql+mysqldb://root@localhost/hr_monitor'):
         print('Constructing HRMonitor')
         if engine is not None:
             self.engine = engine
@@ -36,8 +36,6 @@ class HRMonitor(object):
             engn.dispose()
             self.engine = create_engine(conn_str)
         self.Session = sessionmaker(bind=self.engine)
-        self._current_session = None
-        self._commit_on_request = commit_on_request
         self.resolution = 1000  # in millisecs
         self.last_alarm_timestamp = datetime.now()
         print('Constructing Detector')
@@ -46,10 +44,10 @@ class HRMonitor(object):
                                  recursion_level=2)
         print('Finished constructing HRMonitor')
         self.timestamps = deque(maxlen=self.detector.universe_size)
+        self.lock = Lock()
 
     def __del__(self):
         print('Cleaning up HRMonitor')
-        self._get_session().commit()
         self.Session.close_all()
         del self.Session
         self._sqlconn.close()
@@ -58,7 +56,7 @@ class HRMonitor(object):
         del self.engine
 
     def _get_avgs(self, period):
-        session = self._get_session()
+        session = self.Session()
         try:
             query = session.query(Datapoint)
             query = query.filter(Datapoint.timestamp
@@ -105,13 +103,19 @@ class HRMonitor(object):
                 datapoints.set_index('timestamp', inplace=True)
                 datapoints = datapoints.resample('%sms' % self.resolution)
                 datapoints = datapoints.fillna(method='ffill')
+                session.close()
                 if len(datapoints) > 0:
+                    first_timestamp = datapoints.index.min()
                     last_timestamp = datapoints.index.max()
                     self.timestamps.extend(datapoints.index.tolist())
+                    self.lock.acquire()
                     analysis = self.detector.detect(datapoints.ratio,
                                                     last_timestamp)
+                    self.lock.release()
                     if analysis:
-                        first_timestamp = self.timestamps.popleft()
+                        session = self.Session()
+                        if self.timestamps:
+                            first_timestamp = self.timestamps.popleft()
                         analysis = analysis[0]
                         bitmp1 = analysis.bitmp1.flatten().tostring()
                         bitmp2 = analysis.bitmp2.flatten().tostring()
@@ -125,15 +129,18 @@ class HRMonitor(object):
                             session.commit()
                         except IntegrityError:
                             session.rollback()
+                            musecs = randint(0, 10 ** 6)
                             session.add(
                                     Alarm(timestamp=last_timestamp
-                                            + timedelta(microseconds=100),
+                                            + timedelta(microseconds=musecs),
                                           alarm_lvl=analysis.score,
+                                          bitmp1=bitmp1, bitmp2=bitmp2,
                                           sgmt_begin=first_timestamp,
                                           sgmt_end=last_timestamp))
                             session.commit()
             finally:
                 session.close()
+                del session
 
     def get_avg_hr(self, period):
         return self._get_avgs(period)['hr']
