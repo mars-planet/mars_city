@@ -62,10 +62,10 @@ class Alarm(Base):
         if not millisecond:
             self.millisecond = self.timestamp.microsecond / 1000
         self.alarm_lvl = alarm_lvl
-        self.sgmt_begin = sgmt_begin
-        self.sgmt_end = sgmt_end
         self.bitmp1 = bitmp1
         self.bitmp2 = bitmp2
+        self.sgmt_begin = sgmt_begin
+        self.sgmt_end = sgmt_end
 
     def __repr__(self):
         return ("<Alarm('%s','%s', '%s', '%s')>"
