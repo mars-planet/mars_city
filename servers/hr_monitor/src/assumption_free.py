@@ -146,7 +146,7 @@ class AssumptionFreeAA(object):
         Each cell in the bitmap is proportional to the frequency of a subword.
         """
         matrix_size = sqrt(len(freqs))
-        bitmap = np.zeros(shape=(matrix_size, matrix_size))
+        bitmap = np.zeros(shape=(matrix_size, matrix_size), dtype=np.float64)
         ordered_keys = sorted(freqs.keys())
         max_value = max(freqs.values())
         i = 0

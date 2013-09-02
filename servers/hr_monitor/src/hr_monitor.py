@@ -113,9 +113,12 @@ class HRMonitor(object):
                     if analysis:
                         first_timestamp = self.timestamps.popleft()
                         analysis = analysis[0]
+                        bitmp1 = analysis.bitmp1.flatten().tostring()
+                        bitmp2 = analysis.bitmp2.flatten().tostring()
                         session.add(
                                 Alarm(timestamp=last_timestamp,
                                       alarm_lvl=analysis.score,
+                                      bitmp1=bitmp1, bitmp2=bitmp2,
                                       sgmt_begin=first_timestamp,
                                       sgmt_end=last_timestamp))
                         try:
