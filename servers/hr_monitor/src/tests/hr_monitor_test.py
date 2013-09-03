@@ -2,6 +2,8 @@ from __future__ import print_function
 
 import os
 from collections import namedtuple
+from datetime import datetime
+from time import sleep
 
 from PyTango import DeviceProxy
 
@@ -20,13 +22,17 @@ if __name__ == '__main__':
     DP = namedtuple("DP", ["timestamp", "hr", "acc_x", "acc_y", "acc_z"])
     i = 0
     percentiles = int(len(data) / 1000)
+    prow, ptimestamp = None, None
     for index, row in data.iterrows():
+        timestamp = float(index.to_datetime().strftime('%s.%f'))
         if i % percentiles == 0:
             print("%s%%" % (i / percentiles))
-        timestamp = float(index.to_datetime().strftime('%s.%f'))
-        datapoint = DP(timestamp=timestamp, hr=row['hr'],
-                       acc_x=row['acc_x'], acc_y=row['acc_y'],
-                       acc_z=row['acc_z'])
-        print(datapoint)
-        proxy.register_datapoint(datapoint)
+        if prow is not None:
+            datapoint = DP(timestamp=ptimestamp, hr=prow['hr'],
+                           acc_x=prow['acc_x'], acc_y=prow['acc_y'],
+                           acc_z=prow['acc_z'])
+            print("%s, %s" % (index.to_datetime(), datapoint.hr))
+            proxy.register_datapoint(datapoint)
+            sleep(timestamp - ptimestamp)
+        prow, ptimestamp = row, timestamp
         i += 1
