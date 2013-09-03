@@ -20,11 +20,12 @@ class Datapoint(Base):
     doe = Column(DateTime, default=datetime.now)
 
     def __init__(self, timestamp, hr, acc_x, acc_y, acc_z, millisecond=None):
+        self.timestamp = timestamp
         if millisecond:
-            self.timestamp = timestamp
+            self.timestamp -= timedelta(microseconds=timestamp.microsecond)
             self.timestamp += timedelta(microseconds=millisecond * 1000)
+            self.millisecond = millisecond
         else:
-            self.timestamp = timestamp
             self.millisecond = timestamp.microsecond / 1000
         self.hr = hr
         self.acc_x = acc_x
@@ -52,15 +53,15 @@ class Alarm(Base):
                  timestamp=None, millisecond=None):
         if not timestamp:
             self.timestamp = datetime.now()
-            self.millisecond = self.timestamp.microsecond / 1000
         else:
             self.timestamp = timestamp
-        if timestamp and millisecond:
-            self.timestamp = timestamp
+        ts = self.timestamp
+        if millisecond:
+            self.timestamp -= timedelta(microseconds=ts.microsecond)
             self.timestamp += timedelta(microseconds=millisecond * 1000)
             self.millisecond = millisecond
-        if not millisecond:
-            self.millisecond = self.timestamp.microsecond / 1000
+        else:
+            self.millisecond = ts.microsecond / 1000
         self.alarm_lvl = alarm_lvl
         self.bitmp1 = bitmp1
         self.bitmp2 = bitmp2
