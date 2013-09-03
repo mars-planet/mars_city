@@ -1,3 +1,9 @@
+"""
+Calculates an anomaly score based on a discretized version of the input data.
+It does this dividing the input data into two windows, a lead, representing
+the current state, and a lag, representing the historic behavior, and then
+comparing both.
+"""
 #
 # Implemented following
 # [Wei, Li, et al. "Assumption-Free Anomaly Detection in Time Series."
@@ -19,34 +25,30 @@ Analysis = namedtuple('Analysis', ['score', 'bitmp1', 'bitmp2'])
 
 
 class AssumptionFreeAA(object):
+    """
+    Implements the anomaly scoring algorithm.
+    """
+
     def __init__(self, word_size=10, window_factor=100,
-                 lead_window_factor=3, lag_window_factor=30,
-                 recursion_level=2):
+                 lead_window_factor=3, lag_window_factor=30):
         """
         window_size = word_size * window_factor
-        lead_window_factor = lead_window_factor
         lead_window_size = lead_window_factor * window_size
-        lag_window_factor = lag_window_factor
         lag_window_size = lag_window_factor * window_size
         universe_size = lead_window_size + lag_window_size
         """
-        self._window_factor = window_factor
         self._window_size = window_factor * word_size
-        self._lead_window_factor = lead_window_factor
-        self._lead_window_size = lead_window_factor * self._window_size
-        self._lag_window_factor = lag_window_factor
-        self._lag_window_size = lag_window_factor * self._window_size
-        self.universe_size = self._lead_window_size + self._lag_window_size
-
+        lead_window_size = lead_window_factor * self._window_size
+        lag_window_size = lag_window_factor * self._window_size
+        self.universe_size = lead_window_size + lag_window_size
         self._word_size = word_size
-        self._recursion_level = recursion_level
-        self._lead_window = deque(maxlen=self._lead_window_size)
-        self._lag_window = deque(maxlen=self._lag_window_size)
-
+        self._lead_window = deque(maxlen=lead_window_size)
+        self._lag_window = deque(maxlen=lag_window_size)
         self.last_timestamp = datetime.min
+        self._recursion_level = 2
 
     @classmethod
-    def _sax(cls, data, alphbt_size=4, word_size=10):
+    def sax(cls, data, alphbt_size=4, word_size=10):
         """
         calculates the SAX discretization for the given data.
         Input:
@@ -89,20 +91,20 @@ class AssumptionFreeAA(object):
         return sax_phrases
 
     @classmethod
-    def _dist(cls, A, B):
+    def dist(cls, mtrx_a, mtrx_b):
         """
-        Returns \sum_{i=0}^{n} \sum_{j=0}^{n} (A_{ij}-B_{ij})^2
+        Returns \\sum_{i=0}^{n} \\sum_{j=0}^{n} (A_{ij}-B_{ij})^2
         """
-        return np.power(A - B, 2).sum()
+        return np.power(mtrx_a - mtrx_b, 2).sum()
 
     @classmethod
-    def _build_combinations(cls, alphabet, combinations=set(),
+    def build_combinations(cls, alphabet, combinations=None,
                             combination_len=2):
         """
         Returns all combination_len length combinations from the
         alphabet's characters.
         """
-        if len(combinations) == 0:
+        if combinations is None or len(combinations) == 0:
             combinations = set(a for a in alphabet)
             combination_len -= 1
         if combination_len <= 0:
@@ -110,12 +112,12 @@ class AssumptionFreeAA(object):
         else:
             new_combinations = set(c + a for a in alphabet
                                    for c in combinations)
-            return cls._build_combinations(alphabet,
+            return cls.build_combinations(alphabet,
                                            new_combinations,
                                            combination_len - 1)
 
     @classmethod
-    def _count_substr(cls, stack, needle):
+    def count_substr(cls, stack, needle):
         """
         Counts occurrences of needle in stack.
         Example: in aaaa there are 3 occurrences of aa
@@ -127,20 +129,20 @@ class AssumptionFreeAA(object):
         return count
 
     @classmethod
-    def _count_frequencies(cls, words, alphabet, subword_len=2):
-        combinations = cls._build_combinations(alphabet, set(), subword_len)
+    def count_frequencies(cls, words, alphabet, subword_len=2):
         """
         Builds a dictionary of frequencies, looking in the list words,
         of subwords of length subword_len.
         """
+        combinations = cls.build_combinations(alphabet, set(), subword_len)
         freqs = {c: 0.0 for c in combinations}
         for word in words:
             for key in freqs:
-                freqs[key] += cls._count_substr(word, key)
+                freqs[key] += cls.count_substr(word, key)
         return freqs
 
     @classmethod
-    def _build_bitmap(cls, freqs):
+    def build_bitmap(cls, freqs):
         """
         Builds a bitmap of size len(freqs)).
         Each cell in the bitmap is proportional to the frequency of a subword.
@@ -164,7 +166,7 @@ class AssumptionFreeAA(object):
         return bitmap
 
     @classmethod
-    def _get_words(cls, window, feature_size, word_size):
+    def get_words(cls, window, feature_size, word_size):
         """
         Splits window in feature_size sized chunks, calculates
         their SAX representation and returns a list with those representations.
@@ -174,7 +176,7 @@ class AssumptionFreeAA(object):
         for i in range(factor):
             init, end = i * feature_size, (i + 1) * feature_size
             window_slice = list(islice(window, init, end))
-            word = cls._sax(data=np.array(window_slice), word_size=word_size)
+            word = cls.sax(data=np.array(window_slice), word_size=word_size)
             words.append(word)
         return words
 
@@ -186,24 +188,24 @@ class AssumptionFreeAA(object):
         self.last_timestamp = last_timestamp
         analysis_result = []
         for datapoint in datapoints:
-            if len(self._lead_window) == self._lead_window_size:
+            if len(self._lead_window) == self._lead_window.maxlen:
                 self._lag_window.append(self._lead_window.popleft())
             self._lead_window.append(datapoint)
-            if (len(self._lead_window) == self._lead_window_size
-                    and len(self._lag_window) == self._lag_window_size):
-                lead_words = self._get_words(window=self._lead_window,
-                                             feature_size=self._window_size,
-                                             word_size=self._word_size)
-                lag_words = self._get_words(self._lag_window,
-                                            self._window_size,
-                                            self._word_size)
-                lead_freqs = self._count_frequencies(lead_words, 'abcd',
-                                                     self._recursion_level)
-                lag_freqs = self._count_frequencies(lag_words, 'abcd',
+            if (len(self._lead_window) == self._lead_window.maxlen
+                    and len(self._lag_window) == self._lag_window.maxlen):
+                lead_words = self.get_words(window=self._lead_window,
+                                            feature_size=self._window_size,
+                                            word_size=self._word_size)
+                lag_words = self.get_words(self._lag_window,
+                                           self._window_size,
+                                           self._word_size)
+                lead_freqs = self.count_frequencies(lead_words, 'abcd',
                                                     self._recursion_level)
-                lead_bitmap = self._build_bitmap(lead_freqs)
-                lag_bitmap = self._build_bitmap(lag_freqs)
-                result = Analysis(score=self._dist(lead_bitmap, lag_bitmap),
+                lag_freqs = self.count_frequencies(lag_words, 'abcd',
+                                                   self._recursion_level)
+                lead_bitmap = self.build_bitmap(lead_freqs)
+                lag_bitmap = self.build_bitmap(lag_freqs)
+                result = Analysis(score=self.dist(lead_bitmap, lag_bitmap),
                                   bitmp1=lead_bitmap, bitmp2=lag_bitmap)
                 analysis_result.append(result)
         return analysis_result
