@@ -7,7 +7,7 @@ from collections import deque
 from threading import Thread, Lock
 from random import randint
 
-from numpy import mean, nan
+from numpy import mean, nan, isnan
 from pandas import DataFrame
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -34,8 +34,9 @@ class HRMonitor(object):
                 Base.metadata.create_all(engn)
             conn.close()
             engn.dispose()
-            self.engine = create_engine(conn_str)
-        self.Session = sessionmaker(bind=self.engine)
+            self.engine = create_engine(conn_str,
+                                        isolation_level="SERIALIZABLE")
+        self.Session = sessionmaker(bind=self.engine, autocommit=False)
         self.resolution = 1000  # in millisecs
         self.last_alarm_timestamp = datetime.now()
         print('Constructing Detector')
@@ -56,19 +57,24 @@ class HRMonitor(object):
         del self.engine
 
     def _get_avgs(self, period):
-        session = self.Session()
+        current = datetime.now()
+        current -= timedelta(microseconds=current.microsecond)
+        init = current - timedelta(seconds=period)
         try:
+            session = self.Session()
             query = session.query(Datapoint)
-            query = query.filter(Datapoint.timestamp
-                                > datetime.now() - timedelta(seconds=period)
-                                )
+            query = query.filter(Datapoint.timestamp >= init)
             data = [[x.hr, x.acc_magn] for x in query.all()]
-            if len(data) > 0:
-                avgs = mean(data, axis=0)
-            else:
-                avgs = [nan, nan]
         finally:
             session.close()
+        if len(data) > 0:
+            avgs = mean(data, axis=0)
+        else:
+            avgs = [nan, nan]
+        print("current: %s; init: %s; avgs: %s"
+              % (current, init, avgs))
+        if any(isnan(avgs)):
+            print(data)
         return {'hr': avgs[0], 'acc': avgs[1]}
 
     def register_datapoint(self, *args):
@@ -149,14 +155,18 @@ class HRMonitor(object):
         return self._get_avgs(period)['acc']
 
     def get_current_alarms(self, period):
-        session = self.Session()
+        current = datetime.now()
+        current -= timedelta(microseconds=current.microsecond)
+        init = current - timedelta(seconds=period)
         try:
+            session = self.Session()
             query = session.query(Alarm)
-            query = query.filter(Alarm.timestamp >=
-                                 datetime.now() - timedelta(seconds=period))
+            query = query.filter(Alarm.timestamp >= init)
             results = query.all()
         finally:
             session.close()
+        print("current: %s; init: %s; results: %s"
+              % (current, init, results))
         return results
 
 
