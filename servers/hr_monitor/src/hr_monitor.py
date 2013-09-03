@@ -42,8 +42,7 @@ class HRMonitor(object):
         self.last_detection_timestamp = datetime.now()
         print('Constructing Detector')
         self.detector = Detector(word_size=5, window_factor=2,
-                                 lead_window_factor=2, lag_window_factor=4,
-                                 recursion_level=2)
+                                 lead_window_factor=2, lag_window_factor=4)
         print('Finished constructing HRMonitor')
         self.timestamps = deque(maxlen=self.detector.universe_size)
         self.lock = Lock()
