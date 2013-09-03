@@ -3,8 +3,9 @@
 from __future__ import division, print_function
 
 from time import sleep
-from datetime import datetime
+from datetime import datetime, timedelta
 from threading import current_thread
+from numpy import nan, isnan
 
 import wx
 from PyTango import DeviceProxy
@@ -26,11 +27,11 @@ class MainFrame(wx.Frame):
         self.alarm_plt = PlotCanvas(self, -1)
         self.timestamp_sld = wx.Slider(self, -1, 0, 0, 10)
         self.avg_hr_title_lbl = wx.StaticText(self, -1, "Current avg. HR:")
-        self.avg_hr_lbl = wx.StaticText(self, -1, "NA")
+        self.avg_hr_lbl = wx.StaticText(self, -1, "nan")
         self.avg_acc_title_lbl = wx.StaticText(self, -1, "Current avg. Acc.:")
-        self.avg_acc_lbl = wx.StaticText(self, -1, "NA")
+        self.avg_acc_lbl = wx.StaticText(self, -1, "nan")
         self.anomaly_lvl_title_lbl = wx.StaticText(self, -1, "Anomaly level:")
-        self.anomaly_lvl_lbl = wx.StaticText(self, -1, "NA")
+        self.anomaly_lvl_lbl = wx.StaticText(self, -1, "nan")
         self.collect_btn = wx.Button(self, -1, "Collect data")
 
         self.__set_properties()
@@ -91,26 +92,38 @@ class MainFrame(wx.Frame):
 
     def timer_tick(self):
         timer = current_thread()
+        proxy = self.proxy
         while not timer.stopped():
-            avg_hr = self.proxy.get_avg_hr(2)
-            avg_acc = self.proxy.get_avg_acc(2)
-            alarms = self.proxy.get_current_alarms(2)
+            avg_hr_idx = proxy.command_inout_asynch('get_avg_hr', 4)
+            avg_acc_idx = proxy.command_inout_asynch('get_avg_acc', 4)
+            alarms_idx = proxy.command_inout_asynch('get_current_alarms', 4)
+            init = datetime.now()
+            avg_hr = proxy.command_inout_reply(avg_hr_idx, timeout=0)
+            avg_acc = proxy.command_inout_reply(avg_acc_idx, timeout=0)
+            alarms = proxy.command_inout_reply(alarms_idx, timeout=0)
+            sleep_time = timedelta(seconds=5) - (datetime.now() - init)
+            sleep_time = max(sleep_time, timedelta(0)).total_seconds()
             alarms[0], alarms[1] = alarms[1], alarms[0]
             alarms[0] = [float(datetime.strptime(x, '%Y-%m-%d %H:%M:%S.%f')
                                        .strftime('%s.%f'))
                          for x in alarms[0]]
-            wx.CallAfter(self.avg_hr_lbl.SetLabel, str(avg_hr))
-            wx.CallAfter(self.avg_acc_lbl.SetLabel, str(avg_acc))
+            if not isnan(avg_hr):
+                wx.CallAfter(self.avg_hr_lbl.SetLabel, str(avg_hr))
+            if not isnan(avg_acc):
+                wx.CallAfter(self.avg_acc_lbl.SetLabel, str(avg_acc))
             if len(alarms[0]) > 0:
                 max_alarm = max(alarms[1])
+                self.alarms.update(zip(*alarms))
             else:
-                max_alarm = 'nan'
-            wx.CallAfter(self.anomaly_lvl_lbl.SetLabel, str(max_alarm))
-            self.alarms.update(zip(*alarms))
+                max_alarm = nan
+            if not isnan(max_alarm):
+                wx.CallAfter(self.anomaly_lvl_lbl.SetLabel, str(max_alarm))
+
             data = sorted(self.alarms)
             if len(data) > 0:
                 wx.CallAfter(self.alarm_plt.set_data, data)
                 wx.CallAfter(self.alarm_plt.draw)
-            sleep(2)
+            sleep(sleep_time)
+        del proxy
 
 # end of class MainFrame
