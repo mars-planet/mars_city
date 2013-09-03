@@ -14,7 +14,6 @@ from __future__ import division, print_function
 import string
 from collections import deque, namedtuple
 from itertools import islice
-from datetime import datetime
 
 import numpy as np
 from numpy import sqrt
@@ -37,14 +36,13 @@ class AssumptionFreeAA(object):
         lag_window_size = lag_window_factor * window_size
         universe_size = lead_window_size + lag_window_size
         """
+        self._word_size = word_size
         self._window_size = window_factor * word_size
         lead_window_size = lead_window_factor * self._window_size
         lag_window_size = lag_window_factor * self._window_size
         self.universe_size = lead_window_size + lag_window_size
-        self._word_size = word_size
         self._lead_window = deque(maxlen=lead_window_size)
         self._lag_window = deque(maxlen=lag_window_size)
-        self.last_timestamp = datetime.min
         self._recursion_level = 2
 
     @classmethod
@@ -63,7 +61,9 @@ class AssumptionFreeAA(object):
             by Stefan Novak
         """
         if not isinstance(data, np.ndarray) or len(data.shape) != 1:
-            raise ValueError("data must be a numpy array of shape (n,), not "
+            raise ValueError("data must be a numpy array")
+        if len(data.shape) != 1:
+            raise ValueError("data must be of shape (n,), not "
                              + "%s of shape %s" % (data.__class__, data.shape))
         if len(data) % word_size != 0:
             raise ValueError("len(data) must be divisible by word_size")
@@ -92,8 +92,8 @@ class AssumptionFreeAA(object):
 
     @classmethod
     def dist(cls, mtrx_a, mtrx_b):
-        """
-        Returns \\sum_{i=0}^{n} \\sum_{j=0}^{n} (A_{ij}-B_{ij})^2
+        r"""
+        Returns \sum_{i=0}^{n} \sum_{j=0}^{n} (A_{ij}-B_{ij})^2
         """
         return np.power(mtrx_a - mtrx_b, 2).sum()
 
@@ -154,12 +154,11 @@ class AssumptionFreeAA(object):
         i = 0
         j = 0
         for key in ordered_keys:
-            if max_value != 0:
-                freqs[key] /= max_value
-            else:
-                freqs[key] = 0
             j = j % matrix_size
-            bitmap[i, j] = freqs[key]
+            if max_value != 0:
+                bitmap[i, j] = freqs[key] / max_value
+            else:
+                bitmap[i, j] = 0
             j += 1
             if j == matrix_size:
                 i += 1
@@ -180,12 +179,11 @@ class AssumptionFreeAA(object):
             words.append(word)
         return words
 
-    def detect(self, datapoints, last_timestamp):
+    def detect(self, datapoints):
         """
         Calculates the datapoints' anomaly score according to:
         http://alumni.cs.ucr.edu/~ratana/SSDBM05.pdf
         """
-        self.last_timestamp = last_timestamp
         analysis_result = []
         for datapoint in datapoints:
             if len(self._lead_window) == self._lead_window.maxlen:
