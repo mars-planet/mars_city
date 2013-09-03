@@ -39,6 +39,7 @@ class HRMonitor(object):
         self.Session = sessionmaker(bind=self.engine, autocommit=False)
         self.resolution = 1000  # in millisecs
         self.last_alarm_timestamp = datetime.now()
+        self.last_detection_timestamp = datetime.now()
         print('Constructing Detector')
         self.detector = Detector(word_size=5, window_factor=2,
                                  lead_window_factor=2, lag_window_factor=4,
@@ -99,7 +100,7 @@ class HRMonitor(object):
             try:
                 query = session.query(Datapoint)
                 query = query.filter(Datapoint.timestamp
-                                     > self.detector.last_timestamp)
+                                     >= self.last_detection_timestamp)
                 datapoints = query.all()
                 datapoints = DataFrame(
                        {
@@ -115,8 +116,8 @@ class HRMonitor(object):
                     last_timestamp = datapoints.index.max()
                     self.timestamps.extend(datapoints.index.tolist())
                     self.lock.acquire()
-                    analysis = self.detector.detect(datapoints.ratio,
-                                                    last_timestamp)
+                    self.last_detection_timestamp = last_timestamp
+                    analysis = self.detector.detect(datapoints.ratio)
                     self.lock.release()
                     if analysis:
                         session = self.Session()
