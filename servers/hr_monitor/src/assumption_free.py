@@ -203,7 +203,9 @@ class AssumptionFreeAA(object):
                                                    self._recursion_level)
                 lead_bitmap = self.build_bitmap(lead_freqs)
                 lag_bitmap = self.build_bitmap(lag_freqs)
-                result = Analysis(score=self.dist(lead_bitmap, lag_bitmap),
+                score = self.dist(lead_bitmap, lag_bitmap)
+                score /= lead_bitmap.shape[0] * lead_bitmap.shape[1]
+                result = Analysis(score=score,
                                   bitmp1=lead_bitmap, bitmp2=lag_bitmap)
                 analysis_result.append(result)
         return analysis_result
