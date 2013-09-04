@@ -113,9 +113,6 @@ class PyDsExp(PyTango.Device_4Impl):
             ret_val = zip(*ret_val)
         else:
             ret_val = [[], []]
-        for key, val in performance.iteritems():
-            print("%s: max: %s; min: %s; avg:%s"
-                  % (key, max(val), min(val), sum(val) / len(val)))
         return ret_val
 ############### END get_current_alarms ########################################
 
