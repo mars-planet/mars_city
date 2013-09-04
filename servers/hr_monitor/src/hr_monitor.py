@@ -71,10 +71,6 @@ class HRMonitor(object):
             avgs = mean(data, axis=0)
         else:
             avgs = [nan, nan]
-        print("current: %s; init: %s; avgs: %s"
-              % (current, init, avgs))
-        if any(isnan(avgs)):
-            print(data)
         return {'hr': avgs[0], 'acc': avgs[1]}
 
     def register_datapoint(self, *args):
@@ -165,8 +161,6 @@ class HRMonitor(object):
             results = query.all()
         finally:
             session.close()
-        print("current: %s; init: %s; results: %s"
-              % (current, init, results))
         return results
 
 
@@ -190,10 +184,9 @@ if __name__ == '__main__':
 
     DP = namedtuple("DP", ["timestamp", "hr", "acc_x", "acc_y", "acc_z"])
     i = 0
-    percentiles = int(len(data) / 1000)
     for index, row in data.iterrows():
-        if i % percentiles == 0:
-            print("%s%%" % (i / percentiles))
+        progress = (i / len(data)) * 100
+        print("%s%%" % progress)
         datapoint = DP(timestamp=index.to_datetime(), hr=row['hr'],
                        acc_x=row['acc_x'], acc_y=row['acc_y'],
                        acc_z=row['acc_z'])
