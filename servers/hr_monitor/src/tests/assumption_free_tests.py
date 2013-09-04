@@ -6,7 +6,6 @@ import unittest
 
 import numpy as np
 
-sys.path.append("../")
 sys.path.append("../../")
 
 from src.assumption_free import AssumptionFreeAA

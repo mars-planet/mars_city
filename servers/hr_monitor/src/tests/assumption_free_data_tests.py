@@ -7,7 +7,6 @@ import sys
 
 import numpy as np
 
-sys.path.append("../")
 sys.path.append("../../")
 
 from src.preprocessing import extract_hr_acc, read_data
@@ -21,7 +20,7 @@ class AssumptionFreeDataTests():
         Reads a test data set into memory
         """
         dirname = os.path.dirname(__file__)
-        filename = os.path.join(dirname, 'dataset2.dat')
+        filename = os.path.join(dirname, 'dataset.dat')
         cls._df = extract_hr_acc(read_data(filename))
 
     def setUp(self,
@@ -67,3 +66,8 @@ class AssumptionFreeDataTests():
             else:
                 self._scores.append(0.)
                 self._bitmaps.append(([], []))
+
+
+if __name__ == '__main__':
+    inst = AssumptionFreeDataTests()
+
