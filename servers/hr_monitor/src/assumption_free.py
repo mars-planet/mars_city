@@ -142,7 +142,7 @@ class AssumptionFreeAA(object):
         return freqs
 
     @classmethod
-    def build_bitmap(cls, freqs):
+    def build_bitmap(cls, freqs, norm_factor=0):
         """
         Builds a bitmap of size len(freqs)).
         Each cell in the bitmap is proportional to the frequency of a subword.
@@ -150,13 +150,12 @@ class AssumptionFreeAA(object):
         matrix_size = sqrt(len(freqs))
         bitmap = np.zeros(shape=(matrix_size, matrix_size), dtype=np.float64)
         ordered_keys = sorted(freqs.keys())
-        max_value = max(freqs.values())
         i = 0
         j = 0
         for key in ordered_keys:
             j = j % matrix_size
-            if max_value != 0:
-                bitmap[i, j] = freqs[key] / max_value
+            if norm_factor != 0:
+                bitmap[i, j] = freqs[key] / norm_factor
             else:
                 bitmap[i, j] = 0
             j += 1
@@ -201,8 +200,9 @@ class AssumptionFreeAA(object):
                                                     self._recursion_level)
                 lag_freqs = self.count_frequencies(lag_words, 'abcd',
                                                    self._recursion_level)
-                lead_bitmap = self.build_bitmap(lead_freqs)
-                lag_bitmap = self.build_bitmap(lag_freqs)
+                norm_factor = max(lead_freqs.values() + lag_freqs.values())
+                lead_bitmap = self.build_bitmap(lead_freqs, norm_factor)
+                lag_bitmap = self.build_bitmap(lag_freqs, norm_factor)
                 score = self.dist(lead_bitmap, lag_bitmap)
                 score /= lead_bitmap.shape[0] * lead_bitmap.shape[1]
                 result = Analysis(score=score,
