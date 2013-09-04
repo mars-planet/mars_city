@@ -1,11 +1,15 @@
 from __future__ import print_function
 
 import os
+import sys
 from collections import namedtuple
 from datetime import datetime
 from time import sleep
 
 from PyTango import DeviceProxy
+
+sys.path.append("../../")
+
 
 from src.preprocessing import read_data, extract_hr_acc
 
