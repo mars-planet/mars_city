@@ -157,7 +157,7 @@ class AssumptionFreeAA(object):
             if norm_factor != 0:
                 bitmap[i, j] = freqs[key] / norm_factor
             else:
-                bitmap[i, j] = 0
+                bitmap[i, j] = freqs[key]
             j += 1
             if j == matrix_size:
                 i += 1

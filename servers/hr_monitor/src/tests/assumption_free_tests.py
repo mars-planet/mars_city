@@ -123,11 +123,12 @@ class AssumptionFreeTests(unittest.TestCase):
                 'ba': 1, 'bb': 1, 'bc': 0, 'bd': 0,
                 'ca': 0, 'cb': 0, 'cc': 3, 'cd': 0,
                 'da': 1, 'db': 0, 'dc': 0, 'dd': 0}
-        expected = np.array([[1, 1 / 2, 1 / 3, 1 / 6],
-                             [1 / 6, 1 / 6, 1 / 6, 1 / 6],
+        norm_factor = 10
+        expected = np.array([[0.6, 0.3, 0.2, 0.1],
+                             [0.1, 0.1, 0.1, 0.1],
                              [0, 0, 0, 0],
                              [0, 0, 0, 0]])
-        actual = AssumptionFreeAA.build_bitmap(data)
+        actual = AssumptionFreeAA.build_bitmap(data, norm_factor)
         self.assertItemsEqual(expected.flatten(), actual.flatten(),
                              'exp: %s; act: %s' % (expected, actual))
 
@@ -136,11 +137,40 @@ class AssumptionFreeTests(unittest.TestCase):
                 'ba': 0, 'bb': 0, 'bc': 0, 'bd': 0,
                 'ca': 0, 'cb': 0, 'cc': 0, 'cd': 0,
                 'da': 0, 'db': 0, 'dc': 0, 'dd': 0}
+        norm_factor = 10
         expected = np.array([[0, 0, 0, 0],
                              [0, 0, 0, 0],
                              [0, 0, 0, 0],
                              [0, 0, 0, 0]])
-        actual = AssumptionFreeAA.build_bitmap(data)
+        actual = AssumptionFreeAA.build_bitmap(data, norm_factor)
+        self.assertItemsEqual(expected.flatten(), actual.flatten(),
+                             'exp: %s; act: %s' % (expected, actual))
+
+    def test_build_bitmap_norm_factor_null(self):
+        data = {'aa': 6, 'ab': 1, 'ac': 2, 'ad': 1,
+                'ba': 1, 'bb': 1, 'bc': 0, 'bd': 0,
+                'ca': 0, 'cb': 0, 'cc': 3, 'cd': 0,
+                'da': 1, 'db': 0, 'dc': 0, 'dd': 0}
+        norm_factor = 0
+        expected = np.array([[6, 3, 2, 1],
+                             [1, 1, 1, 1],
+                             [0, 0, 0, 0],
+                             [0, 0, 0, 0]])
+        actual = AssumptionFreeAA.build_bitmap(data, norm_factor)
+        self.assertItemsEqual(expected.flatten(), actual.flatten(),
+                             'exp: %s; act: %s' % (expected, actual))
+
+    def test_build_bitmap_null_map_norm_factor_null(self):
+        data = {'aa': 0, 'ab': 0, 'ac': 0, 'ad': 0,
+                'ba': 0, 'bb': 0, 'bc': 0, 'bd': 0,
+                'ca': 0, 'cb': 0, 'cc': 0, 'cd': 0,
+                'da': 0, 'db': 0, 'dc': 0, 'dd': 0}
+        norm_factor = 0
+        expected = np.array([[0, 0, 0, 0],
+                             [0, 0, 0, 0],
+                             [0, 0, 0, 0],
+                             [0, 0, 0, 0]])
+        actual = AssumptionFreeAA.build_bitmap(data, norm_factor)
         self.assertItemsEqual(expected.flatten(), actual.flatten(),
                              'exp: %s; act: %s' % (expected, actual))
 
