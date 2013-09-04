@@ -4,11 +4,28 @@ from __future__ import division, print_function
 import sys
 #from multiprocessing import Process
 from datetime import datetime
+from time import time
+from collections import defaultdict
 
 import PyTango
 from PyTango import ArgType
 
 from hr_monitor import HRMonitor
+
+performance = defaultdict(list)
+
+
+def timeit(func):
+    return func
+    def wrapper(*arg, **kw):
+        global performance
+        t1 = time()
+        res = func(*arg, **kw)
+        t2 = time()
+        #print("%s: %s" % (func.func_name, t2 - t1))
+        performance[func.func_name].append(t2 - t1)
+        return res
+    return wrapper
 
 
 class PyDsExpClass(PyTango.DeviceClass):
@@ -27,7 +44,8 @@ class PyDsExpClass(PyTango.DeviceClass):
 
         'get_current_alarms': [[ArgType.DevLong, "Period"],
                                [ArgType.DevVarDoubleStringArray,
-                                "Alarm levels of the last [Period] seconds"]],
+                                "Two arrays: alarm levels of the last [Period]"
+                                + " seconds, and corresponding timestamps"]],
                 }
 
     attr_list = {}
@@ -51,6 +69,7 @@ class PyDsExp(PyTango.Device_4Impl):
     def is_register_datapoint_allowed(self):
         return self.get_state() == PyTango.DevState.ON
 
+    @timeit
     def register_datapoint(self, args):
         timestamp = datetime.fromtimestamp(args[0])
         new_args = args.tolist()
@@ -65,6 +84,7 @@ class PyDsExp(PyTango.Device_4Impl):
     def is_get_avg_hr_allowed(self):
         return self.get_state() == PyTango.DevState.ON
 
+    @timeit
     def get_avg_hr(self, period):
         return self.hr_mon.get_avg_hr(period)
 ############### END get_avg_hr ################################################
@@ -73,6 +93,7 @@ class PyDsExp(PyTango.Device_4Impl):
     def is_get_avg_acc_allowed(self):
         return self.get_state() == PyTango.DevState.ON
 
+    @timeit
     def get_avg_acc(self, period):
         return self.hr_mon.get_avg_acc(period)
 ############### END get_acc_avg ###############################################
@@ -81,15 +102,21 @@ class PyDsExp(PyTango.Device_4Impl):
     def is_get_current_alarms_allowed(self):
         return self.get_state() == PyTango.DevState.ON
 
+    @timeit
     def get_current_alarms(self, period):
+        global performance
         alarms = self.hr_mon.get_current_alarms(period)
         if alarms:
             ret_val = [(a.alarm_lvl,
                         a.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f'))
                        for a in alarms]
-            return zip(*ret_val)
+            ret_val = zip(*ret_val)
         else:
-            return [[], []]
+            ret_val = [[], []]
+        for key, val in performance.iteritems():
+            print("%s: max: %s; min: %s; avg:%s"
+                  % (key, max(val), min(val), sum(val) / len(val)))
+        return ret_val
 ############### END get_current_alarms ########################################
 
     def init_device(self):
