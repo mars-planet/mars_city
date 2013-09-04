@@ -11,7 +11,7 @@ import wx
 from PyTango import DeviceProxy
 
 
-from PlotCanvas import PlotCanvas
+from CanvasPanel import CanvasPanel
 from Timer import Timer
 
 # begin wxGlade: extracode
@@ -24,7 +24,7 @@ class MainFrame(wx.Frame):
         # begin wxGlade: MainFrame.__init__
         kwds["style"] = wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.alarm_plt = PlotCanvas(self, -1)
+        self.alarm_plt = CanvasPanel(self, -1)
         self.timestamp_sld = wx.Slider(self, -1, 0, 0, 10)
         self.avg_hr_title_lbl = wx.StaticText(self, -1, "Current avg. HR:")
         self.avg_hr_lbl = wx.StaticText(self, -1, "nan")
@@ -104,8 +104,7 @@ class MainFrame(wx.Frame):
             sleep_time = timedelta(seconds=5) - (datetime.now() - init)
             sleep_time = max(sleep_time, timedelta(0)).total_seconds()
             alarms[0], alarms[1] = alarms[1], alarms[0]
-            alarms[0] = [float(datetime.strptime(x, '%Y-%m-%d %H:%M:%S.%f')
-                                       .strftime('%s.%f'))
+            alarms[0] = [datetime.strptime(x, '%Y-%m-%d %H:%M:%S.%f')
                          for x in alarms[0]]
             if not isnan(avg_hr):
                 wx.CallAfter(self.avg_hr_lbl.SetLabel, str(avg_hr))
@@ -121,8 +120,8 @@ class MainFrame(wx.Frame):
 
             data = sorted(self.alarms)
             if len(data) > 0:
-                wx.CallAfter(self.alarm_plt.set_data, data)
-                wx.CallAfter(self.alarm_plt.draw)
+                print(zip(*data))
+                wx.CallAfter(self.alarm_plt.draw, zip(*data))
             sleep(sleep_time)
         del proxy
 
