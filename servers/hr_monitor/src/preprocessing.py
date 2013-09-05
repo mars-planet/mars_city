@@ -3,8 +3,9 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 
+
 def magnitude(row):
-    return (row[21]**2 + row[22]**2 + row[23]**2)**.5
+    return (row[21] ** 2 + row[22] ** 2 + row[23] ** 2) ** 0.5
 
 
 def read_data(path):
@@ -17,9 +18,9 @@ def read_data(path):
             IMU_Chest_Magnitude -> chest accelerometer's magnitude vector
     """
     colum_names = ['timestamp', 'activityID', 'hr']
-    colum_names += ['IMU_Hand'+str(x) for x in range(1,18)]
-    colum_names += ['IMU_Chest'+str(x) for x in range(1,18)]
-    colum_names += ['IMU_Foot'+str(x) for x in range(1,18)]
+    colum_names += ['IMU_Hand' + str(x) for x in range(1, 18)]
+    colum_names += ['IMU_Chest' + str(x) for x in range(1, 18)]
+    colum_names += ['IMU_Foot' + str(x) for x in range(1, 18)]
 
     df = pd.read_csv(path, sep='\s*', names=colum_names, header=None)
     df['IMU_Chest_Magnitude'] = df.apply(magnitude, axis=1)
@@ -30,8 +31,8 @@ def read_data(path):
                     'IMU_Chest_x', 'IMU_Chest_y', 'IMU_Chest_z']]
 
     now = datetime.now()
-    df['timestamp'] += (now - datetime(1970,1,1)).total_seconds()
-    df['timestamp'] = df['timestamp'].apply(lambda x: x*10**9)
+    df['timestamp'] += (now - datetime(1970, 1, 1)).total_seconds()
+    df['timestamp'] = df['timestamp'].apply(lambda x: x * 10 ** 9)
     df['timestamp'] = df['timestamp'].astype('datetime64[ns]')
     df = df.set_index('timestamp')
 
@@ -54,7 +55,7 @@ def extract_hr_acc(dataframe):
                        'acc_y': dataframe.IMU_Chest_y,
                        'acc_z': dataframe.IMU_Chest_z},
                         index=dataframe.index)
-    df['ratio'] = df.hr/df.acc
+    df['ratio'] = df.hr / df.acc
     df['ratio_log'] = np.log(df.ratio)
     #fill NAs forward
     df = df.fillna(method='ffill')
