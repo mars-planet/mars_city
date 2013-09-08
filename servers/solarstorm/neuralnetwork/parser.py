@@ -42,11 +42,16 @@ class Parser(object):
                         else :
                             self.pbkgdflux_float = 0.0
 
+                        self.pcflare = values[9]
+                        self.pmflare = values[10]
+                        self.pxflare = values[11]
+
                     else :
                         row_data.extend((self.pdate, self.pradioflux,
                                          self.psunspotnum, self.psunspotarea,
                                          self.pnewregs, self.pbkgdflux_alpha,
-                                         self.pbkgdflux_float))
+                                         self.pbkgdflux_float, self.pcflare,
+                                         self.pmflare, self.pxflare))
 
                         cflare = values[9]
                         mflare = values[10]
@@ -67,6 +72,10 @@ class Parser(object):
                             self.pbkgdflux_float = float(values[8][1:])
                         else :
                             self.pbkgdflux_float = 0.0
+
+                        self.pcflare = values[9]
+                        self.pmflare = values[10]
+                        self.pxflare = values[11]
 
                     self.index += 1
 
