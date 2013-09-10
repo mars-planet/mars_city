@@ -11,30 +11,28 @@ if __name__ == "__main__":
     gevent.spawn(headset.setup)
     gevent.sleep(1)
 
+    # Read the polling time (in milliseconds) from sys.argv and
+    # convert it to seconds.  If 200 is passed, values will be
+    # printed on stdout every 0.2 seconds
     polling = int(sys.argv[1])/1000
+
+    # Packets are received at 128Hz (see emotive_protocol.asciidoc in
+    # the openyou repo), i.e. 128 packets per second.
+    # If the polling time is 0.2s, we are reading at 5Hz, so we store
+    # in a queue 128Hz / 5Hz = ~25 packets and write on stdout the
+    # average values of the 25 packets before resetting the queue.
     size = int(128 / (1/polling))
-    print size
     print '-----'
     sys.stderr.write('START\n')
 
     # don't move the headset while reading this
     packet = headset.dequeue()
     x, y = packet.gyroX, packet.gyroY
-    xpos, ypos = 0, 0
-    xspeed, yspeed = 0, 0
     xs, ys = deque(maxlen=size), deque(maxlen=size)
+
     try:
         while True:
             packet = headset.dequeue()
-            xdiff = x-packet.gyroX
-            ydiff = y-packet.gyroY
-            if abs(xdiff) > 0:
-                xspeed += xdiff
-                xpos += int(round(xspeed))
-            #xpos = max(min(xpos, xmax), 0)
-            if abs(ydiff) > 0:
-                yspeed -= ydiff
-                ypos += int(round(yspeed))
             x, y = packet.gyroX, packet.gyroY
             xs.append(x)
             ys.append(y)
