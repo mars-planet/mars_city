@@ -3,6 +3,7 @@
 from __future__ import division
 
 import sys
+import json
 from subprocess import Popen, PIPE
 from math import sqrt, atan2, degrees
 
@@ -40,7 +41,8 @@ class PyNeuroHS(PyTango.Device_4Impl):
         #read from EPOC
         #packet = self.headset.dequeue()
         line = self.headset.stdout.readline().strip()
-        gyroX, gyroY = map(int, line.split(';'))
+        packet = json.loads(line)
+        gyroX, gyroY = packet['X']['value'], packet['Y']['value']
         xdiff = self.x - gyroX
         ydiff = self.y - gyroY
         #print 'gyroX gyroY xdiff ydiff', packet.gyroX, packet.gyroY, xdiff, ydiff
@@ -73,7 +75,6 @@ class PyNeuroHS(PyTango.Device_4Impl):
         the_att.set_value(self.ypos)
 
     def init_device(self):
-        
         self.info_stream('In Python init_device method')
         self.headset = Popen(['python', 'neurohs.py', '200'],
                              stdout=PIPE, stderr=PIPE)
@@ -90,7 +91,8 @@ class PyNeuroHS(PyTango.Device_4Impl):
             line = self.headset.stdout.readline().strip()
         #packet = self.headset.dequeue()
         #self.x, self.y = packet.gyroX, packet.gyroY
-        self.x, self.y = map(int, line.split(';'))
+        packet = json.loads(line)
+        self.x, self.y = packet['X']['value'], packet['Y']['value']
         self.xspeed, self.yspeed = 0, 0
         self.xpos, self.ypos = 0, 0
         self.set_state(PyTango.DevState.ON)
