@@ -73,6 +73,7 @@ class PyNeuroHS(PyTango.Device_4Impl):
         the_att.set_value(self.ypos)
 
     def init_device(self):
+        
         self.info_stream('In Python init_device method')
         self.headset = Popen(['python', 'neurohs.py', '200'],
                              stdout=PIPE, stderr=PIPE)
