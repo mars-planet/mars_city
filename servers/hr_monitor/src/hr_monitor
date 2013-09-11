@@ -2,7 +2,6 @@
 
 from __future__ import division, print_function
 import sys
-#from multiprocessing import Process
 from datetime import datetime
 from time import time
 from collections import defaultdict
@@ -124,15 +123,15 @@ class PyDsExp(PyTango.Device_4Impl):
 
 
 if __name__ == '__main__':
-    print(1)
+    print("Parsing command line arguments")
     util = PyTango.Util(sys.argv)
-    print(2)
+    print("Setting up Server")
     util.add_class(PyDsExpClass, PyDsExp)
 
-    print(3)
+    print("Getting ancillary classes instances")
     U = PyTango.Util.instance()
-    print(4)
+    print("Initializing Server")
     U.server_init()
-    print(5)
+    print("Running Server")
     U.server_run()
-    print(6)
+    print("Exiting")
