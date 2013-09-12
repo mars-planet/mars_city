@@ -6,8 +6,12 @@ from datetime import datetime
 from time import time
 from collections import defaultdict
 
+from threading import Thread, Event
+from time import sleep
+
 import PyTango
-from PyTango import ArgType
+from PyTango import ArgType, DeviceProxy, ConnectionFailed, DevFailed
+import numpy as np
 
 from hr_monitor import HRMonitor
 
@@ -64,6 +68,29 @@ class PyDsExp(PyTango.Device_4Impl):
         PyDsExp.init_device(self)
         print('Finished constructing PyDsExp')
 
+    def __del__(self):
+        self.stop_polling.set()
+
+    def _poll_suit(self):
+        proxy = DeviceProxy(self.aouda_address)
+        while not self.stop_polling.is_set():
+            try:
+                data = proxy.get_data(self.polling_frequency)
+                for i in range(0, len(data), 4):
+                    print(data[0][i], data[1][i])
+                    timestamp = datetime.strptime(data[1][i],
+                                                  '%Y-%m-%d %H:%M:%S.%f')
+                    timestamp = float(timestamp.strftime('%s.%f'))
+                    hr = data[0][i]
+                    acc_x = data[0][i + 1]
+                    acc_y = data[0][i + 2]
+                    acc_z = data[0][i + 3]
+                    datapoint = np.array((timestamp, hr, acc_x, acc_y, acc_z))
+                    self.register_datapoint(datapoint)
+            except (ConnectionFailed, DevFailed):
+                print("The Aouda Server seems to be down.")
+            sleep(self.polling_frequency)
+
 ############## BEGIN register_datapoint #######################################
     def is_register_datapoint_allowed(self):
         return self.get_state() == PyTango.DevState.ON
@@ -74,9 +101,6 @@ class PyDsExp(PyTango.Device_4Impl):
         new_args = args.tolist()
         new_args[0] = timestamp
         self.hr_mon.register_datapoint(*new_args)
-#        proc = Process(target=self.hr_mon.register_datapoint,
-#                       args=new_args)
-#        proc.start()
 ############### END register_datapoint ########################################
 
 ############### BEGIN get_avg_hr ##############################################
@@ -118,6 +142,10 @@ class PyDsExp(PyTango.Device_4Impl):
     def init_device(self):
         print('Initializing device')
         self.hr_mon = HRMonitor()
+        self.aouda_address = 'C3/aouda/1'
+        self.stop_polling = Event()
+        self.polling_frequency = 2
+        Thread(target=self._poll_suit).start()
         self.set_state(PyTango.DevState.ON)
         print('Finished initializing device')
 
@@ -135,3 +163,4 @@ if __name__ == '__main__':
     print("Running Server")
     U.server_run()
     print("Exiting")
+    U.server_cleanup()

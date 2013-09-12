@@ -190,7 +190,10 @@ class HRMonitor(object):
         return results
 
 
-if __name__ == '__main__':
+def main():
+    """
+    Sample use of the register_datapoint method.
+    """
     import os
     from collections import namedtuple
     from preprocessing import read_data, extract_hr_acc
@@ -220,3 +223,6 @@ if __name__ == '__main__':
         i += 1
 
     del hr_mon
+
+if __name__ == '__main__':
+    main()
