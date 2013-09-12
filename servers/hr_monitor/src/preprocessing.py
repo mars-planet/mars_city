@@ -1,3 +1,6 @@
+"""
+Reads and preprocesses data from one of the PAMAP2_Dataset files.
+"""
 from datetime import datetime
 
 import pandas as pd
@@ -5,6 +8,9 @@ import numpy as np
 
 
 def magnitude(row):
+    """
+    Calculates the magnitude of the body's acceleration vector in the row.
+    """
     return (row[21] ** 2 + row[22] ** 2 + row[23] ** 2) ** 0.5
 
 
@@ -22,21 +28,22 @@ def read_data(path):
     colum_names += ['IMU_Chest' + str(x) for x in range(1, 18)]
     colum_names += ['IMU_Foot' + str(x) for x in range(1, 18)]
 
-    df = pd.read_csv(path, sep='\s*', names=colum_names, header=None)
-    df['IMU_Chest_Magnitude'] = df.apply(magnitude, axis=1)
-    df['IMU_Chest_x'] = df['IMU_Chest1']
-    df['IMU_Chest_y'] = df['IMU_Chest2']
-    df['IMU_Chest_z'] = df['IMU_Chest3']
-    df = df.loc[:, ['timestamp', 'activityID', 'hr', 'IMU_Chest_Magnitude',
-                    'IMU_Chest_x', 'IMU_Chest_y', 'IMU_Chest_z']]
+    frame = pd.read_csv(path, sep=r'\s*', names=colum_names, header=None)
+    frame['IMU_Chest_Magnitude'] = frame.apply(magnitude, axis=1)
+    frame['IMU_Chest_x'] = frame['IMU_Chest1']
+    frame['IMU_Chest_y'] = frame['IMU_Chest2']
+    frame['IMU_Chest_z'] = frame['IMU_Chest3']
+    frame = frame.loc[:, ['timestamp', 'activityID', 'hr',
+                          'IMU_Chest_Magnitude',
+                          'IMU_Chest_x', 'IMU_Chest_y', 'IMU_Chest_z']]
 
     now = datetime.now()
-    df['timestamp'] += (now - datetime(1970, 1, 1)).total_seconds()
-    df['timestamp'] = df['timestamp'].apply(lambda x: x * 10 ** 9)
-    df['timestamp'] = df['timestamp'].astype('datetime64[ns]')
-    df = df.set_index('timestamp')
+    frame['timestamp'] += (now - datetime(1970, 1, 1)).total_seconds()
+    frame['timestamp'] = frame['timestamp'].apply(lambda x: x * 10 ** 9)
+    frame['timestamp'] = frame['timestamp'].astype('datetime64[ns]')
+    frame = frame.set_index('timestamp')
 
-    return df
+    return frame
 
 
 def extract_hr_acc(dataframe):
@@ -49,18 +56,18 @@ def extract_hr_acc(dataframe):
             ratio -> hr/acc
             ratio_log -> ln(ratio)
     """
-    df = pd.DataFrame({'hr': dataframe.hr,
+    frame = pd.DataFrame({'hr': dataframe.hr,
                        'acc': dataframe.IMU_Chest_Magnitude,
                        'acc_x': dataframe.IMU_Chest_x,
                        'acc_y': dataframe.IMU_Chest_y,
                        'acc_z': dataframe.IMU_Chest_z},
                         index=dataframe.index)
-    df['ratio'] = df.hr / df.acc
-    df['ratio_log'] = np.log(df.ratio)
+    frame['ratio'] = frame.hr / frame.acc
+    frame['ratio_log'] = np.log(frame.ratio)
     #fill NAs forward
-    df = df.fillna(method='ffill')
+    frame = frame.fillna(method='ffill')
     #fill NAs backwards (fill any NAs at the start of all series)
-    df = df.fillna(method='bfill')
+    frame = frame.fillna(method='bfill')
 
-    #df = df.reset_index()
-    return df
+    #frame = frame.reset_index()
+    return frame
