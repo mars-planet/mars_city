@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>EEG signal quality monitor</title>
+    <meta name="author" content="Ezio Melotti">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+
+    <style type="text/css">
+    canvas {
+        border: 1px solid black;
+        display: block;
+        margin: 0 auto;
+    }
+    </style>
+
+    <script type="text/javascript">
+$(document).ready(function() {
+/* coordinates of the sensors on the image */
+var coords = {
+    AF3: [118, 92],
+    AF4: [284, 92],
+    F3: [156, 146],
+    F4: [244, 146],
+    F7: [60, 154],
+    F8: [342, 154],
+    FC5: [96, 190],
+    FC6: [306, 190],
+    T7: [38, 242],
+    T8: [364, 242],
+    CMS: [60, 296],
+    DRL: [342, 296],
+    P7: [98, 360],
+    P8: [304, 360],
+    O1: [152, 418],
+    O2: [250, 418],
+}
+/* sensor names -- CMS and DRL are not available */
+var sensors = ['AF3', 'AF4', 'F3', 'F4', 'F7', 'F8', 'FC5', 'FC6',
+               'T7', 'T8', /*'CMS', 'DRL',*/ 'P7', 'P8', 'O1', 'O2'];
+/* Colors of the sensors on the image depending on the signal quality.
+   The signals quality should be between 0 and 4, but the values are
+   often higher than 10 -- not sure why yet. */
+var colors = [
+    '#000000',  // 0 - black - no signal
+    '#ff0000',  // 1 - red - really bad signal
+    '#ffa500',  // 2 - orange - bad signal
+    '#ffff00',  // 3 - yellow - acceptable signal
+    '#00ff00',  // 4 - green - good signal
+    '#cccccc',  // >=5 - grey - ???
+];
+
+
+function draw_circle(x, y, radius, color) {
+    /* draw colored circles on the sensors over the image */
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2, false);
+    context.closePath();
+
+    context.strokeStyle = '#000';
+    context.stroke();
+    context.fillStyle = color;
+    context.fill();
+}
+
+function update_canvas() {
+    /* read the data from the server and redraw the canvas */
+    $.get('/eegdata', function(res) {
+        /* each time everything is cleared and redrawn */
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(eegpoints, 0, 0);
+        /* draw the sensors circles over the image */
+        for (var k = 0; k < sensors.length; k++) {
+            var sensor_name = sensors[k];
+            var coord = coords[sensor_name];
+            var quality = res[sensor_name].quality;
+            if (quality > 5)
+                quality = 5;
+            //console.log(sensor_name, quality, res[sensor_name].value);
+            draw_circle(coord[0], coord[1], 20, colors[quality]);
+        }
+        /* add info about battery and gyro */
+        context.font = '15px sans-serif';
+        context.fillStyle = '#000';
+        context.fillText('Battery: ' + res.battery, 5, 445);
+        context.fillText('X: ' + res.X.value, 330, 445);
+        context.fillText('Y: ' + res.Y.value, 330, 425);
+        /* call the function again in 500ms */
+        setTimeout(update_canvas, 500);
+        console.log(JSON.stringify(res));
+    });
+};
+
+var canvas = document.getElementById("eeg");
+var context = canvas.getContext("2d");
+var eegpoints = new Image();
+eegpoints.src = "http://neurofeedback.visaduma.info/images/fig_emotivpositions.gif";
+update_canvas();
+});
+    </script>
+</head>
+<body>
+    <canvas width="401" height="454" id="eeg"></canvas>
+</body>
+</html>

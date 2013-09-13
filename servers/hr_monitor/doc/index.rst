@@ -7,3 +7,4 @@ Heart Rate Monitor Server
 
    swrs
    swds
+   README

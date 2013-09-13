@@ -1,65 +1,66 @@
 from __future__ import division
 
 import sys
+import json
 from collections import deque
 
-
-from emokit import emotiv
 import gevent
+from emokit import emotiv
 
 if __name__ == "__main__":
     headset = emotiv.Emotiv()
     gevent.spawn(headset.setup)
     gevent.sleep(1)
 
+    # Read the polling time (in milliseconds) from sys.argv and
+    # convert it to seconds.  If 200 is passed, values will be
+    # printed on stdout every 0.2 seconds
     polling = int(sys.argv[1])/1000
+
+    # Packets are received at 128Hz (see emotive_protocol.asciidoc in
+    # the openyou repo), i.e. 128 packets per second.
+    # If the polling time is 0.2s, we are reading at 5Hz, so we store
+    # in a queue 128Hz / 5Hz = ~25 packets and write on stdout the
+    # average values of the 25 packets before resetting the queue.
     size = int(128 / (1/polling))
-    print size
+    packets = deque(maxlen=size)
+
     print '-----'
     sys.stderr.write('START\n')
 
-    # don't move the headset while reading this
-    packet = headset.dequeue()
-    x, y = packet.gyroX, packet.gyroY
-    xpos, ypos = 0, 0
-    xspeed, yspeed = 0, 0
-    xs, ys = deque(maxlen=size), deque(maxlen=size)
+    # Read the packets in loop and add them to the queue.
+    # Once enough packets are collected, calculate the average of the values,
+    # serialize the result with json, print it on stdout, and reset the queue
     try:
         while True:
             packet = headset.dequeue()
-            #print 'size', headset.packets.qsize()
-            #print x-packet.gyroX, y-packet.gyroY,
-            #print packet.gyroX, packet.gyroY
-            #turtle.up()
-            #xpos, ypos = turtle.pos()
-            xdiff = x-packet.gyroX
-            ydiff = y-packet.gyroY
-            if abs(xdiff) > 0:
-                xspeed += xdiff
-                xpos += int(round(xspeed))
-            #xpos = max(min(xpos, xmax), 0)
-            if abs(ydiff) > 0:
-                yspeed -= ydiff
-                ypos += int(round(yspeed))
-            #ypos = max(min(ypos, ymax), 0)
-            #print '%4d %4d' % (xspeed, yspeed)
-            #print '%4d %4d' % (xpos, ypos)
-            #move_pointer(xpos, ypos)
-            #turtle.goto(xpos, ypos)
-            #turtle.down()
-            x, y = packet.gyroX, packet.gyroY
-            xs.append(x)
-            ys.append(y)
-            #print len(xs)
-            if len(xs) >= size:
-                print '%d;%d' %(sum(xs)/size,  sum(ys)/size)
-                #sys.stderr.write('e %d;%d\n' %(sum(xs)/size,  sum(ys)/size))
+            # We only need the sensors data + the battery.
+            # The rawdata, counter, and sync are not needed;
+            # the other values are redundant
+            data = dict(packet.sensors)
+            del data['Unknown']  # we don't need this either
+            data['battery'] = packet.battery
+            packets.append(data)
+            packets_num = len(packets)
+            if packets_num >= size:
+                avgdata = {}
+                for key in data:
+                    if key == 'battery':
+                        # return the battery level for the last packet
+                        avgdata[key] = packets[-1][key]
+                    else:
+                        # calculate the average of sensors qualities and values
+                        # for all the packets
+                        qsum, vsum = 0, 0
+                        for p in packets:
+                            sensor_data = p[key]
+                            qsum += sensor_data['quality']
+                            vsum += sensor_data['value']
+                        avgdata[key] = dict(quality=qsum/packets_num,
+                                            value=vsum/packets_num)
+                print json.dumps(avgdata)
                 sys.stdout.flush()
-                xs.clear()
-                ys.clear()
-            #print 'x y %4.2f % 4.2f\r' %(sum(xs)/size,  sum(ys)/size),
-            #gevent.sleep(.01)
-            #headset.packets.empty()
+                packets.clear()
     except KeyboardInterrupt:
         headset.close()
     finally:

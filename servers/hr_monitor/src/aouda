@@ -1,0 +1,66 @@
+#!/usr/bin/env python
+
+from __future__ import division, print_function
+import sys
+from collections import defaultdict
+
+import PyTango
+from PyTango import ArgType, AttrDataFormat, AttrWriteType
+
+from aouda import Aouda
+
+performance = defaultdict(list)
+
+
+class PyDsExpClass(PyTango.DeviceClass):
+    cmd_list = {
+                'get_data': [[ArgType.DevLong, "Period"],
+                             [ArgType.DevVarDoubleStringArray]],
+                }
+
+    attr_list = {}
+
+    def __init__(self, name):
+        print('Constructing PyDsExpClass')
+        PyTango.DeviceClass.__init__(self, name)
+        self.set_type("PyDsExpClass")
+        print('Finished constructing PyDsExpClass')
+
+
+class PyDsExp(PyTango.Device_4Impl):
+
+    def __init__(self, cl, name):
+        print('Constructing PyDsExp')
+        PyTango.Device_4Impl.__init__(self, cl, name)
+        PyDsExp.init_device(self)
+        print('Finished constructing PyDsExp')
+
+############## BEGIN register_datapoint #######################################
+    def is_get_datapoint_allowed(self, req_type):
+        return self.get_state() in (PyTango.DevState.ON,)
+
+    def get_data(self, period):
+        data = self.aouda.get_data(period)
+        return data
+############### END register_datapoint ########################################
+
+    def init_device(self):
+        print('Initializing device')
+        self.aouda = Aouda(filename='tests/dataset.dat')
+        self.set_state(PyTango.DevState.ON)
+        print('Finished initializing device')
+
+
+if __name__ == '__main__':
+    print("Parsing command line arguments")
+    util = PyTango.Util(sys.argv)
+    print("Setting up Server")
+    util.add_class(PyDsExpClass, PyDsExp)
+
+    print("Getting ancillary classes instances")
+    U = PyTango.Util.instance()
+    print("Initializing Server")
+    U.server_init()
+    print("Running Server")
+    U.server_run()
+    print("Exiting")

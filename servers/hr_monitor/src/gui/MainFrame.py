@@ -5,11 +5,12 @@ from __future__ import division, print_function
 from time import sleep
 from datetime import datetime, timedelta
 from threading import current_thread
-from numpy import nan, isnan
+#from colorsys import hsv_to_rgb
 
+from numpy import nan, isnan
 import wx
 from wxmplot import PlotPanel
-from PyTango import DeviceProxy
+from PyTango import DeviceProxy, ConnectionFailed
 
 from Timer import Timer
 
@@ -24,7 +25,7 @@ class MainFrame(wx.Frame):
         kwds["style"] = wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
         self.alarm_plt = PlotPanel(self)
-        self.timestamp_sld = wx.Slider(self, -1, 0, 0, 10)
+        #self.timestamp_sld = wx.Slider(self, -1, 0, 0, 10)
         self.avg_hr_title_lbl = wx.StaticText(self, -1, "Current avg. HR:")
         self.avg_hr_lbl = wx.StaticText(self, -1, "nan")
         self.panel_1 = wx.Panel(self, -1)
@@ -48,14 +49,14 @@ class MainFrame(wx.Frame):
         self.__set_properties()
         self.__do_layout()
 
-        self.Bind(wx.EVT_COMMAND_SCROLL, self.timestamp_sld_scroll, self.timestamp_sld)
+        #self.Bind(wx.EVT_COMMAND_SCROLL, self.timestamp_sld_scroll, self.timestamp_sld)
         self.Bind(wx.EVT_BUTTON, self.collect_btn_click, self.collect_btn)
         # end wxGlade
         self.timer_thread = Timer(target=self.timer_tick)
         self.proxy = DeviceProxy('C3/hr_monitor/1')
         self.alarms = set()
-        self.yellow_alrm_thrsh = 0.3
-        self.red_alrm_thrsh = 0.6
+        self.yellow_alrm_thrsh = 0.25
+        self.red_alrm_thrsh = 0.5
         self.sleep_time = 5
 
     def __set_properties(self):
@@ -73,7 +74,7 @@ class MainFrame(wx.Frame):
         sizer_3 = wx.BoxSizer(wx.HORIZONTAL)
         grid_sizer_2 = wx.GridSizer(6, 3, 0, 0)
         sizer_1.Add(self.alarm_plt, 1, wx.EXPAND, 0)
-        sizer_1.Add(self.timestamp_sld, 0, wx.EXPAND, 0)
+        #sizer_1.Add(self.timestamp_sld, 0, wx.EXPAND, 0)
         grid_sizer_2.Add(self.avg_hr_title_lbl, 0, 0, 0)
         grid_sizer_2.Add(self.avg_hr_lbl, 0, 0, 0)
         grid_sizer_2.Add(self.panel_1, 1, wx.EXPAND, 0)
@@ -123,34 +124,38 @@ class MainFrame(wx.Frame):
         timer = current_thread()
         proxy = self.proxy
         while not timer.stopped():
-            avg_hr_idx = proxy.command_inout_asynch('get_avg_hr', 4)
-            avg_acc_idx = proxy.command_inout_asynch('get_avg_acc', 4)
-            alarms_idx = proxy.command_inout_asynch('get_current_alarms', 4)
-            init = datetime.now()
-            avg_hr = proxy.command_inout_reply(avg_hr_idx, timeout=0)
-            avg_acc = proxy.command_inout_reply(avg_acc_idx, timeout=0)
-            alarms = proxy.command_inout_reply(alarms_idx, timeout=0)
-            sleep_time = timedelta(seconds=self.sleep_time)
-            sleep_time -= (datetime.now() - init)
-            sleep_time = max(sleep_time, timedelta(0)).total_seconds()
-            alarms[0], alarms[1] = alarms[1], alarms[0]
-            alarms[0] = [float(datetime.strptime(x, '%Y-%m-%d %H:%M:%S.%f')
-                                       .strftime('%s.%f'))
-                         for x in alarms[0]]
-            alarms[0] = [x % 10000 for x in alarms[0]]
-            if not isnan(avg_hr):
-                wx.CallAfter(self.avg_hr_lbl.SetLabel, str(avg_hr))
-            if not isnan(avg_acc):
-                wx.CallAfter(self.avg_acc_lbl.SetLabel, str(avg_acc))
-            if len(alarms[0]) > 0:
-                self.alarms.update(zip(*alarms))
-                wx.CallAfter(self.set_alarm_text)
+            try:
+                avg_hr_idx = proxy.command_inout_asynch('get_avg_hr', 4)
+                avg_acc_idx = proxy.command_inout_asynch('get_avg_acc', 4)
+                alarms_idx = proxy.command_inout_asynch('get_current_alarms', 4)
+                init = datetime.now()
+                avg_hr = proxy.command_inout_reply(avg_hr_idx, timeout=0)
+                avg_acc = proxy.command_inout_reply(avg_acc_idx, timeout=0)
+                alarms = proxy.command_inout_reply(alarms_idx, timeout=0)
+                sleep_time = timedelta(seconds=self.sleep_time)
+                sleep_time -= (datetime.now() - init)
+                sleep_time = max(sleep_time, timedelta(0)).total_seconds()
+                alarms[0], alarms[1] = alarms[1], alarms[0]
+                alarms[0] = [float(datetime.strptime(x, '%Y-%m-%d %H:%M:%S.%f')
+                                           .strftime('%s.%f'))
+                             for x in alarms[0]]
+                alarms[0] = [x % 100000 for x in alarms[0]]
+                if not isnan(avg_hr):
+                    wx.CallAfter(self.avg_hr_lbl.SetLabel, str(avg_hr))
+                if not isnan(avg_acc):
+                    wx.CallAfter(self.avg_acc_lbl.SetLabel, str(avg_acc))
+                if len(alarms[0]) > 0:
+                    self.alarms.update(zip(*alarms))
+                    wx.CallAfter(self.set_alarm_text)
 
-            data = sorted(self.alarms)
-            if len(data) > 0:
-                wx.CallAfter(self.plot, zip(*data))
-                wx.CallAfter(self.set_alarm_color, max(data)[1])
-            sleep(sleep_time)
+                data = sorted(self.alarms)
+                if len(data) > 0:
+                    wx.CallAfter(self.plot, zip(*data))
+                    wx.CallAfter(self.set_alarm_color, max(data)[1])
+                sleep(sleep_time)
+            except ConnectionFailed:
+                wx.CallAfter(self.collect_btn_click, None)
+                break
         del proxy
 
     def plot(self, data):
@@ -183,6 +188,15 @@ class MainFrame(wx.Frame):
             self.red_alarm_lbl.SetBackgroundColour('Red')
             self.yellow_alarm_lbl.SetBackgroundColour(wx.NullColor)
             self.green_alarm_lbl.SetBackgroundColour(wx.NullColor)
+        # get a color between green and red, going through yellow
+        # offset = 0.2
+        # adjusted_lvl = min(alarm_lvl + offset, 1)
+        # r, g, b = hsv_to_rgb((1 - adjusted_lvl) / 3, 1, 1)
+        # r = int(255 * r)
+        # g = int(255 * g)
+        # b = int(255 * b)
+        # color = wx.Color(r, g, b)
+        # self.green_alarm_lbl.SetBackgroundColour(color)
         self.red_alarm_lbl.Refresh()
         self.yellow_alarm_lbl.Refresh()
         self.green_alarm_lbl.Refresh()

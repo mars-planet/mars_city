@@ -1,5 +1,7 @@
 #!/usr/bin/python
-
+"""
+Implements the HR Monitor Server Interface.
+"""
 from __future__ import division, print_function
 
 from datetime import datetime, timedelta
@@ -7,7 +9,7 @@ from collections import deque
 from threading import Thread, Lock
 from random import randint
 
-from numpy import mean, nan, isnan
+from numpy import mean, nan
 from pandas import DataFrame
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -18,6 +20,9 @@ from assumption_free import AssumptionFreeAA as Detector
 
 
 class HRMonitor(object):
+    """
+    Implements the HR Monitor Server Interface.
+    """
 
     # for sqlite use conn_str='sqlite:///hr_monitor.db'
     def __init__(self, engine=None,
@@ -27,13 +32,13 @@ class HRMonitor(object):
             self.engine = engine
         else:
             print('Setting up SQLite DB')
-            engn = create_engine(conn_str)
-            conn = engn.connect()
-            if not engn.dialect.has_table(conn, "alarms"):
+            self.engine = create_engine(conn_str)
+            conn = self.engine.connect()
+            if not self.engine.dialect.has_table(conn, "alarms"):
                 print('Creating Tables')
-                Base.metadata.create_all(engn)
+                Base.metadata.create_all(self.engine)
             conn.close()
-            engn.dispose()
+            self.engine.dispose()
             self.engine = create_engine(conn_str,
                                         isolation_level="SERIALIZABLE")
         self.Session = sessionmaker(bind=self.engine, autocommit=False)
@@ -51,12 +56,14 @@ class HRMonitor(object):
         print('Cleaning up HRMonitor')
         self.Session.close_all()
         del self.Session
-        self._sqlconn.close()
-        del self._sqlconn
         self.engine.dispose()
         del self.engine
 
     def _get_avgs(self, period):
+        """
+        Returns averages for heart rate and acceleration
+        over the given [period] (in seconds).
+        """
         current = datetime.now()
         current -= timedelta(microseconds=current.microsecond)
         init = current - timedelta(seconds=period)
@@ -74,19 +81,27 @@ class HRMonitor(object):
         return {'hr': avgs[0], 'acc': avgs[1]}
 
     def register_datapoint(self, *args):
+        """
+        Registers a new datapoint in the database and launches a new thread to
+        analyze the data collected so far.
+        args should be (timestamp, hr, acc_x, acc_y, acc_z).
+        """
         timestamp, hr, acc_x, acc_y, acc_z = args
-        dp = Datapoint(timestamp=timestamp, hr=hr,
+        datum = Datapoint(timestamp=timestamp, hr=hr,
                        acc_x=acc_x, acc_y=acc_y, acc_z=acc_z)
         session = self.Session()
         try:
-            session.add(dp)
+            session.add(datum)
             session.commit()
-            t = Thread(target=self._generate_alarms)
-            t.start()
+            Thread(target=self._generate_alarms).start()
         finally:
             session.close()
 
     def _generate_alarms(self):
+        """
+        Analyzes the data collected so far and inserts in the database
+        the scores generated (if any).
+        """
         timerange = datetime.now() - self.last_alarm_timestamp
         timerange = timerange.total_seconds() * 1000
         if timerange >= self.resolution:
@@ -110,10 +125,12 @@ class HRMonitor(object):
                     first_timestamp = datapoints.index.min()
                     last_timestamp = datapoints.index.max()
                     self.timestamps.extend(datapoints.index.tolist())
+
                     self.lock.acquire()
                     self.last_detection_timestamp = last_timestamp
                     analysis = self.detector.detect(datapoints.ratio)
                     self.lock.release()
+
                     if analysis:
                         session = self.Session()
                         if self.timestamps:
@@ -145,12 +162,21 @@ class HRMonitor(object):
                 del session
 
     def get_avg_hr(self, period):
+        """
+        Returns average heart rate over the given [period] (in seconds).
+        """
         return self._get_avgs(period)['hr']
 
     def get_avg_acc(self, period):
+        """
+        Returns average acceleration over the given [period] (in seconds).
+        """
         return self._get_avgs(period)['acc']
 
     def get_current_alarms(self, period):
+        """
+        Returns the alarm scores generated in the last [period] seconds.
+        """
         current = datetime.now()
         current -= timedelta(microseconds=current.microsecond)
         init = current - timedelta(seconds=period)
@@ -164,21 +190,24 @@ class HRMonitor(object):
         return results
 
 
-if __name__ == '__main__':
+def main():
+    """
+    Sample use of the register_datapoint method.
+    """
     import os
     from collections import namedtuple
     from preprocessing import read_data, extract_hr_acc
 
-    dirname = os.path.dirname(__file__)
-    dbfilename = os.path.join(dirname, 'hr_monitor.db')
-    engine = create_engine('sqlite:///' + dbfilename)
-    Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
+    dir_name = os.path.dirname(__file__)
+    dbfilename = os.path.join(dir_name, 'hr_monitor.db')
+    engn = create_engine('sqlite:///' + dbfilename)
+    Base.metadata.drop_all(engn)
+    Base.metadata.create_all(engn)
 
-    hr_mon = HRMonitor(engine, commit_on_request=False)
+    hr_mon = HRMonitor(engn, commit_on_request=False)
 
-    dirname = os.path.join(dirname, 'tests')
-    filename = os.path.join(dirname, 'dataset.dat')
+    dir_name = os.path.join(dir_name, 'tests')
+    filename = os.path.join(dir_name, 'dataset.dat')
     print(filename)
     data = extract_hr_acc(read_data(filename))
 
@@ -194,3 +223,6 @@ if __name__ == '__main__':
         i += 1
 
     del hr_mon
+
+if __name__ == '__main__':
+    main()
