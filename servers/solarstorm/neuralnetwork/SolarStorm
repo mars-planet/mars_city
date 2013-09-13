@@ -1,0 +1,139 @@
+import sys
+import urllib
+import PyTango
+from pybrain.tools.customxml.networkreader import NetworkReader
+
+class PyDevice(PyTango.DeviceClass):
+    cmd_list = {'parse_online': [[PyTango.ArgType.DevVoid],
+                         [PyTango.ArgType.DevVoid]],
+                'activate_net': [[PyTango.ArgType.DevVoid],
+                          [PyTango.ArgType.DevVoid]],
+    }
+
+    attr_type = [
+        [PyTango.ArgType.DevFloat,
+         PyTango.AttrDataFormat.SCALAR,
+         PyTango.AttrWriteType.READ],
+        {'polling period': 20000}
+    ]
+
+    attr_list = {
+        'radioflux': attr_type,
+        'sunspotnum': attr_type,
+        'sunspotarea': attr_type,
+        'newregs': attr_type,
+        'bkgdflux_alpha': attr_type,
+        'bkgdflux_float': attr_type,
+        'cflare': attr_type,
+        'mflare': attr_type,
+        'xflare': attr_type,
+        'cforecast': attr_type,
+        'mforecast': attr_type,
+        'xforecast': attr_type,
+        }
+
+    def __init__(self, name):
+        PyTango.DeviceClass.__init__(self, name)
+        self.set_type("TestDevice")
+
+
+class PySolarNN(PyTango.Device_4Impl):
+    def __init__(self, cl, name):
+        # self.devices = {}
+        data = []
+        page = urllib.urlopen('http://www.swpc.noaa.gov/ftpdir/indices/DSD.txt')
+        for line in page:
+            if line.startswith((':', '#')):
+                continue
+            data.append(line.split())
+        self.values = data[-1]
+        self.output_data = []
+
+        PyTango.Device_4Impl.__init__(self, cl, name)
+        self.info_stream('In PySolarNN.__init__')
+        PySolarNN.init_device(self)
+
+    def read_radioflux(self, the_att):
+        self.radioflux= float(self.values[3])
+        the_att.set_value(self.radioflux)
+
+    def read_sunspotnum(self, the_att):
+        self.sunspotnum = float(self.values[4])
+        the_att.set_value(self.sunspotnum)
+
+    def read_sunspotarea(self, the_att):
+        self.sunspotarea = float(self.values[5])
+        the_att.set_value(self.sunspotarea)
+
+    def read_newregs(self, the_att):
+        self.newregs = float(self.values[6])
+        the_att.set_value(self.newregs)
+
+    def read_bkgdflux_alpha(self, the_att):
+        flux = dict(A=1, B=2, C=3, M=4)
+        if self.values[8][0] in flux:
+            self.bkgdflux_alpha = flux[self.values[8][0]]
+        else:
+            self.bkgdflux_alpha = 0
+        the_att.set_value(self.bkgdflux_alpha)
+
+    def read_bkgdflux_float(self, the_att):
+        if (self.values[8] not in ("*","Unk")) :
+            self.bkgdflux_float = float(self.values[8][1:])
+        else :
+            self.bkgdflux_float = 0.0
+        the_att.set_value(self.bkgdflux_float)
+
+    def read_cflare(self, the_att):
+        self.cflare = float(self.values[9])
+        the_att.set_value(self.cflare)
+
+    def read_mflare(self, the_att):
+        self.mflare = float(self.values[10])
+        the_att.set_value(self.mflare)
+
+    def read_xflare(self, the_att):
+        self.xflare = float(self.values[11])
+        the_att.set_value(self.xflare)
+
+    def parse_online(self):
+        data = []
+        page = urllib.urlopen('http://www.swpc.noaa.gov/ftpdir/indices/DSD.txt')
+        for line in page:
+            if line.startswith((':', '#')):
+                continue
+            data.append(line.split())
+        self.values = data[-1]
+
+    def activate_net(self):
+        input_data = [ self.radioflux, self.sunspotnum, self.sunspotarea,
+                       self.newregs, self.bkgdflux_alpha,self.bkgdflux_float,
+                       self.cflare, self.mflare, self.xflare ]
+        net = NetworkReader.readFrom('trainedinfo.xml')
+
+        self.output_data = net.activate((input_data))
+
+    def read_cforecast(self, the_att):
+        cforecast = self.output_data[0]
+        the_att.set_value(cforecast)
+
+    def read_mforecast(self, the_att):
+        mforecast = self.output_data[1]
+        the_att.set_value(mforecast)
+
+    def read_xforecast(self, the_att):
+        xforecast = self.output_data[2]
+        the_att.set_value(xforecast)
+
+    def init_device(self):
+        self.info_stream('In Python init_device method')
+        self.set_state(PyTango.DevState.ON)
+
+
+if __name__ == '__main__':
+    util = PyTango.Util(sys.argv)
+    util.add_class(PyDevice, PySolarNN)
+
+    U = PyTango.Util.instance()
+    U.server_init()
+    U.server_run()

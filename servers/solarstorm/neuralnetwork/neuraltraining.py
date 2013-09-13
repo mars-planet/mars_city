@@ -13,12 +13,12 @@ class NeuralNetworkTraining(object):
         # Currently, the Supervised dataset is being generated. The use
         # of other dataset types like Classification datasets will also
         # be investigated where it is relevant.
-        ds = SupervisedDataSet(6,3)
+        ds = SupervisedDataSet(9,3)
         tf = open('traindata.csv','r')
         for line in tf.readlines():
             data = [x for x in line.strip().split(',') if x != '']
-            indata =  tuple(data[1:7])
-            outdata = tuple(data[7:])
+            indata =  tuple(data[1:10])
+            outdata = tuple(data[10:])
             ds.addSample(indata,outdata)
         return ds
 
@@ -29,9 +29,9 @@ class NeuralNetworkTraining(object):
         # Other neural network architectures will also be experimented,
         # like using different single output neural networks.
         net = FeedForwardNetwork()
-        inp = LinearLayer(6)
-        h1 = SigmoidLayer(4)
-        h2 = TanhLayer(2)
+        inp = LinearLayer(9)
+        h1 = SigmoidLayer(20)
+        h2 = TanhLayer(10)
         outp = LinearLayer(3)
 
         # Adding the modules to the architecture
@@ -47,8 +47,8 @@ class NeuralNetworkTraining(object):
         net.sortModules()
 
         # Training the neural network using Backpropagation
-        t = BackpropTrainer(net, learningrate=0.1, momentum=0.45, verbose=True)
-        t.trainOnDataset(dataset, 500)
+        t = BackpropTrainer(net, learningrate=0.01, momentum=0.5, verbose=True)
+        t.trainOnDataset(dataset, 5)
         t.testOnData(verbose=False)
 
         # Saving the trained neural network information to file
