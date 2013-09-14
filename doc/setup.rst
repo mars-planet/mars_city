@@ -95,6 +95,25 @@ If you are still having problem you can try the following things:
     sudo /etc/init.d/tango-db start
     sudo /etc/init.d/tango-starter start
 
+Fix for Ubuntu 13.xx
+--------------------
+If you are running on Ubuntu 13.xx you have to install this patch in order to avoid a Segmentation fault (core dumped) at every python server run.
+Install libboost-python-dev::
+
+    sudo apt-get install libboost-python-dev
+
+Download the patch from:
+
+https://pypi.python.org/packages/source/P/PyTango/PyTango-7.2.4.tar.gz
+
+untar it:
+
+* $ tar xzvf PyTango-7.2.4.tar.gz
+* $ cd PyTango-7.2.4
+* $ python setup.py build
+* $ sudo python setup.py install
+
+
 Adding a new server in Tango
 ----------------------------
 To register a new server run **jive**, select ``Edit -> Create Server`` and provide:
