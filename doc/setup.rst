@@ -98,7 +98,7 @@ If you are still having problem you can try the following things:
 Fix for Ubuntu 13.xx
 --------------------
 If you are running on Ubuntu 13.xx you have to install this patch in order to avoid a Segmentation fault (core dumped) at every python server run.
-Install libboost-python-dev::
+Install first libboost-python-dev::
 
     sudo apt-get install libboost-python-dev
 
@@ -106,7 +106,7 @@ Download the patch from:
 
 https://pypi.python.org/packages/source/P/PyTango/PyTango-7.2.4.tar.gz
 
-untar it:
+untar and install it:
 
 * $ tar xzvf PyTango-7.2.4.tar.gz
 * $ cd PyTango-7.2.4
