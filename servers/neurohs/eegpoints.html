@@ -73,7 +73,8 @@ function update_canvas() {
         for (var k = 0; k < sensors.length; k++) {
             var sensor_name = sensors[k];
             var coord = coords[sensor_name];
-            var quality = res[sensor_name].quality;
+            /* the quality seems to be in range 0-15 */
+            var quality = Math.ceil(res[sensor_name].quality/3);
             if (quality > 5)
                 quality = 5;
             //console.log(sensor_name, quality, res[sensor_name].value);
@@ -86,7 +87,7 @@ function update_canvas() {
         context.fillText('X: ' + res.X.value, 330, 445);
         context.fillText('Y: ' + res.Y.value, 330, 425);
         /* call the function again in 500ms */
-        setTimeout(update_canvas, 500);
+        setTimeout(update_canvas, 200);
         console.log(JSON.stringify(res));
     });
 };
