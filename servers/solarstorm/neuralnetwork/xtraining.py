@@ -8,33 +8,32 @@ import csv
 class XTraining(object):
     def getdata(self):
         dataset = ClassificationDataSet(9,1)
-
-        tf = open('xtraindata.csv','r')
-        for line in tf.readlines():
-            data = [x for x in line.strip().split(',') if x != '']
-            # indata =  tuple(data[1:10])
-            # outdata = tuple(data[10:])
-            """
-            for i in range(4,10):
-                data[i] = str(float(data[i])*100)
-            if float(data[12]) > 0:
-                data[12] = float(data[12]) * 100
-            """
-            for i in range(1,4):
-                data[i] = str(float(data[i])/100)
-            dataset.appendLinked(data[1:10],data[12])
+        with open('xtraindata.csv') as tf:
+            for line in tf:
+                data = [x for x in line.strip().split(',') if x]
+                # indata =  tuple(data[1:10])
+                # outdata = tuple(data[10:])
+                """
+                for i in range(4,10):
+                    data[i] = str(float(data[i])*100)
+                if float(data[12]) > 0:
+                    data[12] = float(data[12]) * 100
+                """
+                for i in range(1,4):
+                    data[i] = str(float(data[i])/100)
+                dataset.appendLinked(data[1:10],data[12])
         return dataset
 
     def xtrain(self):
         dataset = self.getdata()
 
         # Constructing a two hidden layes Neural Network
-        net = buildNetwork(9,15,5,1, recurrent = True)
+        net = buildNetwork(9, 15, 5, 1, recurrent=True)
 
-        trainer = BackpropTrainer(net, learningrate = 0.01, momentum = 0.75, weightdecay = 0.02, verbose = True)
-
+        # Training using Back Propagation
+        trainer = BackpropTrainer(net, learningrate=0.01, momentum=0.75, weightdecay=0.02, verbose=True)
         trainer.trainOnDataset(dataset, 10)
-        trainer.testOnData(verbose = False)
+        trainer.testOnData(verbose=False)
 
         # Saving the trained neural network information to file
         self.writetrainedinfo(net)
