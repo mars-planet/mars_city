@@ -39,14 +39,13 @@ var coords = {
 var sensors = ['AF3', 'AF4', 'F3', 'F4', 'F7', 'F8', 'FC5', 'FC6',
                'T7', 'T8', /*'CMS', 'DRL',*/ 'P7', 'P8', 'O1', 'O2'];
 /* Colors of the sensors on the image depending on the signal quality.
-   The signals quality should be between 0 and 4, but the values are
-   often higher than 10 -- not sure why yet. */
+   The signals quality goes from 0 till 14-15. */
 var colors = [
-    '#000000',  // 0 - black - no signal
-    '#ff0000',  // 1 - red - really bad signal
-    '#ffa500',  // 2 - orange - bad signal
-    '#ffff00',  // 3 - yellow - acceptable signal
-    '#00ff00',  // 4 - green - good signal
+    '#000000',  // 0: black - no signal
+    '#ff0000',  // 1-3: red - really bad signal
+    '#ffa500',  // 4-6: orange - bad signal
+    '#ffff00',  // 7-9: yellow - acceptable signal
+    '#00ff00',  // 10+: green - good signal
 ];
 
 
@@ -72,7 +71,7 @@ function update_canvas() {
         for (var k = 0; k < sensors.length; k++) {
             var sensor_name = sensors[k];
             var coord = coords[sensor_name];
-            /* the quality seems to be in range 0-15 */
+            /* pick the right color according to the quality (see above) */
             var quality = Math.ceil(res[sensor_name].quality/3);
             if (quality > 4)
                 quality = 4;
