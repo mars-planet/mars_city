@@ -27,8 +27,6 @@ class PyDevice(PyTango.DeviceClass):
         'cflare': attr_type,
         'mflare': attr_type,
         'xflare': attr_type,
-        'cforecast': attr_type,
-        'mforecast': attr_type,
         'xforecast': attr_type,
         }
 
@@ -109,20 +107,17 @@ class PySolarNN(PyTango.Device_4Impl):
         input_data = [ self.radioflux, self.sunspotnum, self.sunspotarea,
                        self.newregs, self.bkgdflux_alpha,self.bkgdflux_float,
                        self.cflare, self.mflare, self.xflare ]
-        net = NetworkReader.readFrom('trainedinfo.xml')
+        net = NetworkReader.readFrom('xtrainedinfo.xml')
 
         self.output_data = net.activate((input_data))
 
-    def read_cforecast(self, the_att):
-        cforecast = self.output_data[0]
-        the_att.set_value(cforecast)
-
-    def read_mforecast(self, the_att):
-        mforecast = self.output_data[1]
-        the_att.set_value(mforecast)
-
     def read_xforecast(self, the_att):
-        xforecast = self.output_data[2]
+        if (self.output_data[0]) > 4.84e-06:
+            xforecast = 2
+        elif (self.output_data[0]) > 3.5e-06:
+            xforecast = 1
+        else:
+            xforecast = 0        
         the_att.set_value(xforecast)
 
     def init_device(self):
