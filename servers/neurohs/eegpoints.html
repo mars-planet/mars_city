@@ -47,7 +47,6 @@ var colors = [
     '#ffa500',  // 2 - orange - bad signal
     '#ffff00',  // 3 - yellow - acceptable signal
     '#00ff00',  // 4 - green - good signal
-    '#cccccc',  // >=5 - grey - ???
 ];
 
 
@@ -75,8 +74,8 @@ function update_canvas() {
             var coord = coords[sensor_name];
             /* the quality seems to be in range 0-15 */
             var quality = Math.ceil(res[sensor_name].quality/3);
-            if (quality > 5)
-                quality = 5;
+            if (quality > 4)
+                quality = 4;
             //console.log(sensor_name, quality, res[sensor_name].value);
             draw_circle(coord[0], coord[1], 20, colors[quality]);
         }
