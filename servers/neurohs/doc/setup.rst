@@ -9,7 +9,7 @@ Dependencies
 
 The following dependencies are required to use the Neuro Headset::
 
-   sudo apt-get install python-setuptools python-dev realpath
+   sudo apt-get install python-setuptools python-gevent python-dev realpath
    wget https://github.com/openyou/emokit/archive/master.zip
    unzip master.zip
    cd emokit-master/python/
@@ -24,6 +24,15 @@ To run the stand-alone server use::
   $ python neurohs.py 400
 
 the argument (e.g. 400) is the polling period in milliseconds.
+
+If you want to log the output on a file, you can also use::
+
+  $ python neurohs.py 400 --log neurohs.log
+
+If you want to read the data from a log file (i.e. simulation mode),
+you can use::
+
+  $ python neurohs.py 400 --sim neurohs.log
 
 ----
 
@@ -102,3 +111,14 @@ If you see this error::
   IOError: [Errno 13] Permission denied: '/dev/hidraw2'
 
 you need to run ``sudo python neurohs.py 400``.
+
+----
+
+If you see a similar output::
+
+  $ python neurohs.py 400
+  Serial: SNxxx Device: hidraw0
+  Serial: SNxxx Device: hidraw1 (Active)
+
+but nothing else is printed, try to turn off the headset, wait a few seconds,
+and turn it on again *without* restarting the script.
