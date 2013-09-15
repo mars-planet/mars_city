@@ -86,8 +86,9 @@ function update_canvas() {
         context.fillText('Battery: ' + res.battery, 5, 445);
         context.fillText('X: ' + res.X.value, 330, 445);
         context.fillText('Y: ' + res.Y.value, 330, 425);
-        /* call the function again in 500ms */
-        setTimeout(update_canvas, 200);
+        /* call the function again in 100ms -- this should be faster than the
+           polling used by the server, otherwise it will lag */
+        setTimeout(update_canvas, 100);
         console.log(JSON.stringify(res));
     });
 };

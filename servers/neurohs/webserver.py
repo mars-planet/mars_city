@@ -19,7 +19,7 @@ if __name__ == '__main__':
     from wsgiref.simple_server import make_server
 
     print "Setting up headset (this might take a few seconds)...",
-    headset = Popen(['python', 'neurohs.py', '200'],
+    headset = Popen(['python', 'neurohs.py', '500'],
                     stdout=PIPE, stderr=PIPE)
     line = None
     while line != '-----':
