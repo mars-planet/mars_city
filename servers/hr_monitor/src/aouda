@@ -44,6 +44,12 @@ class PyDsExp(PyTango.Device_4Impl):
         PyDsExp.init_device(self)
         print('Finished constructing PyDsExp')
 
+    def init_device(self):
+        print('Initializing device')
+        self.aouda = Aouda(filename='data_tests/dataset.dat')
+        self.set_state(PyTango.DevState.ON)
+        print('Finished initializing device')
+
 ############## BEGIN get_data #################################################
     def is_get_data_allowed(self):
         return self.get_state() in (PyTango.DevState.ON,)
@@ -72,12 +78,6 @@ class PyDsExp(PyTango.Device_4Impl):
         print("read_acc_magn")
         the_att.set_value(acc_magn)
 ############### END acc_magn ##################################################
-
-    def init_device(self):
-        print('Initializing device')
-        self.aouda = Aouda(filename='tests/dataset.dat')
-        self.set_state(PyTango.DevState.ON)
-        print('Finished initializing device')
 
 
 if __name__ == '__main__':
