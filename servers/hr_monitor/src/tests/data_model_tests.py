@@ -52,6 +52,22 @@ class DatapointTests(unittest.TestCase):
         self.assertAlmostEqual(eacc_z, dp.acc_z)
         self.assertAlmostEqual(eacc_magn, dp.acc_magn)
 
+    def test_repr(self):
+        etimestamp = datetime.now()
+        emillisecs = etimestamp.microsecond / 1000
+        ehr = randint(30, 240)
+        eacc_x = uniform(0, 16)
+        eacc_y = uniform(0, 16)
+        eacc_z = uniform(0, 16)
+        eacc_magn = (eacc_x ** 2 + eacc_y ** 2 + eacc_z ** 2) ** 0.5
+
+        dp = Datapoint(etimestamp, ehr, eacc_x, eacc_y, eacc_z, emillisecs)
+
+        self.assertEqual(dp.__repr__(),
+                         "<Datapoint('%s','%s','%s','%s','%s','%s')>"
+                         % (etimestamp, ehr, eacc_x, eacc_y, eacc_z,
+                            eacc_magn))
+
 
 class AlarmTests(unittest.TestCase):
 
@@ -151,6 +167,25 @@ class AlarmTests(unittest.TestCase):
         self.assertAlmostEqual(esgmt_end, alarm.sgmt_end)
         self.assertAlmostEqual(ebitmp1, alarm.bitmp1)
         self.assertAlmostEqual(ebitmp2, alarm.bitmp2)
+
+    def test_repr(self):
+        etimestamp = datetime.now()
+        emillisecs = etimestamp.microsecond / 1000
+        ealarm_lvl = randint(30, 240)
+        esgmt_begin = uniform(0, 16)
+        esgmt_end = uniform(0, 16)
+        chars = ''.join(chr(x) for x in range(65, 122))
+        size = 20
+        ebitmp1 = ''.join(choice(chars) for x in range(size))
+        ebitmp2 = ''.join(choice(chars) for x in range(size))
+
+        alarm = Alarm(ealarm_lvl, esgmt_begin, esgmt_end,
+                      ebitmp1, ebitmp2, etimestamp, emillisecs)
+
+        self.assertEqual(alarm.__repr__(),
+                         "<Alarm('%s','%s', '%s', '%s')>"
+                         % (etimestamp, ealarm_lvl,
+                            esgmt_begin, esgmt_end))
 
 
 if __name__ == '__main__':
