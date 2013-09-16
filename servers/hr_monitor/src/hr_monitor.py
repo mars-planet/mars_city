@@ -25,29 +25,25 @@ class HRMonitor(object):
     """
 
     # for sqlite use conn_str='sqlite:///hr_monitor.db'
-    def __init__(self, engine=None,
+    def __init__(self, word_size=5, window_factor=2, lead_window_factor=2,
+                 lag_window_factor=4, resolution=1000, engine=None,
                  conn_str='mysql+mysqldb://root@localhost/hr_monitor'):
         print('Constructing HRMonitor')
         if engine is not None:
             self.engine = engine
         else:
-            print('Setting up SQLite DB')
-            self.engine = create_engine(conn_str)
-            conn = self.engine.connect()
-            if not self.engine.dialect.has_table(conn, "alarms"):
-                print('Creating Tables')
-                Base.metadata.create_all(self.engine)
-            conn.close()
-            self.engine.dispose()
+            self._setup_database(conn_str)
             self.engine = create_engine(conn_str,
                                         isolation_level="SERIALIZABLE")
         self.Session = sessionmaker(bind=self.engine, autocommit=False)
-        self.resolution = 1000  # in millisecs
+        self.resolution = resolution  # in millisecs
         self.last_alarm_timestamp = datetime.now()
         self.last_detection_timestamp = datetime.now()
         print('Constructing Detector')
-        self.detector = Detector(word_size=5, window_factor=2,
-                                 lead_window_factor=2, lag_window_factor=4)
+        self.detector = Detector(word_size=word_size,
+                                 window_factor=window_factor,
+                                 lead_window_factor=lead_window_factor,
+                                 lag_window_factor=lag_window_factor)
         print('Finished constructing HRMonitor')
         self.timestamps = deque(maxlen=self.detector.universe_size)
         self.lock = Lock()
@@ -58,6 +54,16 @@ class HRMonitor(object):
         del self.Session
         self.engine.dispose()
         del self.engine
+
+    def _setup_database(self, conn_str):
+        print('Setting up SQLite DB on: %s' % conn_str)
+        self.engine = create_engine(conn_str)
+        conn = self.engine.connect()
+        if not self.engine.dialect.has_table(conn, "alarms"):
+            print('Creating Tables')
+            Base.metadata.create_all(self.engine)
+        conn.close()
+        self.engine.dispose()
 
     def _get_avgs(self, period):
         """
