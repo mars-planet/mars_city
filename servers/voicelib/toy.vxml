@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<vxml version="2.1">
+
+<form id="toy">
+   <block>
+      Rover is listening.
+   </block>
+   <field name="main">
+      <nomatch>
+	     I didn't catch that. I can move forward or backwards, turn around, or stop moving. Exit the speech loop by saying quit. 
+      </nomatch>
+      <noinput>
+	     Did you say something? Exit the speech loop by saying quit.
+      </noinput>
+      <prompt> 
+	     Would you like me to move forward or backwards, turn around, or stop moving  Exit the speech loop by saying quit. 
+      </prompt>
+      <grammar src="http://localhost:8080/voicexml/toy.gram" type="application/jsgf"/>
+      <filled>
+         <prompt> <value expr="main"/> </prompt>
+         <if cond="main=='quit'">
+	    <exit/>
+         <else/>
+	    <clear namelist="main"/>
+	    <reprompt/>
+         </if>
+      </filled>
+   </field>
+   <block>
+      Bye.
+   </block>
+</form>
+
+</vxml>
