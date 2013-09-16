@@ -70,7 +70,7 @@ They should have been installed during the PyTango installation, but if not:
 
 ::
 
-   sudo apt-get install python2.7-numpy python2.7-scipy python-matplotlib
+   sudo apt-get install python-numpy python-scipy python-matplotlib
    sudo pip install pandas
 
 2.1.3 SqlAlchemy
@@ -80,6 +80,7 @@ You can install it from PyPi with:
 
 ::
 
+   sudo apt-get install python-pip
    sudo pip install SQLAlchemy
 
 2.1.3 wxPython and wxmplot
