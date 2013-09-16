@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from collections import deque
 from threading import Thread, Lock
 from random import randint
+import base64
 
 from numpy import mean, nan
 from pandas import DataFrame
@@ -94,7 +95,7 @@ class HRMonitor(object):
         """
         timestamp, hr, acc_x, acc_y, acc_z = args
         datum = Datapoint(timestamp=timestamp, hr=hr,
-                       acc_x=acc_x, acc_y=acc_y, acc_z=acc_z)
+                          acc_x=acc_x, acc_y=acc_y, acc_z=acc_z)
         session = self.Session()
         try:
             session.add(datum)
@@ -118,15 +119,17 @@ class HRMonitor(object):
                 query = query.filter(Datapoint.timestamp
                                      >= self.last_detection_timestamp)
                 datapoints = query.all()
+                session.close()
                 datapoints = DataFrame(
                        {
                         'timestamp': [d.timestamp for d in datapoints],
                         'ratio': [d.hr / d.acc_magn for d in datapoints]
                        })
                 datapoints.set_index('timestamp', inplace=True)
-                datapoints = datapoints.resample('%sms' % self.resolution)
+                datapoints = datapoints.resample('%sL' % self.resolution,
+                                                 how='mean')
                 datapoints = datapoints.fillna(method='ffill')
-                session.close()
+                datapoints = datapoints.fillna(method='bfill')
                 if len(datapoints) > 0:
                     first_timestamp = datapoints.index.min()
                     last_timestamp = datapoints.index.max()
@@ -143,7 +146,9 @@ class HRMonitor(object):
                             first_timestamp = self.timestamps.popleft()
                         analysis = analysis[0]
                         bitmp1 = analysis.bitmp1.flatten().tostring()
+                        bitmp1 = base64.b64encode(bitmp1)
                         bitmp2 = analysis.bitmp2.flatten().tostring()
+                        bitmp2 = base64.b64encode(bitmp2)
                         session.add(
                                 Alarm(timestamp=last_timestamp,
                                       alarm_lvl=analysis.score,
@@ -194,41 +199,3 @@ class HRMonitor(object):
         finally:
             session.close()
         return results
-
-
-def main():
-    """
-    Sample use of the register_datapoint method.
-    """
-    import os
-    from collections import namedtuple
-    from preprocessing import read_data, extract_hr_acc
-
-    dir_name = os.path.dirname(__file__)
-    dbfilename = os.path.join(dir_name, 'hr_monitor.db')
-    engn = create_engine('sqlite:///' + dbfilename)
-    Base.metadata.drop_all(engn)
-    Base.metadata.create_all(engn)
-
-    hr_mon = HRMonitor(engn, commit_on_request=False)
-
-    dir_name = os.path.join(dir_name, 'tests')
-    filename = os.path.join(dir_name, 'dataset.dat')
-    print(filename)
-    data = extract_hr_acc(read_data(filename))
-
-    DP = namedtuple("DP", ["timestamp", "hr", "acc_x", "acc_y", "acc_z"])
-    i = 0
-    for index, row in data.iterrows():
-        progress = (i / len(data)) * 100
-        print("%s%%" % progress)
-        datapoint = DP(timestamp=index.to_datetime(), hr=row['hr'],
-                       acc_x=row['acc_x'], acc_y=row['acc_y'],
-                       acc_z=row['acc_z'])
-        hr_mon.register_datapoint(datapoint)
-        i += 1
-
-    del hr_mon
-
-if __name__ == '__main__':
-    main()
