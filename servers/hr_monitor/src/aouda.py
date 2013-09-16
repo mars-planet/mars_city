@@ -8,6 +8,8 @@ import os
 import sys
 from datetime import datetime, timedelta
 
+from numpy import nan
+
 from preprocessing import read_data, extract_hr_acc
 
 
@@ -16,7 +18,6 @@ class Aouda(object):
     Implements the Aouda Server Interface.
     """
 
-    # for sqlite use conn_str='sqlite:///hr_monitor.db'
     def __init__(self, filename=None):
         print('Constructing Aouda')
         self.resolution = 1000  # in millisecs
@@ -25,6 +26,9 @@ class Aouda(object):
         print('Finished constructing Aouda')
 
     def _load_data(self, filename):
+        """
+        Loads hr and acc data into a pandas.DataFrame from a dataset file.
+        """
         if filename is None:
             dirname = os.path.dirname(__file__)
             filename = os.path.join(dirname, 'dataset.dat')
@@ -36,13 +40,15 @@ class Aouda(object):
         Returns an array with all datapoints
         from last query until datetime.until().
         The format is:
-        [[hr, timestamp1],
-         [acc_x, timestamp1], [acc_y, timestamp1], [acc_z, timestamp1],
-         [hr, timestamp2],
-         [acc_x, timestamp2], [acc_y, timestamp2], [acc_z, timestamp2],
-         ...
-         [hr, timestampN],
-         [acc_x, timestampN], [acc_y, timestampN], [acc_z, timestampN],
+        [
+         [hr1, acc_x1, acc_y1, acc_z1,
+          hr2, acc_x2, acc_y2, acc_z2,
+          ...
+          hrN, acc_xN, acc_yN, acc_zN],
+         [timestamp1, timestamp1, timestamp1, timestamp1,
+          timestamp2, timestamp2, timestamp2, timestamp2,
+          ...
+          timestampN, timestampN, timestampN, timestampN],
         ]
         """
         until = datetime.now()
@@ -62,3 +68,34 @@ class Aouda(object):
         else:
             print("No more data on dataset.")
             sys.exit()
+
+    def _get_instantaneos_values(self):
+        """
+        Returns a row from the data such that row.index <= datetime.now().
+        """
+        current_row = self.data[self.data.index <= datetime.now()]
+        if len(current_row) > 0:
+            current_row = current_row.ix[-1]
+        return current_row
+
+    def read_heart_rate(self):
+        """
+        Returns instantaneous heart rate.
+        """
+        heart_rate = self._get_instantaneos_values()
+        if len(heart_rate) > 0:
+            heart_rate = heart_rate['hr']
+        else:
+            heart_rate = nan
+        return heart_rate
+
+    def read_acc_magn(self):
+        """
+        Returns instantaneous acceleration magnitude.
+        """
+        acc_magn = self._get_instantaneos_values()
+        if len(acc_magn) > 0:
+            acc_magn = acc_magn['acc']
+        else:
+            acc_magn = nan
+        return acc_magn

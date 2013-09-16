@@ -18,7 +18,16 @@ class PyDsExpClass(PyTango.DeviceClass):
                              [ArgType.DevVarDoubleStringArray]],
                 }
 
-    attr_list = {}
+    attr_list = {
+                 'heart_rate': [[PyTango.ArgType.DevFloat,
+                                 PyTango.AttrDataFormat.SCALAR,
+                                 PyTango.AttrWriteType.READ],
+                                {'polling period': 20000}],
+                 'acc_magn': [[PyTango.ArgType.DevFloat,
+                               PyTango.AttrDataFormat.SCALAR,
+                               PyTango.AttrWriteType.READ],
+                              {'polling period': 20000}]
+                 }
 
     def __init__(self, name):
         print('Constructing PyDsExpClass')
@@ -35,14 +44,34 @@ class PyDsExp(PyTango.Device_4Impl):
         PyDsExp.init_device(self)
         print('Finished constructing PyDsExp')
 
-############## BEGIN register_datapoint #######################################
-    def is_get_datapoint_allowed(self, req_type):
+############## BEGIN get_data #################################################
+    def is_get_data_allowed(self, req_type):
         return self.get_state() in (PyTango.DevState.ON,)
 
     def get_data(self, period):
         data = self.aouda.get_data(period)
         return data
-############### END register_datapoint ########################################
+############### END get_data ##################################################
+
+############## BEGIN heart_rate #################################################
+    def is_heart_rate_allowed(self, req_type):
+        return self.get_state() in (PyTango.DevState.ON,)
+
+    def read_heart_rate(self, the_att):
+        self.heart_rate = heart_rate = self.aouda.read_heart_rate()
+        print("read_heart_rate")
+        the_att.set_value(heart_rate)
+############### END heart_rate ##################################################
+
+############## BEGIN acc_magn #################################################
+    def is_acc_magn_allowed(self, req_type):
+        return self.get_state() in (PyTango.DevState.ON,)
+
+    def read_acc_magn(self, the_att):
+        self.acc_magn = acc_magn = self.aouda.read_acc_magn()
+        print("read_acc_magn")
+        the_att.set_value(acc_magn)
+############### END acc_magn ##################################################
 
     def init_device(self):
         print('Initializing device')
