@@ -60,7 +60,7 @@ class AssumptionFreeAA(object):
             based on https://gist.github.com/slnovak/912927
             by Stefan Novak
         """
-        if not isinstance(data, np.ndarray) or len(data.shape) != 1:
+        if not isinstance(data, np.ndarray):
             raise ValueError("data must be a numpy array")
         if len(data.shape) != 1:
             raise ValueError("data must be of shape (n,), not "
