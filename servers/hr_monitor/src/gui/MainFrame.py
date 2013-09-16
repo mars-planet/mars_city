@@ -5,6 +5,7 @@ from __future__ import division, print_function
 from time import sleep
 from datetime import datetime, timedelta
 from threading import current_thread
+import ConfigParser
 #from colorsys import hsv_to_rgb
 
 from numpy import nan, isnan
@@ -19,7 +20,13 @@ from Timer import Timer
 # end wxGlade
 
 
-class MainFrame(wx.Frame):
+class MainFrame(wx.Frame):#
+
+    monitor_address = 'C3/hr_monitor/1'
+    yellow_alrm_thrsh = 0.25
+    red_alrm_thrsh = 0.5
+    sleep_time = 5
+
     def __init__(self, *args, **kwds):
         # begin wxGlade: MainFrame.__init__
         kwds["style"] = wx.DEFAULT_FRAME_STYLE
@@ -53,11 +60,8 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.collect_btn_click, self.collect_btn)
         # end wxGlade
         self.timer_thread = Timer(target=self.timer_tick)
-        self.proxy = DeviceProxy('C3/hr_monitor/1')
+        self.proxy = DeviceProxy(MainFrame.monitor_address)
         self.alarms = set()
-        self.yellow_alrm_thrsh = 0.25
-        self.red_alrm_thrsh = 0.5
-        self.sleep_time = 5
 
     def __set_properties(self):
         # begin wxGlade: MainFrame.__set_properties
@@ -132,7 +136,7 @@ class MainFrame(wx.Frame):
                 avg_hr = proxy.command_inout_reply(avg_hr_idx, timeout=0)
                 avg_acc = proxy.command_inout_reply(avg_acc_idx, timeout=0)
                 alarms = proxy.command_inout_reply(alarms_idx, timeout=0)
-                sleep_time = timedelta(seconds=self.sleep_time)
+                sleep_time = timedelta(seconds=MainFrame.sleep_time)
                 sleep_time -= (datetime.now() - init)
                 sleep_time = max(sleep_time, timedelta(0)).total_seconds()
                 alarms[0], alarms[1] = alarms[1], alarms[0]
@@ -176,11 +180,11 @@ class MainFrame(wx.Frame):
         self.anomaly_lvl_avg_lbl.SetLabel(str(avg))
 
     def set_alarm_color(self, alarm_lvl):
-        if alarm_lvl < self.yellow_alrm_thrsh:
+        if alarm_lvl < MainFrame.yellow_alrm_thrsh:
             self.red_alarm_lbl.SetBackgroundColour(wx.NullColor)
             self.yellow_alarm_lbl.SetBackgroundColour(wx.NullColor)
             self.green_alarm_lbl.SetBackgroundColour('Green')
-        elif self.yellow_alrm_thrsh <= alarm_lvl < self.red_alrm_thrsh:
+        elif MainFrame.yellow_alrm_thrsh <= alarm_lvl < MainFrame.red_alrm_thrsh:
             self.red_alarm_lbl.SetBackgroundColour(wx.NullColor)
             self.yellow_alarm_lbl.SetBackgroundColour('Yellow')
             self.green_alarm_lbl.SetBackgroundColour(wx.NullColor)
@@ -201,3 +205,10 @@ class MainFrame(wx.Frame):
         self.yellow_alarm_lbl.Refresh()
         self.green_alarm_lbl.Refresh()
         self.Refresh()
+
+config = ConfigParser.RawConfigParser()
+config.read('hr_monitor_gui.cfg')
+MainFrame.monitor_address = config.get('Monitor_GUI', 'monitor_address')
+MainFrame.yellow_alrm_thrsh = config.getfloat('Monitor_GUI', 'yellow_alrm_thrsh')
+MainFrame.red_alrm_thrsh = config.getfloat('Monitor_GUI', 'red_alrm_thrsh')
+MainFrame.sleep_time = config.getint('Monitor_GUI', 'sleep_time')
