@@ -116,7 +116,10 @@ for the HR Monitor to consume. To do this, just open a Terminal and type:
    cd /path/to/hr_monitor/src
    python aouda [instance name]
 
-Next you need to start the HR Monitor Server itself with:
+Next you need to configure Aouda Server's Tango Device Name in the Monitor
+configuration file (hr_monitor.cfg);
+the variable you need to modify is "aouda_address".
+Once done, you can start the HR Monitor Server itself with:
 
 ::
 
@@ -126,7 +129,11 @@ The simmulation has data available for only 45 minutes. After that the Aouda
 Server will shut down, so you'll need to start it again.
 
 Now if you want to see the alarm levels, you can do it by starting
-the GUI prototype. Just type the following in a Terminal:
+the GUI prototype.
+First you need to configure the HR Monitor's Tango Device Name
+in the GUI configuration file (gui/hr_monitor_gui.cfg);
+the variable you need to modify is "monitor_address".
+Once done, just type the following in a Terminal:
 
 ::
 
