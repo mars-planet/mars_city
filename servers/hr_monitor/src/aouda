@@ -22,11 +22,11 @@ class PyDsExpClass(PyTango.DeviceClass):
                  'heart_rate': [[PyTango.ArgType.DevFloat,
                                  PyTango.AttrDataFormat.SCALAR,
                                  PyTango.AttrWriteType.READ],
-                                {'polling period': 20000}],
+                                {'polling period': 2000}],
                  'acc_magn': [[PyTango.ArgType.DevFloat,
                                PyTango.AttrDataFormat.SCALAR,
                                PyTango.AttrWriteType.READ],
-                              {'polling period': 20000}]
+                              {'polling period': 2000}]
                  }
 
     def __init__(self, name):
@@ -45,7 +45,7 @@ class PyDsExp(PyTango.Device_4Impl):
         print('Finished constructing PyDsExp')
 
 ############## BEGIN get_data #################################################
-    def is_get_data_allowed(self, req_type):
+    def is_get_data_allowed(self):
         return self.get_state() in (PyTango.DevState.ON,)
 
     def get_data(self, period):
