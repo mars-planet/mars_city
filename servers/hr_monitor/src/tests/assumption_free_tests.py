@@ -50,6 +50,10 @@ class AssumptionFreeTests(unittest.TestCase):
         data = np.array(range(9))
         self.assertRaises(ValueError, AssumptionFreeAA.sax, data)
 
+    def test_sax_wrong_shape(self):
+        data = np.array([[1, 2], [3, 4]])
+        self.assertRaises(ValueError, AssumptionFreeAA.sax, data)
+
     def test_sax_std0(self):
         data = np.array([1] * 10)
         expected = 'cccccccccc'
@@ -184,8 +188,54 @@ class AssumptionFreeTests(unittest.TestCase):
                               'exp: %s;\nact: %s' % (expected, actual))
 
     def test_detect(self):
-        print("test_detect: TBI")
-        self.assertTrue(True)
+        eword_size = 2
+        ewindow_factor = 2
+        elead_window_factor = 2
+        elag_window_factor = 2
+
+        inst = AssumptionFreeAA(word_size=eword_size,
+                                window_factor=ewindow_factor,
+                                lead_window_factor=elead_window_factor,
+                                lag_window_factor=elag_window_factor)
+
+        data = np.array([1, 2, 2, 2, 4, 7, 8, 9, 1, 9, 5, 6, 7, 3, 2, 6])
+        escore = 0.125
+        ebitmp1 = np.array([[0.,  0.,  0.,  0.],
+                            [0.,  0.,  1.,  0.],
+                            [0.,  1.,  0.,  0.],
+                            [0.,  0.,  0.,  0.]])
+        ebitmp2 = np.array([[0.,  0.,  0.,  1.],
+                            [0.,  0.,  1.,  0.],
+                            [0.,  0.,  0.,  0.],
+                            [0.,  0.,  0.,  0.]])
+        actual = inst.detect(data)[0]
+        self.assertEqual(escore, actual.score,
+                         'exp: %s; act: %s' % (escore, actual.score))
+        self.assertItemsEqual(ebitmp1[0], actual.bitmp1[0],
+                         'exp: %s; act: %s' % (ebitmp1[0], actual.bitmp1[0]))
+        self.assertItemsEqual(ebitmp1[1], actual.bitmp1[1],
+                         'exp: %s; act: %s' % (ebitmp1[1], actual.bitmp1[1]))
+        self.assertItemsEqual(ebitmp2[0], actual.bitmp2[0],
+                         'exp: %s; act: %s' % (ebitmp2[0], actual.bitmp2[0]))
+        self.assertItemsEqual(ebitmp2[1], actual.bitmp2[1],
+                         'exp: %s; act: %s' % (ebitmp2[1], actual.bitmp2[1]))
+
+    def test_detect_not_enough_elements(self):
+        eword_size = 2
+        ewindow_factor = 2
+        elead_window_factor = 2
+        elag_window_factor = 2
+
+        inst = AssumptionFreeAA(word_size=eword_size,
+                                window_factor=ewindow_factor,
+                                lead_window_factor=elead_window_factor,
+                                lag_window_factor=elag_window_factor)
+
+        data = np.array([1, 2, 2, 2, 4, 7, 8, 9, 1, 9])
+        elen_score = 0
+        actual = inst.detect(data)
+        self.assertEqual(elen_score, len(actual),
+                         'exp: %s; act: %s' % (elen_score, len(actual)))
 
 
 if __name__ == '__main__':
