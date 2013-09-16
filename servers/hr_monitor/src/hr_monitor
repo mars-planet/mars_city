@@ -8,6 +8,7 @@ from collections import defaultdict
 
 from threading import Thread, Event
 from time import sleep
+import ConfigParser
 
 import PyTango
 from PyTango import ArgType, DeviceProxy, ConnectionFailed, DevFailed
@@ -25,7 +26,6 @@ def timeit(func):
         t1 = time()
         res = func(*arg, **kw)
         t2 = time()
-        #print("%s: %s" % (func.func_name, t2 - t1))
         performance[func.func_name].append(t2 - t1)
         return res
     return wrapper
@@ -62,6 +62,15 @@ class PyDsExpClass(PyTango.DeviceClass):
 
 class PyDsExp(PyTango.Device_4Impl):
 
+    word_size = 5
+    window_factor = 2
+    lead_window_factor = 2
+    lag_window_factor = 4
+    resolution = 1000
+    conn_str = 'mysql+mysqldb://root@localhost/hr_monitor'
+    aouda_address = 'C3/aouda/1'
+    polling_frequency = 2
+
     def __init__(self, cl, name):
         print('Constructing PyDsExp')
         PyTango.Device_4Impl.__init__(self, cl, name)
@@ -71,11 +80,25 @@ class PyDsExp(PyTango.Device_4Impl):
     def __del__(self):
         self.stop_polling.set()
 
+    def init_device(self):
+        print('Initializing device')
+        self.hr_mon = HRMonitor(word_size=PyDsExp.word_size,
+                                window_factor=PyDsExp.window_factor,
+                                lead_window_factor=PyDsExp.lead_window_factor,
+                                lag_window_factor=PyDsExp.lag_window_factor,
+                                resolution=PyDsExp.resolution,
+                                conn_str=PyDsExp.conn_str)
+        self.stop_polling = Event()
+        Thread(target=self._poll_suit).start()
+        self.set_state(PyTango.DevState.ON)
+        print('Finished initializing device')
+
     def _poll_suit(self):
-        proxy = DeviceProxy(self.aouda_address)
+        print('Polling from: %s' % PyDsExp.aouda_address)
+        proxy = DeviceProxy(PyDsExp.aouda_address)
         while not self.stop_polling.is_set():
             try:
-                data = proxy.get_data(self.polling_frequency)
+                data = proxy.get_data(PyDsExp.polling_frequency)
                 for i in range(0, len(data), 4):
                     print(data[0][i], data[1][i])
                     timestamp = datetime.strptime(data[1][i],
@@ -89,7 +112,7 @@ class PyDsExp(PyTango.Device_4Impl):
                     self.register_datapoint(datapoint)
             except (ConnectionFailed, DevFailed):
                 print("The Aouda Server seems to be down.")
-            sleep(self.polling_frequency)
+            sleep(PyDsExp.polling_frequency)
 
 ############## BEGIN register_datapoint #######################################
     def is_register_datapoint_allowed(self):
@@ -139,15 +162,18 @@ class PyDsExp(PyTango.Device_4Impl):
         return ret_val
 ############### END get_current_alarms ########################################
 
-    def init_device(self):
-        print('Initializing device')
-        self.hr_mon = HRMonitor()
-        self.aouda_address = 'C3/aouda/1'
-        self.stop_polling = Event()
-        self.polling_frequency = 2
-        Thread(target=self._poll_suit).start()
-        self.set_state(PyTango.DevState.ON)
-        print('Finished initializing device')
+
+config = ConfigParser.RawConfigParser()
+config.read('hr_monitor.cfg')
+PyDsExp.word_size = config.getint('Detector', 'word_size')
+PyDsExp.window_factor = config.getint('Detector', 'window_factor')
+PyDsExp.lead_window_factor = config.getint('Detector', 'lead_window_factor')
+PyDsExp.lag_window_factor = config.getint('Detector', 'lag_window_factor')
+
+PyDsExp.resolution = config.getint('Monitor', 'resolution')
+PyDsExp.conn_str = config.get('Monitor', 'conn_str')
+PyDsExp.aouda_address = config.get('Monitor', 'aouda_address')
+PyDsExp.polling_frequency = config.getint('Monitor', 'polling_frequency')
 
 
 if __name__ == '__main__':
