@@ -19,6 +19,7 @@ sys.path.append("../../")
 from src.hr_monitor import HRMonitor
 from src.data_model import Datapoint, Alarm, Base
 
+
 class HRMonitorTests(unittest.TestCase):
 
     def setUp(self):
@@ -129,7 +130,8 @@ class HRMonitorTests(unittest.TestCase):
 
         engine = create_engine(econn_str)
         conn = engine.connect()
-        tables_created = engine.dialect.has_table(conn, "alarms")
+        tables_created = (engine.dialect.has_table(conn, "alarms")
+                          and engine.dialect.has_table(conn, "datapoints"))
         self.assertTrue(tables_created)
 
         engine.dispose()
