@@ -29,6 +29,15 @@ class HRMonitor(object):
     def __init__(self, word_size=5, window_factor=2, lead_window_factor=2,
                  lag_window_factor=4, resolution=1000, engine=None,
                  conn_str='mysql+mysqldb://root@localhost/hr_monitor'):
+        """
+        word_size,
+        window_factor,
+        lead_window_factor,
+        lag_window_factor: parameters passed to the anomaly detector;
+        resolution: determines how often should alarms be generated;
+        engine: allows to inject an sqlalchemy.engine instance;
+        conn_str: database's connection string.
+        """
         print('Constructing HRMonitor')
         if engine is not None:
             self.engine = engine
@@ -50,6 +59,10 @@ class HRMonitor(object):
         self.lock = Lock()
 
     def __del__(self):
+        """
+        Closes all sqlalchemy.session
+        and disposes the sqlalchemy.engine instance.
+        """
         print('Cleaning up HRMonitor')
         self.Session.close_all()
         del self.Session
@@ -57,10 +70,15 @@ class HRMonitor(object):
         del self.engine
 
     def _setup_database(self, conn_str):
+        """
+        Checks if the tables are already in the database,
+        and creates them if necessary.
+        """
         print('Setting up SQLite DB on: %s' % conn_str)
         self.engine = create_engine(conn_str)
         conn = self.engine.connect()
-        if not self.engine.dialect.has_table(conn, "alarms"):
+        if not (self.engine.dialect.has_table(conn, "alarms")
+                and self.engine.dialect.has_table(conn, "datapoints")):
             print('Creating Tables')
             Base.metadata.create_all(self.engine)
         conn.close()
@@ -87,13 +105,12 @@ class HRMonitor(object):
             avgs = [nan, nan]
         return {'hr': avgs[0], 'acc': avgs[1]}
 
-    def register_datapoint(self, *args):
+    def register_datapoint(self, timestamp, hr, acc_x, acc_y, acc_z):
         """
         Registers a new datapoint in the database and launches a new thread to
         analyze the data collected so far.
         args should be (timestamp, hr, acc_x, acc_y, acc_z).
         """
-        timestamp, hr, acc_x, acc_y, acc_z = args
         datum = Datapoint(timestamp=timestamp, hr=hr,
                           acc_x=acc_x, acc_y=acc_y, acc_z=acc_z)
         session = self.Session()
