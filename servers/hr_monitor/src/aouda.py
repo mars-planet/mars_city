@@ -7,6 +7,7 @@ from __future__ import division, print_function
 import os
 import sys
 from datetime import datetime, timedelta
+from collections import namedtuple
 
 from numpy import nan
 
@@ -39,31 +40,17 @@ class Aouda(object):
         """
         Returns an array with all datapoints
         from last query until datetime.until().
-        The format is:
-        [
-         [hr1, acc_x1, acc_y1, acc_z1,
-          hr2, acc_x2, acc_y2, acc_z2,
-          ...
-          hrN, acc_xN, acc_yN, acc_zN],
-         [timestamp1, timestamp1, timestamp1, timestamp1,
-          timestamp2, timestamp2, timestamp2, timestamp2,
-          ...
-          timestampN, timestampN, timestampN, timestampN],
-        ]
         """
         until = datetime.now()
         since = until - timedelta(seconds=period)
         filtered_data = self.data[self.data.index >= since]
         filtered_data = filtered_data[filtered_data.index <= until]
         if len(filtered_data) > 0:
-            ret_val = [[], []]
+            ret_val = []
             for index, row in filtered_data.iterrows():
-                ret_val[0].append(row['hr'])
-                ret_val[0].append(row['acc_x'])
-                ret_val[0].append(row['acc_y'])
-                ret_val[0].append(row['acc_z'])
-                ret_val[1].extend([index.strftime('%Y-%m-%d %H:%M:%S.%f')] * 4)
-
+                datum = Aouda.DP(index, row['hr'], row['acc_x'],
+                              row['acc_z'], row['acc_z'])
+                ret_val.append(datum)
             return ret_val
         else:
             print("No more data on dataset.")
@@ -99,3 +86,6 @@ class Aouda(object):
         else:
             acc_magn = nan
         return acc_magn
+
+
+Aouda.DP = namedtuple('DP', ['timestamp', 'hr', 'acc_x', 'acc_y', 'acc_z'])

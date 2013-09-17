@@ -2,14 +2,11 @@
 
 from __future__ import division, print_function
 import sys
-from collections import defaultdict
 
 import PyTango
 from PyTango import ArgType, AttrDataFormat, AttrWriteType
 
 from aouda import Aouda
-
-performance = defaultdict(list)
 
 
 class PyDsExpClass(PyTango.DeviceClass):
@@ -19,13 +16,13 @@ class PyDsExpClass(PyTango.DeviceClass):
                 }
 
     attr_list = {
-                 'heart_rate': [[PyTango.ArgType.DevFloat,
-                                 PyTango.AttrDataFormat.SCALAR,
-                                 PyTango.AttrWriteType.READ],
+                 'heart_rate': [[ArgType.DevFloat,
+                                 AttrDataFormat.SCALAR,
+                                 AttrWriteType.READ],
                                 {'polling period': 2000}],
-                 'acc_magn': [[PyTango.ArgType.DevFloat,
-                               PyTango.AttrDataFormat.SCALAR,
-                               PyTango.AttrWriteType.READ],
+                 'acc_magn': [[ArgType.DevFloat,
+                               AttrDataFormat.SCALAR,
+                               AttrWriteType.READ],
                               {'polling period': 2000}]
                  }
 
@@ -55,11 +52,34 @@ class PyDsExp(PyTango.Device_4Impl):
         return self.get_state() in (PyTango.DevState.ON,)
 
     def get_data(self, period):
+        """
+        Returns an array with all datapoints
+        from last query until datetime.until().
+        The format is:
+        [
+         [hr1, acc_x1, acc_y1, acc_z1,
+          hr2, acc_x2, acc_y2, acc_z2,
+          ...
+          hrN, acc_xN, acc_yN, acc_zN],
+         [timestamp1, timestamp1, timestamp1, timestamp1,
+          timestamp2, timestamp2, timestamp2, timestamp2,
+          ...
+          timestampN, timestampN, timestampN, timestampN],
+        ]
+        """
         data = self.aouda.get_data(period)
-        return data
+        ret_val = [[], []]
+        for dp in data:
+            ret_val[0].append(dp.hr)
+            ret_val[0].append(dp.acc_x)
+            ret_val[0].append(dp.acc_y)
+            ret_val[0].append(dp.acc_z)
+            formatted_ts = dp.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f')
+            ret_val[1].extend([formatted_ts] * 4)
+        return ret_val
 ############### END get_data ##################################################
 
-############## BEGIN heart_rate #################################################
+############## BEGIN heart_rate ###############################################
     def is_heart_rate_allowed(self, req_type):
         return self.get_state() in (PyTango.DevState.ON,)
 
@@ -67,7 +87,7 @@ class PyDsExp(PyTango.Device_4Impl):
         self.heart_rate = heart_rate = self.aouda.read_heart_rate()
         print("read_heart_rate")
         the_att.set_value(heart_rate)
-############### END heart_rate ##################################################
+############### END heart_rate ################################################
 
 ############## BEGIN acc_magn #################################################
     def is_acc_magn_allowed(self, req_type):
