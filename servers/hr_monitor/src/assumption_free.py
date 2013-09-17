@@ -20,9 +20,6 @@ from numpy import sqrt
 from scipy.stats import norm
 
 
-Analysis = namedtuple('Analysis', ['score', 'bitmp1', 'bitmp2'])
-
-
 class AssumptionFreeAA(object):
     """
     Implements the anomaly scoring algorithm.
@@ -144,7 +141,7 @@ class AssumptionFreeAA(object):
     @classmethod
     def build_bitmap(cls, freqs, norm_factor=0):
         """
-        Builds a bitmap of size len(freqs)).
+        Builds a bitmap of size (len(freqs), len(freqs)).
         Each cell in the bitmap is proportional to the frequency of a subword.
         """
         matrix_size = sqrt(len(freqs))
@@ -205,7 +202,12 @@ class AssumptionFreeAA(object):
                 lag_bitmap = self.build_bitmap(lag_freqs, norm_factor)
                 score = self.dist(lead_bitmap, lag_bitmap)
                 score /= lead_bitmap.shape[0] * lead_bitmap.shape[1]
-                result = Analysis(score=score,
-                                  bitmp1=lead_bitmap, bitmp2=lag_bitmap)
+                result = AssumptionFreeAA.Analysis(score=score,
+                                                   bitmp1=lead_bitmap,
+                                                   bitmp2=lag_bitmap)
                 analysis_result.append(result)
         return analysis_result
+
+
+AssumptionFreeAA.Analysis = namedtuple('Analysis',
+                                       ['score', 'bitmp1', 'bitmp2'])
