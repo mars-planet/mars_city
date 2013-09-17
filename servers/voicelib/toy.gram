@@ -1,0 +1,19 @@
+#JSGF V1.0;
+
+/**
+ * JSGF Grammar for demo examples
+ */
+
+grammar example;
+
+public <main> = ( [ <address> ] ( <move> {MOVE} | <turn>  {TURN} ) | <stop> {STOP} ) | <quit> {QUIT};
+
+<address> = Rover [ please ];
+
+<move> = forward | backward;
+
+<turn> = turn;
+
+<stop> = stop;
+
+<quit> = exit | goodbye | quit;
