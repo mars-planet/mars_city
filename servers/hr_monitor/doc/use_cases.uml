@@ -26,7 +26,7 @@
       <fontname>Dialog</fontname>
       <fontsize>12</fontsize>
       <defaultstereotypeview>0</defaultstereotypeview>
-      <activediagram>Seq - Server requests new data</activediagram>
+      <activediagram>UC - Request for current alarms</activediagram>
     </settings>
     <searchpath href="PROJECT_DIR" />
     <members>
@@ -63,7 +63,7 @@
               diagramclass="org.argouml.uml.diagram.use_case.ui.UMLUseCaseDiagram"
               diagramname="UC - Server requests new data" />
       <member type="pgml"
-              name="use_cases_SeqServeraquiresnewdata.pgml"
+              name="use_cases_SeqServerrequestsnewdata.pgml"
               diagramclass="org.argouml.sequence2.diagram.UMLSequenceDiagram"
               diagramname="Seq - Server requests new data" />
       <member type="todo"
@@ -82,7 +82,7 @@
 			CodeGeneration
 		</plugin>
 </profile>
-<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Wed Sep 18 19:17:23 CEST 2013'>
+<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Thu Sep 19 14:34:19 CEST 2013'>
   <XMI.header>    <XMI.documentation>
       <XMI.exporter>ArgoUML (using Netbeans XMI Writer version 1.0)</XMI.exporter>
       <XMI.exporterVersion>0.34(6) revised on $Date: 2010-01-11 22:20:14 +0100 (Mon, 11 Jan 2010) $ </XMI.exporterVersion>
@@ -3092,8 +3092,8 @@
                         classname="org.argouml.uml.diagram.ui.PathItemPlacement"
                         figclassname="org.argouml.uml.diagram.ui.FigTextGroup"
                         ownerhref="127-0-1-1--65be6157:13f80318056:-8000:0000000000000A7E"
-                        angle="24.0"
-                        offset="71" />
+                        angle="31.0"
+                        offset="75" />
       <argouml:pathitem figname="Fig4.2"
                         classname="org.argouml.uml.diagram.ui.PathItemPlacement"
                         figclassname="org.argouml.uml.diagram.ui.FigMultiplicity"
@@ -3277,7 +3277,7 @@
     strokecolor="black"
   />
   <group name="Fig2"
-       description="org.argouml.sequence2.diagram.FigClassifierRole[160, 189, 150, 555]pathVisible=false;stereotypeView=0;"
+       description="org.argouml.sequence2.diagram.FigClassifierRole[160, 189, 150, 553]pathVisible=false;stereotypeView=0;"
        href="127-0-1-1--35e99eff:13f804a7187:-8000:0000000000000AEB"
        fill="1"
        fillcolor="white"
@@ -3291,7 +3291,7 @@
       x="160"
       y="189"
       width="150"
-      height="555"
+      height="553"
       fill="0"
       fillcolor="white"
       stroke="0"
@@ -3309,7 +3309,7 @@
       strokecolor="black"
     />
     <group name="Fig2.2"
-         description="org.argouml.sequence2.diagram.FigLifeLine[160, 238, 150, 505]"
+         description="org.argouml.sequence2.diagram.FigLifeLine[160, 238, 150, 503]"
          href="127-0-1-1--35e99eff:13f804a7187:-8000:0000000000000AEB"
          fill="1"
          fillcolor="white"
@@ -3323,7 +3323,7 @@
         x="160"
         y="238"
         width="150"
-        height="505"
+        height="503"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -3339,10 +3339,10 @@
         <moveto x="235"
                 y="238" />
         <lineto x="235"
-                y="743" />
+                y="741" />
       </path>
       <group name="Fig2.2.2"
-           description="org.argouml.sequence2.diagram.FigActivation[225, 238, 20, 505]"
+           description="org.argouml.sequence2.diagram.FigActivation[225, 238, 20, 503]"
            href="127-0-1-1--35e99eff:13f804a7187:-8000:0000000000000AEB"
            fill="1"
            fillcolor="white"
@@ -3356,7 +3356,7 @@
           x="225"
           y="238"
           width="20"
-          height="505"
+          height="503"
           fill="1"
           fillcolor="white"
           stroke="1"
@@ -3426,7 +3426,7 @@
     </group>
   </group>
   <group name="Fig3"
-       description="org.argouml.sequence2.diagram.FigClassifierRole[584, 189, 98, 555]pathVisible=false;stereotypeView=0;"
+       description="org.argouml.sequence2.diagram.FigClassifierRole[584, 189, 98, 553]pathVisible=false;stereotypeView=0;"
        href="127-0-1-1--35e99eff:13f804a7187:-8000:0000000000000AEE"
        fill="1"
        fillcolor="white"
@@ -3440,7 +3440,7 @@
       x="584"
       y="189"
       width="98"
-      height="555"
+      height="553"
       fill="0"
       fillcolor="white"
       stroke="0"
@@ -3458,7 +3458,7 @@
       strokecolor="black"
     />
     <group name="Fig3.2"
-         description="org.argouml.sequence2.diagram.FigLifeLine[584, 238, 98, 505]"
+         description="org.argouml.sequence2.diagram.FigLifeLine[584, 238, 98, 503]"
          href="127-0-1-1--35e99eff:13f804a7187:-8000:0000000000000AEE"
          fill="1"
          fillcolor="white"
@@ -3472,7 +3472,7 @@
         x="584"
         y="238"
         width="98"
-        height="505"
+        height="503"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -3488,7 +3488,7 @@
         <moveto x="633"
                 y="238" />
         <lineto x="633"
-                y="743" />
+                y="741" />
       </path>
       <group name="Fig3.2.2"
            description="org.argouml.sequence2.diagram.FigActivation[623, 288, 20, 128]"
@@ -3896,7 +3896,7 @@
     strokecolor="black"
   />
   <group name="Fig2"
-       description="org.argouml.sequence2.diagram.FigClassifierRole[232, 173, 94, 422]pathVisible=false;stereotypeView=0;"
+       description="org.argouml.sequence2.diagram.FigClassifierRole[232, 173, 94, 420]pathVisible=false;stereotypeView=0;"
        href="127-0-1-1--35e99eff:13f804a7187:-8000:0000000000000AFA"
        fill="1"
        fillcolor="white"
@@ -3910,7 +3910,7 @@
       x="232"
       y="173"
       width="94"
-      height="422"
+      height="420"
       fill="0"
       fillcolor="white"
       stroke="0"
@@ -3928,7 +3928,7 @@
       strokecolor="black"
     />
     <group name="Fig2.2"
-         description="org.argouml.sequence2.diagram.FigLifeLine[232, 222, 94, 372]"
+         description="org.argouml.sequence2.diagram.FigLifeLine[232, 222, 94, 370]"
          href="127-0-1-1--35e99eff:13f804a7187:-8000:0000000000000AFA"
          fill="1"
          fillcolor="white"
@@ -3942,7 +3942,7 @@
         x="232"
         y="222"
         width="94"
-        height="372"
+        height="370"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -3958,10 +3958,10 @@
         <moveto x="279"
                 y="222" />
         <lineto x="279"
-                y="594" />
+                y="592" />
       </path>
       <group name="Fig2.2.2"
-           description="org.argouml.sequence2.diagram.FigActivation[269, 222, 20, 372]"
+           description="org.argouml.sequence2.diagram.FigActivation[269, 222, 20, 370]"
            href="127-0-1-1--35e99eff:13f804a7187:-8000:0000000000000AFA"
            fill="1"
            fillcolor="white"
@@ -3975,7 +3975,7 @@
           x="269"
           y="222"
           width="20"
-          height="372"
+          height="370"
           fill="1"
           fillcolor="white"
           stroke="1"
@@ -4045,7 +4045,7 @@
     </group>
   </group>
   <group name="Fig3"
-       description="org.argouml.sequence2.diagram.FigClassifierRole[658, 173, 150, 422]pathVisible=false;stereotypeView=0;"
+       description="org.argouml.sequence2.diagram.FigClassifierRole[658, 173, 150, 420]pathVisible=false;stereotypeView=0;"
        href="127-0-1-1--35e99eff:13f804a7187:-8000:0000000000000AFD"
        fill="1"
        fillcolor="white"
@@ -4059,7 +4059,7 @@
       x="658"
       y="173"
       width="150"
-      height="422"
+      height="420"
       fill="0"
       fillcolor="white"
       stroke="0"
@@ -4077,7 +4077,7 @@
       strokecolor="black"
     />
     <group name="Fig3.2"
-         description="org.argouml.sequence2.diagram.FigLifeLine[658, 222, 150, 372]"
+         description="org.argouml.sequence2.diagram.FigLifeLine[658, 222, 150, 370]"
          href="127-0-1-1--35e99eff:13f804a7187:-8000:0000000000000AFD"
          fill="1"
          fillcolor="white"
@@ -4091,7 +4091,7 @@
         x="658"
         y="222"
         width="150"
-        height="372"
+        height="370"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -4107,7 +4107,7 @@
         <moveto x="733"
                 y="222" />
         <lineto x="733"
-                y="594" />
+                y="592" />
       </path>
       <group name="Fig3.2.2"
            description="org.argouml.sequence2.diagram.FigActivation[723, 288, 20, 140]"
@@ -4495,7 +4495,7 @@
       name="Seq - Request for current alarms"
 >
   <group name="Fig0"
-       description="org.argouml.sequence2.diagram.FigClassifierRole[16, 143, 94, 323]pathVisible=false;stereotypeView=0;"
+       description="org.argouml.sequence2.diagram.FigClassifierRole[16, 143, 94, 321]pathVisible=false;stereotypeView=0;"
        href="127-0-1-1--35e99eff:13f804a7187:-8000:0000000000000AC7"
        fill="1"
        fillcolor="white"
@@ -4509,7 +4509,7 @@
       x="16"
       y="143"
       width="94"
-      height="323"
+      height="321"
       fill="0"
       fillcolor="white"
       stroke="0"
@@ -4527,7 +4527,7 @@
       strokecolor="black"
     />
     <group name="Fig0.2"
-         description="org.argouml.sequence2.diagram.FigLifeLine[16, 192, 94, 273]"
+         description="org.argouml.sequence2.diagram.FigLifeLine[16, 192, 94, 271]"
          href="127-0-1-1--35e99eff:13f804a7187:-8000:0000000000000AC7"
          fill="1"
          fillcolor="white"
@@ -4541,7 +4541,7 @@
         x="16"
         y="192"
         width="94"
-        height="273"
+        height="271"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -4557,10 +4557,10 @@
         <moveto x="63"
                 y="192" />
         <lineto x="63"
-                y="465" />
+                y="463" />
       </path>
       <group name="Fig0.2.2"
-           description="org.argouml.sequence2.diagram.FigActivation[53, 192, 20, 273]"
+           description="org.argouml.sequence2.diagram.FigActivation[53, 192, 20, 271]"
            href="127-0-1-1--35e99eff:13f804a7187:-8000:0000000000000AC7"
            fill="1"
            fillcolor="white"
@@ -4574,7 +4574,7 @@
           x="53"
           y="192"
           width="20"
-          height="273"
+          height="271"
           fill="1"
           fillcolor="white"
           stroke="1"
@@ -4644,7 +4644,7 @@
     </group>
   </group>
   <group name="Fig1"
-       description="org.argouml.sequence2.diagram.FigClassifierRole[360, 143, 150, 323]pathVisible=false;stereotypeView=0;"
+       description="org.argouml.sequence2.diagram.FigClassifierRole[360, 143, 150, 321]pathVisible=false;stereotypeView=0;"
        href="127-0-1-1--35e99eff:13f804a7187:-8000:0000000000000ACA"
        fill="1"
        fillcolor="white"
@@ -4658,7 +4658,7 @@
       x="360"
       y="143"
       width="150"
-      height="323"
+      height="321"
       fill="0"
       fillcolor="white"
       stroke="0"
@@ -4676,7 +4676,7 @@
       strokecolor="black"
     />
     <group name="Fig1.2"
-         description="org.argouml.sequence2.diagram.FigLifeLine[360, 192, 150, 273]"
+         description="org.argouml.sequence2.diagram.FigLifeLine[360, 192, 150, 271]"
          href="127-0-1-1--35e99eff:13f804a7187:-8000:0000000000000ACA"
          fill="1"
          fillcolor="white"
@@ -4690,7 +4690,7 @@
         x="360"
         y="192"
         width="150"
-        height="273"
+        height="271"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -4706,7 +4706,7 @@
         <moveto x="435"
                 y="192" />
         <lineto x="435"
-                y="465" />
+                y="463" />
       </path>
       <group name="Fig1.2.2"
            description="org.argouml.sequence2.diagram.FigActivation[425, 272, 20, 128]"
@@ -5626,7 +5626,7 @@
     strokecolor="black"
   />
   <group name="Fig2"
-       description="org.argouml.sequence2.diagram.FigClassifierRole[692, 615, 150, 543]pathVisible=false;stereotypeView=0;"
+       description="org.argouml.sequence2.diagram.FigClassifierRole[692, 615, 150, 541]pathVisible=false;stereotypeView=0;"
        href="127-0-1-1--5187787f:13f8b945f8d:-8000:0000000000000B40"
        fill="1"
        fillcolor="white"
@@ -5640,7 +5640,7 @@
       x="692"
       y="615"
       width="150"
-      height="543"
+      height="541"
       fill="0"
       fillcolor="white"
       stroke="0"
@@ -5658,7 +5658,7 @@
       strokecolor="black"
     />
     <group name="Fig2.2"
-         description="org.argouml.sequence2.diagram.FigLifeLine[692, 664, 150, 493]"
+         description="org.argouml.sequence2.diagram.FigLifeLine[692, 664, 150, 491]"
          href="127-0-1-1--5187787f:13f8b945f8d:-8000:0000000000000B40"
          fill="1"
          fillcolor="white"
@@ -5672,7 +5672,7 @@
         x="692"
         y="664"
         width="150"
-        height="493"
+        height="491"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -5688,7 +5688,7 @@
         <moveto x="767"
                 y="664" />
         <lineto x="767"
-                y="1157" />
+                y="1155" />
       </path>
       <group name="Fig2.2.2"
            description="org.argouml.sequence2.diagram.FigActivation[757, 812, 20, 72]"
@@ -5775,7 +5775,7 @@
     </group>
   </group>
   <group name="Fig3"
-       description="org.argouml.sequence2.diagram.FigClassifierRole[428, 615, 150, 542]pathVisible=false;stereotypeView=0;"
+       description="org.argouml.sequence2.diagram.FigClassifierRole[428, 615, 150, 540]pathVisible=false;stereotypeView=0;"
        href="127-0-1-1--5187787f:13f8b945f8d:-8000:0000000000000B43"
        fill="1"
        fillcolor="white"
@@ -5789,7 +5789,7 @@
       x="428"
       y="615"
       width="150"
-      height="542"
+      height="540"
       fill="0"
       fillcolor="white"
       stroke="0"
@@ -5807,7 +5807,7 @@
       strokecolor="black"
     />
     <group name="Fig3.2"
-         description="org.argouml.sequence2.diagram.FigLifeLine[428, 664, 150, 492]"
+         description="org.argouml.sequence2.diagram.FigLifeLine[428, 664, 150, 490]"
          href="127-0-1-1--5187787f:13f8b945f8d:-8000:0000000000000B43"
          fill="1"
          fillcolor="white"
@@ -5821,7 +5821,7 @@
         x="428"
         y="664"
         width="150"
-        height="492"
+        height="490"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -5837,10 +5837,10 @@
         <moveto x="503"
                 y="664" />
         <lineto x="503"
-                y="1156" />
+                y="1154" />
       </path>
       <group name="Fig3.2.2"
-           description="org.argouml.sequence2.diagram.FigActivation[493, 664, 20, 492]"
+           description="org.argouml.sequence2.diagram.FigActivation[493, 664, 20, 490]"
            href="127-0-1-1--5187787f:13f8b945f8d:-8000:0000000000000B43"
            fill="1"
            fillcolor="white"
@@ -5854,7 +5854,7 @@
           x="493"
           y="664"
           width="20"
-          height="492"
+          height="490"
           fill="1"
           fillcolor="white"
           stroke="1"
@@ -5924,7 +5924,7 @@
     </group>
   </group>
   <group name="Fig4"
-       description="org.argouml.sequence2.diagram.FigClassifierRole[156, 615, 166, 544]pathVisible=false;stereotypeView=0;"
+       description="org.argouml.sequence2.diagram.FigClassifierRole[156, 615, 166, 542]pathVisible=false;stereotypeView=0;"
        href="127-0-1-1--5187787f:13f8b945f8d:-8000:0000000000000B46"
        fill="1"
        fillcolor="white"
@@ -5938,7 +5938,7 @@
       x="156"
       y="615"
       width="166"
-      height="544"
+      height="542"
       fill="0"
       fillcolor="white"
       stroke="0"
@@ -5956,7 +5956,7 @@
       strokecolor="black"
     />
     <group name="Fig4.2"
-         description="org.argouml.sequence2.diagram.FigLifeLine[156, 664, 166, 494]"
+         description="org.argouml.sequence2.diagram.FigLifeLine[156, 664, 166, 492]"
          href="127-0-1-1--5187787f:13f8b945f8d:-8000:0000000000000B46"
          fill="1"
          fillcolor="white"
@@ -5970,7 +5970,7 @@
         x="156"
         y="664"
         width="166"
-        height="494"
+        height="492"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -5986,7 +5986,7 @@
         <moveto x="239"
                 y="664" />
         <lineto x="239"
-                y="1158" />
+                y="1156" />
       </path>
       <group name="Fig4.2.2"
            description="org.argouml.sequence2.diagram.FigActivation[229, 712, 20, 56]"
