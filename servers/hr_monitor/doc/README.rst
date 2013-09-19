@@ -12,6 +12,7 @@ Change Record
 =============
 
 2013.09.11 - Document created.
+
 2013.09.17 - Update format with user manual template and corresponding content.
 
 Introduction
@@ -409,6 +410,7 @@ The :term:`HRM`'s configuration file (**src/hr_monitor.cfg**) exposes, aside
 the values explained above, the following variables:
 
    #. [Detector]:
+
       #. word_size:
          It affects the length of features used to detect anomalies.
       #. window_factor:
@@ -421,6 +423,7 @@ the values explained above, the following variables:
          Affects the length of the lag window, which consists of
          window_factor * word_size datapoints *lag_window_factor datapoints.
    #. [Monitor]:
+
       #. resolution:
          In milliseconds, it affects the data's sample frequency
          to be considered. If finer grained data is available it is
