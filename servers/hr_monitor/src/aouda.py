@@ -3,7 +3,6 @@ Implements the Aouda Suit Server Interface.
 """
 from __future__ import division, print_function
 
-import os
 from datetime import datetime, timedelta
 from collections import namedtuple
 
@@ -13,6 +12,9 @@ from preprocessing import read_data, extract_hr_acc
 
 
 class NoMoreDataError(Exception):
+    """
+    Exception to be thrown where there's no more data available in the dataset.
+    """
     pass
 
 
