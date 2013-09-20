@@ -9,21 +9,30 @@ from math import sqrt, atan2, degrees
 
 import PyTango
 
+POLLING = 200
+
+attr_type = [
+    [PyTango.ArgType.DevFloat,
+     PyTango.AttrDataFormat.SCALAR,
+     PyTango.AttrWriteType.READ],
+    {'polling period': POLLING}
+]
+
+# These lists define the attributes read from the neuro headset (hs_attributes)
+# and the 4 additional attributes that are calculated from the gyroscope.
+gyro_attributes = ['X', 'Y', 'X_quality', 'Y_quality']
+eeg_sensors = ['AF3', 'AF4', 'F3', 'F4', 'F7', 'F8', 'FC5', 'FC6',
+               'T7', 'T8', 'P7', 'P8', 'O1', 'O2']
+eeg_qualities = [sensor + '_quality' for sensor in eeg_sensors]
+calculated_attrs = ['xpos', 'ypos', 'speed', 'steering']
+
+hs_attributes = gyro_attributes + eeg_sensors + eeg_qualities + ['battery']
+attributes = hs_attributes + calculated_attrs
+
 
 class PyDevice(PyTango.DeviceClass):
     cmd_list = {}
-    attr_type = [
-        [PyTango.ArgType.DevFloat,
-         PyTango.AttrDataFormat.SCALAR,
-         PyTango.AttrWriteType.READ],
-        {'polling period': 200}
-    ]
-    attr_list = {
-        'speed': attr_type,
-        'steering': attr_type,
-        'x': attr_type,
-        'y': attr_type,
-    }
+    attr_list = dict((attr, attr_type) for attr in attributes)
 
     def __init__(self, name):
         PyTango.DeviceClass.__init__(self, name)
@@ -37,15 +46,21 @@ class PyNeuroHS(PyTango.Device_4Impl):
         self.info_stream('In PyNeuroHS.__init__')
         PyNeuroHS.init_device(self)
 
+    def _read_packet(self, jpacket):
+        """Decode a JSON packet and set the attributes."""
+        packet = json.loads(jpacket)
+        for sensor in eeg_sensors + ['X', 'Y']:
+            s = packet[sensor]
+            setattr(self, sensor, s['value'])
+            setattr(self, sensor+'_quality', s['quality'])
+        self.battery = packet['battery']
+
     def read_speed(self, the_att):
-        #read from EPOC
-        #packet = self.headset.dequeue()
+        old_X, old_Y = self.X, self.Y
         line = self.headset.stdout.readline().strip()
-        packet = json.loads(line)
-        gyroX, gyroY = packet['X']['value'], packet['Y']['value']
-        xdiff = self.x - gyroX
-        ydiff = self.y - gyroY
-        #print 'gyroX gyroY xdiff ydiff', packet.gyroX, packet.gyroY, xdiff, ydiff
+        self._read_packet(line)
+        xdiff = old_X - self.X
+        ydiff = old_Y - self.Y
         if abs(xdiff) > 0:
             self.xspeed += xdiff
             self.xpos += int(round(self.xspeed/10))
@@ -53,11 +68,10 @@ class PyNeuroHS(PyTango.Device_4Impl):
             self.yspeed -= ydiff
             self.ypos += int(round(self.yspeed/10))
 
-        #conversion from Cartesian coordinates to Polar coordinates
+        # conversion from Cartesian coordinates to Polar coordinates
         # to obtain speed and steering
         speed = sqrt(self.xpos**2 + self.ypos**2)
         self.steering = degrees(atan2(self.ypos, self.xpos))
-        self.x, self.y = gyroX, gyroY
         the_att.set_value(speed)
         print 'xpos ypos', self.xpos, self.ypos
         #print 'size', self.headset.packets.qsize()
@@ -68,18 +82,17 @@ class PyNeuroHS(PyTango.Device_4Impl):
         the_att.set_value(self.steering)
         #print 'steering', self.steering
 
-    def read_x(self, the_att):
+    def read_xpos(self, the_att):
         the_att.set_value(self.xpos)
 
-    def read_y(self, the_att):
+    def read_ypos(self, the_att):
         the_att.set_value(self.ypos)
 
     def init_device(self):
         self.info_stream('In Python init_device method')
-        self.headset = Popen(['python', 'neurohs.py', '200'],
-                             stdout=PIPE, stderr=PIPE)
-        #gevent.spawn(self.headset.setup)
-        #gevent.sleep(2)
+        self.headset = Popen(['python', 'neurohs.py', POLLING,
+                              #'--sim', 'neurohs_1.log'
+                             ], stdout=PIPE, stderr=PIPE)
         # don't move the headset while reading this
         line = None
         while line != '-----':
@@ -89,13 +102,16 @@ class PyNeuroHS(PyTango.Device_4Impl):
         line = None
         while not line:
             line = self.headset.stdout.readline().strip()
-        #packet = self.headset.dequeue()
-        #self.x, self.y = packet.gyroX, packet.gyroY
-        packet = json.loads(line)
-        self.x, self.y = packet['X']['value'], packet['Y']['value']
+        self._read_packet(line)
         self.xspeed, self.yspeed = 0, 0
         self.xpos, self.ypos = 0, 0
         self.set_state(PyTango.DevState.ON)
+
+# generate the read_* methods for the attributes and add them to the class
+for sensor in hs_attributes:
+    def read_attr(self, the_att, sensor=sensor):
+        the_att.set_value(getattr(self, sensor))
+    setattr(PyNeuroHS, 'read_'+sensor, read_attr)
 
 
 if __name__ == '__main__':
