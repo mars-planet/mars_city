@@ -14,7 +14,7 @@ def magnitude(row):
     return (row[21] ** 2 + row[22] ** 2 + row[23] ** 2) ** 0.5
 
 
-def read_data(path):
+def read_data(path, base_datetime=None):
     """
     Reads the dataset, extracts acceleration and timestamp data
     and returns a Panda's DataFrame with it.
@@ -37,7 +37,10 @@ def read_data(path):
                           'IMU_Chest_Magnitude',
                           'IMU_Chest_x', 'IMU_Chest_y', 'IMU_Chest_z']]
 
-    now = datetime.now()
+    if base_datetime is not None:
+        now = base_datetime
+    else:
+        now = datetime.now()
     frame['timestamp'] += (now - datetime(1970, 1, 1)).total_seconds()
     frame['timestamp'] = frame['timestamp'].apply(lambda x: x * 10 ** 9)
     frame['timestamp'] = frame['timestamp'].astype('datetime64[ns]')

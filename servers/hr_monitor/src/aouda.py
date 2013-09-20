@@ -1,11 +1,9 @@
-#!/usr/bin/python
 """
 Implements the Aouda Suit Server Interface.
 """
 from __future__ import division, print_function
 
 import os
-import sys
 from datetime import datetime, timedelta
 from collections import namedtuple
 
@@ -14,32 +12,41 @@ from numpy import nan
 from preprocessing import read_data, extract_hr_acc
 
 
+class NoMoreDataError(Exception):
+    pass
+
+
 class Aouda(object):
     """
     Implements the Aouda Server Interface.
     """
 
-    def __init__(self, filename=None):
+    def __init__(self, dataframe=None, filename=None,
+                 resolution=None, base_datetime=None):
         print('Constructing Aouda')
-        self.resolution = 1000  # in millisecs
+        if resolution is not None:
+            self.resolution = resolution  # in millisecs
+        else:
+            self.resolution = 1000  # in millisecs
+        self.base_datetime = base_datetime
         print('Loading Data')
-        self.data = self._load_data(filename)
+        if dataframe is not None:
+            self.data = dataframe.copy()
+        else:
+            self.data = self._load_data(filename)
+        self.data = self.data.resample('%sL' % self.resolution, how='mean')
         print('Finished constructing Aouda')
 
     def _load_data(self, filename):
         """
         Loads hr and acc data into a pandas.DataFrame from a dataset file.
         """
-        if filename is None:
-            dirname = os.path.dirname(__file__)
-            filename = os.path.join(dirname, 'dataset.dat')
-        data = extract_hr_acc(read_data(filename))
-        return data.resample('%sL' % self.resolution)
+        data = extract_hr_acc(read_data(filename, self.base_datetime))
+        return data
 
     def get_data(self, period):
         """
-        Returns an array with all datapoints
-        from last query until datetime.until().
+        Returns an array with all datapoints in the last period seconds.
         """
         until = datetime.now()
         since = until - timedelta(seconds=period)
@@ -49,12 +56,11 @@ class Aouda(object):
             ret_val = []
             for index, row in filtered_data.iterrows():
                 datum = Aouda.DP(index, row['hr'], row['acc_x'],
-                              row['acc_z'], row['acc_z'])
+                              row['acc_y'], row['acc_z'])
                 ret_val.append(datum)
             return ret_val
         else:
-            print("No more data on dataset.")
-            sys.exit()
+            raise NoMoreDataError()
 
     def _get_instantaneos_values(self):
         """
