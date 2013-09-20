@@ -90,7 +90,7 @@ class PyNeuroHS(PyTango.Device_4Impl):
 
     def init_device(self):
         self.info_stream('In Python init_device method')
-        self.headset = Popen(['python', 'neurohs.py', POLLING,
+        self.headset = Popen(['python', 'neurohs.py', str(POLLING),
                               #'--sim', 'neurohs_1.log'
                              ], stdout=PIPE, stderr=PIPE)
         # don't move the headset while reading this
