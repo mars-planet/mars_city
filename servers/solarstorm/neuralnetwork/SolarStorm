@@ -1,13 +1,19 @@
 import sys
+import csv
 import urllib
 import PyTango
+import pylab as pl
+import numpy as np
+import datetime as dt
 from pybrain.tools.customxml.networkreader import NetworkReader
 
 class PyDevice(PyTango.DeviceClass):
     cmd_list = {'parse_online': [[PyTango.ArgType.DevVoid],
-                         [PyTango.ArgType.DevVoid]],
+                         [PyTango.ArgType.DevVoid],
+                         {'polling period': 86400000}],
                 'activate_net': [[PyTango.ArgType.DevVoid],
-                          [PyTango.ArgType.DevVoid]],
+                         [PyTango.ArgType.DevVoid],
+                         {polling period': 86400000}],
     }
 
     attr_type = [
@@ -110,15 +116,41 @@ class PySolarNN(PyTango.Device_4Impl):
         net = NetworkReader.readFrom('xtrainedinfo.xml')
 
         self.output_data = net.activate((input_data))
+        if (self.output_data[0]) > 4.84e-06:
+            self.xforecast = 2
+        elif (self.output_data[0]) > 3.5e-06:
+            self.xforecast = 1
+        else:
+            self.xforecast = 0
+
+        self.savecsv()
+        self.saveplot()
+
+    def savecsv(self):
+        today = dt.date.today()
+        with open('xforecast.csv') as tf:
+            for line in tf:
+                data = [x for x in line.strip().split(',') if x]
+        if (data[0] != str(today)):
+            rowdata = []
+            forecast = csv.writer(open("xforecast.csv", 'a'))
+            rowdata.extend((today,self.xforecast))
+            forecast.writerow(rowdata)
+
+    def saveplot(self):
+        num_lines = 0
+        xforecasts = []
+        with open('xforecast.csv') as tf:
+            for line in tf:
+                data = [x for x in line.strip().split(',') if x]
+                xforecasts.append(data[1])
+                num_lines = num_lines + 1
+        days = np.linspace(1, num_lines, num_lines)
+        pl.plot(days,xforecasts, '.r')
+        pl.savefig('/var/www/xforecastplot.png')
 
     def read_xforecast(self, the_att):
-        if (self.output_data[0]) > 4.84e-06:
-            xforecast = 2
-        elif (self.output_data[0]) > 3.5e-06:
-            xforecast = 1
-        else:
-            xforecast = 0        
-        the_att.set_value(xforecast)
+        the_att.set_value(self.xforecast)
 
     def init_device(self):
         self.info_stream('In Python init_device method')
