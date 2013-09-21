@@ -1,9 +1,32 @@
+import re
+import json
+import PyTango
+
+devices = {}
 data = []
 
 def simple_app(environ, start_response):
     global data
     path = environ['PATH_INFO']
-    if path == '/':
+    m = re.match('^/([cC]3/[^/]+/[^/]+)(/json)?$', path)
+    if m and m.group(2) is None:
+        devname = m.group(1)
+        if devname not in devices:
+            device = PyTango.DeviceProxy(devname)
+            devices[devname] = device
+        start_response('200 OK', [('Content-Type', 'text/html')])
+        with open('plot.html') as f:
+            return f.read()
+    elif m and m.group(2):
+        devname = m.group(1)
+        device = devices[devname]
+        attrs = dict((attr, device[attr].value)
+                     for attr in device.get_attribute_list()
+                     if attr not in {'Status', 'State'})
+        start_response('200 OK', [('Content-Type', 'text/json')])
+        return json.dumps(attrs)
+
+    elif path == '/':
         start_response('200 OK', [('Content-Type', 'text/html')])
         with open('page.html') as f:
             return f.read()
