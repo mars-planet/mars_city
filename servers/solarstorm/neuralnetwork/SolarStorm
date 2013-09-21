@@ -13,7 +13,7 @@ class PyDevice(PyTango.DeviceClass):
                          {'polling period': 86400000}],
                 'activate_net': [[PyTango.ArgType.DevVoid],
                          [PyTango.ArgType.DevVoid],
-                         {polling period': 86400000}],
+                         {'polling period': 86400000}],
     }
 
     attr_type = [
