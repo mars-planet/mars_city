@@ -2,9 +2,13 @@
 
 import sys
 import csv
+import os
 import os.path
 import urllib
 import PyTango
+import matplotlib 
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 import pylab as pl
 import numpy as np
 import datetime as dt
@@ -15,10 +19,10 @@ savedir = os.path.dirname(os.path.abspath(sys.argv[0]))
 class PyDevice(PyTango.DeviceClass):
     cmd_list = {'parse_online': [[PyTango.ArgType.DevVoid],
                          [PyTango.ArgType.DevVoid],
-                         {'polling period': 86400000}],
+                         {'polling period': 8640000}],
                 'activate_net': [[PyTango.ArgType.DevVoid],
                          [PyTango.ArgType.DevVoid],
-                         {'polling period': 86400000}],
+                         {'polling period': 8640000}],
     }
 
     attr_type = [
