@@ -3,7 +3,6 @@
 from __future__ import division, print_function
 import sys
 from datetime import datetime
-from time import time
 from collections import defaultdict
 
 import os
@@ -18,18 +17,6 @@ import numpy as np
 from hr_monitor import HRMonitor
 
 performance = defaultdict(list)
-
-
-def timeit(func):
-    return func
-    def wrapper(*arg, **kw):
-        global performance
-        t1 = time()
-        res = func(*arg, **kw)
-        t2 = time()
-        performance[func.func_name].append(t2 - t1)
-        return res
-    return wrapper
 
 
 class PyDsExpClass(PyTango.DeviceClass):
@@ -121,7 +108,6 @@ class PyDsExp(PyTango.Device_4Impl):
     def is_register_datapoint_allowed(self):
         return self.get_state() == PyTango.DevState.ON
 
-    @timeit
     def register_datapoint(self, args):
         timestamp = datetime.fromtimestamp(args[0])
         new_args = args.tolist()
@@ -133,7 +119,6 @@ class PyDsExp(PyTango.Device_4Impl):
     def is_get_avg_hr_allowed(self):
         return self.get_state() == PyTango.DevState.ON
 
-    @timeit
     def get_avg_hr(self, period):
         return self.hr_mon.get_avg_hr(period)
 ############### END get_avg_hr ################################################
@@ -142,7 +127,6 @@ class PyDsExp(PyTango.Device_4Impl):
     def is_get_avg_acc_allowed(self):
         return self.get_state() == PyTango.DevState.ON
 
-    @timeit
     def get_avg_acc(self, period):
         return self.hr_mon.get_avg_acc(period)
 ############### END get_acc_avg ###############################################
@@ -151,7 +135,6 @@ class PyDsExp(PyTango.Device_4Impl):
     def is_get_current_alarms_allowed(self):
         return self.get_state() == PyTango.DevState.ON
 
-    @timeit
     def get_current_alarms(self, period):
         global performance
         alarms = self.hr_mon.get_current_alarms(period)
@@ -166,6 +149,7 @@ class PyDsExp(PyTango.Device_4Impl):
 ############### END get_current_alarms ########################################
 
 
+print("Reading configuration file")
 config = ConfigParser.RawConfigParser()
 dirname = os.path.dirname(os.path.abspath(sys.argv[0]))
 cfg_filename = os.path.join(dirname, 'hr_monitor.cfg')
