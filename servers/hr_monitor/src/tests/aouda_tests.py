@@ -11,7 +11,7 @@ sys.path.append("../../")
 from numpy import isnan
 
 from src.preprocessing import read_data, extract_hr_acc
-from src.aouda import Aouda, NoMoreDataError
+from src.aouda import Aouda, NoDataAvailableError
 
 
 class AoudaTests(unittest.TestCase):
@@ -95,7 +95,7 @@ class AoudaTests(unittest.TestCase):
 
     def test_get_data_no_more_data(self):
         inst = Aouda(dataframe=self.data.shift(-10, 'T'))
-        self.assertRaises(NoMoreDataError, inst.get_data, 2)
+        self.assertRaises(NoDataAvailableError, inst.get_data, 2)
 
     def test_read_heart_rate(self):
         inst = Aouda(dataframe=self.data)
