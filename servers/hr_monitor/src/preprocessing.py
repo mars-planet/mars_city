@@ -1,6 +1,7 @@
 """
 Reads and preprocesses data from one of the PAMAP2_Dataset files.
 """
+from __future__ import division, print_function
 from datetime import datetime
 
 import pandas as pd
