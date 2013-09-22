@@ -11,7 +11,7 @@ from numpy import nan
 from preprocessing import read_data, extract_hr_acc
 
 
-class NoMoreDataError(Exception):
+class NoDataAvailableError(Exception):
     """
     Exception to be thrown where there's no more data available in the dataset.
     """
@@ -24,7 +24,8 @@ class Aouda(object):
     """
 
     def __init__(self, dataframe=None, filename=None,
-                 resolution=None, base_datetime=None):
+                 resolution=None, base_datetime=None,
+                 shift_data=False):
         print('Constructing Aouda')
         if resolution is not None:
             self.resolution = resolution  # in millisecs
@@ -36,7 +37,8 @@ class Aouda(object):
             self.data = dataframe.copy()
         else:
             self.data = self._load_data(filename)
-        self.data = self.data.resample('%sL' % self.resolution, how='mean')
+        #self.data = self.data.resample('%sL' % self.resolution, how='mean')
+        self.shift_data = shift_data
         print('Finished constructing Aouda')
 
     def _load_data(self, filename):
@@ -46,10 +48,20 @@ class Aouda(object):
         data = extract_hr_acc(read_data(filename, self.base_datetime))
         return data
 
+    def _shift_data(self):
+        if self.shift_data and self.data.index[-1] <= datetime.now():
+            delta = (datetime.now() - self.data.index[0]).total_seconds()
+            print('Shifting data % s seconds.' % delta)
+            self.data = self.data.shift(periods=int(delta), freq='S')
+            print('First row now has index: %s; '
+                  + 'last row has index: %s.' % (self.data.index[0],
+                                                 self.data.index[-1]))
+
     def get_data(self, period):
         """
         Returns an array with all datapoints in the last period seconds.
         """
+        self._shift_data()
         until = datetime.now()
         since = until - timedelta(seconds=period)
         filtered_data = self.data[self.data.index >= since]
@@ -62,7 +74,7 @@ class Aouda(object):
                 ret_val.append(datum)
             return ret_val
         else:
-            raise NoMoreDataError()
+            raise NoDataAvailableError()
 
     def _get_instantaneos_values(self):
         """
