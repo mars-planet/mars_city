@@ -2,11 +2,13 @@
 
 from __future__ import division, print_function
 import sys
+import os
+from datetime import datetime
 
 import PyTango
 from PyTango import ArgType, AttrDataFormat, AttrWriteType
 
-from aouda import Aouda, NoMoreDataError
+from aouda import Aouda, NoDataAvailableError
 
 
 class PyDsExpClass(PyTango.DeviceClass):
@@ -43,7 +45,10 @@ class PyDsExp(PyTango.Device_4Impl):
 
     def init_device(self):
         print('Initializing device')
-        self.aouda = Aouda(filename='data_tests/dataset.dat')
+        dirname = os.path.dirname(os.path.abspath(sys.argv[0]))
+        dirname = os.path.join(dirname, 'data_tests')
+        filename = os.path.join(dirname, 'dataset.dat')
+        self.aouda = Aouda(filename=filename, shift_data=True)
         self.set_state(PyTango.DevState.ON)
         print('Finished initializing device')
 
@@ -77,8 +82,9 @@ class PyDsExp(PyTango.Device_4Impl):
                 formatted_ts = dp.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f')
                 ret_val[1].extend([formatted_ts] * 4)
             return ret_val
-        except NoMoreDataError:
-            print("No more data on dataset.")
+        except NoDataAvailableError:
+            print("No data available on dataset for %s seconds before %s."
+                  % (period, datetime.now()))
             sys.exit()
 ############### END get_data ##################################################
 
