@@ -80,9 +80,13 @@ def read_from_file(polling, simfile):
     print('-----')
     sys.stderr.write('START\n')
     with open(simfile) as f:
-        for line in f:
-            print(line, end='')
-            time.sleep(polling)
+        while True:
+            line = f.readline().strip()
+            if not line:
+                f.seek(0)
+            else:
+                print(line)
+                time.sleep(polling)
 
 
 if __name__ == "__main__":
