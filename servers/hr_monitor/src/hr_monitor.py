@@ -118,6 +118,9 @@ class HRMonitor(object):
             session.add(datum)
             session.commit()
             Thread(target=self._generate_alarms).start()
+        except IntegrityError:
+            print("Duplicated datapoint.")
+            pass
         finally:
             session.close()
 
