@@ -4,10 +4,13 @@ from __future__ import division
 
 import sys
 import json
+import os.path
 from subprocess import Popen, PIPE
 from math import sqrt, atan2, degrees
 
 import PyTango
+
+path = os.path.dirname(os.path.abspath(sys.argv[0]))
 
 POLLING = 200
 
@@ -90,8 +93,10 @@ class PyNeuroHS(PyTango.Device_4Impl):
 
     def init_device(self):
         self.info_stream('In Python init_device method')
-        self.headset = Popen(['python', 'neurohs.py', str(POLLING),
-                              #'--sim', 'neurohs_1.log'
+        neurohs_py = os.path.join(path, 'neurohs.py')
+        logfile = os.path.join(path, 'neurohs_1.log')
+        self.headset = Popen(['python', neurohs_py, str(POLLING),
+                              '--sim', logfile,
                              ], stdout=PIPE, stderr=PIPE)
         # don't move the headset while reading this
         line = None
