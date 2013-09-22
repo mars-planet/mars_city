@@ -39,6 +39,7 @@ class XPlot(object):
         pl.plot(days,xactual, 'ob')
         pl.plot(days,xforecast, '-r')
         pl.plot(days,xforecast, '.r')
+        pl.savefig('historicalplot.png')
         pl.show()
 
 if __name__ == '__main__':

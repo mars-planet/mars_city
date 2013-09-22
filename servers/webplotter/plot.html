@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="Some experiment that makes no sense.">
+    <meta name="author" content="Ezio Melotti">
+    <title>Plots and stuff</title>
+
+    <style type="text/css">
+    table#values {
+        width: 300px;
+        float: left;
+        border: 1px solid black;
+        padding: .1em;
+        font-size: .8em;
+    }
+    table#values td, table#values th {
+        width: 50%;
+        padding: .1em;
+        border: 1px solid black;
+    }
+    div#plot {
+        border: 1px solid black;
+        margin-left: 310px;
+        min-height: 600px;
+    }
+    </style>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script type="text/javascript" src="http://cachedcommons.org/cache/jqplot/0.9.7/javascripts/jqplot-min.js"></script>
+    <script type="text/javascript">
+
+$(document).ready(function() {
+    var path = window.location.pathname;
+    var ul = $('#values');
+    var plotdiv = $('#plot');
+    var first = true;
+    var data = {};
+    function plot() {
+        $.get(path+'/json', function(res) {
+            //console.log(Object.keys(res));
+            //console.log(Object.keys(res).length);
+            if (first) {
+                $.each(res, function(key, value) {
+                    ul.append('<tr><td><input type="checkbox" id="attr-' +
+                              key + '" checked>' + key + '</input></td>' +
+                              '<td id="val-' + key + '">' + value +
+                              '</td></tr>');
+                    data[key] = [value];
+                });
+                first = false;
+            }
+            else {
+                $.each(res, function(key, value) {
+                    data[key].push(value);
+                    $('#val-'+key).text(value);
+                    if (data[key].length > 30)
+                        data[key].shift();
+                });
+            }
+            var labels = [];
+            var values = [];
+            $.each(data, function(key, value) {
+                if ($('#attr-'+key).is(':checked')) {
+                    labels.push({label: key});
+                    values.push(value);
+                }
+            });
+            /* jqplot wants at least an element in values */
+            if (values.length == 0) {
+                values.push([]);
+            }
+            plotdiv.empty();
+            $.jqplot('plot', values, {
+                series: labels,
+                legend: {
+                    show: true,
+                    placement: 'outside',
+                    showSwatch: true,
+                    fontSize: '0.5em',
+                },
+            });
+            setTimeout(plot, 100);
+            //console.log(JSON.stringify(res));
+            //console.log(res.length);
+        });
+    }
+    plot();
+    $('#checkall').click(function() {
+        if ($('#checkall').is(':checked'))
+            $('input[id^=attr]:checkbox').attr('checked','checked');
+        else
+            $('input[id^=attr]:checkbox').removeAttr('checked');
+    });
+});
+    </script>
+</head>
+
+<body>
+<table id="values">
+    <tr>
+        <th><input type="checkbox" id="checkall" checked>Attribute</input></th>
+        <th>Value</th>
+    </tr>
+</table>
+<div id="plot"></div>
+
+</body>
+</html>
