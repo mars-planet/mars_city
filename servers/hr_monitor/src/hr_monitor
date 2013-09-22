@@ -6,6 +6,7 @@ from datetime import datetime
 from time import time
 from collections import defaultdict
 
+import os
 from threading import Thread, Event
 from time import sleep
 import ConfigParser
@@ -99,17 +100,19 @@ class PyDsExp(PyTango.Device_4Impl):
         while not self.stop_polling.is_set():
             try:
                 data = proxy.get_data(PyDsExp.polling_frequency)
-                for i in range(0, len(data), 4):
-                    print(data[0][i], data[1][i])
-                    timestamp = datetime.strptime(data[1][i],
-                                                  '%Y-%m-%d %H:%M:%S.%f')
-                    timestamp = float(timestamp.strftime('%s.%f'))
-                    hr = data[0][i]
-                    acc_x = data[0][i + 1]
-                    acc_y = data[0][i + 2]
-                    acc_z = data[0][i + 3]
-                    datapoint = np.array((timestamp, hr, acc_x, acc_y, acc_z))
-                    self.register_datapoint(datapoint)
+                if len(data[0]) > 0:
+                    for i in range(0, len(data), 4):
+                        print(data[0][i], data[1][i])
+                        timestamp = datetime.strptime(data[1][i],
+                                                      '%Y-%m-%d %H:%M:%S.%f')
+                        timestamp = float(timestamp.strftime('%s.%f'))
+                        hr = data[0][i]
+                        acc_x = data[0][i + 1]
+                        acc_y = data[0][i + 2]
+                        acc_z = data[0][i + 3]
+                        datapoint = np.array((timestamp, hr, acc_x,
+                                              acc_y, acc_z))
+                        self.register_datapoint(datapoint)
             except (ConnectionFailed, DevFailed):
                 print("The Aouda Server seems to be down.")
             sleep(PyDsExp.polling_frequency)
@@ -164,7 +167,9 @@ class PyDsExp(PyTango.Device_4Impl):
 
 
 config = ConfigParser.RawConfigParser()
-config.read('hr_monitor.cfg')
+dirname = os.path.dirname(os.path.abspath(sys.argv[0]))
+cfg_filename = os.path.join(dirname, 'hr_monitor.cfg')
+config.read(cfg_filename)
 PyDsExp.word_size = config.getint('Detector', 'word_size')
 PyDsExp.window_factor = config.getint('Detector', 'window_factor')
 PyDsExp.lead_window_factor = config.getint('Detector', 'lead_window_factor')
