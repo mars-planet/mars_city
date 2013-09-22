@@ -2,35 +2,38 @@
 
 import sys
 import csv
-import os
 import os.path
 import urllib
 import PyTango
-import matplotlib 
+import matplotlib
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import pylab as pl
 import numpy as np
 import datetime as dt
 from pybrain.tools.customxml.networkreader import NetworkReader
 
 savedir = os.path.dirname(os.path.abspath(sys.argv[0]))
+wwwpath = '/var/www'
+
+cmd_type = [
+    [PyTango.ArgType.DevVoid],
+    [PyTango.ArgType.DevVoid],
+    {'polling period': 60*60*1000}
+]
+
+attr_type = [
+    [PyTango.ArgType.DevFloat,
+     PyTango.AttrDataFormat.SCALAR,
+     PyTango.AttrWriteType.READ],
+    {'polling period': 20000}
+]
+
 
 class PyDevice(PyTango.DeviceClass):
-    cmd_list = {'parse_online': [[PyTango.ArgType.DevVoid],
-                         [PyTango.ArgType.DevVoid],
-                         {'polling period': 8640000}],
-                'activate_net': [[PyTango.ArgType.DevVoid],
-                         [PyTango.ArgType.DevVoid],
-                         {'polling period': 8640000}],
+    cmd_list = {
+        'parse_online': cmd_type,
+        'activate_net': cmd_type,
     }
-
-    attr_type = [
-        [PyTango.ArgType.DevFloat,
-         PyTango.AttrDataFormat.SCALAR,
-         PyTango.AttrWriteType.READ],
-        {'polling period': 20000}
-    ]
 
     attr_list = {
         'radioflux': attr_type,
@@ -126,9 +129,9 @@ class PySolarNN(PyTango.Device_4Impl):
         net = NetworkReader.readFrom(datafile)
 
         self.output_data = net.activate((input_data))
-        if (self.output_data[0]) > 4.84e-06:
+        if self.output_data[0] > 4.84e-06:
             self.xforecast = 2
-        elif (self.output_data[0]) > 3.5e-06:
+        elif self.output_data[0] > 3.5e-06:
             self.xforecast = 1
         else:
             self.xforecast = 0
@@ -142,10 +145,10 @@ class PySolarNN(PyTango.Device_4Impl):
         with open(datafile) as tf:
             for line in tf:
                 data = [x for x in line.strip().split(',') if x]
-        if (data[0] != str(today)):
+        if data[0] != str(today):
             rowdata = []
             forecast = csv.writer(open(datafile, 'a'))
-            rowdata.extend((today,self.xforecast))
+            rowdata.extend((today, self.xforecast))
             forecast.writerow(rowdata)
 
     def saveplot(self):
@@ -158,8 +161,10 @@ class PySolarNN(PyTango.Device_4Impl):
                 xforecasts.append(data[1])
                 num_lines = num_lines + 1
         days = np.linspace(1, num_lines, num_lines)
-        pl.plot(days,xforecasts, '.r')
-        pl.savefig('/var/www/xforecastplot.png')
+        pl.plot(days, xforecasts, '.r')
+        pl.plot(days, xforecasts, '-r')
+        plotpath = wwwpath + '/xforecastplot.png'
+        pl.savefig(plotpath)
 
     def read_xforecast(self, the_att):
         the_att.set_value(self.xforecast)
