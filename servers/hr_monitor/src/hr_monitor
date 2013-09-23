@@ -16,8 +16,6 @@ import numpy as np
 
 from hr_monitor import HRMonitor, DuplicatedDatapointError
 
-performance = defaultdict(list)
-
 
 class PyDsExpClass(PyTango.DeviceClass):
     cmd_list = {
