@@ -24,7 +24,6 @@ class AoudaTests(unittest.TestCase):
         cls.resolution = 1000
         cls.base_datetime = datetime.now() - timedelta(seconds=15)
         cls.data = extract_hr_acc(read_data(cls.filename, cls.base_datetime))
-        cls.data = cls.data.resample('%sL' % AoudaTests.resolution)
 
     def setUp(self):
         unittest.TestCase.setUp(self)
@@ -53,29 +52,17 @@ class AoudaTests(unittest.TestCase):
         self.assertTrue(inst.data.eq(edata).all().all(),
                         'exp: %s; act: %s' % (edata, inst.data))
 
-    def test_init_resolution(self):
-        eresolution = 2000
-        edata = self.data.resample('%sL' % eresolution)
-        inst = Aouda(dataframe=self.data, resolution=eresolution)
-
-        self.assertEqual(inst.resolution, eresolution,
-                        'exp: %s; act: %s' % (eresolution, inst.resolution))
-
-        self.assertTrue(inst.data.eq(edata).all().all(),
-                        'exp: %s; act: %s' % (edata, inst.data))
-
     def test_get_data(self):
         inst = Aouda(dataframe=self.data)
         period = 2
 
-        until = datetime.now()
-        data = inst.get_data(period)
+        data, until = inst.get_data(period)
 
         since = until - timedelta(seconds=period)
         edata = self.data[self.data.index >= since][self.data.index <= until]
 
-        self.assertEqual(len(data), len(edata),
-                        'exp: %s; act: %s' % (len(data), len(edata)))
+        self.assertEqual(len(edata), len(data),
+                        'exp: %s; act: %s' % (len(edata), len(data)))
         for i in range(len(data)):
             self.assertEqual(data[i].timestamp, edata.index[i],
                             'exp: %s; act: %s' % (data[i].timestamp,
@@ -96,6 +83,36 @@ class AoudaTests(unittest.TestCase):
     def test_get_data_no_more_data(self):
         inst = Aouda(dataframe=self.data.shift(-10, 'T'))
         self.assertRaises(NoDataAvailableError, inst.get_data, 2)
+
+    def test_get_data_shift_data(self):
+        edata = self.data.shift(-10, 'T')
+        inst = Aouda(dataframe=edata, shift_data=True)
+        period = 2
+
+        data, until = inst.get_data(period)
+        delta = (until - edata.index[0]).total_seconds()
+        edata = edata.shift(periods=int(delta), freq='S')
+        since = until - timedelta(seconds=period)
+        edata = edata[edata.index >= since][edata.index <= until]
+
+        self.assertEqual(len(edata), len(data),
+                        'exp: %s; act: %s' % (len(edata), len(data)))
+        for i in range(len(data)):
+            self.assertEqual(data[i].timestamp, edata.index[i],
+                            'exp: %s;\nact: %s' % (data[i].timestamp,
+                                                  edata.index[i]))
+            self.assertEqual(data[i].hr, edata.ix[i]['hr'],
+                            'exp: %s; act: %s' % (data[i].hr,
+                                                  edata.ix[i]['hr']))
+            self.assertEqual(data[i].acc_x, edata.ix[i]['acc_x'],
+                            'exp: %s; act: %s' % (data[i].acc_x,
+                                                  edata.ix[i]['acc_x']))
+            self.assertEqual(data[i].acc_y, edata.ix[i]['acc_y'],
+                            'exp: %s; act: %s' % (data[i].acc_y,
+                                                  edata.ix[i]['acc_y']))
+            self.assertEqual(data[i].acc_z, edata.ix[i]['acc_z'],
+                            'exp: %s; act: %s' % (data[i].acc_z,
+                                                  edata.ix[i]['acc_z']))
 
     def test_read_heart_rate(self):
         inst = Aouda(dataframe=self.data)

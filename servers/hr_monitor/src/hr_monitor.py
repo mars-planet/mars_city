@@ -20,6 +20,13 @@ from data_model import Datapoint, Alarm, Base
 from assumption_free import AssumptionFreeAA as Detector
 
 
+class DuplicatedDatapointError(Exception):
+    """
+    Signals a duplicated datapoint tried to be inserted in the database.
+    """
+    pass
+
+
 class HRMonitor(object):
     """
     Implements the HR Monitor Server Interface.
@@ -119,8 +126,7 @@ class HRMonitor(object):
             session.commit()
             Thread(target=self._generate_alarms).start()
         except IntegrityError:
-            print("Duplicated datapoint.")
-            pass
+            raise DuplicatedDatapointError()
         finally:
             session.close()
 

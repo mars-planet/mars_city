@@ -72,7 +72,7 @@ class PyDsExp(PyTango.Device_4Impl):
         ]
         """
         try:
-            data = self.aouda.get_data(period)
+            data, _ = self.aouda.get_data(period)
             ret_val = [[], []]
             for dp in data:
                 ret_val[0].append(dp.hr)
@@ -110,6 +110,7 @@ class PyDsExp(PyTango.Device_4Impl):
 
 
 if __name__ == '__main__':
+    print(sys.argv)
     print("Parsing command line arguments")
     util = PyTango.Util(sys.argv)
     print("Setting up Server")
