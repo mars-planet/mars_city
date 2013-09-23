@@ -24,20 +24,15 @@ class Aouda(object):
     """
 
     def __init__(self, dataframe=None, filename=None,
-                 resolution=None, base_datetime=None,
+                 base_datetime=None,
                  shift_data=False):
         print('Constructing Aouda')
-        if resolution is not None:
-            self.resolution = resolution  # in millisecs
-        else:
-            self.resolution = 1000  # in millisecs
         self.base_datetime = base_datetime
         print('Loading Data')
         if dataframe is not None:
             self.data = dataframe.copy()
         else:
             self.data = self._load_data(filename)
-        #self.data = self.data.resample('%sL' % self.resolution, how='mean')
         self.shift_data = shift_data
         print('Finished constructing Aouda')
 
@@ -48,21 +43,21 @@ class Aouda(object):
         data = extract_hr_acc(read_data(filename, self.base_datetime))
         return data
 
-    def _shift_data(self):
-        if self.shift_data and self.data.index[-1] <= datetime.now():
-            delta = (datetime.now() - self.data.index[0]).total_seconds()
+    def _shift_data(self, from_datetime):
+        if self.shift_data and self.data.index[-1] <= from_datetime:
+            delta = (from_datetime - self.data.index[0]).total_seconds()
             print('Shifting data % s seconds.' % delta)
             self.data = self.data.shift(periods=int(delta), freq='S')
-            print('First row now has index: %s; '
-                  + 'last row has index: %s.' % (self.data.index[0],
-                                                 self.data.index[-1]))
+            #print('First row now has index: %s; '
+            #      + 'last row has index: %s.' % (self.data.index[0]
+            #                                     self.data.index[-1]))
 
     def get_data(self, period):
         """
         Returns an array with all datapoints in the last period seconds.
         """
-        self._shift_data()
         until = datetime.now()
+        self._shift_data(until)
         since = until - timedelta(seconds=period)
         filtered_data = self.data[self.data.index >= since]
         filtered_data = filtered_data[filtered_data.index <= until]
@@ -72,7 +67,7 @@ class Aouda(object):
                 datum = Aouda.DP(index, row['hr'], row['acc_x'],
                               row['acc_y'], row['acc_z'])
                 ret_val.append(datum)
-            return ret_val
+            return ret_val, until
         else:
             raise NoDataAvailableError()
 
@@ -80,6 +75,7 @@ class Aouda(object):
         """
         Returns a row from the data such that row.index <= datetime.now().
         """
+        self._shift_data(datetime.now())
         current_row = self.data[self.data.index <= datetime.now()]
         if len(current_row) > 0:
             current_row = current_row.ix[-1]

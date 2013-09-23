@@ -14,7 +14,7 @@ import PyTango
 from PyTango import ArgType, DeviceProxy, ConnectionFailed, DevFailed
 import numpy as np
 
-from hr_monitor import HRMonitor
+from hr_monitor import HRMonitor, DuplicatedDatapointError
 
 performance = defaultdict(list)
 
@@ -100,7 +100,7 @@ class PyDsExp(PyTango.Device_4Impl):
                         datapoint = np.array((timestamp, hr, acc_x,
                                               acc_y, acc_z))
                         self.register_datapoint(datapoint)
-            except (ConnectionFailed, DevFailed):
+            except (ConnectionFailed, DevFailed, AttributeError):
                 print("The Aouda Server seems to be down.")
             sleep(PyDsExp.polling_frequency)
 
@@ -112,7 +112,10 @@ class PyDsExp(PyTango.Device_4Impl):
         timestamp = datetime.fromtimestamp(args[0])
         new_args = args.tolist()
         new_args[0] = timestamp
-        self.hr_mon.register_datapoint(*new_args)
+        try:
+            self.hr_mon.register_datapoint(*new_args)
+        except DuplicatedDatapointError:
+            print("Duplicated datapoint.")
 ############### END register_datapoint ########################################
 
 ############### BEGIN get_avg_hr ##############################################
@@ -136,7 +139,6 @@ class PyDsExp(PyTango.Device_4Impl):
         return self.get_state() == PyTango.DevState.ON
 
     def get_current_alarms(self, period):
-        global performance
         alarms = self.hr_mon.get_current_alarms(period)
         if alarms:
             ret_val = [(a.alarm_lvl,

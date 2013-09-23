@@ -16,7 +16,7 @@ import os
 
 sys.path.append("../../")
 
-from src.hr_monitor import HRMonitor
+from src.hr_monitor import HRMonitor, DuplicatedDatapointError
 from src.data_model import Datapoint, Alarm, Base
 
 
@@ -111,10 +111,12 @@ class HRMonitorTests(unittest.TestCase):
 
         self.assertEqual(eresolution, inst.resolution)
         self.assertAlmostEqual(float(datetime.now().strftime('%s.%f')),
-                               float(inst.last_alarm_timestamp.strftime('%s.%f')),
+                               float(inst.last_alarm_timestamp
+                                         .strftime('%s.%f')),
                                2)
         self.assertAlmostEqual(float(datetime.now().strftime('%s.%f')),
-                               float(inst.last_detection_timestamp.strftime('%s.%f')),
+                               float(inst.last_detection_timestamp
+                                         .strftime('%s.%f')),
                                2)
 
         eword_size = 10
@@ -162,10 +164,12 @@ class HRMonitorTests(unittest.TestCase):
         self.assertEqual(eengine, inst.engine)
         self.assertEqual(eresolution, inst.resolution)
         self.assertAlmostEqual(float(datetime.now().strftime('%s.%f')),
-                               float(inst.last_alarm_timestamp.strftime('%s.%f')),
+                               float(inst.last_alarm_timestamp
+                                         .strftime('%s.%f')),
                                2)
         self.assertAlmostEqual(float(datetime.now().strftime('%s.%f')),
-                               float(inst.last_detection_timestamp.strftime('%s.%f')),
+                               float(inst.last_detection_timestamp
+                                         .strftime('%s.%f')),
                                2)
 
         eword_size = 10
@@ -194,6 +198,33 @@ class HRMonitorTests(unittest.TestCase):
         session = self.Session()
         query = session.query(Datapoint)
         data = query.all()
+        session.close()
+        self.assertEqual(1, len(data))
+        self.assertEqual(etimestamp, data[0].timestamp)
+        self.assertEqual(ehr, data[0].hr)
+        self.assertEqual(eacc_x, data[0].acc_x)
+        self.assertEqual(eacc_y, data[0].acc_y)
+        self.assertEqual(eacc_z, data[0].acc_z)
+
+        del inst
+
+    def test_register_datapoint_duplicate_datapoint(self):
+        etimestamp = datetime.now()
+        ehr = 140
+        eacc_x = 0.5
+        eacc_y = -0.5
+        eacc_z = 1
+        inst = HRMonitor(engine=self.engine)
+        inst.register_datapoint(etimestamp, ehr, eacc_x, eacc_y, eacc_z)
+        self.assertRaises(DuplicatedDatapointError,
+                          inst.register_datapoint,
+                          etimestamp, ehr,
+                          eacc_x, eacc_y, eacc_z)
+
+        session = self.Session()
+        query = session.query(Datapoint)
+        data = query.all()
+        session.close()
         self.assertEqual(1, len(data))
         self.assertEqual(etimestamp, data[0].timestamp)
         self.assertEqual(ehr, data[0].hr)
@@ -218,6 +249,7 @@ class HRMonitorTests(unittest.TestCase):
         session = self.Session()
         query = session.query(Alarm)
         data = query.all()
+        session.close()
 
         escore = 0.125
         ebitmp1 = np.array([[0.,  0.,  0.,  0.],
@@ -262,6 +294,7 @@ class HRMonitorTests(unittest.TestCase):
         session = self.Session()
         query = session.query(Alarm)
         data = query.all()
+        session.close()
 
         escore = 0.125
         ebitmp1 = np.array([[0.,  0.,  0.,  0.],
