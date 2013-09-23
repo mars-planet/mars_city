@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="description" content="Some experiment that makes no sense.">
     <meta name="author" content="Ezio Melotti">
-    <title>Plots and stuff</title>
+    <title>Data plotting</title>
 
     <style type="text/css">
     table#values {
@@ -37,9 +37,10 @@ $(document).ready(function() {
     var data = {};
     function plot() {
         $.get(path+'/json', function(res) {
-            //console.log(Object.keys(res));
-            //console.log(Object.keys(res).length);
+            /* request the json data in loop */
             if (first) {
+                /* use the first json object to initialize the data object
+                   e create the table */
                 $.each(res, function(key, value) {
                     ul.append('<tr><td><input type="checkbox" id="attr-' +
                               key + '" checked>' + key + '</input></td>' +
@@ -50,9 +51,12 @@ $(document).ready(function() {
                 first = false;
             }
             else {
+                /* use the following json objects to update the values in
+                   the table and the data object */
                 $.each(res, function(key, value) {
                     data[key].push(value);
                     $('#val-'+key).text(value);
+                    // store at most 30 values for each attribute
                     if (data[key].length > 30)
                         data[key].shift();
                 });
@@ -60,12 +64,13 @@ $(document).ready(function() {
             var labels = [];
             var values = [];
             $.each(data, function(key, value) {
+                // only plot the values that are selected in the table
                 if ($('#attr-'+key).is(':checked')) {
                     labels.push({label: key});
                     values.push(value);
                 }
             });
-            /* jqplot wants at least an element in values */
+            // jqplot wants at least an element in values
             if (values.length == 0) {
                 values.push([]);
             }
@@ -79,12 +84,12 @@ $(document).ready(function() {
                     fontSize: '0.5em',
                 },
             });
+            // keep requesting data and plotting
             setTimeout(plot, 100);
-            //console.log(JSON.stringify(res));
-            //console.log(res.length);
         });
     }
     plot();
+    // if the #checkall checkbox is (un)checked, (un)check all the checkboxes
     $('#checkall').click(function() {
         if ($('#checkall').is(':checked'))
             $('input[id^=attr]:checkbox').attr('checked','checked');
