@@ -272,8 +272,8 @@ Once done, you can start the :term:`HRM` itself with:
 
    python hr_monitor [instance name]
 
-The simmulation has data available for only 45 minutes. After that the Aouda
-Server will shut down, so you'll need to start it up again.
+The simmulation has approximately 45 minutes of data. After that time it
+willll start repeating the data from the beginning.
 
 Now if you want to see the alarm levels, you can do it by starting
 the :term:`HRM` :term:`GUI`.
