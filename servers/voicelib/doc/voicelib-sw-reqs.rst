@@ -47,23 +47,27 @@ Reference Documents
 Glossary
 --------
 
-.. To create a glossary use the following code (dedent it to make it work):
-
 .. glossary::
 
-``ELIZA effect`` The human tendency to ascribe human qualities and behaviors
-  to computers or software.
+   ``ELIZA effect``
+      The human tendency to ascribe human qualities and behaviors to
+      computers or software.
 
-``ERAS C3`` European Mars Analogue Station Command, Control, and Communication
+   ``ERAS C3``
+      European Mars Analogue Station Command, Control, and Communication
 
-``EVA`` Extra-vehicular activity. Doing stuff in a space suit.
+   ``EVA``
+      Extra-vehicular activity. Doing stuff in a space suit.
 
-``HUD`` heads-up display.
+   ``HUD``
+      Heads-up display.
 
-``IMS`` Italian Mars Society.
+   ``IMS``
+      Italian Mars Society.
 
-``OeWF`` The Austrian Space Forum ("Österreichisches Weltraum Forum", auf
-  Deutsch.)
+   ``OeWF``
+      The Austrian Space Forum ("Österreichisches Weltraum Forum",
+      auf Deutsch.)
 
 .. Use the main :ref:`glossary` for general terms, and :term:`Term` to link
    to the glossary entries.
@@ -130,6 +134,7 @@ For now, advanced features (in approximately this order of priority) include
          1.
       #. Tell the rover to take a picture of the astronaut with parameter set
          2.
+
    every time a pair of pictures at a new location is desired. With the
    ability to record simple macros, the astronaut can instead tell the rover
    to 'start recording', give instructions to the rover - in the case of the
@@ -540,53 +545,56 @@ Course
 
    1. Utterances the voice interface instance is confident it understood:
 
-       1. The utterance is mapped onto an action request.
-       2. The action request gets passed on to the rover executive (planning
-          agent).
-       3. The rover executive then passes on to the voice interface
-          instance whether the request will be executed, if there's a conflict
-          and the voice interface instance should ask for
-          confirmation/clarification, or if the request cannot be completed.
-       4. Whatever action the rover planning agent takes, the voice
-          interface instance then decides appropriate feedback to pass onto
-          the user.
+      1. The utterance is mapped onto an action request.
+      2. The action request gets passed on to the rover executive (planning
+         agent).
+      3. The rover executive then passes on to the voice interface
+         instance whether the request will be executed, if there's a conflict
+         and the voice interface instance should ask for
+         confirmation/clarification, or if the request cannot be completed.
+      4. Whatever action the rover planning agent takes, the voice
+         interface instance then decides appropriate feedback to pass onto
+         the user.
 
-            1. If the request will be straightforwardly granted, a short
-              restatement including parameters (e.g. distance to move or
-              rotate, destination) will be forwarded by the voice
-              interface instance to the astronauts on :term:`EVA`.
-                * Alternately, to cut down on useless chatter, if there is
-                  some kind of :term:`HUD` indicator of what each rover on
-                  :term:`EVA` is doing (i.e. a short status summary), updating
-                  this could be a better alternative than :term:`HUD` text
-                  or synthesized speech.
-            2. If there's a conflict, the voice interface instance should
-              pass on a message (via text-in-:term:`HUD` or via synthesized
-              speech) as to what conflicts with the request (e.g. "CONFLICT:
-              Travel to <name-of- requested- destination> conflicts with
-              existing goal <goal id/description>.") and ask for confirmation
-              of the request (e.g. "CONFIRM?: Travel to <destination-name>.")
-            3. If the request cannot be complied with (due to precondition
-              violation distinct from a goal conflict), the voice interface
-              agent should pass along a message explaining as much: "REQUEST
-              DENIED: <explanation - precondition xyz violated.>"
-            4. If the request was only partially understood or understood with
-              confidence less than a to-be-experimentally-determined
-              threshold, then the voice interface instance should request
-              clarification of the remaining parameters while clarifying what
-              it already understands. For example, "Travel where?" "Move
-              forward how far?" "Track what?" "Follow who?"
+         1. If the request will be straightforwardly granted, a short
+            restatement including parameters (e.g. distance to move or
+            rotate, destination) will be forwarded by the voice
+            interface instance to the astronauts on :term:`EVA`.
+
+            * Alternately, to cut down on useless chatter, if there is
+              some kind of :term:`HUD` indicator of what each rover on
+              :term:`EVA` is doing (i.e. a short status summary), updating
+              this could be a better alternative than :term:`HUD` text
+              or synthesized speech.
+
+         2. If there's a conflict, the voice interface instance should
+            pass on a message (via text-in-:term:`HUD` or via synthesized
+            speech) as to what conflicts with the request (e.g. "CONFLICT:
+            Travel to <name-of- requested- destination> conflicts with
+            existing goal <goal id/description>.") and ask for confirmation
+            of the request (e.g. "CONFIRM?: Travel to <destination-name>.")
+         3. If the request cannot be complied with (due to precondition
+            violation distinct from a goal conflict), the voice interface
+            agent should pass along a message explaining as much: "REQUEST
+            DENIED: <explanation - precondition xyz violated.>"
+         4. If the request was only partially understood or understood with
+            confidence less than a to-be-experimentally-determined
+            threshold, then the voice interface instance should request
+            clarification of the remaining parameters while clarifying what
+            it already understands. For example, "Travel where?" "Move
+            forward how far?" "Track what?" "Follow who?"
 
    2. Utterances the voice interface instance is NOT confident it
       understood:
-       *. The voice interface instance requests clarification a limited
-          number of times:
 
-            * successful clarification puts the voice interface instance
-              back at 4.1 above.
-            * before returning to a state where it waits for a new command or
-              until the user decides to break the clarification dialog loop
-              (e.g. via "No more questions.", "Start over.", "Shut up.")
+      * The voice interface instance requests clarification a limited
+        number of times:
+
+        * successful clarification puts the voice interface instance
+          back at 4.1 above.
+        * before returning to a state where it waits for a new command or
+          until the user decides to break the clarification dialog loop
+          (e.g. via "No more questions.", "Start over.", "Shut up.")
 
 
 Postconditions

@@ -164,24 +164,29 @@ As an interface
    to master the capabilities and limitations of the voice interface library,
    whether in its early, evolving stages or its future, more sophisticated
    ones.
+
 (See reference [15].)
 
 As software,
 
 * maximizing ease of feature growth (see requirements 6-8 in [1]) by
- * making the major components (automated speech recognition, spoken language
-   understanding, dialogue management, task management, and natural language
-   generation/feedback) as modular as possible
-  * each module should have well-defined and as stable as possible core
-    methods as possible for interfacing modules to call and use;
- * making minimal unwarranted assumptions about the general planning
-   capabilities or architecture of the rover
- * not letting a lightweight system slowly build up more complexity than it
-   can handle, thus making the later move to a spoken dialogue system more
-   painful than it should be: upgrading the spoken dialogue system
-   (particularly its approach to task management/adding new domain-specific
-   agents) to handle generally complex queries and dialogue situations should
-   take priority over (over)extension of a lightweight architecture.
+
+  * making the major components (automated speech recognition, spoken language
+    understanding, dialogue management, task management, and natural language
+    generation/feedback) as modular as possible
+
+    * each module should have well-defined and as stable as possible core
+      methods as possible for interfacing modules to call and use;
+
+  * making minimal unwarranted assumptions about the general planning
+    capabilities or architecture of the rover
+  * not letting a lightweight system slowly build up more complexity than it
+    can handle, thus making the later move to a spoken dialogue system more
+    painful than it should be: upgrading the spoken dialogue system
+    (particularly its approach to task management/adding new domain-specific
+    agents) to handle generally complex queries and dialogue situations should
+    take priority over (over)extension of a lightweight architecture.
+
 * meeting the Performance Requirements outlined in [1].
 
 
