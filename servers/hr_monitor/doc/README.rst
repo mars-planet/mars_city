@@ -123,7 +123,7 @@ The components involved can be divided in five categories:
       Just a proof of concept at the moment. It allow the user to see some
       statistics provided by the :term:`HRM`. As it is, the :term:`GUI`
       can only connect to a single :term:`HRM` instance at a time, so one
-      needs to start as many :term:`GUI`s as :term:`HRM` instances one wants
+      needs to start as many :term:`GUI`\ s as :term:`HRM` instances one wants
       to oversee.
 
 
@@ -363,17 +363,19 @@ The Aouda Device Server publishes one Tango Command and two Tango Attributes:
    #. DevVarDoubleStringA get_data(DevLong period):
       Returns an array with all datapoints from last query untilthe current
       date and time.
-      The format is:
-      [
-      [hr1, acc_x1, acc_y1, acc_z1,
-       hr2, acc_x2, acc_y2, acc_z2,
-       ...
-       hrN, acc_xN, acc_yN, acc_zN],
-      [timestamp1, timestamp1, timestamp1, timestamp1,
-       timestamp2, timestamp2, timestamp2, timestamp2,
-       ...
-       timestampN, timestampN, timestampN, timestampN],
-      ]
+      The format is::
+
+         [
+            [hr1, acc_x1, acc_y1, acc_z1,
+             hr2, acc_x2, acc_y2, acc_z2,
+             ...
+             hrN, acc_xN, acc_yN, acc_zN],
+            [timestamp1, timestamp1, timestamp1, timestamp1,
+             timestamp2, timestamp2, timestamp2, timestamp2,
+             ...
+             timestampN, timestampN, timestampN, timestampN],
+         ]
+
    #. DevFloat heart_rate - scalar, read-only:
       Returns the instantaneous heart rate. The underlying device's
       sampling frequency is 9Hz.
@@ -415,13 +417,13 @@ the values explained above, the following variables:
          It affects the length of features used to detect anomalies.
       #. window_factor:
          Also affects the length of the features, each feature comprises
-         window_factor * word_size datapoints.
+         window_factor \* word_size datapoints.
       #. lead_window_factor
          Affects the length of the lead window, which consists of
-         window_factor * word_size datapoints *lead_window_factor datapoints.
+         window_factor \* word_size datapoints \* lead_window_factor datapoints.
       #. lag_window_factor
          Affects the length of the lag window, which consists of
-         window_factor * word_size datapoints *lag_window_factor datapoints.
+         window_factor \* word_size datapoints \* lag_window_factor datapoints.
    #. [Monitor]:
 
       #. resolution:
