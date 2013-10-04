@@ -3,7 +3,6 @@
 from __future__ import division, print_function
 import sys
 from datetime import datetime
-from collections import defaultdict
 
 import os
 from threading import Thread, Event
@@ -11,7 +10,8 @@ from time import sleep
 import ConfigParser
 
 import PyTango
-from PyTango import ArgType, DeviceProxy, ConnectionFailed, DevFailed
+from PyTango import ArgType, AttrDataFormat, AttrWriteType
+from PyTango import DeviceProxy, ConnectionFailed, DevFailed
 import numpy as np
 
 from hr_monitor import HRMonitor, DuplicatedDatapointError
@@ -37,7 +37,12 @@ class PyDsExpClass(PyTango.DeviceClass):
                                 + " seconds, and corresponding timestamps"]],
                 }
 
-    attr_list = {}
+    attr_list = {
+                 'alarm_lvl': [[ArgType.DevFloat,
+                                 AttrDataFormat.SCALAR,
+                                 AttrWriteType.READ],
+                                {'polling period': 2000}]
+                 }
 
     def __init__(self, name):
         print('Constructing PyDsExpClass')
@@ -101,6 +106,18 @@ class PyDsExp(PyTango.Device_4Impl):
             except (ConnectionFailed, DevFailed, AttributeError):
                 print("The Aouda Server seems to be down.")
             sleep(PyDsExp.polling_frequency)
+
+############## BEGIN alarm_lvl ################################################
+    def is_alarm_lvl_allowed(self, req_type):
+        return self.get_state() == PyTango.DevState.ON
+
+    def read_alarm_lvl(self, the_att):
+        last_alarms = self.hr_mon.get_current_alarms(4)
+        self.alarm_lvl = np.nan
+        if len(last_alarms) > 0:
+            self.alarm_lvl = last_alarms[-1].alarm_lvl
+        the_att.set_value(self.alarm_lvl)
+############### END alarm_lvl #################################################
 
 ############## BEGIN register_datapoint #######################################
     def is_register_datapoint_allowed(self):
