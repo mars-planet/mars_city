@@ -3,6 +3,7 @@ Implements the Aouda Suit Server Interface.
 """
 from __future__ import division, print_function
 
+import gc
 from datetime import datetime, timedelta
 from collections import namedtuple
 
@@ -40,17 +41,14 @@ class Aouda(object):
         """
         Loads hr and acc data into a pandas.DataFrame from a dataset file.
         """
-        data = extract_hr_acc(read_data(filename, self.base_datetime))
-        return data
+        return extract_hr_acc(read_data(filename, self.base_datetime))
 
     def _shift_data(self, from_datetime):
         if self.shift_data and self.data.index[-1] <= from_datetime:
             delta = (from_datetime - self.data.index[0]).total_seconds()
             print('Shifting data % s seconds.' % delta)
             self.data = self.data.shift(periods=int(delta), freq='S')
-            #print('First row now has index: %s; '
-            #      + 'last row has index: %s.' % (self.data.index[0]
-            #                                     self.data.index[-1]))
+            gc.collect()
 
     def get_data(self, period):
         """
@@ -61,15 +59,18 @@ class Aouda(object):
         since = until - timedelta(seconds=period)
         filtered_data = self.data[self.data.index >= since]
         filtered_data = filtered_data[filtered_data.index <= until]
-        if len(filtered_data) > 0:
-            ret_val = []
-            for index, row in filtered_data.iterrows():
-                datum = Aouda.DP(index, row['hr'], row['acc_x'],
-                              row['acc_y'], row['acc_z'])
-                ret_val.append(datum)
-            return ret_val, until
-        else:
-            raise NoDataAvailableError()
+        ret_val = []
+        try:
+            if len(filtered_data) > 0:
+                for index, row in filtered_data.iterrows():
+                    datum = Aouda.DP(index, row['hr'], row['acc_x'],
+                                  row['acc_y'], row['acc_z'])
+                    ret_val.append(datum)
+                return ret_val, until
+            else:
+                raise NoDataAvailableError()
+        finally:
+            del filtered_data
 
     def _get_instantaneos_values(self):
         """
