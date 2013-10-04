@@ -4,6 +4,7 @@ from __future__ import division, print_function
 import sys
 import os
 from datetime import datetime
+import ConfigParser
 
 import PyTango
 from PyTango import ArgType, AttrDataFormat, AttrWriteType
@@ -45,10 +46,12 @@ class PyDsExp(PyTango.Device_4Impl):
 
     def init_device(self):
         print('Initializing device')
-        dirname = os.path.dirname(os.path.abspath(sys.argv[0]))
-        dirname = os.path.join(dirname, 'data_tests')
-        filename = os.path.join(dirname, 'dataset.dat')
-        self.aouda = Aouda(filename=filename, shift_data=True)
+        if len(PyDsExp.data_file_path) == 0:
+            dirname = os.path.dirname(os.path.abspath(sys.argv[0]))
+            dirname = os.path.join(dirname, 'data_tests')
+            PyDsExp.data_file_path = os.path.join(dirname, 'dataset.dat')
+        self.aouda = Aouda(filename=PyDsExp.data_file_path,
+                           shift_data=PyDsExp.cycle_through_data)
         self.set_state(PyTango.DevState.ON)
         print('Finished initializing device')
 
@@ -107,6 +110,17 @@ class PyDsExp(PyTango.Device_4Impl):
         print("read_acc_magn")
         the_att.set_value(acc_magn)
 ############### END acc_magn ##################################################
+
+
+print("Reading configuration file")
+config = ConfigParser.RawConfigParser()
+dirname = os.path.dirname(os.path.abspath(sys.argv[0]))
+cfg_filename = os.path.join(dirname, 'aouda.cfg')
+config.read(cfg_filename)
+PyDsExp.cycle_through_data = config.getboolean('Data', 'cycle_through_data')
+PyDsExp.data_file_path = config.get('Data', 'data_file_path')
+if len(PyDsExp.data_file_path) > 0:
+    PyDsExp.data_file_path = os.path.join(dirname, PyDsExp.data_file_path)
 
 
 if __name__ == '__main__':
