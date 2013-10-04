@@ -24,6 +24,12 @@
         margin-left: 310px;
         min-height: 600px;
     }
+    div#settings {
+        border: 1px solid black;
+        margin-left: 310px;
+        margin-top: 1em;
+        padding: 1em;
+    }
     </style>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
     <script type="text/javascript" src="http://cachedcommons.org/cache/jqplot/0.9.7/javascripts/jqplot-min.js"></script>
@@ -35,6 +41,14 @@ $(document).ready(function() {
     var plotdiv = $('#plot');
     var first = true;
     var data = {};
+
+    function read_option(select_id) {
+        return parseInt($('#' + select_id + ' option:selected')[0].value);
+    }
+    var maxvalues = read_option('maxvalues');
+    var polling = read_option('polling');
+
+
     function plot() {
         $.get(path+'/json', function(res) {
             /* request the json data in loop */
@@ -56,8 +70,8 @@ $(document).ready(function() {
                 $.each(res, function(key, value) {
                     data[key].push(value);
                     $('#val-'+key).text(value);
-                    // store at most 30 values for each attribute
-                    if (data[key].length > 30)
+                    // store at most *maxvalues* values for each attribute
+                    if (data[key].length > maxvalues)
                         data[key].shift();
                 });
             }
@@ -85,10 +99,27 @@ $(document).ready(function() {
                 },
             });
             // keep requesting data and plotting
-            setTimeout(plot, 100);
+            setTimeout(plot, polling);
         });
     }
     plot();
+
+    $('#polling').change(function () {
+        polling = read_option('polling');
+    });
+    $('#maxvalues').change(function () {
+        var oldvalues = maxvalues;
+        maxvalues = read_option('maxvalues');
+        if (oldvalues > maxvalues) {
+            var diff = oldvalues - maxvalues;
+            $.each(data, function (key, value) {
+                value.splice(0, diff);
+            });
+        }
+    });
+
+
+
     // if the #checkall checkbox is (un)checked, (un)check all the checkboxes
     $('#checkall').click(function() {
         if ($('#checkall').is(':checked'))
@@ -108,6 +139,25 @@ $(document).ready(function() {
     </tr>
 </table>
 <div id="plot"></div>
+<div id="settings">
+<p>Update values every <select id="polling">
+    <option value="10000">10s</option>
+    <option value="5000">5s</option>
+    <option value="2000">2s</option>
+    <option value="1000" selected>1s</option>
+    <option value="500">500ms</option>
+    <option value="200">200ms</option>
+    <option value="100">100ms</option>
+</select>.</p>
+<p>Plot the last <select id="maxvalues">
+    <option value="50">50</option>
+    <option value="40">40</option>
+    <option value="30" selected>30</option>
+    <option value="20">20</option>
+    <option value="10">10</option>
+    <option value="5">5</option>
+</select> values.</p>
+</div>
 
 </body>
 </html>

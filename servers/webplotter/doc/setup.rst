@@ -31,6 +31,9 @@ The Web Plotter will keep reading data from the Tango server and plot
 them in real time.  You can select which attributes are plotted by
 checking/unchecking them in the list of attributes.
 
+It is also possible to select how often the graph is updated and how
+many values are displayed by selecting the desired values under the graph.
+
 
 Troubleshooting
 ===============
@@ -41,3 +44,6 @@ After you started the server you will have to refresh the page.
 
 If the values stop being updated, verify that the server is still
 running and then try to refresh the page.
+
+If the plotting is slowing down the browser/pc, try to select a longer
+update interval or a smaller number of displayed values.
