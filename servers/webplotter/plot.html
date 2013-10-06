@@ -32,7 +32,7 @@
     }
     </style>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-    <script type="text/javascript" src="http://cachedcommons.org/cache/jqplot/0.9.7/javascripts/jqplot-min.js"></script>
+    <script type="text/javascript" src="http://cdn.jsdelivr.net/jqplot/1.0.8/jquery.jqplot.js"></script>
     <script type="text/javascript">
 
 $(document).ready(function() {
@@ -92,7 +92,7 @@ $(document).ready(function() {
             $.jqplot('plot', values, {
                 series: labels,
                 legend: {
-                    show: true,
+                    show: false, // keep it disabled for now
                     placement: 'outside',
                     showSwatch: true,
                     fontSize: '0.5em',
