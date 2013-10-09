@@ -23,7 +23,8 @@ def simple_app(environ, start_response):
         attrs = dict((attr, device[attr].value)
                      for attr in device.get_attribute_list()
                      if attr not in {'Status', 'State'})
-        start_response('200 OK', [('Content-Type', 'text/json')])
+        start_response('200 OK', [('Content-Type', 'text/json'),
+                                  ('Cache-Control', 'no-cache')])
         return json.dumps(attrs)
 
     elif path == '/':
