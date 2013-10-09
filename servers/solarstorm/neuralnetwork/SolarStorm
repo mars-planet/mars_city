@@ -141,7 +141,7 @@ class PySolarNN(PyTango.Device_4Impl):
 
     def savecsv(self):
         today = dt.date.today()
-        datafile = savedir + '/xforecast.csv'
+        datafile = wwwpath + '/xforecast.csv'
         with open(datafile) as tf:
             for line in tf:
                 data = [x for x in line.strip().split(',') if x]
@@ -154,7 +154,7 @@ class PySolarNN(PyTango.Device_4Impl):
     def saveplot(self):
         num_lines = 0
         xforecasts = []
-        datafile = savedir + '/xforecast.csv'
+        datafile = wwwpath + '/xforecast.csv'
         with open(datafile) as tf:
             for line in tf:
                 data = [x for x in line.strip().split(',') if x]
