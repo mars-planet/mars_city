@@ -1,6 +1,11 @@
 import re
 import json
+import socket
 import PyTango
+
+# give up if no answer is received after 5s
+# this seems to avoid hanging of the server in case of broken pipes
+socket.setdefaulttimeout(5)
 
 devices = {}
 data = []
