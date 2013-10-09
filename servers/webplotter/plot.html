@@ -32,12 +32,19 @@
     }
     </style>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-    <!--[if IE]><script type="text/javascript" src="http://cdn.jsdelivr.net/excanvas/r3/excanvas.compiled.js"></script><![endif]-->
-    <script type="text/javascript" src="http://cachedcommons.org/cache/jqplot/0.9.7/javascripts/jqplot-min.js"></script>
     <!--
-    jqplot 1.0.2 <= x <= 1.0.8 leaks an crashes firefox, so keep using 0.9
-    <script type="text/javascript" src="http://cdn.jsdelivr.net/jqplot/1.0.8/jquery.jqplot.js"></script>
+    On IE <canvas> doesn't work, and excanvas works only with jqplot 1.0.8
+    On Firefox jqplot 1.0.2 <= x <= 1.0.8 leaks and makes Firefox crash
     -->
+
+    <!--[if IE]>
+    <script type="text/javascript" src="http://cdn.jsdelivr.net/excanvas/r3/excanvas.compiled.js"></script>
+    <script type="text/javascript" src="http://cdn.jsdelivr.net/jqplot/1.0.8/jquery.jqplot.js"></script>
+    <![endif]-->
+
+    <!--[if !IE]>-->
+    <script type="text/javascript" src="http://cachedcommons.org/cache/jqplot/0.9.7/javascripts/jqplot-min.js"></script>
+    <!--<![endif]-->
     <script type="text/javascript">
 
 $(document).ready(function() {
