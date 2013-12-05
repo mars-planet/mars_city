@@ -7,10 +7,6 @@ import PyTango
 import RPi.GPIO as GPIO
 from time import sleep
 
-Reps = 400                  # 2000 Hz cycle time, so Reps=400 is 0.2s for each percentage ON
-Hertz = 2000                # Cycle time. You can tweak this, Max 3000
-Freq = (1 / float(Hertz)) - 0.0003           # run_motor loop code takes 0.0003s
-
 class PyDevice(PyTango.DeviceClass):
     cmd_list = {'start': [[PyTango.ArgType.DevVoid],
                           [PyTango.ArgType.DevVoid]],
@@ -22,7 +18,7 @@ class PyDevice(PyTango.DeviceClass):
         [PyTango.ArgType.DevFloat,
          PyTango.AttrDataFormat.SCALAR,
          PyTango.AttrWriteType.READ],
-        {'polling period': 400}
+        {'polling period': 100}
     ]
     attr_list = {
         'translate_speed': attr_type,
@@ -36,6 +32,7 @@ class PyDevice(PyTango.DeviceClass):
 
 class PyTrevor(PyTango.Device_4Impl):
     def __init__(self, cl, name):
+	self.arrows = PyTango.DeviceProxy('C3/GUI/arrow')
         self.devices = {}
         PyTango.Device_4Impl.__init__(self, cl, name)
         self.info_stream('In PyTrevor.__init__')
@@ -44,8 +41,8 @@ class PyTrevor(PyTango.Device_4Impl):
     def __del__(self):
         print ("destructor")
 	# switch MotorB/A off
-	GPIO.output (19, 1)
-	GPIO.output (24, 1)
+	GPIO.output (19, 0)
+	GPIO.output (24, 0)
 	GPIO.output (21, 0)
 	GPIO.output (26, 0)
 	GPIO.cleanup()              # reset all ports
@@ -55,20 +52,73 @@ class PyTrevor(PyTango.Device_4Impl):
 
     def stop(self):
 	# switch MotorB and MotorA \off
-	GPIO.output (19, 1)
-	GPIO.output (24, 1)
+	GPIO.output (19, 0)
+	GPIO.output (24, 0)
 	GPIO.output (21, 0)
 	GPIO.output (26, 0)
         print 'stop'
         
-
     def move(self, speed):
         self.translate_speed = float(speed[0])
         self.rotate_speed = float(speed[1])
         print 'move with translate_speed and rotate_speed values:', self.translate_speed, self.rotate_speed
-	pulse_width = translate_speed * Freq           # define exact pulse width
-        time_period = Freq - (Freq * translate_speed)  # sleep period needed to get required Hz
-        run_motor(Reps, pulse_width, 21, 24, time_period)
+
+    def read_translate_speed(self, the_att):
+        self.translate_speed = self.arrows['translate_speed'].value
+        the_att.set_value(self.traslate_speed)
+        #print 'translate_speed', self.translate_speed
+
+    def read_rotate_speed(self, the_att):
+        self.translate_speed = self.arrows['translate_speed'].value
+        self.rotate_speed = self.arrows['rotate_speed'].value
+        the_att.set_value(self.rotate_speed)
+        #print 'rotate_speed', self.rotate_speed
+
+	port_numAforw=26
+	port_numAback=21
+	port_numBforw=24
+	port_numBback=19
+        if self.translate_speed == 0:
+            GPIO.output(port_numAforw, 0)     # switch port off
+            GPIO.output(port_numBforw, 0)     # switch port off
+            GPIO.output(port_numAback, 0)     # switch port off
+            GPIO.output(port_numBback, 0)     # switch port off
+	else:
+            if self.translate_speed > 0:
+	        if  self.rotate_speed == 0: 
+                        GPIO.output(port_numAforw, 1)      # switch port on
+            		GPIO.output(port_numAback, 0)     # switch port off
+                        GPIO.output(port_numBforw, 1)      # switch port on
+            		GPIO.output(port_numBback, 0)     # switch port off
+	        else:
+	            if  self.rotate_speed < 0: 
+                        GPIO.output(port_numAforw, 1)      # switch port on
+                        GPIO.output(port_numAback, 0)      # switch port off
+                        GPIO.output(port_numBforw, 0)      # switch port off
+            		GPIO.output(port_numBback, 1)     # switch port on
+                    else:
+                        GPIO.output(port_numAforw, 0)      # switch port off
+                        GPIO.output(port_numAback, 1)      # switch port on
+                        GPIO.output(port_numBforw, 1)      # switch port on
+            		GPIO.output(port_numBback, 0)     # switch port off
+            else:
+	        if  self.rotate_speed == 0: 
+            		GPIO.output(port_numAforw, 0)     # switch port off
+                        GPIO.output(port_numAback, 1)      # switch port on
+            		GPIO.output(port_numBforw, 0)     # switch port off
+                        GPIO.output(port_numBback, 1)      # switch port on
+	        else:
+	            if  self.rotate_speed < 0: 
+                        GPIO.output(port_numAforw, 0)      # switch port off
+                        GPIO.output(port_numAback, 1)      # switch port on
+                        GPIO.output(port_numBforw, 1)      # switch port on
+                        GPIO.output(port_numBback, 0)      # switch port off
+                    else:
+                        GPIO.output(port_numAforw, 1)      # switch port on
+                        GPIO.output(port_numAback, 0)      # switch port off
+                        GPIO.output(port_numBforw, 0)      # switch port off
+                        GPIO.output(port_numBback, 1)      # switch port on
+
 
     def init_device(self):
         self.info_stream('In Python init_device method')
@@ -84,12 +134,10 @@ class PyTrevor(PyTango.Device_4Impl):
 	GPIO.setup(24, GPIO.OUT)
 	GPIO.setup(26, GPIO.OUT)
 	# switch MotorB and MotorA \off
-	GPIO.output (19, 1)
-	GPIO.output (24, 1)
+	GPIO.output (19, 0)
+	GPIO.output (24, 0)
 	GPIO.output (21, 0)
 	GPIO.output (26, 0)
-
-
 
 
 if __name__ == '__main__':
@@ -100,15 +148,4 @@ if __name__ == '__main__':
     U.server_init()
     U.server_run()
 
-def run_motor(Reps, pulse_width, port_numA, port_numB, time_period):
-    try:                                     # try: except:, traps errors
-        for i in range(0, Reps):
-            GPIO.output(port_numA, 1)      # switch port on
-            GPIO.output(port_numB, 0)      # switch port on
-            sleep(pulse_width)               # make sure pulse stays on for correct time
-            GPIO.output(port_numA, 0)     # switch port off
-            GPIO.output(port_numB, 1)     # switch port off
-            sleep(time_period)               # time_period for port OFF defined in run_loop
-    except KeyboardInterrupt:                # reset all ports used by this program if CTRL-C pressed
-        GPIO.cleanup()
 
