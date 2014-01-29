@@ -1,0 +1,88 @@
+#!/usr/bin/python
+from __future__ import division, print_function
+
+import sys
+import os.path
+from subprocess import Popen, PIPE
+
+import PyTango
+
+path = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+POLLING = 200
+
+class PyDevice(PyTango.DeviceClass):
+    cmd_list = {}
+    attr_type = [
+        [PyTango.ArgType.DevFloat,
+         PyTango.AttrDataFormat.SCALAR,
+         PyTango.AttrWriteType.READ],
+        {'polling period': POLLING}
+    ]
+    attr_list = {
+        'translate_speed': attr_type,
+        'rotate_speed': attr_type,
+    }
+
+    def __init__(self, name):
+        PyTango.DeviceClass.__init__(self, name)
+        self.set_type("GyroDevice")
+
+
+class PyGyro(PyTango.Device_4Impl):
+    def __init__(self, cl, name):
+        self.devices = {}
+        PyTango.Device_4Impl.__init__(self, cl, name)
+        self.info_stream('In Gyro.__init__')
+        PyGyro.init_device(self)
+
+    def read_translate_speed(self, the_att):
+        direction = self.headset.stdout.readline().strip()
+        print(direction)
+        if direction == 'RIGHT':
+            self.translate_speed = 1
+            self.rotate_speed = -1
+        elif direction == 'LEFT':
+            self.translate_speed = 1
+            self.rotate_speed = 1
+        elif direction == 'FORWARD':
+            self.translate_speed = 1
+            self.rotate_speed = 0
+        elif direction == 'BACKWARD':
+            self.translate_speed = -1
+            self.rotate_speed = 0
+        elif direction == 'STOP':
+            self.translate_speed = 0
+            self.rotate_speed = 0
+
+        the_att.set_value(self.translate_speed)
+
+    def read_rotate_speed(self, the_att):
+        the_att.set_value(self.rotate_speed)
+
+    def init_device(self):
+        self.info_stream('In Python init_device method')
+        self.set_state(PyTango.DevState.ON)
+        gyro_py = os.path.join(path, 'gyro.py')
+        print('Starting gyro.py...', end=' ')
+        sys.stdout.flush()
+        self.headset = Popen(['python', gyro_py, str(POLLING)],
+                             stdout=PIPE, stderr=PIPE)
+        print('[done]')
+        # don't move the headset while reading this
+        line = None
+        while line != '-----':
+            line = self.headset.stdout.readline().strip()
+            if line:
+                print('line ', line)
+        self.set_state(PyTango.DevState.ON)
+
+
+
+if __name__ == '__main__':
+    util = PyTango.Util(sys.argv)
+    util.add_class(PyDevice, PyGyro)
+
+    U = PyTango.Util.instance()
+    U.server_init()
+    U.server_run()
