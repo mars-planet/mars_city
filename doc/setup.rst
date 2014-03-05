@@ -4,7 +4,7 @@ Tango Setup
 .. highlightlang:: sh
 
 This page documents how to install Tango on Ubuntu.  These instructions
-have been tested on Ubuntu 13.04.
+have been tested on Ubuntu 13.10.
 
 MySQL
 -----
@@ -23,7 +23,10 @@ Tango
 
 After installing MySQL you can install tango::
 
-  sudo apt-get install tango-common tango-db tango-starter tango-test python-pytango libtango7-doc libtango7-dev
+  sudo apt-get install tango-common tango-db tango-starter tango-test python-pytango libtango8-doc libtango8-dev
+
+If you are still using Ubuntu 13.04 you should use ``libtango7-*`` instead of
+``libtango8-*``.
 
 During the installation of **tango-common**, enter ``pcname:10000`` as
 TANGO host, where *pcname* is the name of your machine.
@@ -42,8 +45,24 @@ repositories, you can add the launchpad repository manually::
     sudo apt-get install libtango-java
 
 
+If you get this warning during the ``sudo apt-get update``::
+
+    W: GPG error: http://ppa.launchpad.net precise Release: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY A8780D2D6B2E9D50
+
+and/or this warning during the ``sudo apt-get install libtango-java``::
+
+    WARNING: The following packages cannot be authenticated!
+        libtango-java
+    Install these packages without verification [y/N]?
+
+you can fix it by doing::
+
+    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A8780D2D6B2E9D50
+    sudo apt-key update
+    sudo apt-get update
+
 .. note::
-    Currently the repository doesn't have packages for *quantal*/*raring*,
+    Currently the repository doesn't have packages for *quantal*/*raring*/*saucy*,
     so it is necessary to specify *precise* even if you are running a more
     recent version.
     If you use ``sudo add-apt-repository ppa:tango-controls/core``, your
@@ -95,9 +114,9 @@ If you are still having problem you can try the following things:
     sudo /etc/init.d/tango-db start
     sudo /etc/init.d/tango-starter start
 
-Fix for Ubuntu 13.xx
+Fix for Ubuntu 13.04
 --------------------
-If you are running on Ubuntu 13.xx you have to install this patch in order to avoid a Segmentation fault (core dumped) at every python server run.
+If you are running on Ubuntu 13.04 you have to install this patch in order to avoid a Segmentation fault (core dumped) at every python server run.
 Install first libboost-python-dev::
 
     sudo apt-get install libboost-python-dev
