@@ -89,8 +89,7 @@ function update_canvas() {
         setTimeout(update_canvas, 100);
         console.log(JSON.stringify(res));
     }).fail(function() {
-        alert('Lost communication with server.\nPress OK to retry.');
-        setTimeout(update_canvas, 100);
+        alert('Lost communication with server.\nPress F5 to retry.');
     });
 };
 
