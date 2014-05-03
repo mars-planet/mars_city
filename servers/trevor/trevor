@@ -65,7 +65,7 @@ class PyTrevor(PyTango.Device_4Impl):
 
     def read_translate_speed(self, the_att):
         self.translate_speed = self.arrows['translate_speed'].value
-        the_att.set_value(self.traslate_speed)
+        the_att.set_value(self.translate_speed)
         #print 'translate_speed', self.translate_speed
 
     def read_rotate_speed(self, the_att):

@@ -135,8 +135,7 @@ contain the following:
 * a ``doc`` directory containing:
     - ``index.rst`` that contains the toctree for the server docs.
     - ``xxx.rst`` that includes generic documentation for ``xxx.py``.
-    - ``swrs.rst`` User Requirements Specification for ``xxx.py``.
-    - ``swds.rst`` Design Study for ``xxx.py``.
+    - ``sad.rst`` Software Architecture Document for ``xxx.py``.
     - ``swum.rst`` User and Maintenance Manual for ``xxx.py``.
 * possibly additional files required by the server/client.
 
@@ -290,9 +289,8 @@ distribution and publishing on the web.
 Manuals
 -------
 Software documentation must cover the entire software process, from the
-Requirements phase (User Requirements Specification) to the Design
-(Design Study) to the User documentation (Software User Manual and
-Software Maintenance Manual).
+Software Architecture definition phase (Software Architecture Document)
+to the User documentation (Software User Manual and Software Maintenance Manual).
 The documents should go under configuration control in the software repository
 within the software package.
 All the documentation is written in `reStructuredText

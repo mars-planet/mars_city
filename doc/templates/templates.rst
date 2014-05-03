@@ -4,7 +4,6 @@ Templates
 .. toctree::
    :maxdepth: 2
 
-   swrs-template
-   swds-template
+   sad-template
    swum-template
 
