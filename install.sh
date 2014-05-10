@@ -38,16 +38,16 @@ sudo restart ssh
 echo "done installing ssh daemon"
 
 echo "--------------------------------------------------------------------"
-echo "Tango Installtion"
+echo "Tango Installation"
 echo "--------------------------------------------------------------------"
-echo "Installing dependences"
+echo "Installing dependencies"
 sleep 1
 echo "The current PyTango version has three major dependencies:"
 echo "Boost-python"
 sudo apt-get install --yes libboost-python-dev
-echo "Numpy installtion"
+echo "Numpy installation"
 sudo apt-get install --yes python-numpy
-echo "IPython Installtion"
+echo "IPython Installation"
 sudo apt-get install --yes ipython
 
 echo "--------------------------------------------------------------------"
@@ -89,5 +89,5 @@ sudo easy_install ffnet
 echo "Done installing ffnet"
 echo ""
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-echo "Successfull installed all the neccessary packages of ERAS Project"
+echo "Successfully installed all the neccessary packages of ERAS Project"
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"

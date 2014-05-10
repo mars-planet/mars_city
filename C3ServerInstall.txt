@@ -4,7 +4,7 @@ Installing ERAS project in ubuntu 12.04
 
 -> Please refer to the "Setup" page in the documentation for updated instructions.
 
--> With automated shell script "install.sh" you can skip the first 5 steps, it installs the necessary packages realted to this project. 
+-> With automated shell script "install.sh" you can skip the first 5 steps, it installs the necessary packages realated to this project. 
 Just run "sh install.sh" 
 
 
@@ -24,14 +24,14 @@ sudo apt-get install  default-jdk
 sudo apt-get install openssh-server
 sudo restart ssh
 
-5) Tango Installtion :
-	- Installing dependences :
+5) Tango Installation :
+	- Installing dependencies :
 		 The current PyTango version has three major dependencies:
 		    - Boost-python :
 		   	    sudo apt-get install libboost-python-dev
-	   		- Numpy installtion :
+	   		- Numpy installation :
 	   	    	sudo apt-get install python-numpy
-	   	    - IPython Installtion (optional) :
+	   	    - IPython Installation (optional) :
 	   	    	sudo apt-get install ipython
 
 
