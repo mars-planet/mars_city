@@ -49,12 +49,12 @@ def record():
 
     #plays beep
 
-all = []
-for i in range(0, RATE / chunk * RECORD_SECONDS):
-    data = stream.read(chunk)
-    all.append(data)
+   all = []
+   for i in range(0, RATE / chunk * RECORD_SECONDS):
+       data = stream.read(chunk)
+       all.append(data)
 
-#plays low beep
+   #plays low beep
     print "* done recording"
 
     stream.close()
