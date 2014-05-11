@@ -23,13 +23,23 @@ def record():
                     frames_per_buffer=chunk)
 
     print "* recording"
+<<<<<<< local
     frames = []
     for i in range(0, RATE / chunk * RECORD_SECONDS):
         data = stream.read(chunk)
         #stores data into list "frames"
         frames.append(data)
+=======
+
+    #plays beep
+
+   all = []
+   for i in range(0, RATE / chunk * RECORD_SECONDS):
+       data = stream.read(chunk)
+       all.append(data)
 
    #plays low beep
+>>>>>>> other
     print "* done recording"
     stream.close()
     p.terminate()
