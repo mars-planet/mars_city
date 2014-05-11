@@ -1,26 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-#
-#  speechrecognition(pep8).py
-#
-#  Copyright 2014 Shridhar Mishra <shridhar@shridhar>
-#
-#  This program is free software; you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation; either version 2 of the License, or
-#  (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-#  MA 02110-1301, USA.
-#
-#
 import sys
 from pocketsphinx import Decoder
 import pyaudio
@@ -46,22 +23,17 @@ def record():
                     frames_per_buffer=chunk)
 
     print "* recording"
-
-    #plays beep
-
-all = []
-for i in range(0, RATE / chunk * RECORD_SECONDS):
-    data = stream.read(chunk)
-    all.append(data)
-
-#plays low beep
+    frames = []
+    for i in range(0, RATE / chunk * RECORD_SECONDS):
+        data = stream.read(chunk)
+        #stores data into list "frames"
+        frames.append(data)
     print "* done recording"
-
     stream.close()
     p.terminate()
 
     # write data to WAVE file
-    data = ''.join(all)
+    data = ''.join(frames)
     wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
     wf.setnchannels(CHANNELS)
     wf.setsampwidth(p.get_sample_size(FORMAT))
@@ -85,16 +57,19 @@ if __name__ == "__main__":
     os.system("aplay beep_hi.wav")
     record()
     os.system("aplay beep_lo.wav")
-    wavfile = "/home/shridhar/gsoc/pocketsphinxtest/livewav.wav"
+    sysdir = os.getcwd()
+    wavfile = sysdir+"/livewav.wav"
 
     speechRec = Decoder(hmm=hmdir, lm=lmdir, dict=dictd)
-    wavFile = file(wavfile, 'rb')
-    speechRec.decode_raw(wavFile)
-    ##print speechRec
-    result = speechRec.get_hyp()
+    with file(wavfile, 'rb') as wavFile:
+        speechRec.decode_raw(wavFile)
+        result = speechRec.get_hyp()
+    #wavFile = file(wavfile , 'rb')
+    #speechRec.decode_raw(wavFile)
+    ###print speechRec
+    #result = speechRec.get_hyp()
 
-    ##print "popat"
-print "Recognised text from the converted video file"
+print "Recognised text from recorded file"
 
 print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 print result[0]
