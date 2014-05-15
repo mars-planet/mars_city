@@ -27,6 +27,9 @@ Robot Operating System, a set of software libraries and tools very useful in bui
 A robust physics engine with high-quality graphics, useful for more realistic simulations to test the behaviour of robot in different settings
 
 ###Overview
+This package will provide high-level access via TANGO to simulate Trevor in Gazebo using C++ plugins with Python and TANGO bindings. It will also contain files required to correctly use the simulator.
+The package may be expanded to include the files required for ROS integration also.
+
 This document is divided into several parts.
 
 1. For a typical __User__, the sections [Interface Requirements](#interface-requirements), and [Performance Requirements](#performance-requirements) are of primary interest
@@ -46,7 +49,10 @@ Working knowledge of [ROS](#ros), [TANGO](#tango), [Gazebo](#gazebo), as well as
 * Security: ROS uses no authentication methods, so, [TANGO](), developed in collboration with ESRF, would have to accomodate for this
 
 ###Functional requirements _(use case view)_
-@TODO
+Include things like 
+* availability of ROS-agnoistic packages
+* overloading of some functions of ROS to publish/receive messages to enable the packages unknowingly using ROS format to achieve the same through TANGO device servers
+* availability of messages to move the simulated Trevor
 
 ***
 ##Interface Requirements
@@ -54,13 +60,15 @@ Working knowledge of [ROS](#ros), [TANGO](#tango), [Gazebo](#gazebo), as well as
 ###User Interfaces
 The user can(or rather would be able to) use ROS libraries with TANGO just as without TANGO, except with a few changes.
 
-Similar usage with Gazebo is expected. It would likely be able to be used just like EUROPA, a standalone plugin to existing software stack
+Similar usage with Gazebo is expected. It would likely be able to be used just like EUROPA, a standalone plugin for existing software stack. 
+
+It would require modifications to be used without the sotware stack, but its presence would not affect the overall functionality of the software stack
 
 ###GUI
 No seperate GUI is provided except from the existing ones by ROS and Gazebo. Qt is heavily used by them
 
 ###CLI
-No seperate CLI is to be created(as of now), though the CLI commands for ROS and Gazebo would be available for use, except for several commands which involve ROS_MASTER
+No seperate CLI is to be created due to no foreseeable use.
 
 ###API
 Maybe non-existant @TODO
@@ -75,10 +83,26 @@ None
 None, apart from the exising interfaces for running TANGO
 
 ***
-##Perfirmance Requirements
+##Performance Requirements
+Gazebo has two modes:
+
+1. With GUI
+2. Headless, without GUI
+
+Running Gazebo headless impairs its visual functionality, however, all plugins work fine (testing to be done for camera plugins).
+
+On the other hand, headlesss is suitable for machines with low computational power since extra computations must be done for rendering the simulation in the GUI mode, which would be done only for the sensors in case of a headless run.
 
 ***
 ##Logical View
+Each feature of the robot is implemented through an independant plugin, eg: 
+
+* Move the catterpillar drive robot
+* Pan/Zoom the camera
+* Actuate the gripper
+* Report the temperature, humidity, etc.
+
+The feature may be a sensor or an actuator. The actuators have a bare basic model (for GUI mode) covered by a high definition STL to reduce computational load on the simulator. The sensors on the other hand are sometime modeled by only a dot.
 
 ###Layers
 
@@ -88,9 +112,11 @@ None, apart from the exising interfaces for running TANGO
 
 ***
 ##Implementation View
+![Image for Implementation View](./implementation_view.jpg)
 
 ***
 ##Deployment View
+![Image for Deployment View](./deployment_view.jpg)
 
 ***
 ##Development & Test Factors
