@@ -95,6 +95,10 @@ On the other hand, headlesss is suitable for machines with low computational pow
 
 ***
 ##Logical View
+Gazebo is used to replace an actual device whose mathematical model is known and check if the simulation matches with the actual observations
+
+It is not used for say, finding out the flow of fluid through some device, but rather used for simulating the device given the flow through a model as a replacement for the actual hardware.
+
 Each feature of the robot is implemented through an independant plugin, eg: 
 
 * Move the catterpillar drive robot
@@ -104,7 +108,16 @@ Each feature of the robot is implemented through an independant plugin, eg:
 
 The feature may be a sensor or an actuator. The actuators have a bare basic model (for GUI mode) covered by a high definition STL to reduce computational load on the simulator. The sensors on the other hand are sometime modeled by only a dot.
 
+As a result, hardware-in-loop simulation is achieved easily by enabling or disabling the required plugins
+
 ###Layers
+1. Top Layer: 3D environment changing with time, allowing us to view the STL
+2. The simpler models(like cylinders, spheres for more complex surfaces) covered by the STL
+3. Mathematical model, used for solving differential equations required for modelling the above models and rendering the images for the top layer
+4. Plugins to update the model parameters, pose (x,y,z; r,p,y), forces, torques, constraints, etc. of each of the models. The plugins would be in C++
+5. A method to control the plugins, say via TANGO Events/Requests. The events/requests can be sent via a Python/Java/C++ interface
+6. An independant user/autonomous program to send the required data for simulation and store/view/use the results
+
 
 ###Sub-systems
 
