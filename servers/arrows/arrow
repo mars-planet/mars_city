@@ -53,6 +53,7 @@ class PyArrow(PyTango.Device_4Impl):
     	else: # char == -1 if timeout on stdscr
             self.translate_speed=0
 	    self.rotate_speed=0
+
         the_att.set_value(self.translate_speed)
 
     def read_rotate_speed(self, the_att):
@@ -63,10 +64,6 @@ class PyArrow(PyTango.Device_4Impl):
         self.set_state(PyTango.DevState.ON)
 	self.translate_speed = 0
 	self.rotate_speed = 0
-
-	# preferred method to run curses is via wrapper, but it also invloves using threads
-	# curses.wrapper(self.run())
-
         # get the curses stdscr window
         self.stdscr = curses.initscr()
         # turn off input echoing
@@ -77,26 +74,6 @@ class PyArrow(PyTango.Device_4Impl):
         curses.halfdelay(1)
         # map arrow keys to special values
         self.stdscr.keypad(True)
-
-    def run(self):	# redundant function, not used as of now
-        char = self.stdscr.getch()
-        if char == curses.KEY_RIGHT:
-	    self.translate_speed=1
-            self.rotate_speed=-1
-        elif char == curses.KEY_LEFT:
-            self.translate_speed=1
-	    self.rotate_speed=1
-        elif char == curses.KEY_UP:
-	    self.translate_speed=1
-	    self.rotate_speed=0
-        elif char == curses.KEY_DOWN:
-	    self.translate_speed=-1
-	    self.rotate_speed=0
-        else: # char == -1 if timeout on stdscr
-	    self.translate_speed=0
-	    self.rotate_speed=0
-
-
 
 if __name__ == '__main__':
     util = PyTango.Util(sys.argv)
