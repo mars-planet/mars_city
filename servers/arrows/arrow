@@ -33,27 +33,26 @@ class PyArrow(PyTango.Device_4Impl):
     def __del__(self):
         print ("destructor")
         # shut down curses cleanly
-        curses.nocbreak(); screen.keypad(0); curses.echo()
+        curses.nocbreak(); self.stdscr.keypad(0); curses.echo()
         curses.endwin()
 
     def read_translate_speed(self, the_att):
-        char = self.screen.getch()
-        if char == curses.KEY_RIGHT:
-            self.translate_speed=1
-            self.rotate_speed=-1
-        elif char == curses.KEY_LEFT:
-            self.translate_speed=1
-            self.rotate_speed=1
-        elif char == curses.KEY_UP:
+	char = self.stdscr.getch()
+	if char == curses.KEY_RIGHT:
+	    self.translate_speed=1
+	    self.rotate_speed=-1
+	elif char == curses.KEY_LEFT:
+	    self.translate_speed=1
+	    self.rotate_speed=1
+	elif char == curses.KEY_UP:
             self.translate_speed=1
             self.rotate_speed=0
-        elif char == curses.KEY_DOWN:
-            self.translate_speed=-1
-            self.rotate_speed=0
-	else:
+	elif char == curses.KEY_DOWN:
+	    self.translate_speed=-1
+	    self.rotate_speed=0
+    	else: # char == -1 if timeout on stdscr
             self.translate_speed=0
-            self.rotate_speed=0	    
-
+	    self.rotate_speed=0
         the_att.set_value(self.translate_speed)
 
     def read_rotate_speed(self, the_att):
@@ -62,14 +61,41 @@ class PyArrow(PyTango.Device_4Impl):
     def init_device(self):
         self.info_stream('In Python init_device method')
         self.set_state(PyTango.DevState.ON)
-	# get the curses screen window
-	self.screen = curses.initscr()
-	# turn off input echoing
-	curses.noecho()
-	# respond to keys immediately (don't wait for enter)
-	curses.cbreak()
-	# map arrow keys to special values
-	self.screen.keypad(True)
+	self.translate_speed = 0
+	self.rotate_speed = 0
+
+	# preferred method to run curses is via wrapper, but it also invloves using threads
+	# curses.wrapper(self.run())
+
+        # get the curses stdscr window
+        self.stdscr = curses.initscr()
+        # turn off input echoing
+        curses.noecho()
+        # respond to keys immediately (don't wait for enter)
+        curses.cbreak()
+        # wait for sometime, and then timeout
+        curses.halfdelay(1)
+        # map arrow keys to special values
+        self.stdscr.keypad(True)
+
+    def run(self):	# redundant function, not used as of now
+        char = self.stdscr.getch()
+        if char == curses.KEY_RIGHT:
+	    self.translate_speed=1
+            self.rotate_speed=-1
+        elif char == curses.KEY_LEFT:
+            self.translate_speed=1
+	    self.rotate_speed=1
+        elif char == curses.KEY_UP:
+	    self.translate_speed=1
+	    self.rotate_speed=0
+        elif char == curses.KEY_DOWN:
+	    self.translate_speed=-1
+	    self.rotate_speed=0
+        else: # char == -1 if timeout on stdscr
+	    self.translate_speed=0
+	    self.rotate_speed=0
+
 
 
 if __name__ == '__main__':
