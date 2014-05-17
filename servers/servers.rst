@@ -6,6 +6,7 @@ Tango Servers
    :maxdepth: 2
 
    neurohs/doc/index
+   health_monitor/doc/index
    hr_monitor/doc/index
    solarstorm/doc/index
    webplotter/doc/index
