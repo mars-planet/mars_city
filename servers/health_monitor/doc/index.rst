@@ -6,5 +6,4 @@ Health Monitor Server
    :maxdepth: 1
 
    README
-   swrs
-   swds
+   sad
