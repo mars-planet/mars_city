@@ -66,6 +66,7 @@ class PyArrow(PyTango.Device_4Impl):
 	self.rotate_speed = 0
         # get the curses stdscr window
         self.stdscr = curses.initscr()
+ 
         # turn off input echoing
         curses.noecho()
         # respond to keys immediately (don't wait for enter)
@@ -74,6 +75,8 @@ class PyArrow(PyTango.Device_4Impl):
         curses.halfdelay(1)
         # map arrow keys to special values
         self.stdscr.keypad(True)
+
+
 
 if __name__ == '__main__':
     util = PyTango.Util(sys.argv)
