@@ -1,89 +1,109 @@
-#Software Architecture Document for ROS, Gazebo integration with Tango Controls
+==============================================================================
+Software Architecture Document for ROS, Gazebo integration with Tango Controls
+==============================================================================
 
-> __Author:__ Kunal Tyagi
+:Author: Kunal Tyagi
 
-***
-##Change Record
+Change Record
+=============
 
-***
-##Introduction
+Introduction
+============
 
-###Purpose
+Purpose
+-------
 This document is intended to detail for developers and Users of the ERAS Tango Controls and other ERAS C3 components what changes the control system would undergo during integration with ROS and Gazebo, and what new features it has (or will have) as well as known issues and work left. 
 
-###Scope
+Scope
+-----
 This requirements specification is intended to cover a software library and associated documentation.
 
-###Applicable Documents
+Applicable Documents
+--------------------
 
-###Reference Documents
+Reference Documents
+-------------------
 
-###Glossary
-####TANGO
+Glossary
+--------
+
+``TANGO``
 TANGO Control, an Object Oriented Distributed Control System using CORBA and Zeromq, used as primary Control System by ERAS
-####ROS
+
+``ROS``
 Robot Operating System, a set of software libraries and tools very useful in building and controlling devices, especially Robots
-####Gazebo
+
+``Gazebo``
 A robust physics engine with high-quality graphics, useful for more realistic simulations to test the behaviour of robot in different settings
 
-###Overview
+Overview
+--------
 This package will provide high-level access via TANGO to simulate Trevor in Gazebo using C++ plugins with Python and TANGO bindings. It will also contain files required to correctly use the simulator.
 The package may be expanded to include the files required for ROS integration also.
 
 This document is divided into several parts.
 
-1. For a typical __User__, the sections [Interface Requirements](#interface-requirements), and [Performance Requirements](#performance-requirements) are of primary interest
-2. For a __Beginner__, the section [Logical View](#logical-view) covers most of the information required to get started on their contributions.
-3. For a __Developer__, [Architectural Requirements](#architectural-requirements) and [Implementation View](#implementation-view) are of high importance
-4. For __Maintainers__, [Deployment View](#deployment-view) and [Development & Test Factors](development-test-factors) are a must-read apart from the aforementioned sections
+1. For a typical __User__, the sections Interface Requirements, and Performance Requirements are of primary interest
+2. For a __Beginner__, the section Logical View covers most of the information required to get started on their contributions.
+3. For a __Developer__, Architectural Requirements and Implementation View are of high importance
+4. For __Maintainers__, Deployment View and Development & Test Factors are a must-read apart from the aforementioned sections
 
 PS: Start from 1 and make your way down towards any higher number
 
-***
-##Architectural Requirements
-Working knowledge of [ROS](#ros), [TANGO](#tango), [Gazebo](#gazebo), as well as expertise in Build System, and Makefiles is a must
+Architectural Requirements
+==========================
+Working knowledge of ROS, TANGO, Gazebo, as well as expertise in Build System, and Makefiles is a must
 
-###Non-functional Requirements
-* [ROS]() is independantly developed, and has an evolving build system. As a result, several features need to be modified with a new release of ROS, though most of the code is expected to work fine with only regular updates to API required to hanfle the upgrading process
-* [Gazebo]() is independantly developed, and has undergone several changes in its API, and expected to go many more. It is mostly developed by the same community as ROS, so changes will be uniformly spread over these 2 softwares. Also, Python API is in developement, so currently, only C++ API would be used here
-* Security: ROS uses no authentication methods, so, [TANGO](), developed in collboration with ESRF, would have to accomodate for this
+Non-functional Requirements
+---------------------------
+* ROS is independantly developed, and has an evolving build system. As a result, several features need to be modified with a new release of ROS, though most of the code is expected to work fine with only regular updates to API required to hanfle the upgrading process
+* Gazebo is independantly developed, and has undergone several changes in its API, and expected to go many more. It is mostly developed by the same community as ROS, so changes will be uniformly spread over these 2 softwares. Also, Python API is in developement, so currently, only C++ API would be used here
+* Security: ROS uses no authentication methods, so, TANGO developed in collboration with ESRF, would have to accomodate for this
 
-###Functional requirements _(use case view)_
+Functional requirements _(use case view)_
+-----------------------------------------
 Include things like 
 * availability of ROS-agnoistic packages
 * overloading of some functions of ROS to publish/receive messages to enable the packages unknowingly using ROS format to achieve the same through TANGO device servers
 * availability of messages to move the simulated Trevor
 
-***
-##Interface Requirements
+Interface Requirements
+======================
 
-###User Interfaces
+User Interfaces
+---------------
 The user can(or rather would be able to) use ROS libraries with TANGO just as without TANGO, except with a few changes.
 
 Similar usage with Gazebo is expected. It would likely be able to be used just like EUROPA, a standalone plugin for existing software stack. 
 
 It would require modifications to be used without the sotware stack, but its presence would not affect the overall functionality of the software stack
 
-###GUI
+GUI
+---
 No seperate GUI is provided except from the existing ones by ROS and Gazebo. Qt is heavily used by them
 
-###CLI
+CLI
+---
 No seperate CLI is to be created due to no foreseeable use.
 
-###API
+API
+---
 Maybe non-existant @TODO
 
-###Hardware Interfaces
+Hardware Interfaces
+-------------------
 None
 
-###Software Interfaces
+Software Interfaces
+-------------------
 None
 
-###Communication Interfaces
+Communication Interfaces
+------------------------
 None, apart from the exising interfaces for running TANGO
 
-***
-##Performance Requirements
+Performance Requirements
+========================
 Gazebo has two modes:
 
 1. With GUI
@@ -93,8 +113,8 @@ Running Gazebo headless impairs its visual functionality, however, all plugins w
 
 On the other hand, headlesss is suitable for machines with low computational power since extra computations must be done for rendering the simulation in the GUI mode, which would be done only for the sensors in case of a headless run.
 
-***
-##Logical View
+Logical View
+============
 Gazebo is used to replace an actual device whose mathematical model is known and check if the simulation matches with the actual observations
 
 It is not used for say, finding out the flow of fluid through some device, but rather used for simulating the device given the flow through a model as a replacement for the actual hardware.
@@ -110,7 +130,8 @@ The feature may be a sensor or an actuator. The actuators have a bare basic mode
 
 As a result, hardware-in-loop simulation is achieved easily by enabling or disabling the required plugins
 
-###Layers
+Layers
+------
 1. Top Layer: 3D environment changing with time, allowing us to view the STL
 2. The simpler models(like cylinders, spheres for more complex surfaces) covered by the STL
 3. Mathematical model, used for solving differential equations required for modelling the above models and rendering the images for the top layer
@@ -119,47 +140,61 @@ As a result, hardware-in-loop simulation is achieved easily by enabling or disab
 6. An independant user/autonomous program to send the required data for simulation and store/view/use the results
 
 
-###Sub-systems
+Sub-systems
+-----------
 
-###Use Case Realizations
+Use Case Realizations
+---------------------
 
-***
-##Implementation View
-![Image for Implementation View](./implementation_view.jpg)
+Implementation View
+===================
+.. image:: implementation_view.jpg
 
-***
-##Deployment View
-![Image for Deployment View](./deployment_view.jpg)
+Deployment View
+=================
+.. image:: deployment_view.jpg
 
-***
-##Development & Test Factors
+Development & Test Factors
+==========================
 
-###Hardware Limitations
+Hardware Limitations
+--------------------
 
-###Software Validation & Verification
+Software Validation & Verification
+----------------------------------
 
-###Planning
+Planning
+--------
 
-***
-##Notes
+Notes
+=====
 
-***
-##Appendix A: Use Case template
+Appendix A: Use Case template
+=============================
 
-###Use Case: <Name>
+Use Case: Name
+----------------
 
-####Actors
+Actors
+~~~~~~
 
-####Priority
+Priority
+~~~~~~~~
 
-####Preconditions
+Preconditions
+~~~~~~~~~~~~~
 
-####Basic Course
+Basic Course
+~~~~~~~~~~~~
 
-####Alternate Course
+Alternate Course
+~~~~~~~~~~~~~~~~
 
-####Exception Course
+Exception Course
+~~~~~~~~~~~~~~~~
 
-####Postconditions
+Postconditions
+~~~~~~~~~~~~~~
 
-####Notes
+Notes
+~~~~~
