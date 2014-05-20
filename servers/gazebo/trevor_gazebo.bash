@@ -13,8 +13,8 @@ ROOT_UID=0     # Only users with $UID 0 have root privileges.
 E_ROOT=85      # Root exit error
 E_ARG=86       # Unnecessary arguments provided
 
-# if run as root, echo a warning and exit. Change he behaviour if required
-if [ "$UID" -ne "$ROOT_ID" ]
+# if run as root, echo a warning and exit. Change the behaviour if required
+if [ "$UID" = "$ROOT_ID" ]
 then
     echo "Being a root is not required. Continuing ... "
     exit $E_ROOT
@@ -23,11 +23,13 @@ fi
 # test is come command line argument is given
 if [ -n "$1" ]
 then
-    echo "Usage: `basename $0`"
+    echo "Usage: source `basename $0`"
     # `basename $0` is the script's filename
-    echo "No arguments required"
+    echo "PS: 'source' is required. But no arguments required"
     exit $E_ARG
 fi
+
+echo "Setting up CLI environment" 
 
 export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:$ERAS_DIR/servers/gazebo/models/
 
