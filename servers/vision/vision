@@ -65,8 +65,8 @@ class PyVision(PyTango.Device_4Impl):
         self.set_state(PyTango.DevState.ON)
 
         # Start running the camera thread
-        self.cameo = camera.Cameo()
-        cam_thread = threading.Thread(target=cameo.start,args=(self,))
+        self.cameo = camera.Cameo(left_channel="sample_video/dots/left.avi",right_channel="sample_video/dots/right.avi")
+        cam_thread = threading.Thread(target=self.cameo.start,args=(self,))
         cam_thread.start()
 
         self.translate_speed = 0

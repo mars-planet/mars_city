@@ -5,21 +5,22 @@ import Queue
 
 class Cameo(object):
     
-    def __init__(self):
-
+    def __init__(self, left_channel=0, right_channel=1):
 
         self._windowManager = WindowManager('Preview Window',self.onKeypress)
 
+
         # Capture Video Streams for the left and right cameras
         self._leftCaptureManager = CaptureManager(
-            cv2.VideoCapture(0), self._windowManager, True, channel = 1)
+            cv2.VideoCapture(left_channel), self._windowManager, True, channel = 0)
 
         self._rightCaptureManager = CaptureManager(
-            cv2.VideoCapture(1), self._windowManager, True, channel = 2)
+            cv2.VideoCapture(right_channel), self._windowManager, True, channel = 1)
 
 
     def start(self, device):
         """ Run `start` from Tango """
+        self.device = device
 
         #Start Video Stream Loop
         self.run()
