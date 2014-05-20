@@ -1,6 +1,7 @@
 import cv2
 from managers import WindowManager, CaptureManager
 from depth import DepthTracker
+from object_tracker import ObjectTrackerManager 
 
 class Cameo(object):
     
@@ -16,6 +17,7 @@ class Cameo(object):
         self._rightCaptureManager = CaptureManager(
             cv2.VideoCapture(right_channel), True, channel = 1)
 
+        self._objectTrackerManager = ObjectTrackerManager(self._leftCaptureManager)
 
     def start(self, device):
         """ Run `start` from Tango """
@@ -35,10 +37,11 @@ class Cameo(object):
             self._rightCaptureManager.enterFrame()
             right_frame = self._rightCaptureManager.frame
 
-            depth_frame=DepthTracker.computeDepthField(left_frame,right_frame, ndisparities=16, SADWindowSize=25);  
+            # Compute disparity
+            disparity_frame=DepthTracker.computeDisparity(left_frame,right_frame, ndisparities=16, SADWindowSize=25);  
 
             # Display depth field                 
-            self._windowManager.show(depth_frame)
+            self._windowManager.show(disparity_frame)
     
             self._leftCaptureManager.exitFrame()
             self._rightCaptureManager.exitFrame()
