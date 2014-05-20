@@ -1,7 +1,6 @@
 import cv2
 from managers import WindowManager, CaptureManager
 from depth import DepthTracker
-import Queue
 
 class Cameo(object):
     
@@ -12,10 +11,10 @@ class Cameo(object):
 
         # Capture Video Streams for the left and right cameras
         self._leftCaptureManager = CaptureManager(
-            cv2.VideoCapture(left_channel), self._windowManager, True, channel = 0)
+            cv2.VideoCapture(left_channel), True, channel = 0)
 
         self._rightCaptureManager = CaptureManager(
-            cv2.VideoCapture(right_channel), self._windowManager, True, channel = 1)
+            cv2.VideoCapture(right_channel), True, channel = 1)
 
 
     def start(self, device):
@@ -36,12 +35,15 @@ class Cameo(object):
             self._rightCaptureManager.enterFrame()
             right_frame = self._rightCaptureManager.frame
 
-            # depth_frame=DepthTracker.computeDepthField(left_frame,right_frame);  uncomment once we get two actual webcams (minoru)  
-                    
+            depth_frame=DepthTracker.computeDepthField(left_frame,right_frame, ndisparities=16, SADWindowSize=25);  
+
+            # Display depth field                 
+            self._windowManager.show(depth_frame)
+    
             self._leftCaptureManager.exitFrame()
             self._rightCaptureManager.exitFrame()
             self._windowManager.processEvents()
-    
+
     def onKeypress(self, keycode):
         """Handle a keypress.
         

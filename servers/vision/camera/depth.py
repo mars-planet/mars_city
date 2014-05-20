@@ -1,23 +1,15 @@
 import cv2
+import numpy as np
 
 class DepthTracker(object):
 
     @staticmethod
-    def computeDepthField(imgL, imgR):
+    def computeDepthField(imgL, imgR, ndisparities=16, SADWindowSize=25):
         """Compute the depth image, given the left and right image."""
-        window_size = 3
-        min_disp = 16
-        num_disp = 112-min_disp
-        stereo = cv2.StereoSGBM(minDisparity = min_disp,
-            numDisparities = num_disp,
-            SADWindowSize = window_size,
-            uniquenessRatio = 10,
-            speckleWindowSize = 100,
-            speckleRange = 32,
-            disp12MaxDiff = 1,
-            P1 = 8*3*window_size**2,
-            P2 = 32*3*window_size**2,
-            fullDP = False
-        )
 
-        return stereo.compute(imgL, imgR).astype(np.float32) / 16.0
+        stereo = cv2.StereoBM(cv2.STEREO_BM_BASIC_PRESET,ndisparities=ndisparities, SADWindowSize=SADWindowSize)
+            
+        gray_left = cv2.cvtColor(imgL, cv2.COLOR_BGR2GRAY)
+        gray_right = cv2.cvtColor(imgR, cv2.COLOR_BGR2GRAY)
+
+        return (stereo.compute(gray_left, gray_right).astype(np.float32)-32) / 25.0

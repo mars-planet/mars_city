@@ -8,8 +8,6 @@ class CaptureManager(object):
     def __init__(self, capture, previewWindowManager = None,
                  shouldMirrorPreview = False, channel = 0):
         
-        self.previewWindowManager = previewWindowManager
-        self.shouldMirrorPreview = shouldMirrorPreview
         
         self._capture = capture
         self._channel = channel
@@ -74,14 +72,6 @@ class CaptureManager(object):
             timeElapsed = time.time() - self._startTime
             self._fpsEstimate =  self._framesElapsed / timeElapsed
         self._framesElapsed += 1
-        
-        # Draw to the window, if any.
-        if self.previewWindowManager is not None:
-            if self.shouldMirrorPreview:
-                mirroredFrame = numpy.fliplr(self._frame).copy()
-                self.previewWindowManager.show(mirroredFrame)
-            else:
-                self.previewWindowManager.show(self._frame)
         
         # Write to the image file, if any.
         if self.isWritingImage:
