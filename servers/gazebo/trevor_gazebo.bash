@@ -29,7 +29,7 @@ then
     exit $E_ARG
 fi
 
-export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:$ERAS_DIR/models/
+export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:$ERAS_DIR/servers/gazebo/models/
 
 # required soon: a plugin path, somewhere the lib*.so files would reside
 # NB: the lib*.so files are made from C++ files and required for Gazebo to run properly

@@ -1,7 +1,7 @@
 <?xml version='1.0'?>
 
 <sdf version="1.4">
-    <model name="trevor_base">
+    <model name="base">
         <pose>0 0 0.1 0 0 0</pose> <!-- dimensions are measured from the center of the model-->
         <static>false</static>
 
