@@ -47,6 +47,7 @@ Installation
 ~~~~~~~~~~~~
 
 ::
+
    Manual installation
    cd pocketsphinx-0.8
    configure; make; sudo make install
@@ -58,15 +59,20 @@ Installation
    sudo apt-get install python-pocketsphinx
    sudo apt-get install pocketsphinx-hmm-wsj1
    sudo apt-get install pocketsphinx-lm-wsj
+   
 
 4. Speechrecognition(pep8).py
-==========================
+=============================
+Input
+~~~~~
 
-Input==>  voice recording of 3 seconds
-Output==> Recorded wav file of 3 seconds called livewav.wav
-          Speech is recognised from the wav file and text is displayed on the terminal.
+Voice recording of 3 seconds.
+
+Output
+~~~~~~
+
+Recorded wav file of 3 seconds called livewav.wav
+Speech is recognised from the wav file and text is displayed on the terminal.
  
-
-
 
 
