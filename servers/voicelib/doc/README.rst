@@ -59,11 +59,12 @@ Installation
    sudo apt-get install pocketsphinx-hmm-wsj1
    sudo apt-get install pocketsphinx-lm-wsj
 
-speechrecognition(pep8).py
+Speechrecognition(pep8).py
+==========================
 
-Input:voice recording of 3 seconds
-output:Recorded wav file of 3 seconds called livewav.wav
-       Speech is recognised from the wav file and text is displayed on the terminal.
+Input==>  voice recording of 3 seconds
+Output==> Recorded wav file of 3 seconds called livewav.wav
+          Speech is recognised from the wav file and text is displayed on the terminal.
  
 
 
