@@ -34,7 +34,10 @@
                     </box>
                 </geometry>
                 <material>
-                    <script>Gazebo/Purple</script>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Blue</name>
+                    </script>
                 </material>
             </visual>
         </link>
@@ -66,7 +69,10 @@
                     </box>
                 </geometry>
                 <material>
-                    <script>Gazebo/Red</script>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Red</name>
+                    </script>
                 </material>
             </visual>
         </link>
@@ -98,7 +104,10 @@
                     </box>
                 </geometry>
                 <material>
-                    <script>Gazebo/Blue</script>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Yellow</name>
+                    </script>
                 </material>
             </visual>
         </link>
@@ -130,7 +139,10 @@
                     </box>gedit ~/.gazebo/models/my_gripper/simple_gripper.sdf
                 </geometry>
                 <material>
-                    <script>Gazebo/Blue</script>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Yellow</name>
+                    </script>
                 </material>
             </visual>
         </link>
@@ -162,7 +174,10 @@
                     </box>
                 </geometry>
                 <material>
-                    <script>Gazebo/Green</script>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Green</name>
+                    </script>
                 </material>
             </visual>
         </link>
@@ -194,7 +209,10 @@
                     </box>
                 </geometry>
                 <material>
-                    <script>Gazebo/Green</script>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Green</name>
+                    </script>
                 </material>
             </visual>
         </link>
