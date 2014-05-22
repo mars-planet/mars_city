@@ -59,7 +59,7 @@ Installation
    sudo apt-get install pocketsphinx-hmm-wsj1
    sudo apt-get install pocketsphinx-lm-wsj
 
-Speechrecognition(pep8).py
+4. Speechrecognition(pep8).py
 ==========================
 
 Input==>  voice recording of 3 seconds
