@@ -1,42 +1,43 @@
-<?xml version='1.0'?>
+<?xml version="1.0"?>
 
 <sdf version="1.4">
     <model name="base">
-        <pose>0 0 0.1 0 0 0</pose> <!-- dimensions are measured from the center of the model-->
+        <pose>0 0 0.25 0 0 0</pose> <!-- dimensions are measured from the center of the model-->
         <static>false</static>
 
         <link name="chassis">
             <inertial>
-                <mass>1.0</mass>
-                <inertia> <!-- interias are tricky to compute -->
-                    <!-- http://answers.gazebosim.org/question/4372/the-inertia-matrix-explained/ -->
-                    <ixx>0.00415</ixx>     <!-- for a box: ixx = 0.083 * mass * (y*y + z*z) -->
-                    <ixy>0.0</ixy>         <!-- for a box: ixy = 0 -->
-                    <ixz>0.0</ixz>         <!-- for a box: ixz = 0 -->
-                    <iyy>0.01411</iyy>     <!-- for a box: iyy = 0.083 * mass * (x*x + z*z) -->
-                    <iyz>0.0</iyz>         <!-- for a box: iyz = 0 -->
-                    <izz>0.0166</izz>      <!-- for a box: izz = 0.083 * mass * (x*x + y*y) -->
+                <mass>20</mass>
+		<pose>-0.1 0 -0.1 0 0 0</pose>
+                <inertia>
+                    <!-- http://en.wikipedia.org/wiki/List_of_moment_of_inertia_tensors -->
+                    <ixx>0.5</ixx>
+                    <ixy>0.0</ixy>
+                    <ixz>0.0</ixz>
+                    <iyy>1</iyy>
+                    <iyz>0.0</iyz>
+                    <izz>0.1</izz>
                 </inertia>
             </inertial>
             <collision name="chassis_collision">
                 <geometry>
                     <box>
-                        <size>.4 .2 .1</size>
+                        <size>2 1 0.3</size>
                     </box>
                 </geometry>
             </collision>
             <visual name="chassis_visual">
                 <geometry>
                     <box>
-                        <size>.4 .2 .1</size>
+                        <size>2 1 0.3</size>
                     </box>
                 </geometry>
             </visual>
             <collision name='caster_collision'>
-                <pose>-0.15 0 -0.05 0 0 0</pose>
+                <pose>-0.8 0 -0.125 0 0 0</pose>
                 <geometry>
                     <sphere>
-                        <radius>.05</radius>
+                        <radius>.125</radius>
                     </sphere>
                 </geometry>
                 <surface>
@@ -51,20 +52,20 @@
                 </surface>
             </collision>
             <visual name='caster_visual'>
-                <pose>-0.15 0 -0.05 0 0 0</pose>
+                <pose>-0.8 0 -0.125 0 0 0</pose>
                 <geometry>
                     <sphere>
-                        <radius>.05</radius>
+                        <radius>.125</radius>
                     </sphere>
                 </geometry>
             </visual>
         </link>
         <link name="left_wheel">
-            <pose>0.1 0.13 0 0 1.5707 1.5707</pose>
+            <pose>0.8 0.6 -0.125 0 1.5707 1.5707</pose>
             <collision name="wheel_collision">
                 <geometry>
                     <cylinder>
-                        <radius>.1</radius>
+                        <radius>.125</radius>
                         <length>.05</length>
                     </cylinder>
                 </geometry>
@@ -72,18 +73,18 @@
             <visual name="wheel_visual">
                 <geometry>
                     <cylinder>
-                        <radius>.1</radius>
+                        <radius>.125</radius>
                         <length>.05</length>
                     </cylinder>
                 </geometry>
             </visual>
         </link>
         <link name="right_wheel">
-            <pose>0.1 -0.13 0 0 1.5707 1.5707</pose>
+            <pose>0.8 -0.6 -0.125 0 1.5707 1.5707</pose>
             <collision name="wheel_collision">
                 <geometry>
                     <cylinder>
-                        <radius>.1</radius>
+                        <radius>.125</radius>
                         <length>.05</length>
                     </cylinder>
                 </geometry>
@@ -91,7 +92,7 @@
             <visual name="wheel_visual">
                 <geometry>
                     <cylinder>
-                        <radius>.1</radius>
+                        <radius>.125</radius>
                         <length>.05</length>
                     </cylinder>
                 </geometry>
