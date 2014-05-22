@@ -13,7 +13,7 @@
                     <ixx>0.00415</ixx>     <!-- for a box: ixx = 0.083 * mass * (y*y + z*z) -->
                     <ixy>0.0</ixy>         <!-- for a box: ixy = 0 -->
                     <ixz>0.0</ixz>         <!-- for a box: ixz = 0 -->
-                    <iyy>0.01411</ixx>     <!-- for a box: iyy = 0.083 * mass * (x*x + z*z) -->
+                    <iyy>0.01411</iyy>     <!-- for a box: iyy = 0.083 * mass * (x*x + z*z) -->
                     <iyz>0.0</iyz>         <!-- for a box: iyz = 0 -->
                     <izz>0.0166</izz>      <!-- for a box: izz = 0.083 * mass * (x*x + y*y) -->
                 </inertia>
@@ -32,7 +32,7 @@
                     </box>
                 </geometry>
             </visual>
-	    <collision name='caster_collision'>
+            <collision name='caster_collision'>
                 <pose>-0.15 0 -0.05 0 0 0</pose>
                 <geometry>
                     <sphere>
@@ -60,7 +60,7 @@
             </visual>
         </link>
         <link name="left_wheel">
-            <pose>0.1 0.13 0.1 0 1.5707 1.5707</pose>
+            <pose>0.1 0.13 0 0 1.5707 1.5707</pose>
             <collision name="wheel_collision">
                 <geometry>
                     <cylinder>
@@ -77,9 +77,9 @@
                     </cylinder>
                 </geometry>
             </visual>
-         </link>
-	<link name="right_wheel">
-            <pose>0.1 -0.13 0.1 0 1.5707 1.5707</pose>
+        </link>
+        <link name="right_wheel">
+            <pose>0.1 -0.13 0 0 1.5707 1.5707</pose>
             <collision name="wheel_collision">
                 <geometry>
                     <cylinder>
