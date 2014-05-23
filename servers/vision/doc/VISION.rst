@@ -132,12 +132,13 @@ Class
 Definition
 ----------
 
-This class manages an incoming image stream from a single camera. 
+This class manages an incoming image stream from a single camera. With the Minoru 3D stereo camera, there will be two intances of this class active,
 
 Responsibilities
 ----------------
 
-To provide and capture images from a given camera.
+* To provide and capture images from a given camera channel.
+
 
 Constraints
 -----------
@@ -172,52 +173,7 @@ This class manages the computer vision processes.
 Responsibilities
 ----------------
 
-Being run on a seperate thread, this class will manage the image processing.
-
-Constraints
------------
-
-Any relevant assumptions, limitations, or constraints for this component.
-This should include constraints on timing, storage, or component state,
-and might include rules for interacting with this component (encompassing
-preconditions, postconditions, invariants, other constraints on input or
-output values and local or global values, data formats and data access,
-synchronization, exceptions, etc.)
-
-Composition
------------
-
-A description of the use and meaning of the subcomponents that are a part
-of this component.
-
-Uses/Interactions
------------------
-
-This module sends data to Tango
-
-
-Unit Cameo
-------
-
-Classification
---------------
-
-Class
-
-Definition
-----------
-
-This class manages the computer vision processes.
-
-Responsibilities
-----------------
-
 Being run on a seperate thread, this class will manage the image processing tasks.
-
-Constraints
------------
-
-Speed will be an issue
 
 Composition
 -----------
@@ -231,11 +187,6 @@ Composition
 * window
 ** Type: class <<WindowManager>>
 ** Function: Display images on screen for debugging/testing.
-
-Uses/Interactions
------------------
-
-This module sends data to Tango
 
 
 Unit WindowManager
@@ -255,11 +206,6 @@ Responsibilities
 ----------------
 
 The primary responsibility of this class is to show an image; primarily for testing, debugging, and reporting.
-
-Constraints
------------
-
-
 
 Composition
 -----------
@@ -300,11 +246,6 @@ Responsibilities
 
 The primary responsibility of this class is to track the movement of a given series of regions on screen.
 
-Constraints
------------
-
-Speed
-
 
 Composition
 -----------
@@ -337,10 +278,6 @@ Responsibilities
 ----------------
 
 The primary responsibility of this class is to recognize nearby objects.
-
-Constraints
------------
-
 
 Composition
 -----------
