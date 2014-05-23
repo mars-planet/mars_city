@@ -38,10 +38,10 @@ class Cameo(object):
             right_frame = self._rightCaptureManager.frame
 
             # Compute disparity
-            disparity_frame=DepthTracker.computeDisparity(left_frame,right_frame, ndisparities=16, SADWindowSize=25);  
+            #disparity_frame=DepthTracker.computeDisparity(left_frame,right_frame, ndisparities=16, SADWindowSize=25);  
 
-            # Display depth field                 
-            self._windowManager.show(disparity_frame)
+            # Display disparity map                 
+            self._windowManager.show(left_frame)
     
             self._leftCaptureManager.exitFrame()
             self._rightCaptureManager.exitFrame()

@@ -15,7 +15,11 @@ class ObjectTrackerManager(object):
 
     def set_object(self, x0, y0, x1, y1):
     	""" Set the image region of the object which should be tracked """
-		self.selection = (x0, y0, x1, y1)
+	   
+        self.selection = (x0, y0, x1, y1)
+
+
+
 
     def compute_camshift(self, frame):
     	""" Compute the Camera Shift for the Current Selection on the Given Frame (if any) """
