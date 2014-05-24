@@ -32,7 +32,7 @@ class PyDevice(PyTango.DeviceClass):
 
 class PyTrevor(PyTango.Device_4Impl):
     def __init__(self, cl, name):
-	self.arrows = PyTango.DeviceProxy('C3/GUI/arrow')
+        self.arrows = PyTango.DeviceProxy('C3/GUI/arrow')
         self.devices = {}
         PyTango.Device_4Impl.__init__(self, cl, name)
         self.info_stream('In PyTrevor.__init__')
@@ -40,24 +40,24 @@ class PyTrevor(PyTango.Device_4Impl):
 
     def __del__(self):
         print ("destructor")
-	# switch MotorB/A off
-	GPIO.output (19, 0)
-	GPIO.output (24, 0)
-	GPIO.output (21, 0)
-	GPIO.output (26, 0)
-	GPIO.cleanup()              # reset all ports
-	
+        # switch MotorB/A off
+        GPIO.output (19, 0)
+        GPIO.output (24, 0)
+        GPIO.output (21, 0)
+        GPIO.output (26, 0)
+        GPIO.cleanup()              # reset all ports
+
     def start(self):
         print 'start'
 
     def stop(self):
-	# switch MotorB and MotorA \off
-	GPIO.output (19, 0)
-	GPIO.output (24, 0)
-	GPIO.output (21, 0)
-	GPIO.output (26, 0)
+        # switch MotorB and MotorA \off
+        GPIO.output (19, 0)
+        GPIO.output (24, 0)
+        GPIO.output (21, 0)
+        GPIO.output (26, 0)
         print 'stop'
-        
+
     def move(self, speed):
         self.translate_speed = float(speed[0])
         self.rotate_speed = float(speed[1])
@@ -74,41 +74,41 @@ class PyTrevor(PyTango.Device_4Impl):
         the_att.set_value(self.rotate_speed)
         #print 'rotate_speed', self.rotate_speed
 
-	port_numAforw=26
-	port_numAback=21
-	port_numBforw=24
-	port_numBback=19
+        port_numAforw=26
+        port_numAback=21
+        port_numBforw=24
+        port_numBback=19
         if self.translate_speed == 0:
             GPIO.output(port_numAforw, 0)     # switch port off
             GPIO.output(port_numBforw, 0)     # switch port off
             GPIO.output(port_numAback, 0)     # switch port off
             GPIO.output(port_numBback, 0)     # switch port off
-	else:
+        else:
             if self.translate_speed > 0:
-	        if  self.rotate_speed == 0: 
+                if  self.rotate_speed == 0:
                         GPIO.output(port_numAforw, 1)      # switch port on
-            		GPIO.output(port_numAback, 0)     # switch port off
+                        GPIO.output(port_numAback, 0)     # switch port off
                         GPIO.output(port_numBforw, 1)      # switch port on
-            		GPIO.output(port_numBback, 0)     # switch port off
-	        else:
-	            if  self.rotate_speed < 0: 
+                        GPIO.output(port_numBback, 0)     # switch port off
+                else:
+                    if  self.rotate_speed < 0:
                         GPIO.output(port_numAforw, 1)      # switch port on
                         GPIO.output(port_numAback, 0)      # switch port off
                         GPIO.output(port_numBforw, 0)      # switch port off
-            		GPIO.output(port_numBback, 1)     # switch port on
+                        GPIO.output(port_numBback, 1)     # switch port on
                     else:
                         GPIO.output(port_numAforw, 0)      # switch port off
                         GPIO.output(port_numAback, 1)      # switch port on
                         GPIO.output(port_numBforw, 1)      # switch port on
-            		GPIO.output(port_numBback, 0)     # switch port off
+                        GPIO.output(port_numBback, 0)     # switch port off
             else:
-	        if  self.rotate_speed == 0: 
-            		GPIO.output(port_numAforw, 0)     # switch port off
+                if  self.rotate_speed == 0:
+                        GPIO.output(port_numAforw, 0)     # switch port off
                         GPIO.output(port_numAback, 1)      # switch port on
-            		GPIO.output(port_numBforw, 0)     # switch port off
+                        GPIO.output(port_numBforw, 0)     # switch port off
                         GPIO.output(port_numBback, 1)      # switch port on
-	        else:
-	            if  self.rotate_speed < 0: 
+                else:
+                    if  self.rotate_speed < 0:
                         GPIO.output(port_numAforw, 0)      # switch port off
                         GPIO.output(port_numAback, 1)      # switch port on
                         GPIO.output(port_numBforw, 1)      # switch port on
@@ -125,19 +125,19 @@ class PyTrevor(PyTango.Device_4Impl):
         self.translate_speed = 0
         self.rotate_speed = 0
         self.set_state(PyTango.DevState.ON)
-	#GPIO specific initializations
-	GPIO.cleanup()
-	GPIO.setwarnings(False)
-	GPIO.setmode(GPIO.BOARD)
-	GPIO.setup(19, GPIO.OUT)
-	GPIO.setup(21, GPIO.OUT)
-	GPIO.setup(24, GPIO.OUT)
-	GPIO.setup(26, GPIO.OUT)
-	# switch MotorB and MotorA \off
-	GPIO.output (19, 0)
-	GPIO.output (24, 0)
-	GPIO.output (21, 0)
-	GPIO.output (26, 0)
+        #GPIO specific initializations
+        GPIO.cleanup()
+        GPIO.setwarnings(False)
+        GPIO.setmode(GPIO.BOARD)
+        GPIO.setup(19, GPIO.OUT)
+        GPIO.setup(21, GPIO.OUT)
+        GPIO.setup(24, GPIO.OUT)
+        GPIO.setup(26, GPIO.OUT)
+        # switch MotorB and MotorA \off
+        GPIO.output (19, 0)
+        GPIO.output (24, 0)
+        GPIO.output (21, 0)
+        GPIO.output (26, 0)
 
 
 if __name__ == '__main__':
