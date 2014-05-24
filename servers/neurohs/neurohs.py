@@ -43,11 +43,30 @@ def read_from_headset(polling, logfile):
             data = dict(packet.sensors)
             del data['Unknown']  # we don't need this either
             data['battery'] = packet.battery
-            json_data = json.dumps(data)
-            print(json_data)
-            if logfile is not None:
-                f.write(json_data + '\n')
-            sys.stdout.flush()
+            packets.append(data)
+            packets_num = len(packets)
+            if packets_num >= size:
+                avgdata = {}
+                for key in data:
+                    if key == 'battery':
+                        # return the battery level for the last packet
+                        avgdata[key] = packets[-1][key]
+                    else:
+                        # calculate the average of sensors qualities and values
+                        # for all the packets
+                        qsum, vsum = 0, 0
+                        for p in packets:
+                            sensor_data = p[key]
+                            qsum += sensor_data['quality']
+                            vsum += sensor_data['value']
+                        avgdata[key] = dict(quality=qsum/packets_num,
+                                            value=vsum/packets_num)
+                json_data = json.dumps(avgdata)
+                print(json_data)
+                if logfile is not None:
+                    f.write(json_data + '\n')
+                sys.stdout.flush()
+                packets.clear()
     except KeyboardInterrupt:
         headset.close()
     finally:
