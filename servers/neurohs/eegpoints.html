@@ -88,6 +88,8 @@ function update_canvas() {
            polling used by the server, otherwise it will lag */
         setTimeout(update_canvas, 100);
         console.log(JSON.stringify(res));
+    }).fail(function() {
+        alert('Lost communication with server.\nPress F5 to retry.');
     });
 };
 
