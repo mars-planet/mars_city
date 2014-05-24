@@ -71,8 +71,8 @@ class PyArrow(PyTango.Device_4Impl):
         curses.noecho()
         # respond to keys immediately (don't wait for enter)
         curses.cbreak()
-        # wait for sometime, and then timeout
-        curses.halfdelay(1)
+        # avoid blocking
+        self.stdscr.nodelay(1)
         # map arrow keys to special values
         self.stdscr.keypad(True)
 
