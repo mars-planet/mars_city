@@ -37,22 +37,22 @@ class PyArrow(PyTango.Device_4Impl):
         curses.endwin()
 
     def read_translate_speed(self, the_att):
-	char = self.stdscr.getch()
-	if char == curses.KEY_RIGHT:
-	    self.translate_speed=1
-	    self.rotate_speed=-1
-	elif char == curses.KEY_LEFT:
-	    self.translate_speed=1
-	    self.rotate_speed=1
-	elif char == curses.KEY_UP:
+        char = self.stdscr.getch()
+        if char == curses.KEY_RIGHT:
+            self.translate_speed=1
+            self.rotate_speed=-1
+        elif char == curses.KEY_LEFT:
+            self.translate_speed=1
+            self.rotate_speed=1
+        elif char == curses.KEY_UP:
             self.translate_speed=1
             self.rotate_speed=0
-	elif char == curses.KEY_DOWN:
-	    self.translate_speed=-1
-	    self.rotate_speed=0
-    	else: # char == -1 if timeout on stdscr
+        elif char == curses.KEY_DOWN:
+            self.translate_speed=-1
+            self.rotate_speed=0
+        else: # char == -1 if timeout on stdscr
             self.translate_speed=0
-	    self.rotate_speed=0
+            self.rotate_speed=0
 
         the_att.set_value(self.translate_speed)
 
@@ -62,11 +62,11 @@ class PyArrow(PyTango.Device_4Impl):
     def init_device(self):
         self.info_stream('In Python init_device method')
         self.set_state(PyTango.DevState.ON)
-	self.translate_speed = 0
-	self.rotate_speed = 0
+        self.translate_speed = 0
+        self.rotate_speed = 0
         # get the curses stdscr window
         self.stdscr = curses.initscr()
- 
+
         # turn off input echoing
         curses.noecho()
         # respond to keys immediately (don't wait for enter)
