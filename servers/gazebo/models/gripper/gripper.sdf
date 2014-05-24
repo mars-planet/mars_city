@@ -2,21 +2,21 @@
 
 <sdf version="1.4">
     <model name="gripper">
-        <pose>0 0 0 0 0 0</pose> <!-- dimensions are measured from the center of the model-->
         <static>false</static>
+        <pose>0 0 0 0 0 0</pose> <!-- dimensions are measured from the center of the model-->
 
         <link name="guide_rail">
             <pose>-0.15 0.0 0.5 0 0 0</pose>
             <inertial>
-                <pose>0 0 -0.5 0 0 0</pose>
+                <pose>0 0 0 0 0 0</pose><!-- at the center of the block-->
                 <inertia>
-                    <!-- assign some small values for the physics engine to evaluate, change them later on -->
-                    <ixx>0.01</ixx>
+                    <!-- values for mass = 10 -->
+                    <ixx>0.3333</ixx>
                     <ixy>0</ixy>
                     <ixz>0</ixz>
-                    <iyy>0.01</iyy>
+                    <iyy>0.3333</iyy>
                     <iyz>0</iyz>
-                    <izz>0.01</izz>
+                    <izz>0.0667</izz>
                 </inertia>
                 <mass>10.0</mass>
             </inertial>
@@ -80,7 +80,6 @@
             <pose>0.1 0.2 0.05 0 0 -0.78539</pose>
             <inertial>
                 <inertia>
-                    <!-- assign some small values for the physics engine to evaluate, change them later on -->
                     <ixx>0.01</ixx>
                     <ixy>0</ixy>
                     <ixz>0</ixz>
@@ -115,7 +114,6 @@
             <pose>0.336 0.3 0.05 0 0 1.5707</pose>
             <inertial>
                 <inertia>
-                    <!-- assign some small values for the physics engine to evaluate, change them later on -->
                     <ixx>0.01</ixx>
                     <ixy>0</ixy>
                     <ixz>0</ixz>
@@ -150,7 +148,6 @@
             <pose>0.1 -0.2 0.05 0 0 .78539</pose>
             <inertial>
                 <inertia>
-                    <!-- assign some small values for the physics engine to evaluate, change them later on -->
                     <ixx>0.01</ixx>
                     <ixy>0</ixy>
                     <ixz>0</ixz>
@@ -185,7 +182,6 @@
             <pose>0.336 -0.3 0.05 0 0 1.5707</pose>
             <inertial>
                 <inertia>
-                    <!-- assign some small values for the physics engine to evaluate, change them later on -->
                     <ixx>0.01</ixx>
                     <ixy>0</ixy>
                     <ixz>0</ixz>
@@ -225,6 +221,7 @@
                 <limit>
                     <lower>-0.4</lower>
                     <upper>0.4</upper>
+<!--                    <effort>1</effort>  Limit not enforced if effort is not provided -->
                 </limit>
                 <xyz>0 0 1</xyz>
             </axis>
