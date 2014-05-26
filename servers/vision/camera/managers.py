@@ -150,8 +150,8 @@ class WindowManager(object):
         cv2.destroyWindow(self.window_name)
         self._is_window_created = False
 
-    def draw_rectangle(self,frame,x=0,y=0,w=100,h=100):
-        cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),1)
+    def draw_rectangle(self,frame,x=0,y=0,width=100,height=100):
+        cv2.rectangle(frame,(x,y),(x+width,y+height),(0,255,0),1)
 
     def process_events(self):
         keycode = cv2.waitKey(1)
