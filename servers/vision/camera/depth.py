@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-
+from skimage import measure
 
 class DepthTrackerManager(object):
 
@@ -16,18 +16,24 @@ class DepthTrackerManager(object):
 
     def objects_in_proximity(self, distance):
         """Returns an array of object locations
-        on the disparity map relative to the distance
+        on the disparity map relative to the specified distance
         """
 
         if self._disparity_map is None:
-            raise ValueError("Must compute disparity map first!")
+            raise ValueError("Must compute the disparity map first!")
 
-        contours, hierarchy = cv2.findContours(self._disparity_map, 2, 1)
+        # Find the contours on the disparity map to find nearby objects
+        contours = measure.find_contours(self._disparity_map, level=0.1,
+            fully_connected='high', positive_orientation='high')
+
+        # Filter out the small objects, keeping only the close ones
+        contours = filter(lambda x: len(x)>distance, contours)
+
         return contours
 
     def compute_disparity(self, left_image, right_image,
                           ndisparities=16, SADWindowSize=25):
-        """Compute the depth image, given the left and right image."""
+        """Compute the disparity image, given the left and right image."""
 
         stereo = cv2.StereoBM(
             cv2.STEREO_BM_BASIC_PRESET,

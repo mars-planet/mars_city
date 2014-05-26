@@ -45,12 +45,19 @@ class Cameo(object):
                 ndisparities=16, SADWindowSize=25)
             disparity_frame = self.depth_tracker_manager.disparity_map
 
-            # Draw rectangle
-            self.window_manager.draw_rectangle(
-                disparity_frame, x=10, y=10, width=50, height=50)
+            # Find nearby objects on screen
+            objects = self.depth_tracker_manager.objects_in_proximity(
+                distance=150)
 
-            # Display disparity map
-            self.window_manager.show(disparity_frame)
+            # Highlight the nearby objects on screen
+            for contour in objects:
+                for point in contour:
+                    self.window_manager.draw_circle(
+                        left_frame, 
+                        x=int(point[1]), y=int(point[0]),radius=1) 
+
+            # Display left frame
+            self.window_manager.show(left_frame)
 
             self.left_capture_manager.exit_frame()
             self.right_capture_manager.exit_frame()

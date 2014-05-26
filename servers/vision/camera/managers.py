@@ -155,6 +155,9 @@ class WindowManager(object):
     def draw_rectangle(self, frame, x=0, y=0, width=100, height=100):
         cv2.rectangle(frame, (x, y), (x + width, y + height), (0, 255, 0), 1)
 
+    def draw_circle(self, frame, x=0, y=0, radius=10):
+        cv2.circle(frame, (x, y), radius, (0, 255, 0), 1)
+
     def process_events(self):
         keycode = cv2.waitKey(1)
         if self.keypress_callback is not None and keycode != -1:
