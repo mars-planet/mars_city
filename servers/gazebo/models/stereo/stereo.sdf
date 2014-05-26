@@ -1,0 +1,177 @@
+<?xml version="1.0"?>
+
+<sdf version="1.4">
+    <model name="stereo">
+        <static>false</static>
+        <pose>0 0 0 0 0 0</pose> <!-- dimensions are measured from the center of the model-->
+
+        <link name="mount">
+            <pose>-0.0625 0.0 0 0 0 0</pose>
+            <inertial>
+                <pose>0 0 0 0 0 0</pose><!-- at the center of the block-->
+                <inertia>
+                    <!-- values for mass = 10 -->
+                    <ixx>0.01</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0.01</iyy>
+                    <iyz>0</iyz>
+                    <izz>0.01</izz>
+                </inertia>
+                <mass>1</mass>
+            </inertial>
+            <collision name="housing_collision">
+                <geometry>
+                    <box>
+                        <size>0.125 0.5 0.125</size>
+                    </box>
+                </geometry>
+            </collision>
+            <visual name="housing_visual">
+                <geometry>
+                    <box>
+                        <size>0.125 0.5 0.125</size>
+                    </box>
+                </geometry>
+                <material>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Black</name>
+                    </script>
+                </material>
+            </visual>
+            <sensor name="stereo_camera" type="multicamera">
+                <always_on>1</always_on>
+                <update_rate>50</update_rate>
+                <visualize>1</visualize>
+                <pose>0 0 0 0 0 1.5707</pose>
+                <topic>/stereo/image_raw</topic>
+                <camera name="right_camera">
+                    <pose>0 -0.1 0 0 0 0</pose>
+                    <horizontal_fov>2.194</horizontal_fov>
+                    <image>
+                        <width>320</width>
+                        <height>240</height>
+                        <format>B8G8R8</format>
+                    </image>
+                    <clip>
+                        <near>1</near>
+                        <far>20</far>
+                    </clip>
+                    <!-- save and noise to be done if required -->
+                </camera>
+                <camera name="left_camera">
+                    <pose>0 0.1 0 0 0 0</pose>
+                    <horizontal_fov>2.194</horizontal_fov>
+                    <image>
+                        <width>320</width>
+                        <height>240</height>
+                        <format>B8G8R8</format>
+                    </image>
+                    <clip>
+                        <near>1</near>
+                        <far>20</far>
+                    </clip>
+                    <!-- save and noise to be done if required -->
+                </camera>
+            </sensor>
+        </link>
+        <link name="right_camera">
+            <pose>0.0 -0.1 0 0 1.5707 0</pose>
+            <inertial>
+                <inertia>
+                    <!-- assign some small values for the physics engine to evaluate, change them later on -->
+                    <ixx>0.01</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0.01</iyy>
+                    <iyz>0</iyz>
+                    <izz>0.01</izz>
+                </inertia>
+                <mass>0.5</mass>
+            </inertial>
+            <collision name="camera_collision">
+                <geometry>
+                    <cylinder>
+                        <radius>0.025</radius>
+                        <length>0.05</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+            <visual name="camera_visual">
+                <geometry>
+                    <cylinder>
+                        <radius>0.025</radius>
+                        <length>0.05</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Red</name>
+                    </script>
+                </material>
+            </visual>
+        </link>
+        <link name="left_camera">
+            <pose>0 0.1 0 0 1.5707 0</pose>
+            <inertial>
+                <inertia>
+                    <ixx>0.01</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0.01</iyy>
+                    <iyz>0</iyz>
+                    <izz>0.01</izz>
+                </inertia>
+                <mass>0.1</mass>
+            </inertial>
+            <collision name="camera_collision">
+                <geometry>
+                    <cylinder>
+                        <radius>0.025</radius>
+                        <length>0.05</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+            <visual name="camera_visual">
+                <geometry>
+                    <cylinder>
+                        <radius>0.025</radius>
+                        <length>0.05</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Red</name>
+                    </script>
+                </material>
+            </visual>
+        </link>
+
+        <joint name="right_mount" type="prismatic">
+            <child>right_camera</child>
+            <parent>mount</parent>
+            <axis>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0</upper>
+                </limit>
+                <xyz>0 0 1</xyz>
+            </axis>
+        </joint>
+        <joint name="left_mount" type="prismatic">
+            <child>left_camera</child>
+            <parent>mount</parent>
+            <axis>
+                <limit>
+                    <lower>-0.4</lower>
+                    <upper>0.4</upper>
+                </limit>
+                <xyz>0 0 1</xyz>
+            </axis>
+        </joint>
+
+    </model>
+</sdf>
