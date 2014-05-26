@@ -5,10 +5,12 @@ import time
 
 class CaptureManager(object):
 
-    def __init__(self, capture, channel=0):
-        
+    def __init__(self, capture, mirrored, channel=0):
+
         self._frame = None
         self._channel = channel
+        self._fps_estimate = None
+        self._mirrored = mirrored
 
         self.capture = capture
         self.entered_frame = False
@@ -19,7 +21,6 @@ class CaptureManager(object):
 
         self.start_time = None
         self.frame_elapsed = long(0)
-        self._fpsEstimate = None
 
     @property
     def channel(self):
@@ -49,8 +50,9 @@ class CaptureManager(object):
         """Capture the next frame, if any."""
 
         # But first, check that any previous frame was exited.
-        assert not self.entered_frame, \
-            'previous enter_frame() had no matching exit_frame()'
+        if self.entered_frame:
+            raise ValueError('previous enter_frame() ' 
+                             'had no matching exit_frame()')
 
         if self.capture is not None:
             self.entered_frame = self.capture.grab()
@@ -68,8 +70,8 @@ class CaptureManager(object):
         if self.frame_elapsed == 0:
             self.start_time = time.time()
         else:
-            timeElapsed = time.time() - self.start_time
-            self._fpsEstimate = self.frame_elapsed / timeElapsed
+            time_elapsed = time.time() - self.start_time
+            self._fps_estimate = self.frame_elapsed / time_elapsed
         self.frame_elapsed += 1
 
         # Write to the image file, if any.
@@ -115,7 +117,7 @@ class CaptureManager(object):
                     # estimate is more stable.
                     return
                 else:
-                    fps = self._fpsEstimate
+                    fps = self._fps_estimate
             size = (int(self.capture.get(
                         cv2.cv.CV_CAP_PROP_FRAME_WIDTH)),
                     int(self.capture.get(
@@ -129,10 +131,10 @@ class CaptureManager(object):
 
 class WindowManager(object):
 
-    def __init__(self, windowName, keypress_callback=None):
+    def __init__(self, window_name, keypress_callback=None):
         self.keypress_callback = keypress_callback
 
-        self.window_name = windowName
+        self.window_name = window_name
         self._is_window_created = False
 
     @property
@@ -150,8 +152,8 @@ class WindowManager(object):
         cv2.destroyWindow(self.window_name)
         self._is_window_created = False
 
-    def draw_rectangle(self,frame,x=0,y=0,width=100,height=100):
-        cv2.rectangle(frame,(x,y),(x+width,y+height),(0,255,0),1)
+    def draw_rectangle(self, frame, x=0, y=0, width=100, height=100):
+        cv2.rectangle(frame, (x, y), (x + width, y + height), (0, 255, 0), 1)
 
     def process_events(self):
         keycode = cv2.waitKey(1)

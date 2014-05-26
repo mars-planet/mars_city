@@ -8,17 +8,21 @@ class Cameo(object):
 
     def __init__(self, left_channel=0, right_channel=1):
 
-        self.window_manager = WindowManager('Debug Window', self.onKeypress)
+        self.window_manager = WindowManager('Debug Window',
+                                            self.on_key_press)
 
         # Capture Video Streams for the left and right cameras
-        self.left_capture_manager = CaptureManager(cv2.VideoCapture(left_channel), True)
-        self.right_capture_manager = CaptureManager(cv2.VideoCapture(right_channel), True)
+        self.left_capture_manager = CaptureManager(
+            cv2.VideoCapture(left_channel), mirrored=True)
+        self.right_capture_manager = CaptureManager(
+            cv2.VideoCapture(right_channel), mirrored=True)
 
-        self.object_tracker_manager = ObjectTrackerManager(self.left_capture_manager)
-        self.depth_tracker_manager = DepthTrackerManager()
+        self.object_tracker_manager = ObjectTrackerManager(
+            self.left_capture_manager)
+        self.depth_tracker_manager = DepthTrackerManager()   
 
     def start(self, device):
-        """ Run `start` from Tango """
+        """Run `start` from Tango"""
         self.device = device
 
         # Start Video Stream Loop
@@ -36,11 +40,14 @@ class Cameo(object):
             right_frame = self.right_capture_manager.frame
 
             # Compute disparity
-            self.depth_tracker_manager.compute_disparity(left_frame,right_frame, ndisparities=16, SADWindowSize=25)
-            disparity_frame=self.depth_tracker_manager.disparity_map
+            self.depth_tracker_manager.compute_disparity(
+                left_frame, right_frame,
+                ndisparities=16, SADWindowSize=25)
+            disparity_frame = self.depth_tracker_manager.disparity_map
 
             # Draw rectangle
-            self.window_manager.draw_rectangle(disparity_frame,x=10,y=10,width=50,height=50)
+            self.window_manager.draw_rectangle(
+                disparity_frame, x=10, y=10, width=50, height=50)
 
             # Display disparity map
             self.window_manager.show(disparity_frame)
@@ -49,7 +56,7 @@ class Cameo(object):
             self.right_capture_manager.exit_frame()
             self.window_manager.process_events()
 
-    def onKeypress(self, keycode):
+    def on_key_press(self, keycode):
         """Handle a keypress.
 
         space  -> Take a screenshot.
@@ -61,10 +68,10 @@ class Cameo(object):
         if keycode == 32:  # space
             self.right_capture_manager.writeImage('screenshot.png')
         elif keycode == 9:  # tab
-            if not self.right_capture_manager.isWritingVideo:
-                self.right_capture_manager.startWritingVideo(
+            if not self.right_capture_manager.is_writing_video:
+                self.right_capture_manager.start_writing_video(
                     'screencast.avi')
             else:
-                self.right_capture_manager.stopWritingVideo()
+                self.right_capture_manager.stop_writing_video()
         elif keycode == 27:  # escape
-            self.window_manager.destroyWindow()
+            self.window_manager.destroy_window()

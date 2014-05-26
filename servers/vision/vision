@@ -8,14 +8,14 @@ import camera
 
 
 class PyDevice(PyTango.DeviceClass):
-    cmd_list={}
-    attr_type=[
+    cmd_list = {}
+    attr_type = [
         [PyTango.ArgType.DevFloat,
          PyTango.AttrDataFormat.SCALAR,
          PyTango.AttrWriteType.READ],
         {'polling period': 100}
     ]
-    attr_list={
+    attr_list = {
         'translate_speed': attr_type,
         'rotate_speed': attr_type,
     }
@@ -28,7 +28,7 @@ class PyDevice(PyTango.DeviceClass):
 class PyVision(PyTango.Device_4Impl):
 
     def __init__(self, cl, name):
-        self.devices={}
+        self.devices = {}
         PyTango.Device_4Impl.__init__(self, cl, name)
         self.info_stream('In PyVision __init__ method')
         PyVision.init_device(self)
@@ -42,22 +42,22 @@ class PyVision(PyTango.Device_4Impl):
         curses.endwin()
 
     def read_translate_speed(self, the_att):
-        char=self.stdscr.getch()
+        char = self.stdscr.getch()
         if char == curses.KEY_RIGHT:
-            self.translate_speed=1
-            self.rotate_speed=-1
+            self.translate_speed = 1
+            self.rotate_speed = -1
         elif char == curses.KEY_LEFT:
-            self.translate_speed=1
-            self.rotate_speed=1
+            self.translate_speed = 1
+            self.rotate_speed = 1
         elif char == curses.KEY_UP:
-            self.translate_speed=1
-            self.rotate_speed=0
+            self.translate_speed = 1
+            self.rotate_speed = 0
         elif char == curses.KEY_DOWN:
-            self.translate_speed=-1
-            self.rotate_speed=0
+            self.translate_speed = -1
+            self.rotate_speed = 0
         else:  # char == -1 if timeout on stdscr
-            self.translate_speed=0
-            self.rotate_speed=0
+            self.translate_speed = 0
+            self.rotate_speed = 0
 
             the_att.set_value(self.translate_speed)
 
@@ -69,14 +69,17 @@ class PyVision(PyTango.Device_4Impl):
         self.set_state(PyTango.DevState.ON)
 
         # Start running the camera thread
-        self.cameo=camera.Cameo(left_channel="sample_video/kitchen/left.mp4", right_channel="sample_video/kitchen/right.mp4")
-        cam_thread=threading.Thread(target=self.cameo.start, args=(self,))
+        self.cameo = camera.Cameo(
+            left_channel="sample_video/kitchen/left.mp4",
+            right_channel="sample_video/kitchen/right.mp4")
+        cam_thread = threading.Thread(target=self.cameo.start,
+                                      args=(self,))
         cam_thread.start()
 
-        self.translate_speed=0
-        self.rotate_speed=0
+        self.translate_speed = 0
+        self.rotate_speed = 0
         # get the curses stdscr window
-        self.stdscr=curses.initscr()
+        self.stdscr = curses.initscr()
         # turn off input echoing
         curses.noecho()
         # respond to keys immediately (don't wait for enter)
@@ -87,9 +90,9 @@ class PyVision(PyTango.Device_4Impl):
         self.stdscr.keypad(True)
 
 if __name__ == '__main__':
-    util=PyTango.Util(sys.argv)
+    util = PyTango.Util(sys.argv)
     util.add_class(PyDevice, PyVision)
 
-    U=PyTango.Util.instance()
+    U = PyTango.Util.instance()
     U.server_init()
     U.server_run()
