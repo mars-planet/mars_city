@@ -295,21 +295,32 @@ User Interfaces
 ---------------
 
 GUI (Graphical User Interface)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+++++++++++++++++++++++++++++++
 
 The GUI should use this interface to take information from the data collector,
 avoiding direct acces to the data storage.
-Mockups :term:`TBD`.
+
+Bellow are two mockups that cover the two current Use Cases that concern the
+GUI.
+
+Overview
+~~~~~~~~
+.. image:: images/Mock_Overview.png
+
+Detailed View
+~~~~~~~~~~~~~
+.. image:: images/Mock_Details.png
 
 API (Application Programming Interface)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++++++++++++++++++++++++++++++++++++++++
 
 :term:`TBD`
 
 Hardware Interfaces
 -------------------
 
-:term:`TBD`
+Here should be referenced the hardware interfaces of the biometric devices.
+Specifics are :term:`TBD`.
 
 Software Interfaces
 -------------------
@@ -317,26 +328,24 @@ Software Interfaces
 The data collector module will be implemented as a Python TANGO server,
 which will expose methods to request raw as well as summarized data.
 
-Communication Interfaces
-------------------------
-
-:term:`TBD`
-
 Performance Requirements
 ========================
 
-:term:`TBD`
+The software should allow the monitoring of health metrics in real-time,
+therefore any preparation of the data should be quick enough as to be
+non-noticeable.
+
+Furthermore, the suit simulator should be able to run in a RasperryPi or
+similar.
+
+Specifics are :term:`TBD`.
 
 Logical View
 ============
 
-Layers
-------
-:term:`TBD`
-
-Subsystems
-----------
-:term:`TBD`
+Layers & Subsystems
+-------------------
+.. image:: images/Layers.png
 
 Use Case Realizations
 ---------------------
@@ -371,7 +380,7 @@ Sequence diagram
 
 Implementation View
 ===================
-:term:`TBD`
+.. image:: images/Classes.png
 
 Deployment View
 ===============
