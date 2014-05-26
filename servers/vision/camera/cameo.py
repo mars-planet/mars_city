@@ -11,14 +11,14 @@ class Cameo(object):
         self.window_manager = WindowManager('Debug Window', self.onKeypress)
 
         # Capture Video Streams for the left and right cameras
-        self._leftCaptureManager = CaptureManager(
+        self.left_capture_manager = CaptureManager(
             cv2.VideoCapture(left_channel), True, channel=0)
 
-        self._rightCaptureManager = CaptureManager(
+        self.right_capture_manager = CaptureManager(
             cv2.VideoCapture(right_channel), True, channel=1)
 
-        self._objectTrackerManager = ObjectTrackerManager(
-            self._leftCaptureManager)
+        self.object_tracker_manager = ObjectTrackerManager(
+            self.left_capture_manager)
 
     def start(self, device):
         """ Run `start` from Tango """
@@ -32,11 +32,11 @@ class Cameo(object):
         self.window_manager.createWindow()
         while self.window_manager.isWindowCreated:
 
-            self._leftCaptureManager.enterFrame()
-            left_frame = self._leftCaptureManager.frame
+            self.left_capture_manager.enterFrame()
+            left_frame = self.left_capture_manager.frame
 
-            self._rightCaptureManager.enterFrame()
-            right_frame = self._rightCaptureManager.frame
+            self.right_capture_manager.enterFrame()
+            right_frame = self.right_capture_manager.frame
 
             # Compute disparity
             disparity_frame=DepthTracker.computeDisparity(left_frame,right_frame, ndisparities=16, SADWindowSize=25);
@@ -44,8 +44,8 @@ class Cameo(object):
             # Display disparity map
             self.window_manager.show(disparity_frame)
 
-            self._leftCaptureManager.exitFrame()
-            self._rightCaptureManager.exitFrame()
+            self.left_capture_manager.exitFrame()
+            self.right_capture_manager.exitFrame()
             self.window_manager.processEvents()
 
     def onKeypress(self, keycode):
