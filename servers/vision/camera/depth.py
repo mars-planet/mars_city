@@ -5,7 +5,7 @@ import numpy as np
 class DepthTracker(object):
 
     @staticmethod
-    def computeDisparity(imgL, imgR, ndisparities=16, SADWindowSize=25):
+    def compute_disparity(imgL, imgR, ndisparities=16, SADWindowSize=25):
         """Compute the depth image, given the left and right image."""
 
         stereo = cv2.StereoBM(

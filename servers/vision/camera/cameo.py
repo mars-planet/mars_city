@@ -29,17 +29,17 @@ class Cameo(object):
 
     def run(self):
         """Run the main loop."""
-        self.window_manager.createWindow()
-        while self.window_manager.isWindowCreated:
+        self.window_manager.create_window()
+        while self.window_manager.is_window_created:
 
-            self.left_capture_manager.enterFrame()
+            self.left_capture_manager.enter_frame()
             left_frame = self.left_capture_manager.frame
 
-            self.right_capture_manager.enterFrame()
+            self.right_capture_manager.enter_frame()
             right_frame = self.right_capture_manager.frame
 
             # Compute disparity
-            disparity_frame=DepthTracker.computeDisparity(left_frame,right_frame, ndisparities=16, SADWindowSize=25);
+            disparity_frame=DepthTracker.compute_disparity(left_frame,right_frame, ndisparities=16, SADWindowSize=25);
 
             # Display disparity map
             x=0
@@ -49,8 +49,8 @@ class Cameo(object):
             cv2.rectangle(disparity_frame,(x,y),(x+w,y+h),(0,255,0))
             self.window_manager.show(disparity_frame)
 
-            self.left_capture_manager.exitFrame()
-            self.right_capture_manager.exitFrame()
+            self.left_capture_manager.exit_frame()
+            self.right_capture_manager.exit_frame()
             self.window_manager.process_events()
 
     def onKeypress(self, keycode):
