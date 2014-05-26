@@ -132,7 +132,7 @@ class WindowManager(object):
     def __init__(self, windowName, keypress_callback=None):
         self.keypress_callback = keypress_callback
 
-        self._windowName = windowName
+        self.window_name = windowName
         self._is_window_created = False
 
     @property
@@ -140,15 +140,18 @@ class WindowManager(object):
         return self._is_window_created
 
     def create_window(self):
-        cv2.namedWindow(self._windowName)
+        cv2.namedWindow(self.window_name)
         self._is_window_created = True
 
     def show(self, frame):
-        cv2.imshow(self._windowName, frame)
+        cv2.imshow(self.window_name, frame)
 
     def destroy_window(self):
-        cv2.destroyWindow(self._windowName)
+        cv2.destroyWindow(self.window_name)
         self._is_window_created = False
+
+    def draw_rectangle(self,frame,x=0,y=0,w=100,h=100):
+        cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),1)
 
     def process_events(self):
         keycode = cv2.waitKey(1)

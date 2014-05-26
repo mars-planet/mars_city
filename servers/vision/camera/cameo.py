@@ -39,14 +39,12 @@ class Cameo(object):
             right_frame = self.right_capture_manager.frame
 
             # Compute disparity
-            disparity_frame=DepthTracker.compute_disparity(left_frame,right_frame, ndisparities=16, SADWindowSize=25);
+            disparity_frame=DepthTracker.compute_disparity(left_frame,right_frame, ndisparities=16, SADWindowSize=25)
+
+            # Draw rectangle
+            self.window_manager.draw_rectangle(disparity_frame,x=10,y=10,w=50,h=50)
 
             # Display disparity map
-            x=0
-            y=0
-            w=100
-            h=100
-            cv2.rectangle(disparity_frame,(x,y),(x+w,y+h),(0,255,0))
             self.window_manager.show(disparity_frame)
 
             self.left_capture_manager.exit_frame()
