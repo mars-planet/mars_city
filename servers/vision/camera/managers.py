@@ -5,8 +5,7 @@ import time
 
 class CaptureManager(object):
 
-    def __init__(self, capture, previewWindowManager=None,
-                 shouldMirrorPreview=False, channel=0):
+    def __init__(self, capture, channel=0):
         
         self._frame = None
         self._channel = channel
@@ -39,24 +38,24 @@ class CaptureManager(object):
         return self._frame
 
     @property
-    def isWritingImage(self):
+    def is_writing_image(self):
         return self.image_filename is not None
 
     @property
-    def isWritingVideo(self):
+    def is_writing_video(self):
         return self.video_filename is not None
 
-    def enterFrame(self):
+    def enter_frame(self):
         """Capture the next frame, if any."""
 
         # But first, check that any previous frame was exited.
         assert not self.entered_frame, \
-            'previous enterFrame() had no matching exitFrame()'
+            'previous enter_frame() had no matching exit_frame()'
 
         if self.capture is not None:
             self.entered_frame = self.capture.grab()
 
-    def exitFrame(self):
+    def exit_frame(self):
         """Draw to the window. Write to files. Release the frame."""
 
         # Check whether any grabbed frame is retrievable.
@@ -74,37 +73,37 @@ class CaptureManager(object):
         self.frame_elapsed += 1
 
         # Write to the image file, if any.
-        if self.isWritingImage:
+        if self.is_writing_image:
             cv2.imwrite(self.image_filename, self._frame)
             self.image_filename = None
 
         # Write to the video file, if any.
-        self._writeVideoFrame()
+        self._write_video_frame()
 
         # Release the frame.
         self._frame = None
         self.entered_frame = False
 
-    def writeImage(self, filename):
+    def write_image(self, filename):
         """Write the next exited frame to an image file."""
         self.image_filename = filename
 
-    def startWritingVideo(
+    def start_writing_video(
             self, filename,
             encoding=cv2.cv.CV_FOURCC('I', '4', '2', '0')):
         """Start writing exited frames to a video file."""
         self.video_filename = filename
         self.video_encoding = encoding
 
-    def stopWritingVideo(self):
+    def stop_writing_video(self):
         """Stop writing exited frames to a video file."""
         self.video_filename = None
         self.video_encoding = None
         self.video_writer = None
 
-    def _writeVideoFrame(self):
+    def _write_video_frame(self):
 
-        if not self.isWritingVideo:
+        if not self.is_writing_video:
             return
 
         if self.video_writer is None:
@@ -130,30 +129,30 @@ class CaptureManager(object):
 
 class WindowManager(object):
 
-    def __init__(self, windowName, keypressCallback=None):
-        self.keypressCallback = keypressCallback
+    def __init__(self, windowName, keypress_callback=None):
+        self.keypress_callback = keypress_callback
 
         self._windowName = windowName
-        self._isWindowCreated = False
+        self._is_window_created = False
 
     @property
-    def isWindowCreated(self):
-        return self._isWindowCreated
+    def is_window_created(self):
+        return self._is_window_created
 
-    def createWindow(self):
+    def create_window(self):
         cv2.namedWindow(self._windowName)
-        self._isWindowCreated = True
+        self._is_window_created = True
 
     def show(self, frame):
         cv2.imshow(self._windowName, frame)
 
-    def destroyWindow(self):
+    def destroy_window(self):
         cv2.destroyWindow(self._windowName)
-        self._isWindowCreated = False
+        self._is_window_created = False
 
-    def processEvents(self):
+    def process_events(self):
         keycode = cv2.waitKey(1)
-        if self.keypressCallback is not None and keycode != -1:
+        if self.keypress_callback is not None and keycode != -1:
             # Discard any non-ASCII info encoded by GTK.
             keycode &= 0xFF
-            self.keypressCallback(keycode)
+            self.keypress_callback(keycode)

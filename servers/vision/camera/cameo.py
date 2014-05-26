@@ -12,10 +12,10 @@ class Cameo(object):
 
         # Capture Video Streams for the left and right cameras
         self.left_capture_manager = CaptureManager(
-            cv2.VideoCapture(left_channel), True, channel=0)
+            cv2.VideoCapture(left_channel), True)
 
         self.right_capture_manager = CaptureManager(
-            cv2.VideoCapture(right_channel), True, channel=1)
+            cv2.VideoCapture(right_channel), True)
 
         self.object_tracker_manager = ObjectTrackerManager(
             self.left_capture_manager)
@@ -42,11 +42,16 @@ class Cameo(object):
             disparity_frame=DepthTracker.computeDisparity(left_frame,right_frame, ndisparities=16, SADWindowSize=25);
 
             # Display disparity map
+            x=0
+            y=0
+            w=100
+            h=100
+            cv2.rectangle(disparity_frame,(x,y),(x+w,y+h),(0,255,0))
             self.window_manager.show(disparity_frame)
 
             self.left_capture_manager.exitFrame()
             self.right_capture_manager.exitFrame()
-            self.window_manager.processEvents()
+            self.window_manager.process_events()
 
     def onKeypress(self, keycode):
         """Handle a keypress.
