@@ -1,1 +1,1 @@
-from cameo import Cameo
+from .cameo import Cameo
