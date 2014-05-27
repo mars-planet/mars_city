@@ -2,7 +2,7 @@ import cv2
 from .managers import WindowManager, CaptureManager
 from .depth import DepthTrackerManager
 from .object_tracker import ObjectTrackerManager
-
+from .object_recognizer import ObjectRecognizerManager
 
 class Cameo(object):
 

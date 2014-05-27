@@ -19,7 +19,7 @@ class DepthTrackerManager(object):
 
     def compute_stereo_distance(self, metric="euclidean"):
         """Compute the distance between the left and right image frames.
-        Possible values for metric keyword are: euclidean and manhattan.
+        Possible values for the metric keyword are: `euclidean` and `manhattan`.
         """
 
         if self._disparity_map is None:
