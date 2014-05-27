@@ -14,6 +14,19 @@ class DepthTrackerManager(object):
             cv2.COLOR_GRAY2RGB)
         return rgb_disparity_frame
 
+
+    def compute_histogram(self, bins=10):
+        """Returns the histogram of the disparity map. This gives us a general
+        idea of the current amount of near objects on screen."""
+
+        if self._disparity_map is None:
+            raise ValueError("Must compute the disparity map first!")
+
+        # Compute the histogram
+        histogram = np.histogram2d(
+            x=self._disparity_map[:,1], y=self._disparity_map[:,0], bins=bins)
+        return histogram
+
     def objects_in_proximity(self, min_size):
         """Returns an array of object locations
         on the disparity map relative to the specified distance
