@@ -14,7 +14,7 @@ class DepthTrackerManager(object):
             cv2.COLOR_GRAY2RGB)
         return rgb_disparity_frame
 
-    def objects_in_proximity(self, distance):
+    def objects_in_proximity(self, min_size):
         """Returns an array of object locations
         on the disparity map relative to the specified distance
         """
@@ -27,8 +27,8 @@ class DepthTrackerManager(object):
             fully_connected='high', positive_orientation='high')
 
         # Filter out the small objects, keeping only the close ones
-        contours = filter(lambda x: len(x)>distance, contours)
-
+        countours = [c for c in contours if len(c) > min_size]
+        
         return contours
 
     def compute_disparity(self, left_image, right_image,

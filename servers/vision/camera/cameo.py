@@ -47,14 +47,14 @@ class Cameo(object):
 
             # Find nearby objects on screen
             objects = self.depth_tracker_manager.objects_in_proximity(
-                distance=150)
+                min_size=150)
 
             # Highlight the nearby objects on screen
             for contour in objects:
                 for point in contour:
                     self.window_manager.draw_circle(
                         left_frame, 
-                        x=int(point[1]), y=int(point[0]),radius=1) 
+                        x=int(point[1]), y=int(point[0]), radius=1) 
 
             # Display left frame
             self.window_manager.show(left_frame)
