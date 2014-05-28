@@ -86,14 +86,14 @@ To add human reasoning (supervision) into the rover's decision making abilities,
 Software Interfaces
 --------
 
-.. image:: images/SA.png
+.. image:: https://bytebucket.org/italianmarssociety/eras/raw/9d44b4992114703c17d527b2299413f5641ca9db/servers/vision/doc/Images/SA.png
 
 An inputted image is sent to several tasks for processing. These tasks include object recognition and depth detection. Once we retrieve this information, we can infer conclusions such as hazard detection, and finally send this data to the EUROPA system ([10]).
 
 Software Design
 ===============
 
-.. image:: images/CD.png
+.. image:: https://bytebucket.org/italianmarssociety/eras/raw/9d44b4992114703c17d527b2299413f5641ca9db/servers/vision/doc/Images/CD.png
 
 Planning
 =====================
