@@ -76,11 +76,22 @@ This module provides a series of computer vision operations designed for navigat
 Design Considerations
 =====================
 
+Hardware Requirements
+----------------------------
+We will be using the Minoru3D Webcam and the RaspberryPi. In case of fast 
+moving objects, we will need to optimize the speed of the Minoru+RPi.
+
+To minimize
+
+Software Requirements
+----------------------------
+We will use scikit-learn for machine learning, and OpenCV2 for computer vision.
 
 Interface Requirements
 ----------------------------
 
-To add human reasoning (supervision) into the rover's decision making abilities, there will be a web app to allow operators to sepcify:
+To add human reasoning (supervision) into the rover's decision making abilities, 
+there will be a web app to allow operators to include:
 - samples of objects which are hazardous (and should be avoided)
 
 Software Interfaces
@@ -88,7 +99,10 @@ Software Interfaces
 
 .. image:: https://bytebucket.org/italianmarssociety/eras/raw/9d44b4992114703c17d527b2299413f5641ca9db/servers/vision/doc/Images/SA.png
 
-An inputted image is sent to several tasks for processing. These tasks include object recognition and depth detection. Once we retrieve this information, we can infer conclusions such as hazard detection, and finally send this data to the EUROPA system ([10]).
+An inputted image is sent to several tasks for processing. These tasks include 
+object recognition and depth detection. Once we retrieve this information, we 
+can infer conclusions such as hazard detection, and finally send this data to 
+the EUROPA system ([10]).
 
 Software Design
 ===============
@@ -99,4 +113,5 @@ Planning
 =====================
 
 Milestone I: Finish Object Recognition
+Milestone II: Path Travelling Module
 Milestone II: Integrate with PyEuropa
