@@ -112,6 +112,6 @@ Software Design
 Planning
 =====================
 
-Milestone I: Finish Object Recognition
-Milestone II: Path Travelling Module
-Milestone II: Integrate with PyEuropa
+- Milestone I: Finish Object Recognition & Target Tracking
+- Milestone II: Path Travelling Module
+- Milestone II: Integrate with PyEuropa
