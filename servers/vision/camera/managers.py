@@ -51,7 +51,7 @@ class CaptureManager(object):
 
         # But first, check that any previous frame was exited.
         if self.entered_frame:
-            raise ValueError('previous enter_frame() ' 
+            raise ValueError('previous enter_frame() '
                              'had no matching exit_frame()')
 
         if self.capture is not None:
@@ -155,8 +155,11 @@ class WindowManager(object):
     def draw_rectangle(self, frame, x=0, y=0, width=100, height=100):
         cv2.rectangle(frame, (x, y), (x + width, y + height), (0, 255, 0), 1)
 
-    def draw_circle(self, frame, x=0, y=0, radius=10):
-        cv2.circle(frame, (x, y), radius, (0, 255, 0), 1)
+    def draw_circle(self, frame, x=0, y=0, radius=1, color=(0, 255, 0)):
+        cv2.circle(frame, (y, x), radius, color, 1)
+
+    def draw_contour(self, frame, points):
+        cv2.fillPoly(frame, points, (0, 255, 0))
 
     def process_events(self):
         keycode = cv2.waitKey(1)
