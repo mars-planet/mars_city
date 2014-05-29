@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
-from skimage import measure
+from sklearn.cluster import MiniBatchKMeans
+import SimpleCV
 
 
 class DepthTrackerManager(object):
@@ -51,23 +52,46 @@ class DepthTrackerManager(object):
 
         return histogram
 
-    def objects_in_proximity(self, min_size):
+    def objects_in_proximity(self, min_member_size, n_clusters=10,
+                             return_images=False):
         """Returns an array of object locations
         on the disparity map relative to the specified distance
+
+        Set the return_images to True if you want images of the actual objects
         """
 
         if self._disparity_map is None:
             raise ValueError("Must compute the disparity map first!")
 
         # Find the contours on the disparity map to find nearby objects
-        contours = measure.find_contours(self._disparity_map,
-                                         level=0.1, fully_connected='high',
-                                         positive_orientation='high')
+        image = SimpleCV.Image(self._disparity_map)
+        image.show()
 
-        # Filter out the small objects, keeping only the close ones
-        countours = [c for c in contours if len(c) > min_size]
+        blobs = image.binarize(200).findBlobs()
+        blobs = [c for c in blobs if c.area() > min_member_size]
+        contour_polygons = map(lambda x: x.contour(), blobs)
 
-        return contours
+        # Does the user want the cropped images?
+        if return_images:
+
+            cropped_images = []
+            for polygon in contour_polygons:
+
+                # This is the image which we will crop the polygon from
+                base_image = self._left_image
+
+                # Create the mask
+                mask = np.zeros(base_image.shape, dtype=np.uint8)
+                roi_corners = np.array(polygon, dtype=np.int32)
+                cv2.fillPoly(mask, roi_corners, (255, 255, 255))
+
+                # Apply the mask
+                masked_image = cv2.bitwise_and(base_image, mask)
+                cropped_images.append(masked_image)
+
+            return cropped_images
+
+        return contour_polygons
 
     def compute_disparity(self, left_image, right_image,
                           ndisparities=16, SADWindowSize=25):
