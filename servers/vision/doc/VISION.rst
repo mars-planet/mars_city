@@ -109,6 +109,12 @@ Software Design
 
 .. image:: https://bytebucket.org/italianmarssociety/eras/raw/9d44b4992114703c17d527b2299413f5641ca9db/servers/vision/doc/Images/CD.png
 
+
+High-level view of Object Recognition
+
+.. image:: https://bytebucket.org/italianmarssociety/eras/raw/a6a9815420161a89065421be5786981300a74be5/servers/vision/doc/Images/IR.png
+
+
 Planning
 =====================
 
