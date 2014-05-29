@@ -69,11 +69,11 @@ class DepthTrackerManager(object):
 
         blobs = image.binarize(200).findBlobs()
         blobs = [c for c in blobs if c.area() > min_member_size]
-        contour_polygons = map(lambda x: x.contour(), blobs)
 
         # Does the user want the cropped images?
         if return_images:
 
+            contour_polygons = map(lambda x: x.contour(), blobs)
             cropped_images = []
             for polygon in contour_polygons:
 
@@ -82,16 +82,16 @@ class DepthTrackerManager(object):
 
                 # Create the mask
                 mask = np.zeros(base_image.shape, dtype=np.uint8)
-                roi_corners = np.array(polygon, dtype=np.int32)
+                roi_corners = np.array([polygon], dtype=np.int32)
                 cv2.fillPoly(mask, roi_corners, (255, 255, 255))
 
                 # Apply the mask
                 masked_image = cv2.bitwise_and(base_image, mask)
                 cropped_images.append(masked_image)
 
-            return cropped_images
+            return (cropped_images,blobs)
 
-        return contour_polygons
+        return blobs
 
     def compute_disparity(self, left_image, right_image,
                           ndisparities=16, SADWindowSize=25):
@@ -102,14 +102,14 @@ class DepthTrackerManager(object):
             ndisparities=ndisparities,
             SADWindowSize=SADWindowSize)
 
+        self._left_image = left_image
         # Convert the given images to grayscale
         gray_left = cv2.cvtColor(left_image,
                                  cv2.COLOR_BGR2GRAY)
-        self._left_image = gray_left
 
+        self._right_image = right_image
         gray_right = cv2.cvtColor(right_image,
                                   cv2.COLOR_BGR2GRAY)
-        self._right_image = gray_right
 
         # Compute stereo disparity image
         disparity_map = (

@@ -3,7 +3,6 @@ from .managers import WindowManager, CaptureManager
 from .depth import DepthTrackerManager
 from .object_tracker import ObjectTrackerManager
 from .object_recognizer import ObjectRecognizerManager
-from random import randint
 
 
 class Cameo(object):
@@ -50,8 +49,18 @@ class Cameo(object):
             disparity_frame = self.depth_tracker_manager.disparity_map
 
             # Find nearby objects on screen
-            contours = self.depth_tracker_manager.objects_in_proximity(
-                min_member_size=400)
+            objects, blobs = self.depth_tracker_manager.objects_in_proximity(
+                min_member_size=400, return_images=True)
+
+            blob_centroids = map(lambda p: p.centroid(), blobs)
+
+            # Show all objects on debug window
+            for n,image in enumerate(objects):
+                centroid = blob_centroids[n]
+                self.window_manager.draw_circle(left_frame,
+                    x=int(centroid[0]), y=int(centroid[1])) 
+
+                cv2.imshow("Found Object "+str(n),image)
 
             # Display left frame
             self.window_manager.show(left_frame)
