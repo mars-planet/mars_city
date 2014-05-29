@@ -3,7 +3,7 @@ C3 Central Server Setup
 
 .. highlightlang:: sh
 
-This page documents how to install the C3 Central Server machine  
+This page documents how to install the C3 Central Server machine
 
 SSH
 -----
@@ -18,11 +18,12 @@ Set to the C3 server the fixed IP address:
 
 
 - Install ssh daemon
-sudo apt-get install openssh-server
-sudo restart ssh
+  sudo apt-get install openssh-server
+  sudo restart ssh
 
 
-chech the machine is accessible from outside at the public IP addres given by the provider:
+chech the machine is accessible from outside at the public IP addres given by
+the provider:
  77.43.42.209
 
 
