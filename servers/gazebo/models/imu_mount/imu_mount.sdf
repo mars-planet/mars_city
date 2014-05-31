@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <sdf version="1.4">
-    <model name="imu">
+    <model name="imu_mount">
         <static>false</static>
         <pose>0 0 0 0 0 0</pose> <!-- dimensions are measured from the center of the model-->
 
@@ -75,6 +75,31 @@
                     </script>
                 </material>
             </visual>
+            <sensor name="main_imu" type="imu">
+                <always_on>1</always_on>
+                <update_rate>50</update_rate>
+                <visualize>1</visualize>
+                <pose>0 0 0 0 0 0</pose>
+                <topic>/imu/data_raw</topic> 
+                <imu>
+                    <topic>/imu_main/data_raw</topic>
+                    <noise>
+                        <!-- <type>"gaussian"</type> @TODO: Some warning for unknown reason, will look into it-->
+                        <rate>
+                            <mean>0</mean>
+                            <stddev>0</stddev>
+                            <bias_mean>0</bias_mean>
+                            <bias_stddev>0</bias_stddev>
+                        </rate>
+                        <accel>
+                            <mean>0</mean>
+                            <stddev>0</stddev>
+                            <bias_mean>0</bias_mean>
+                            <bias_stddev>0</bias_stddev>
+                        </accel>
+                    </noise>
+                </imu>
+            </sensor>
         </link>
 
         <joint name="imu_mount" type="revolute">
