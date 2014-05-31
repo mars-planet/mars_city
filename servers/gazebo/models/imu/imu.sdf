@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+
+<sdf version="1.4">
+    <model name="imu">
+        <static>false</static>
+        <pose>0 0 0 0 0 0</pose> <!-- dimensions are measured from the center of the model-->
+
+        <link name="payload">
+            <pose>0 0 0 0 0 0</pose>
+            <inertial>
+                <pose>0 0 0 0 0 0</pose><!-- at the center of the block-->
+                <inertia>
+                    <!-- values for mass = 10 -->
+                    <ixx>0.0333</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0.0333</iyy>
+                    <iyz>0</iyz>
+                    <izz>0.0067</izz>
+                </inertia>
+                <mass>1.0</mass>
+            </inertial>
+            <collision name="payload_collision">
+                <geometry>
+                    <box>
+                        <size>0.02 0.02 0.1</size>
+                    </box>
+                </geometry>
+            </collision>
+            <visual name="payload_visual">
+                <geometry>
+                    <box>
+                        <size>0.02 0.02 0.1</size>
+                    </box>
+                </geometry>
+                <material>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Black</name>
+                    </script>
+                </material>
+            </visual>
+        </link>
+        <link name="imu">
+            <pose>0.0 0.0 0 0 0 0</pose>
+            <inertial>
+                <inertia>
+                    <!-- assign some small values for the physics engine to evaluate, change them later on -->
+                    <ixx>0.001</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0.001</iyy>
+                    <iyz>0</iyz>
+                    <izz>0.001</izz>
+                </inertia>
+                <mass>0.05</mass>
+            </inertial>
+            <collision name="imu_collision">
+                <geometry>
+                    <box>
+                        <size>0.01 0.01 0.01</size>
+                    </box>
+                </geometry>
+            </collision>
+            <visual name="imu_visual">
+                <geometry>
+                    <box>
+                        <size>0.01 0.01 0.01</size>
+                    </box>
+                </geometry>
+                <material>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/White</name>
+                    </script>
+                </material>
+            </visual>
+        </link>
+
+        <joint name="imu_mount" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>imu</child>
+            <parent>payload</parent>
+            <axis>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0</upper>
+                </limit>
+                <xyz>0 0 1</xyz>
+            </axis>
+        </joint>
+
+    </model>
+</sdf>
