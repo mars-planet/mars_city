@@ -23,14 +23,14 @@
             <collision name="payload_collision">
                 <geometry>
                     <box>
-                        <size>0.02 0.02 0.1</size>
+                        <size>0.1 0.1 0.1</size>
                     </box>
                 </geometry>
             </collision>
             <visual name="payload_visual">
                 <geometry>
                     <box>
-                        <size>0.02 0.02 0.1</size>
+                        <size>0.1 0.1 0.1</size>
                     </box>
                 </geometry>
                 <material>
@@ -42,7 +42,7 @@
             </visual>
         </link>
         <link name="imu_sensor">
-            <pose>0.0 0.0 0 0 0 0</pose>
+            <pose>0 0 0.065 0 0 0</pose>
             <inertial>
                 <inertia>
                     <!-- assign some small values for the physics engine to evaluate, change them later on -->
@@ -58,14 +58,14 @@
             <collision name="imu_collision">
                 <geometry>
                     <box>
-                        <size>0.01 0.01 0.01</size>
+                        <size>0.03 0.03 0.03</size>
                     </box>
                 </geometry>
             </collision>
             <visual name="imu_visual">
                 <geometry>
                     <box>
-                        <size>0.01 0.01 0.01</size>
+                        <size>0.03 0.03 0.03</size>
                     </box>
                 </geometry>
                 <material>
@@ -103,7 +103,6 @@
         </link>
 
         <joint name="imu_mount" type="revolute">
-            <pose>0 0 0 0 0 0</pose>
             <child>imu_sensor</child>
             <parent>payload</parent>
             <axis>
