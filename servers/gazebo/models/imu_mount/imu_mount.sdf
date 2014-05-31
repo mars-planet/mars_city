@@ -44,6 +44,7 @@
         <link name="imu_sensor">
             <pose>0 0 0.065 0 0 0</pose>
             <inertial>
+                <pose>0 0 0 0 0 0</pose>
                 <inertia>
                     <!-- assign some small values for the physics engine to evaluate, change them later on -->
                     <ixx>0.001</ixx>
