@@ -41,7 +41,7 @@
                 </material>
             </visual>
         </link>
-        <link name="imu">
+        <link name="imu_sensor">
             <pose>0.0 0.0 0 0 0 0</pose>
             <inertial>
                 <inertia>
@@ -84,14 +84,14 @@
                 <imu>
                     <topic>/imu_main/data_raw</topic>
                     <noise>
-                        <!-- <type>"gaussian"</type> @TODO: Some warning for unknown reason, will look into it-->
-                        <rate>
+                        <type>gaussian</type>
+                        <rate>  <!-- in rad/s -->
                             <mean>0</mean>
                             <stddev>0</stddev>
                             <bias_mean>0</bias_mean>
                             <bias_stddev>0</bias_stddev>
                         </rate>
-                        <accel>
+                        <accel> <!-- in m/s^2 -->
                             <mean>0</mean>
                             <stddev>0</stddev>
                             <bias_mean>0</bias_mean>
@@ -104,7 +104,7 @@
 
         <joint name="imu_mount" type="revolute">
             <pose>0 0 0 0 0 0</pose>
-            <child>imu</child>
+            <child>imu_sensor</child>
             <parent>payload</parent>
             <axis>
                 <limit>
