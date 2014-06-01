@@ -26,13 +26,31 @@
             <uri>model://stereo</uri>
             <pose>1.2 0 1.18 0 0 0</pose>
         </include>
-<!--
+
         <include>
             <uri>model://ultrasonic</uri>
             <pose>0 -0.4 0.375 0 0 1.5707</pose>
             <name>left_sensor</name>
         </include>
--->
+
+        <include>
+            <uri>model://ultrasonic</uri>
+            <pose>0 0.4 0.375 0 0 -1.5707</pose>
+            <name>right_sensor</name>
+        </include>
+
+        <include>
+            <uri>model://ultrasonic</uri>
+            <pose>1.425 0 0.12 0 0 1.5707</pose>
+            <name>front_sensor</name>
+        </include>
+
+        <include>
+            <uri>model://ultrasonic</uri>
+            <pose>-0.9 0 0.375 0 0 1.5707</pose>
+            <name>back_sensor</name>
+        </include>
+
         <joint name="chassis_gripper_joint" type="revolute">
             <parent>chassis::platform</parent>
             <child>front_gripper::guide_rail</child>
@@ -68,7 +86,7 @@
                 <xyz>0 0 1</xyz>
             </axis>
         </joint>
-<!--
+
         <joint name="chassis_left_sensor_joint" type="revolute">
             <parent>chassis::platform</parent>
             <child>left_sensor::sensor_mount</child>
@@ -80,6 +98,42 @@
                 <xyz>0 0 1</xyz>
             </axis>
         </joint>
--->
+
+        <joint name="chassis_right_sensor_joint" type="revolute">
+            <parent>chassis::platform</parent>
+            <child>right_sensor::sensor_mount</child>
+            <axis>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0</upper>
+                </limit>
+                <xyz>0 0 1</xyz>
+            </axis>
+        </joint>
+
+        <joint name="chassis_back_sensor_joint" type="revolute">
+            <parent>chassis::platform</parent>
+            <child>back_sensor::sensor_mount</child>
+            <axis>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0</upper>
+                </limit>
+                <xyz>0 0 1</xyz>
+            </axis>
+        </joint>
+
+        <joint name="gripper_front_sensor_joint" type="revolute">
+            <parent>front_gripper::guide_rail</parent>
+            <child>front_sensor::sensor_mount</child>
+            <axis>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0</upper>
+                </limit>
+                <xyz>0 0 1</xyz>
+            </axis>
+        </joint>
+
     </model>
 </sdf>

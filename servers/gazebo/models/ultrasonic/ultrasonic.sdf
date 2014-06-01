@@ -40,7 +40,7 @@
                     </script>
                 </material>
             </visual>
-            <!--
+<!--
             <sensor name="ultrasonic" type="sonar">
                 <always_on>1</always_on>
                 <update_rate>20</update_rate>
@@ -52,7 +52,7 @@
                     <radius>0.1</radius>
                 </sonar>
             </sensor>
-        -->
+-->
         </link>
 
     </model>
