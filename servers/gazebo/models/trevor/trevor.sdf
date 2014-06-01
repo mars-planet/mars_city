@@ -2,6 +2,8 @@
 
 <sdf version="1.4">
     <model name="trevor">
+        <static>false</static>
+        <pose>0 0 0 0 0 0</pose> <!-- dimensions are measured from the center of the model-->
 
         <include>
             <uri>model://chassis</uri>
@@ -16,7 +18,7 @@
 
         <include>
             <uri>model://imu_mount</uri>
-            <pose>0 0 0.125 0 0 0</pose>
+            <pose>0 0 0.375 0 0 0</pose>
             <name>primary_imu</name>
         </include>
 
@@ -27,7 +29,7 @@
 <!--
         <include>
             <uri>model://ultrasonic</uri>
-            <pose>0.1 0.1 0.15 0 0 0</pose>
+            <pose>0 -0.4 0.375 0 0 1.5707</pose>
             <name>left_sensor</name>
         </include>
 -->
@@ -66,6 +68,18 @@
                 <xyz>0 0 1</xyz>
             </axis>
         </joint>
-
+<!--
+        <joint name="chassis_left_sensor_joint" type="revolute">
+            <parent>chassis::platform</parent>
+            <child>left_sensor::sensor_mount</child>
+            <axis>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0</upper>
+                </limit>
+                <xyz>0 0 1</xyz>
+            </axis>
+        </joint>
+-->
     </model>
 </sdf>
