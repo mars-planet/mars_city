@@ -6,7 +6,7 @@
         <pose>0 0 0 0 0 0</pose> <!-- dimensions are measured from the center of the model-->
 
         <link name="payload">
-            <pose>0 0 0 0 0 0</pose>
+            <pose>0 0 0.05 0 0 0</pose>
             <inertial>
                 <pose>0 0 0 0 0 0</pose><!-- at the center of the block-->
                 <inertia>
@@ -42,7 +42,7 @@
             </visual>
         </link>
         <link name="imu_sensor">
-            <pose>0 0 0.065 0 0 0</pose>
+            <pose>0 0 0.115 0 0 0</pose>
             <inertial>
                 <pose>0 0 0 0 0 0</pose>
                 <inertia>
@@ -81,7 +81,6 @@
                 <update_rate>50</update_rate>
                 <visualize>1</visualize>
                 <pose>0 0 0 0 0 0</pose>
-                <topic>/imu/data_raw</topic> 
                 <imu>
                     <topic>/imu_main/data_raw</topic>
                     <noise>
