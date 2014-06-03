@@ -10,6 +10,7 @@ Tango Servers
    solarstorm/doc/index
    webplotter/doc/index
    myro/doc/myro
+   multiplayer/doc/index
    voicelib/doc/index
    body_tracker/doc/index.rst
    erasvr/doc/index.rst

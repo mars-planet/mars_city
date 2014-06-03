@@ -2,6 +2,8 @@
 
 <sdf version="1.4">
     <model name="trevor">
+        <static>false</static>
+        <pose>0 0 0 0 0 0</pose> <!-- dimensions are measured from the center of the model-->
 
         <include>
             <uri>model://chassis</uri>
@@ -11,6 +13,13 @@
         <include>
             <uri>model://gripper</uri>
             <pose>1.3 0 0.1 0 0 0</pose>
+            <name>front_gripper</name>
+        </include>
+
+        <include>
+            <uri>model://imu_mount</uri>
+            <pose>0 0 0.375 0 0 0</pose>
+            <name>primary_imu</name>
         </include>
 
         <include>
@@ -18,9 +27,45 @@
             <pose>1.2 0 1.18 0 0 0</pose>
         </include>
 
+        <include>
+            <uri>model://ultrasonic</uri>
+            <pose>0 -0.4 0.375 0 0 1.5707</pose>
+            <name>left_sensor</name>
+        </include>
+
+        <include>
+            <uri>model://ultrasonic</uri>
+            <pose>0 0.4 0.375 0 0 -1.5707</pose>
+            <name>right_sensor</name>
+        </include>
+
+        <include>
+            <uri>model://ultrasonic</uri>
+            <pose>1.425 0 0.12 0 0 1.5707</pose>
+            <name>front_sensor</name>
+        </include>
+
+        <include>
+            <uri>model://ultrasonic</uri>
+            <pose>-0.9 0 0.375 0 0 1.5707</pose>
+            <name>back_sensor</name>
+        </include>
+
         <joint name="chassis_gripper_joint" type="revolute">
             <parent>chassis::platform</parent>
-            <child>gripper::guide_rail</child>
+            <child>front_gripper::guide_rail</child>
+            <axis>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0</upper>
+                </limit>
+                <xyz>0 0 1</xyz>
+            </axis>
+        </joint>
+
+        <joint name="chassis_imu_joint" type="revolute">
+            <parent>chassis::platform</parent>
+            <child>primary_imu::payload</child>
             <axis>
                 <limit>
                     <lower>0</lower>
@@ -31,8 +76,56 @@
         </joint>
 
         <joint name="gripper_stereo_joint" type="revolute">
-            <parent>gripper::guide_rail</parent>
+            <parent>front_gripper::guide_rail</parent>
             <child>stereo::mount</child>
+            <axis>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0</upper>
+                </limit>
+                <xyz>0 0 1</xyz>
+            </axis>
+        </joint>
+
+        <joint name="chassis_left_sensor_joint" type="revolute">
+            <parent>chassis::platform</parent>
+            <child>left_sensor::sensor_mount</child>
+            <axis>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0</upper>
+                </limit>
+                <xyz>0 0 1</xyz>
+            </axis>
+        </joint>
+
+        <joint name="chassis_right_sensor_joint" type="revolute">
+            <parent>chassis::platform</parent>
+            <child>right_sensor::sensor_mount</child>
+            <axis>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0</upper>
+                </limit>
+                <xyz>0 0 1</xyz>
+            </axis>
+        </joint>
+
+        <joint name="chassis_back_sensor_joint" type="revolute">
+            <parent>chassis::platform</parent>
+            <child>back_sensor::sensor_mount</child>
+            <axis>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0</upper>
+                </limit>
+                <xyz>0 0 1</xyz>
+            </axis>
+        </joint>
+
+        <joint name="gripper_front_sensor_joint" type="revolute">
+            <parent>front_gripper::guide_rail</parent>
+            <child>front_sensor::sensor_mount</child>
             <axis>
                 <limit>
                     <lower>0</lower>

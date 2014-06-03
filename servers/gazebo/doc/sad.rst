@@ -43,10 +43,10 @@ The package may be expanded to include the files required for ROS integration al
 
 This document is divided into several parts.
 
-1. For a typical __User__, the sections Interface Requirements, and Performance Requirements are of primary interest
-2. For a __Beginner__, the section Logical View covers most of the information required to get started on their contributions.
-3. For a __Developer__, Architectural Requirements and Implementation View are of high importance
-4. For __Maintainers__, Deployment View and Development & Test Factors are a must-read apart from the aforementioned sections
+1. For a typical **User**, the sections Interface Requirements, and Performance Requirements are of primary interest
+2. For a **Beginner**, the section Logical View covers most of the information required to get started on their contributions.
+3. For a **Developer**, Architectural Requirements and Implementation View are of high importance
+4. For **Maintainers**, Deployment View and Development & Test Factors are a must-read apart from the aforementioned sections
 
 PS: Start from 1 and make your way down towards any higher number
 
@@ -60,9 +60,10 @@ Non-functional Requirements
 * Gazebo is independantly developed, and has undergone several changes in its API, and expected to go many more. It is mostly developed by the same community as ROS, so changes will be uniformly spread over these 2 softwares. Also, Python API is in developement, so currently, only C++ API would be used here
 * Security: ROS uses no authentication methods, so, TANGO developed in collboration with ESRF, would have to accomodate for this
 
-Functional requirements _(use case view)_
+Functional requirements *(use case view)*
 -----------------------------------------
 Include things like 
+
 * availability of ROS-agnoistic packages
 * overloading of some functions of ROS to publish/receive messages to enable the packages unknowingly using ROS format to achieve the same through TANGO device servers
 * availability of messages to move the simulated Trevor
