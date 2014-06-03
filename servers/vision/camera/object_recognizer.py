@@ -1,24 +1,29 @@
 import numpy as np
 import cv2
-from sklearn.cluster import DBSCAN
+from sklearn.cluster import MiniBatchKMeans, DBSCAN
 from sklearn.semi_supervised import LabelSpreading
-
+from sklearn.decomposition import PCA
+import pylab as pl
 # TODO: save the clustering predictions so that we do not always have to `fit`
-# TODO: Change this to an actual database [Redis array store?]
-IMAGE_STORE = []
 
 
 class ObjectRecognizerManager(object):
 
-    def _pre_process_new_image(self, image):
+    def __init__(self):
+
+        # TODO: Change this to an actual database [Redis array store?]
+        self.IMAGE_STORE = []
+
+    @property
+    def amount_of_images(self):
+        return len(self.IMAGE_STORE)
+
+    def _pre_process_new_image(self, image, bin_n=100):
         """Find a histogram of oriented gradients vector representation of
         a new image"""
 
-        # Resize the given image to 32x32
-        image = cv2.resize(image, (32, 32))
-
-        gx = cv2.Sobel(img, cv2.CV_32F, 1, 0)
-        gy = cv2.Sobel(img, cv2.CV_32F, 0, 1)
+        gx = cv2.Sobel(image, cv2.CV_32F, 1, 0)
+        gy = cv2.Sobel(image, cv2.CV_32F, 0, 1)
         mag, ang = cv2.cartToPolar(gx, gy)
 
         # Quantizing binvalues in (0...16)
@@ -35,20 +40,17 @@ class ObjectRecognizerManager(object):
         hist = np.hstack(hists)
         return hist
 
-    def summarize(self, strategy="DBSCAN"):
+    def summarize(self, strategy="kmeans", n_clusters=None):
         """Storing millions of images of the same object is not efficent.
         This function will reduce the number of datapoints, trying keeping only
         the ones which are most significant."""
-
-        if strategy == "DBSCAN":
-            # Use DBSCAN to eliminate everything except for the core points
-
-            dbscan = DBSCAN()
-            dbscan.fit(IMAGE_STORE)
-            core_sample_indices = dbscan.core_sample_indices_
-
-            # Retain only the core points found by DBSCAN
-            IMAGE_STORE = IMAGE_STORE[core_sample_indices]
+        pca = PCA(n_components=2)
+        pca.fit(np.vstack(self.IMAGE_STORE))
+        X_reduced = pca.transform(np.vstack(self.IMAGE_STORE))
+        pl.scatter(X_reduced[:, 0], X_reduced[:, 1])
+        pl.savefig("loolol.png")
+        if strategy == "kmeans":
+            pass
         else:
             raise ValueError("Summarization method not available!")
 
@@ -59,7 +61,7 @@ class ObjectRecognizerManager(object):
         image_vector = self._pre_process_new_image(image_object)
 
         # Store image in database
-        IMAGE_STORE.append(image_vector)
+        self.IMAGE_STORE.append(image_vector)
 
     def recognize_object(self, image_object, sample_labelled_vectors=None):
         """Returns the cluster association of the given object image. If the
@@ -73,7 +75,7 @@ class ObjectRecognizerManager(object):
         if sample_labelled_vectors is not None:
 
             # Create the semi-labeled data
-            labels = -np.ones(len(IMAGE_STORE))
+            labels = -np.ones(len(self.IMAGE_STORE))
             for labelled_vector in enumerate(sample_labelled_vectors):
                 labels[labelled_vector["index"]] = labelled_vector["label"]
 
@@ -81,7 +83,7 @@ class ObjectRecognizerManager(object):
             label_spread = label_propagation.LabelSpreading(
                 kernel='knn',
                 alpha=1.0)
-            label_spread.fit(IMAGE_STORE, labels)
+            label_spread.fit(self.IMAGE_STORE, labels)
 
             # Use our semi-supervised model to predict the image class
             predicted_label = label_spread.predict(image_vector)
@@ -89,9 +91,19 @@ class ObjectRecognizerManager(object):
             return predicted_label
 
         # Initialize and learn the currently stored images
-        dbscan = DBSCAN()
-        dbscan.fit(IMAGE_STORE)
-        cluster_association = dbscan.predict(image_vector)
+
+        pca = PCA(n_components=2)
+        pca.fit(np.vstack(self.IMAGE_STORE))
+        X_train = pca.transform(np.vstack(self.IMAGE_STORE))
+        X_predict = pca.transform(image_vector)
+
+        dbscan = DBSCAN(eps=2000)
+        cluster_association = dbscan.fit_predict(X_train, image_vector)
+
+        pl.clf()
+        pl.scatter(X_train[:, 0], X_train[:, 1], c=dbscan.labels_)
+        pl.scatter(X_predict[:, 0], X_predict[:, 1], marker='^', s=100)
+        pl.savefig("visualize_objects.png")
 
         return cluster_association
 
@@ -130,7 +142,7 @@ class ObjectRecognizerManager(object):
 
         # Train DBSCAN
         dbscan = DBSCAN()
-        dbscan.fit(IMAGE_STORE)
+        dbscan.fit(self.IMAGE_STORE)
 
         labels = dbscan.labels_
         unique, indices = np.unique(labels, return_index=True)
@@ -140,4 +152,4 @@ class ObjectRecognizerManager(object):
         unique = np.delete(unique, index)
         indices = np.delete(indices, index)
 
-        return np.vstack(unique, IMAGE_STORE[indices])
+        return np.vstack(unique, self.IMAGE_STORE[indices])
