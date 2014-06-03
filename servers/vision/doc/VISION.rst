@@ -31,7 +31,9 @@ Applicable Documents
 - [8] -- `Minoru 3D Webcam`_
 - [9] -- `V-ERAS`_
 - [10] -- `EUROPA Planning Software`_
-
+- [11] -- `Histogram of Oriented Gradients`_
+- [12] -- `Principal Component Analysis`_
+- [13] -- `Denisty-based scan`_
 
 .. _`C3 Prototype document v.4`: <http://www.erasproject.org/index.php?option=com_joomdoc&view=documents&path=C3+Subsystem/ERAS-C3Prototype_v4.pdf&Itemid=148>
 .. _`OpenCV`: <http://docs.opencv.org/modules/refman.html>
@@ -42,6 +44,9 @@ Applicable Documents
 .. _`Minoru 3D Webcam`: <http://en.wikipedia.org/wiki/Minoru_3D_Webcam>
 .. _`V-ERAS`: <http://www.spacerenaissance.it/wp-content/uploads/2014/03/DelMastro-VERAS.pdf>
 .. _`EUROPA Planning Software`: <http://code.google.com/p/europa-pso/wiki/EuropaWiki>
+.. _`Histogram of Oriented Gradients`: <http://www.vlfeat.org/overview/hog.html>
+.. _`Principal Component Analysis`: <https://www.ce.yildiz.edu.tr/personal/songul/file/1097/principal_components.pdf>
+.. _`Denisty-based scan`: <http://staffwww.itn.liu.se/~aidvi/courses/06/dm/Seminars2011/DBSCAN(4).pdf>
 
 Reference Documents
 -------------------
@@ -113,6 +118,17 @@ Software Design
 High-level view of Object Recognition
 
 .. image:: https://bytebucket.org/italianmarssociety/eras/raw/a6a9815420161a89065421be5786981300a74be5/servers/vision/doc/Images/IR.png
+
+This module takes a HOG representation ([11]) of each object on screen. Below, I
+ have collected a series of objects and have PCA'ed ([12]) the dataset to 
+ two-dimensions.
+
+.. image:: https://bytebucket.org/italianmarssociety/eras/raw/9d44b4992114703c17d527b2299413f5641ca9db/servers/vision/doc/Images/CD.png
+
+Each color represents a different cluster (found by DBSCAN as described in [13]).
+Each cluster represents an object on screen. This way, we can recognize objects
+we have seen earlier (the triangle is an object we are trying to predict). The
+triangle clearly belongs to the blue-labelled objects. 
 
 
 Planning
