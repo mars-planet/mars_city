@@ -1,0 +1,144 @@
+<?xml version="1.0"?>
+
+<sdf version="1.4">
+    <model name="chain_link">
+        <static>false</static>
+        <pose>0 0 0.0125 0 0 0</pose>
+
+        <link name="link_a">
+            <pose>-0.02 0 0 0 1.5707 1.5707</pose>
+            <inertial>
+                <pose>0 0 0 0 0 0</pose>
+                <inertia>
+                    <ixx>0.0001</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0.0001</iyy>
+                    <iyz>0</iyz>
+                    <izz>0.0001</izz>
+                </inertia>
+                <mass>0.05</mass>
+            </inertial>
+            <collision name="link_a_collision">
+                <geometry>
+                    <cylinder>
+                        <radius>.0125</radius>
+                        <length>.005</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+            <visual name="link_a_visual">
+                <geometry>
+                    <cylinder>
+                        <radius>.0125</radius>
+                        <length>.005</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Blue</name>
+                    </script>
+                </material>
+            </visual>
+        </link>
+        <link name="link_b">
+            <pose>0.02 0 0 0 1.5707 1.5707</pose>
+            <inertial>
+                <pose>0 0 0 0 0 0</pose>
+                <inertia>
+                    <ixx>0.0001</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0.0001</iyy>
+                    <iyz>0</iyz>
+                    <izz>0.0001</izz>
+                </inertia>
+                <mass>0.05</mass>
+            </inertial>
+            <collision name="link_b_collision">
+                <geometry>
+                    <cylinder>
+                        <radius>.0125</radius>
+                        <length>.005</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+            <visual name="link_b_visual">
+                <geometry>
+                    <cylinder>
+                        <radius>.0125</radius>
+                        <length>.005</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Red</name>
+                    </script>
+                </material>
+            </visual>
+        </link>
+        <link name="link_c">
+            <pose>0 0 0 0 0</pose>
+            <inertial>
+                <pose>0 0 0 0 0 0</pose>
+                <inertia>
+                    <ixx>0.0001</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0.0001</iyy>
+                    <iyz>0</iyz>
+                    <izz>0.0001</izz>
+                </inertia>
+                <mass>0.05</mass>
+            </inertial>
+            <collision name="link_c_collision">
+                <geometry>
+                    <box>
+                        <size>0.02 0.005 0.015</size>
+                    </box>
+                </geometry>
+            </collision>
+            <visual name="link_c_visual">
+                <geometry>
+                    <box>
+                        <size>0.02 0.005 0.015</size>
+                    </box>
+                </geometry>
+                <material>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Green</name>
+                    </script>
+                </material>
+            </visual>
+        </link>
+
+        <joint name="link_a_c" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>link_c</child>
+            <parent>link_a</parent>
+            <axis>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0</upper>
+                </limit>
+                <xyz>0 0 1</xyz>
+            </axis>
+        </joint>
+        <joint name="link_b_c" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>link_c</child>
+            <parent>link_b</parent>
+            <axis>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0</upper>
+                </limit>
+                <xyz>0 0 1</xyz>
+            </axis>
+        </joint>
+
+    </model>
+</sdf>
