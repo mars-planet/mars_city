@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+
+<sdf version="1.4">
+    <model name="wheel">
+        <static>false</static>
+        <pose>0 0 0 0 0 0</pose>
+
+        <link name="wheel">
+            <pose>1.0 0 0.5 0 1.5707 1.5707</pose>
+            <inertial>
+                <pose>0 0 0 0 0 0</pose><!-- at the center of the block-->
+                <inertia>
+                    <!-- values for mass = 10 -->
+                    <ixx>0.0667</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0.0667</iyy>
+                    <iyz>0</iyz>
+                    <izz>0.0333</izz>
+                </inertia>
+                <mass>5.0</mass>
+            </inertial>
+            <collision name="wheel_collision">
+                <geometry>
+                    <cylinder>
+                        <radius>.125</radius>
+                        <length>.05</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+            <visual name="wheel_visual">
+                <geometry>
+                    <cylinder>
+                        <radius>.125</radius>
+                        <length>.05</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Black</name>
+                    </script>
+                </material>
+            </visual>
+        </link>
+        <link name="axle">
+            <pose>1.0 0 0.5 1.507 0 0</pose>
+            <inertial>
+                <pose>0 0 0 0 0 0</pose><!-- at the center of the block-->
+                <inertia>
+                    <!-- values for mass = 10 -->
+                    <ixx>0.0067</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0.0067</iyy>
+                    <iyz>0</iyz>
+                    <izz>0.0033</izz>
+                </inertia>
+                <mass>0.5</mass>
+            </inertial>
+            <collision name="axle_collision">
+                <geometry>
+                    <cylinder>
+                        <radius>.125</radius>
+                        <length>.05</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+            <visual name="axle_visual">
+                <geometry>
+                    <cylinder>
+                        <radius>.125</radius>
+                        <length>.05</length>
+                    </cylinder>
+                </geometry>
+            </visual>
+        </link>
+
+        <joint name="wheel_axle" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>axle</child>
+            <parent>wheel</parent>
+            <axis>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0</upper>
+                </limit>
+                <xyz>0 0 1</xyz>
+            </axis>
+        </joint>
+
+    </model>
+</sdf>
