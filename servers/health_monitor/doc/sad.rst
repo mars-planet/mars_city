@@ -92,16 +92,13 @@ Non-functional requirements
 
 * As mentioned before, it should be possible to view the developed GUI from
   inside a virtual environment.
-
 * The framework selected for the GUI development should be multiplatform. It
   should also have as few prerequisites as possible.
-
 * Biometric devices:
     * Their cost should not exceed us$200.
     * They should be easy to integrate with TANGO.
     * Tey should not be cumbersome.
     * If possible each device should integrate several functions.
-
 * The data collector should gather data from any device deemed relevant. Any
   relevant device not available should be simulated.
 
@@ -228,12 +225,13 @@ The Server is running and its DevState is ON.
 
 Basic Course
 ~~~~~~~~~~~~
-#. The GUI calls the appropriate method on the Server, passing T as
+1. The GUI calls the appropriate method on the Server, passing T as
    argument.
 #. The Server searchs the database for the appropriate records.
 #. The Server returns the records found.
 #. For each available suit *s*:
-   #. The GUI calls the appropriate method on itself,
+
+   a. The GUI calls the appropriate method on itself,
       in order to summarize the biometrics of *s*.
    #. The GUI calls the appropriate method on itself,
       in order to display the summarized biometrics of *s*.
@@ -398,17 +396,66 @@ The guidelines defined in [2] should be followed.
 Planning
 --------
 
-The schedule is as defined in [3], with deliverables as follows:
+The high-level schedule is defined in [3], with deliverables as follows:
 
 * A TANGO server that implements the data collector.
+
 * A GUI that presents summarized and detailed data of the crew's biometrics.
+
 * A document describing the biometric devices selected for the project.
+
 * A space suit simulator that integrates the real devices.
+
 * Testing
+
     * Test environment to help diagnose the server's work.
     * A set of integration tests between the collector and the GUI.
     * A set of interface tests for the GUI.
+
 * Documentation.
+
     * User requirements (this document).
     * Design Study document.
     * User Manual.
+
+The time for this particular project is devided as follows:
+
++-------------------------------------------------------+----------+
+| (1) Refine schedule with mentor                       | 1/2 week |
+|                                                       |          |
+| a. Discuss architecture depth.                        |          |
+| #. Account for side requirements.                     |          |
+| #. Define nice-to-haves.                              |          |
+| #. Draft User requirements Document.                  |          |
++-------------------------------------------------------+----------+
+| (2) Find appropriate biometric device(s)              | 1 weeks  |
++-------------------------------------------------------+----------+
+| (3) Build space suite simulator                       | 3 weeks  |
+|                                                       |          |
+| a. Gather data (ECG, EEG, accelerometer, heart rate). |          |
+| #. Build randomizer.                                  |          |
+| #. Integrate with real devices                        |          |
++-------------------------------------------------------+----------+
+| (4) Build data collector                              | 3 weeks  |
+|                                                       |          |
+| a. Define database.                                   |          |
+| #. Define configuration variables.                    |          |
+| #. Write Unit tests                                   |          |
++-------------------------------------------------------+----------+
+| (5) Build GUI                                         | 2 weeks  |
+|                                                       |          |
+| a. Define basic interface.                            |          |
+| #. Build XML-based interface customizer.              |          |
+| #. Write interface tests.                             |          |
++-------------------------------------------------------+----------+
+| (6) Write integration tests                           | 1 week   |
++-------------------------------------------------------+----------+
+| (7) Finish writing documents                          | 1 week   |
++-------------------------------------------------------+----------+
+| (8) Buffer time                                       |          |
+|                                                       |          |
+| a. Cover for unforeseeables.                          |          |
+| #. Implement nice-to-haves.                           |          |
+| #. Improve code readability.                          |          |
+| #. Improve documents readability.                     |          |
++-------------------------------------------------------+----------+

@@ -123,7 +123,7 @@ This module takes a HOG representation ([11]) of each object on screen. Below, I
  have collected a series of objects and have PCA'ed ([12]) the dataset to 
  two-dimensions.
 
-.. image:: https://bytebucket.org/italianmarssociety/eras/raw/9d44b4992114703c17d527b2299413f5641ca9db/servers/vision/doc/Images/CD.png
+.. image:: https://bytebucket.org/italianmarssociety/eras/raw/4afa68b5bec747daa40b1cc18420f806cb6f1d74/servers/vision/doc/Images/IR_data.png
 
 Each color represents a different cluster (found by DBSCAN as described in [13]).
 Each cluster represents an object on screen. This way, we can recognize objects
