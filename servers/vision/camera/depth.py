@@ -65,9 +65,12 @@ class DepthTrackerManager(object):
 
         # Find the contours on the disparity map to find nearby objects
         image = SimpleCV.Image(self._disparity_map)
-        image.show()
 
-        blobs = image.binarize(200).findBlobs()
+        #
+        image = image.dilate(1).binarize()
+        image.show()
+        blobs = image.findBlobs()
+
         blobs = [c for c in blobs if c.area() > min_member_size]
 
         # Does the user want the cropped images?
@@ -89,7 +92,7 @@ class DepthTrackerManager(object):
                 masked_image = cv2.bitwise_and(base_image, mask)
                 cropped_images.append(masked_image)
 
-            return (cropped_images,blobs)
+            return (cropped_images, blobs)
 
         return blobs
 

@@ -54,13 +54,22 @@ class Cameo(object):
 
             blob_centroids = map(lambda p: p.centroid(), blobs)
 
-            # Show all objects on debug window
-            for n,image in enumerate(objects):
+            for n, image in enumerate(objects):
                 centroid = blob_centroids[n]
-                self.window_manager.draw_circle(left_frame,
-                    x=int(centroid[0]), y=int(centroid[1])) 
 
-                cv2.imshow("Found Object "+str(n),image)
+                self.object_recognition_manager.add_object(image)
+
+                self.window_manager.draw_circle(
+                    left_frame, x=int(
+                        centroid[0]), y=int(
+                        centroid[1]), radius=10)
+                self.window_manager.draw_text(
+                    left_frame, "Object", x=int(
+                        centroid[0]), y=int(
+                        centroid[1]))
+
+            if self.object_recognition_manager.amount_of_images > 4:
+                self.object_recognition_manager.recognize_object(image)
 
             # Display left frame
             self.window_manager.show(left_frame)

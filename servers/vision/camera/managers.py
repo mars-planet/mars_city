@@ -153,10 +153,13 @@ class WindowManager(object):
         self._is_window_created = False
 
     def draw_rectangle(self, frame, x=0, y=0, width=100, height=100):
-        cv2.rectangle(frame, (x, y), (x + width, y + height), (0, 255, 0), 1)
+        cv2.rectangle(frame, (y, x), (x + width, y + height), (0, 255, 0), 1)
 
     def draw_circle(self, frame, x=0, y=0, radius=1, color=(0, 255, 0)):
         cv2.circle(frame, (y, x), radius, color, 1)
+
+    def draw_text(self, frame, text, x=0, y=0):
+        cv2.putText(frame, text, (y, x), cv2.FONT_HERSHEY_SIMPLEX, 0.25, 255)
 
     def draw_contour(self, frame, points):
         cv2.fillPoly(frame, points, (0, 255, 0))
