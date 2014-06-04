@@ -1,0 +1,9 @@
+include README.md
+include HISTORY
+include LICENSE
+include MANIFEST.in
+include TODO
+include setup.py
+recursive-include pyEUROPA *.py
+recursive-include pyEUROPA/java *.jar
+recursive-include pyEUROPA/java *.java
