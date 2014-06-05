@@ -3,278 +3,31 @@
 <sdf version="1.4">
     <model name="track_drive">
         <static>false</static>
-        <pose>0 0 0 0 0 0</pose> <!-- dimensions are measured from the center of the model-->
+        <pose>0 0 0 0 0 0</pose>
 
-        <link name="front_wheel">
-            <pose>1.0 0 0.5 0 1.5707 1.5707</pose>
-            <inertial>
-                <pose>0 0 0 0 0 0</pose><!-- at the center of the block-->
-                <inertia>
-                    <!-- values for mass = 10 -->
-                    <ixx>0.0667</ixx>
-                    <ixy>0</ixy>
-                    <ixz>0</ixz>
-                    <iyy>0.0667</iyy>
-                    <iyz>0</iyz>
-                    <izz>0.0333</izz>
-                </inertia>
-                <mass>5.0</mass>
-            </inertial>
-            <collision name="front_wheel_collision">
-                <geometry>
-                    <cylinder>
-                        <radius>.125</radius>
-                        <length>.05</length>
-                    </cylinder>
-                </geometry>
-            </collision>
-            <visual name="guide_rail_visual">
-                <geometry>
-                    <cylinder>
-                        <radius>.125</radius>
-                        <length>.05</length>
-                    </cylinder>
-                </geometry>
-                <material>
-                    <script>
-                        <uri>file://media/materials/scripts/gazebo.material</uri>
-                        <name>Gazebo/Black</name>
-                    </script>
-                </material>
-            </visual>
-        </link>
-        <link name="palm">
-            <pose>0.0 0.0 0.05 0 0 0</pose>
-            <inertial>
-                <inertia>
-                    <!-- assign some small values for the physics engine to evaluate, change them later on -->
-                    <ixx>0.01</ixx>
-                    <ixy>0</ixy>
-                    <ixz>0</ixz>
-                    <iyy>0.01</iyy>
-                    <iyz>0</iyz>
-                    <izz>0.01</izz>
-                </inertia>
-                <mass>0.5</mass>
-            </inertial>
-            <collision name="palm_collision">
-                <geometry>
-                    <box>
-                        <size>0.1 0.2 0.1</size>
-                    </box>
-                </geometry>
-            </collision>
-            <visual name="palm_visual">
-                <geometry>
-                    <box>
-                        <size>0.1 0.2 0.1</size>
-                    </box>
-                </geometry>
-                <material>
-                    <script>
-                        <uri>file://media/materials/scripts/gazebo.material</uri>
-                        <name>Gazebo/Red</name>
-                    </script>
-                </material>
-            </visual>
-        </link>
-        <link name="left_finger">
-            <pose>0.1 0.2 0.05 0 0 -0.78539</pose>
-            <inertial>
-                <inertia>
-                    <ixx>0.01</ixx>
-                    <ixy>0</ixy>
-                    <ixz>0</ixz>
-                    <iyy>0.01</iyy>
-                    <iyz>0</iyz>
-                    <izz>0.01</izz>
-                </inertia>
-                <mass>0.1</mass>
-            </inertial>
-            <collision name="left_finger_collision">
-                <geometry>
-                    <box>
-                        <size>0.1 0.3 0.1</size>
-                    </box>
-                </geometry>
-            </collision>
-            <visual name="left_finger_visual">
-                <geometry>
-                    <box>
-                        <size>0.1 0.3 0.1</size>
-                    </box>
-                </geometry>
-                <material>
-                    <script>
-                        <uri>file://media/materials/scripts/gazebo.material</uri>
-                        <name>Gazebo/Yellow</name>
-                    </script>
-                </material>
-            </visual>
-        </link>
-        <link name="left_finger_tip">
-            <pose>0.336 0.3 0.05 0 0 1.5707</pose>
-            <inertial>
-                <inertia>
-                    <ixx>0.01</ixx>
-                    <ixy>0</ixy>
-                    <ixz>0</ixz>
-                    <iyy>0.01</iyy>
-                    <iyz>0</iyz>
-                    <izz>0.01</izz>
-                </inertia>
-                <mass>0.1</mass>
-            </inertial>
-            <collision name="left_finger_tip_collision">
-                <geometry>
-                    <box>
-                        <size>0.1 0.2 0.1</size>
-                    </box>
-                </geometry>
-            </collision>
-            <visual name="left_finger_tip_visual">
-                <geometry>
-                    <box>
-                        <size>0.1 0.2 0.1</size>
-                    </box>gedit ~/.gazebo/models/my_gripper/simple_gripper.sdf
-                </geometry>
-                <material>
-                    <script>
-                        <uri>file://media/materials/scripts/gazebo.material</uri>
-                        <name>Gazebo/Yellow</name>
-                    </script>
-                </material>
-            </visual>
-        </link>
-        <link name="right_finger">
-            <pose>0.1 -0.2 0.05 0 0 .78539</pose>
-            <inertial>
-                <inertia>
-                    <ixx>0.01</ixx>
-                    <ixy>0</ixy>
-                    <ixz>0</ixz>
-                    <iyy>0.01</iyy>
-                    <iyz>0</iyz>
-                    <izz>0.01</izz>
-                </inertia>
-                <mass>0.1</mass>
-            </inertial>
-            <collision name="right_finger_collision">
-                <geometry>
-                    <box>
-                        <size>0.1 0.3 0.1</size>
-                    </box>
-                </geometry>
-            </collision>
-            <visual name="right_finger_visual">
-                <geometry>
-                    <box>
-                        <size>0.1 0.3 0.1</size>
-                    </box>
-                </geometry>
-                <material>
-                    <script>
-                        <uri>file://media/materials/scripts/gazebo.material</uri>
-                        <name>Gazebo/Green</name>
-                    </script>
-                </material>
-            </visual>
-        </link>
-        <link name="right_finger_tip">
-            <pose>0.336 -0.3 0.05 0 0 1.5707</pose>
-            <inertial>
-                <inertia>
-                    <ixx>0.01</ixx>
-                    <ixy>0</ixy>
-                    <ixz>0</ixz>
-                    <iyy>0.01</iyy>
-                    <iyz>0</iyz>
-                    <izz>0.01</izz>
-                </inertia>
-                <mass>0.1</mass>
-            </inertial>
-            <collision name="tight_finger_tip_collision">
-                <geometry>
-                    <box>
-                        <size>0.1 0.2 0.1</size>
-                    </box>
-                </geometry>
-            </collision>
-            <visual name="right_finger_tip_visual">
-                <geometry>
-                    <box>
-                        <size>0.1 0.2 0.1</size>
-                    </box>
-                </geometry>
-                <material>
-                    <script>
-                        <uri>file://media/materials/scripts/gazebo.material</uri>
-                        <name>Gazebo/Green</name>
-                    </script>
-                </material>
-            </visual>
-        </link>
+        <include>
+            <uri>model://wheel</uri>
+            <pose>-0.7 0 0.145 0 0 0</pose>
+            <name>front_wheel</name>
+        </include>
 
-        <joint name="palm_left_finger" type="revolute">
-            <pose>0 -0.15 0 0 0 0</pose>
-            <child>left_finger</child>
-            <parent>palm</parent>
-            <axis>
-                <limit>
-                    <lower>-0.4</lower>
-                    <upper>0.4</upper>
-<!--                    <effort>1</effort>  Limit not enforced if effort is not provided -->
-                </limit>
-                <xyz>0 0 1</xyz>
-            </axis>
-        </joint>
-        <joint name="left_finger_tip" type="revolute">
-            <pose>0 0.1 0 0 0 0</pose>
-            <child>left_finger_tip</child>
-            <parent>left_finger</parent>
-            <axis>
-                <limit>
-                    <lower>-0.4</lower>
-                    <upper>0.4</upper>
-                </limit>
-                <xyz>0 0 1</xyz>
-            </axis>
-        </joint>
-        <joint name="palm_right_finger" type="revolute">
-            <pose>0 0.15 0 0 0 0</pose>
-            <child>right_finger</child>
-            <parent>palm</parent>
-            <axis>
-                <limit>
-                    <lower>-0.4</lower>
-                    <upper>0.4</upper>
-                </limit>
-                <xyz>0 0 1</xyz>
-            </axis>
-        </joint>
-        <joint name="right_finger_tip" type="revolute">
-            <pose>0 0.1 0 0 0 0</pose>
-            <child>right_finger_tip</child>
-            <parent>right_finger</parent>
-            <axis>
-                <limit>
-                    <lower>-0.4</lower>
-                    <upper>0.4</upper>
-                </limit>
-                <xyz>0 0 1</xyz>
-            </axis>
-        </joint>
-        <joint name="palm_riser" type="prismatic">
-            <child>palm</child>
-            <parent>guide_rail</parent>
-            <axis>
-                <limit>
-                    <lower>0</lower>
-                    <upper>0.9</upper>
-                </limit>
-                <xyz>0 0 1</xyz>
-            </axis>
-        </joint>
+        <include>
+            <uri>model://wheel</uri>
+            <pose>0.7 0 0.145 0 0 0</pose> <!-- 0.125 for the wheel, 0.02 for the link -->
+            <name>rear_wheel</name>
+        </include>
+
+        <include>
+            <uri>model://chain_straight</uri>
+            <pose>0 0 0.02 0 0 0</pose>
+            <name>chain_straight_bottom</name>
+        </include>
+
+        <include>
+            <uri>model://chain_straight</uri>
+            <pose>0 0 0.29 0 0 0</pose>
+            <name>chain_straight_top</name>
+        </include>
 
     </model>
 </sdf>
