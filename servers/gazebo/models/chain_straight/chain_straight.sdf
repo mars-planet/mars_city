@@ -1,0 +1,395 @@
+<?xml version="1.0"?>
+
+<sdf version="1.4">
+    <model name="chain_straight">
+        <static>false</static>
+        <pose>0 0 0.02 0 0 0</pose>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>-0.7 0 0 0 0 0</pose>
+            <name>chain_link_01</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>-0.63 0 0 0 0 0</pose>
+            <name>chain_link_02</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>-0.56 0 0 0 0 0</pose>
+            <name>chain_link_03</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>-0.49 0 0 0 0 0</pose>
+            <name>chain_link_04</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>-0.42 0 0 0 0 0</pose>
+            <name>chain_link_05</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>-0.35 0 0 0 0 0</pose>
+            <name>chain_link_06</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>-0.28 0 0 0 0 0</pose>
+            <name>chain_link_07</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>-0.21 0 0 0 0 0</pose>
+            <name>chain_link_08</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>-0.14 0 0 0 0 0</pose>
+            <name>chain_link_09</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>-0.07 0 0 0 0 0</pose>
+            <name>chain_link_10</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>0 0 0 0 0 0</pose>
+            <name>chain_link_11</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>0.07 0 0 0 0 0</pose>
+            <name>chain_link_12</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>0.14 0 0 0 0 0</pose>
+            <name>chain_link_13</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>0.21 0 0 0 0 0</pose>
+            <name>chain_link_14</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>0.28 0 0 0 0 0</pose>
+            <name>chain_link_15</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>0.35 0 0 0 0 0</pose>
+            <name>chain_link_16</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>0.42 0 0 0 0 0</pose>
+            <name>chain_link_17</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>0.49 0 0 0 0 0</pose>
+            <name>chain_link_18</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>0.56 0 0 0 0 0</pose>
+            <name>chain_link_19</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>0.63 0 0 0 0 0</pose>
+            <name>chain_link_20</name>
+        </include>
+
+        <include>
+            <uri>model://chain_link</uri>
+            <pose>0.7 0 0 0 0 0</pose>
+            <name>chain_link_21</name>
+        </include>
+
+        <joint name="rivet_01_02" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_02::link_a</child>
+            <parent>chain_link_01::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="rivet_02_03" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_03::link_a</child>
+            <parent>chain_link_02::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="rivet_03_04" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_03::link_a</child>
+            <parent>chain_link_04::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="rivet_04_05" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_05::link_a</child>
+            <parent>chain_link_04::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="rivet_05_06" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_06::link_a</child>
+            <parent>chain_link_05::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="rivet_06_07" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_07::link_a</child>
+            <parent>chain_link_06::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="rivet_07_08" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_08::link_a</child>
+            <parent>chain_link_07::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="rivet_08_09" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_09::link_a</child>
+            <parent>chain_link_08::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="rivet_09_10" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_10::link_a</child>
+            <parent>chain_link_09::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="rivet_10_11" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_11::link_a</child>
+            <parent>chain_link_10::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="rivet_11_12" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_12::link_a</child>
+            <parent>chain_link_11::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="rivet_12_13" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_13::link_a</child>
+            <parent>chain_link_12::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="rivet_13_14" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_14::link_a</child>
+            <parent>chain_link_13::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="rivet_14_15" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_15::link_a</child>
+            <parent>chain_link_14::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="rivet_15_16" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_16::link_a</child>
+            <parent>chain_link_15::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="rivet_16_17" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_17::link_a</child>
+            <parent>chain_link_16::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="rivet_17_18" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_18::link_a</child>
+            <parent>chain_link_17::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="rivet_18_19" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_19::link_a</child>
+            <parent>chain_link_18::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="rivet_19_20" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_20::link_a</child>
+            <parent>chain_link_19::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="rivet_20_21" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_link_21::link_a</child>
+            <parent>chain_link_20::link_b</parent>
+            <axis>
+                <limit>
+                    <lower>-1</lower>
+                    <upper>1</upper>
+                </limit>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+    </model>
+</sdf>

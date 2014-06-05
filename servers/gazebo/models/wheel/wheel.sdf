@@ -44,7 +44,7 @@
             </visual>
         </link>
         <link name="axle">
-            <pose>0 0.125 0 1.507 0 0</pose>
+            <pose>0 0 0 1.507 0 0</pose>
             <inertial>
                 <pose>0 0 0 0 0 0</pose><!-- at the center of the block-->
                 <inertia>
@@ -62,7 +62,7 @@
                 <geometry>
                     <cylinder>
                         <radius>.025</radius>
-                        <length>.25</length>
+                        <length>.125</length>
                     </cylinder>
                 </geometry>
             </collision>
@@ -70,7 +70,7 @@
                 <geometry>
                     <cylinder>
                         <radius>.025</radius>
-                        <length>.25</length>
+                        <length>.125</length>
                     </cylinder>
                 </geometry>
             </visual>

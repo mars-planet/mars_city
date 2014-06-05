@@ -3,10 +3,10 @@
 <sdf version="1.4">
     <model name="chain_link">
         <static>false</static>
-        <pose>0 0 0.0125 0 0 0</pose>
+        <pose>0 0 0.02 0 0 0</pose>
 
         <link name="link_a">
-            <pose>-0.02 0 0 0 1.5707 1.5707</pose>
+            <pose>-0.035 0 0 0 1.5707 1.5707</pose>
             <inertial>
                 <pose>0 0 0 0 0 0</pose>
                 <inertia>
@@ -22,7 +22,7 @@
             <collision name="link_a_collision">
                 <geometry>
                     <cylinder>
-                        <radius>.0125</radius>
+                        <radius>.02</radius>
                         <length>.005</length>
                     </cylinder>
                 </geometry>
@@ -30,7 +30,7 @@
             <visual name="link_a_visual">
                 <geometry>
                     <cylinder>
-                        <radius>.0125</radius>
+                        <radius>.02</radius>
                         <length>.005</length>
                     </cylinder>
                 </geometry>
@@ -43,7 +43,7 @@
             </visual>
         </link>
         <link name="link_b">
-            <pose>0.02 0 0 0 1.5707 1.5707</pose>
+            <pose>0.035 0 0 0 1.5707 1.5707</pose>
             <inertial>
                 <pose>0 0 0 0 0 0</pose>
                 <inertia>
@@ -59,7 +59,7 @@
             <collision name="link_b_collision">
                 <geometry>
                     <cylinder>
-                        <radius>.0125</radius>
+                        <radius>.02</radius>
                         <length>.005</length>
                     </cylinder>
                 </geometry>
@@ -67,7 +67,7 @@
             <visual name="link_b_visual">
                 <geometry>
                     <cylinder>
-                        <radius>.0125</radius>
+                        <radius>.02</radius>
                         <length>.005</length>
                     </cylinder>
                 </geometry>
@@ -96,14 +96,14 @@
             <collision name="link_c_collision">
                 <geometry>
                     <box>
-                        <size>0.02 0.005 0.015</size>
+                        <size>0.03 0.005 0.015</size>
                     </box>
                 </geometry>
             </collision>
             <visual name="link_c_visual">
                 <geometry>
                     <box>
-                        <size>0.02 0.005 0.015</size>
+                        <size>0.03 0.005 0.015</size>
                     </box>
                 </geometry>
                 <material>
