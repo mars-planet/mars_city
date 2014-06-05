@@ -15,6 +15,8 @@ setup(
     packages=['pyEUROPA'],
     package_dir={
         'pyEUROPA': 'pyEUROPA'},
+    package_data={
+        'pyEUROPA': ['java/src/pyEUROPA.java', 'java/lib/py4j0.7.jar', 'java/lib/PY4J_LICENSE']},
     classifiers=[
         'Development Status :: 1 - Beta',
         'Environment :: Console',
