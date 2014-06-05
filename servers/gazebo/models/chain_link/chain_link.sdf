@@ -23,15 +23,25 @@
                 <geometry>
                     <cylinder>
                         <radius>.02</radius>
-                        <length>.005</length>
+                        <length>.01</length>
                     </cylinder>
                 </geometry>
+                <surface>
+                    <friction>
+                        <ode>
+                            <mu>10</mu>
+                            <mu2>10</mu2>
+                            <slip1>1.0</slip1>
+                            <slip2>1.0</slip2>
+                        </ode>
+                    </friction>
+                </surface>
             </collision>
             <visual name="link_a_visual">
                 <geometry>
                     <cylinder>
                         <radius>.02</radius>
-                        <length>.005</length>
+                        <length>.01</length>
                     </cylinder>
                 </geometry>
                 <material>
@@ -60,15 +70,25 @@
                 <geometry>
                     <cylinder>
                         <radius>.02</radius>
-                        <length>.005</length>
+                        <length>.01</length>
                     </cylinder>
                 </geometry>
+                <surface>
+                    <friction>
+                        <ode>
+                            <mu>10</mu>
+                            <mu2>10</mu2>
+                            <slip1>1.0</slip1>
+                            <slip2>1.0</slip2>
+                        </ode>
+                    </friction>
+                </surface>
             </collision>
             <visual name="link_b_visual">
                 <geometry>
                     <cylinder>
                         <radius>.02</radius>
-                        <length>.005</length>
+                        <length>.01</length>
                     </cylinder>
                 </geometry>
                 <material>
@@ -99,11 +119,21 @@
                         <size>0.03 0.005 0.015</size>
                     </box>
                 </geometry>
+                <surface>
+                    <friction>
+                        <ode>
+                            <mu>10</mu>
+                            <mu2>10</mu2>
+                            <slip1>1.0</slip1>
+                            <slip2>1.0</slip2>
+                        </ode>
+                    </friction>
+                </surface>
             </collision>
             <visual name="link_c_visual">
                 <geometry>
                     <box>
-                        <size>0.03 0.005 0.015</size>
+                        <size>0.03 0.01 0.015</size>
                     </box>
                 </geometry>
                 <material>

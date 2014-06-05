@@ -22,12 +22,80 @@
             <pose>0 0 0.02 0 0 0</pose>
             <name>chain_straight_bottom</name>
         </include>
-
+<!--
         <include>
             <uri>model://chain_straight</uri>
             <pose>0 0 0.29 0 0 0</pose>
             <name>chain_straight_top</name>
         </include>
+
+        <joint name="slip_rear_top" type="prismatic">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_straight_top::chain_link_01::link_a</child>
+            <parent>rear_wheel::wheel</parent>
+            <axis>
+                <dynamics>
+                    <damping>0.1</damping>
+                    <friction>0.6</friction>
+                </dynamics>
+                <limit>
+                    <lower>-0.01</lower>
+                    <upper>0.01</upper>
+                </limit>
+                <xyz>1 0 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="slip_front_top" type="prismatic">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_straight_top::chain_link_21::link_b</child>
+            <parent>front_wheel::wheel</parent>
+            <axis>
+                <dynamics>
+                    <damping>0.1</damping>
+                    <friction>0.6</friction>
+                </dynamics>
+                <limit>
+                    <lower>-0.01</lower>
+                    <upper>0.01</upper>
+                </limit>
+                <xyz>1 0 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="slip_rear_bottom" type="prismatic">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_straight_bottom::chain_link_01::link_a</child>
+            <parent>rear_wheel::wheel</parent>
+            <axis>
+                <dynamics>
+                    <damping>0.1</damping>
+                    <friction>0.6</friction>
+                </dynamics>
+                <limit>
+                    <lower>-0.01</lower>
+                    <upper>0.01</upper>
+                </limit>
+                <xyz>1 0 0</xyz>
+            </axis>
+        </joint>
+-->
+        <joint name="slip_front_bottom" type="prismatic">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_straight_bottom::chain_link_21::link_b</child>
+            <parent>front_wheel::wheel</parent>
+            <axis>
+                <dynamics>
+                    <damping>0.1</damping>
+                    <friction>0.6</friction>
+                </dynamics>
+                <limit>
+                    <lower>-0.01</lower>
+                    <upper>0.01</upper>
+                </limit>
+                <xyz>1 0 0</xyz>
+            </axis>
+        </joint>
 
     </model>
 </sdf>
