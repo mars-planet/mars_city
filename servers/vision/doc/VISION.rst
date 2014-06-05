@@ -137,3 +137,55 @@ Planning
 - Milestone I: Finish Object Recognition & Target Tracking
 - Milestone II: Path Travelling Module
 - Milestone II: Integrate with PyEuropa
+
+Appendix A: Use Case template
+=============================
+
+Use Cases drive the whole software process and bind together all the phases
+from requirements capture to final delivery of the system and maintenance.
+They are a very effective way of communicating with customers and among team
+members. Before every discussion always provide the partners with a set of
+relevant Use Cases.
+
+During meetings, they stimulate focused discussions and help identifying
+important details. It is important to keep in mind that Use Cases have to
+describe WHAT the system has to do in response to certain external stimuli
+and NOT HOW it will do it. The HOW is part of the architecture and of the
+design.
+
+What follows is the empty template:
+
+Use Case: <Name>
+================
+<Short description>
+
+Actors
+------
+<List of Actors>
+
+Priority
+--------
+<Low, Normal, Critical>
+
+Preconditions
+-------------
+<List of preconditions that must be fulfilled>
+
+Basic Course
+------------
+<Step-by-step description of the basic course>
+
+Alternate Course
+----------------
+<Step-by-step description of the alternate course>
+
+Exception Course
+----------------
+<Step-by-step description of the exception course>
+
+Postconditions
+--------------
+<List of postconditions (if apply)>
+
+Notes
+-----
