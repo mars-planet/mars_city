@@ -4,12 +4,12 @@
     <model name="track_drive">
         <static>false</static>
         <pose>0 0 0 0 0 0</pose>
-<!--
+
         <include>
             <uri>model://wheel</uri>
             <pose>-0.7 0 0.145 0 0 0</pose>
             <name>front_wheel</name>
-        </include>-->
+        </include>
 
         <include>
             <uri>model://wheel</uri>
@@ -18,143 +18,16 @@
         </include>
 
         <include>
-            <uri>model://chain_link</uri>
-            <pose>-0.7 0 0.02 0 0 0</pose>
-            <name>chain_link_01</name>
-        </include>
-
-        <include>
-            <uri>model://chain_link</uri>
-            <pose>-0.63 0 0.02 0 0 0</pose>
-            <name>chain_link_02</name>
-        </include>
-<!--
-        <include>
-            <uri>model://chain_link</uri>
-            <pose>-0.56 0 0.02 0 0 0</pose>
-            <name>chain_link_03</name>
-        </include>
-
-        <include>
-            <uri>model://chain_link</uri>
-            <pose>-0.49 0 0.02 0 0 0</pose>
-            <name>chain_link_04</name>
-        </include>
-
-        <include>
-            <uri>model://chain_link</uri>
-            <pose>-0.42 0 0.02 0 0 0</pose>
-            <name>chain_link_04</name>
-        </include>
-
-        <include>
-            <uri>model://chain_link</uri>
-            <pose>-0.35 0 0.02 0 0 0</pose>
-            <name>chain_link_05</name>
-        </include>
-
-        <include>
-            <uri>model://chain_link</uri>
-            <pose>-0.28 0 0.02 0 0 0</pose>
-            <name>chain_link_06</name>
-        </include>
-
-        <include>
-            <uri>model://chain_link</uri>
-            <pose>-0.21 0 0.02 0 0 0</pose>
-            <name>chain_link_06</name>
-        </include>
-
-        <include>
-            <uri>model://chain_link</uri>
-            <pose>-0.14 0 0.02 0 0 0</pose>
-            <name>chain_link_07</name>
-        </include>
-
-        <include>
-            <uri>model://chain_link</uri>
-            <pose>-0.07 0 0.02 0 0 0</pose>
-            <name>chain_link_08</name>
-        </include>
-
-        <include>
-            <uri>model://chain_link</uri>
+            <uri>model://chain_straight</uri>
             <pose>0 0 0.02 0 0 0</pose>
-            <name>chain_link_09</name>
+            <name>chain_straight_bottom</name>
         </include>
 
         <include>
-            <uri>model://chain_link</uri>
-            <pose>0.07 0 0.02 0 0 0</pose>
-            <name>chain_link_0a</name>
+            <uri>model://chain_straight</uri>
+            <pose>0 0 0.29 0 0 0</pose>
+            <name>chain_straight_top</name>
         </include>
-
-        <include>
-            <uri>model://chain_link</uri>
-            <pose>0.14 0 0.02 0 0 0</pose>
-            <name>chain_link_0b</name>
-        </include>
-
-        <include>
-            <uri>model://chain_link</uri>
-            <pose>0.21 0 0.02 0 0 0</pose>
-            <name>chain_link_06</name>
-        </include>
-
-        <include>
-            <uri>model://chain_link</uri>
-            <pose>0.28 0 0.02 0 0 0</pose>
-            <name>chain_link_0c</name>
-        </include>
-
-        <include>
-            <uri>model://chain_link</uri>
-            <pose>0.35 0 0.02 0 0 0</pose>
-            <name>chain_link_0d</name>
-        </include>
-
-        <include>
-            <uri>model://chain_link</uri>
-            <pose>0.42 0 0.02 0 0 0</pose>
-            <name>chain_link_0e</name>
-        </include>
-
-        <include>
-            <uri>model://chain_link</uri>
-            <pose>0.49 0 0.02 0 0 0</pose>
-            <name>chain_link_0f</name>
-        </include>
-
-        <include>
-            <uri>model://chain_link</uri>
-            <pose>0.56 0 0.02 0 0 0</pose>
-            <name>chain_link_10</name>
-        </include>
-
-        <include>
-            <uri>model://chain_link</uri>
-            <pose>0.63 0 0.02 0 0 0</pose>
-            <name>chain_link_11</name>
-        </include>
-
-        <include>
-            <uri>model://chain_link</uri>
-            <pose>0.7 0 0.02 0 0 0</pose>
-            <name>chain_link_12</name>
-        </include>-->
-
-        <joint name="rivet_01_02" type="revolute">
-            <pose>0 0 0 0 0 0</pose>
-            <child>chain_link_02</child>
-            <parent>chain_link_01</parent>
-            <axis>
-                <limit>
-                    <lower>-1</lower>
-                    <upper>1</upper>
-                </limit>
-                <xyz>0 1 0</xyz>
-            </axis>
-        </joint>
 
     </model>
 </sdf>
