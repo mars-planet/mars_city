@@ -6,7 +6,8 @@ import os
 import audioop
 
 #run importacoustic.sh
-hmdir = "~/voicelib/hub4wsj_sc_8kadapt"
+#hmdir = "~/voicelib/hub4wsj_sc_8kadapt"
+hmdir = "/usr/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"
 lmdir = "5356.lm"
 dictd = "5356.dic"
 sysdir = os.getcwd
@@ -149,7 +150,7 @@ def passiveListen():
 	# check if PERSONA was said
 	speechRec = Decoder(hmm = hmdir, lm = lmdir, dict = dictd)
 	with open(passivewav, 'rb') as passivewav:
-        speechRec.decode_raw(passivewav)
+		speechRec.decode_raw(passivewav)
         result = speechRec.get_hyp()
 
 	if "trevor" in result[0]:
@@ -168,6 +169,9 @@ def record(THRESHOLD=None):
     WAVE_OUTPUT_FILENAME = "livewav.wav"
 
     p = pyaudio.PyAudio()
+    if THRESHOLD == None:
+		THRESHOLD = fetchThreshold()
+
 
     stream = p.open(format=FORMAT,
                     channels=CHANNELS,
@@ -175,34 +179,23 @@ def record(THRESHOLD=None):
                     input=True,
                     frames_per_buffer=chunk)
 
-	if THRESHOLD == None:
-		THRESHOLD = fetchThreshold()
 
 
     print "* recording"
     frames = []
-    #for i in range(0, RATE / chunk * RECORD_SECONDS):
-        #data = stream.read(chunk)
-        ##stores data into list "frames"
-        #frames.append(data)
-
-   #plays low beep
     lastN = [THRESHOLD * 1.2 for i in range(30)]
+    for i in range(0, RATE / CHUNK * LISTEN_TIME):
+		data = stream.read(CHUNK)
+		frames.append(data)
+		score = self.getScore(data)
+		lastN.pop(0)
+		lastN.append(score)
+		average = sum(lastN) / float(len(lastN))
+		if average < THRESHOLD * 0.8:
+			break
 
-        for i in range(0, RATE / CHUNK * LISTEN_TIME):
 
-            data = stream.read(CHUNK)
-            frames.append(data)
-            score = self.getScore(data)
 
-            lastN.pop(0)
-            lastN.append(score)
-
-            average = sum(lastN) / float(len(lastN))
-
-            # TODO: 0.8 should not be a MAGIC NUMBER!
-            if average < THRESHOLD * 0.8:
-                break
     print "* done recording"
     stream.stop_stream()
     stream.close()
@@ -229,6 +222,8 @@ def record(THRESHOLD=None):
 
     #DO SOME AMPLIFICATION
     #os.system("sox "+WAVE_OUTPUT_FILENAME+" temp.wav vol 15dB")
+
+
 
 def handleForever():
         """Delegates user input to the handling function when activated."""
