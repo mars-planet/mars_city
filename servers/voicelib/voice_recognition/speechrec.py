@@ -5,8 +5,8 @@ import wave
 import os
 import audioop
 
-
-hmdir = "/usr/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"
+#run importacoustic.sh
+hmdir = "~/voicelib/hub4wsj_sc_8kadapt"
 lmdir = "5356.lm"
 dictd = "5356.dic"
 sysdir = os.getcwd
