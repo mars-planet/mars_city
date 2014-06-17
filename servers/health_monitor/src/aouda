@@ -1,0 +1,206 @@
+#!/usr/bin/env python
+
+from __future__ import division, print_function
+
+import ConfigParser
+from datetime import datetime
+import os
+import sys
+
+from PyTango import ArgType, AttrDataFormat, AttrWriteType
+import PyTango
+from aouda import Aouda, NoDataAvailableError
+
+
+class PyDsExpClass(PyTango.DeviceClass):
+    cmd_list = {
+                'get_data': [[ArgType.DevLong, "Period"],
+                             [ArgType.DevVarDoubleStringArray]],
+                }
+
+    attr_list = {
+                 'ecg_v1': [[ArgType.DevFloat,
+                                 AttrDataFormat.SCALAR,
+                                 AttrWriteType.READ],
+                                {'polling period': 2000}],
+                 'ecg_v2': [[ArgType.DevFloat,
+                                 AttrDataFormat.SCALAR,
+                                 AttrWriteType.READ],
+                                {'polling period': 2000}],
+                 'o2': [[ArgType.DevFloat,
+                                 AttrDataFormat.SCALAR,
+                                 AttrWriteType.READ],
+                                {'polling period': 2000}],
+                 'temperature': [[ArgType.DevFloat,
+                                 AttrDataFormat.SCALAR,
+                                 AttrWriteType.READ],
+                                {'polling period': 2000}],
+                 'air_flow': [[ArgType.DevFloat,
+                                 AttrDataFormat.SCALAR,
+                                 AttrWriteType.READ],
+                                {'polling period': 2000}],
+                 'heart_rate': [[ArgType.DevFloat,
+                                 AttrDataFormat.SCALAR,
+                                 AttrWriteType.READ],
+                                {'polling period': 2000}],
+                 'acc_magn': [[ArgType.DevFloat,
+                               AttrDataFormat.SCALAR,
+                               AttrWriteType.READ],
+                              {'polling period': 2000}]
+                 }
+
+    def __init__(self, name):
+        print('Constructing PyDsExpClass')
+        PyTango.DeviceClass.__init__(self, name)
+        self.set_type("PyDsExpClass")
+        print('Finished constructing PyDsExpClass')
+
+
+class PyDsExp(PyTango.Device_4Impl):
+
+    def __init__(self, cl, name):
+        print('Constructing PyDsExp')
+        PyTango.Device_4Impl.__init__(self, cl, name)
+        PyDsExp.init_device(self)
+        print('Finished constructing PyDsExp')
+
+    def init_device(self):
+        print('Initializing device')
+        self.aouda = Aouda(shift_data=PyDsExp.cycle_through_data)
+        self.set_state(PyTango.DevState.ON)
+        print('Finished initializing device')
+
+############## BEGIN get_data #################################################
+    def is_get_data_allowed(self):
+        return self.get_state() in (PyTango.DevState.ON,)
+
+    def get_data(self, period):
+        """
+        Returns an array with all datapoints in the last period seconds.
+        The format is:
+        [
+         [ecg_v11, ecg_v21, o21, temperature1,
+              air_flow1, hr1, acc_x1, acc_y1, acc_z1,
+          ecg_v12, ecg_v22, o22, temperature2,
+              air_flow2, hr2, acc_x2, acc_y2, acc_z2,
+          ...
+          ecg_v1N, ecg_v2N, o2N, temperatureN,
+              air_flowN, hrN, acc_xN, acc_yN, acc_zN],
+         [timestamp1, timestamp2, ..., timestampN],
+        ]
+        """
+        try:
+            data, _ = self.aouda.get_data(period)
+            ret_val = [[], []]
+            for dp in data:
+                ret_val[0].append(dp.ecg_v1)
+                ret_val[0].append(dp.ecg_v2)
+                ret_val[0].append(dp.o2)
+                ret_val[0].append(dp.temperature)
+                ret_val[0].append(dp.air_flow)
+                ret_val[0].append(dp.hr)
+                ret_val[0].append(dp.acc_x)
+                ret_val[0].append(dp.acc_y)
+                ret_val[0].append(dp.acc_z)
+                formatted_ts = dp.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f')
+                ret_val[1].append(formatted_ts)
+            return ret_val
+        except NoDataAvailableError:
+            print("No data available on dataset for %s seconds before %s."
+                  % (period, datetime.now()))
+            sys.exit()
+############### END get_data ##################################################
+
+############## BEGIN ecg_v1 ###################################################
+    def is_ecg_v1_allowed(self, req_type):
+        return self.get_state() in (PyTango.DevState.ON,)
+
+    def read_ecg_v1(self, the_att):
+        self.ecg_v1 = ecg_v1 = self.aouda.read_ecg_v1()
+        print("read_ecg_v1")
+        the_att.set_value(ecg_v1)
+############### END ecg_v1 ####################################################
+
+############## BEGIN ecg_v2 ###################################################
+    def is_ecg_v2_allowed(self, req_type):
+        return self.get_state() in (PyTango.DevState.ON,)
+
+    def read_ecg_v2(self, the_att):
+        self.ecg_v2 = ecg_v2 = self.aouda.read_ecg_v2()
+        print("read_ecg_v2")
+        the_att.set_value(ecg_v2)
+############### END ecg_v2 ####################################################
+
+############## BEGIN o2 #######################################################
+    def is_o2_allowed(self, req_type):
+        return self.get_state() in (PyTango.DevState.ON,)
+
+    def read_o2(self, the_att):
+        self.o2 = o2 = self.aouda.read_o2()
+        print("read_heart_rate")
+        the_att.set_value(o2)
+############### END o2 ########################################################
+
+############## BEGIN temperature ##############################################
+    def is_temperature_allowed(self, req_type):
+        return self.get_state() in (PyTango.DevState.ON,)
+
+    def read_temperature(self, the_att):
+        self.temperature = temperature = self.aouda.read_temperature()
+        print("read_temperature")
+        the_att.set_value(temperature)
+############### END temperature ###############################################
+
+############## BEGIN air_flow #################################################
+    def is_air_flow_allowed(self, req_type):
+        return self.get_state() in (PyTango.DevState.ON,)
+
+    def read_air_flow(self, the_att):
+        self.air_flow = air_flow = self.aouda.read_air_flow()
+        print("read_air_flow")
+        the_att.set_value(air_flow)
+############### END air_flow ##################################################
+
+############## BEGIN heart_rate ###############################################
+    def is_heart_rate_allowed(self, req_type):
+        return self.get_state() in (PyTango.DevState.ON,)
+
+    def read_heart_rate(self, the_att):
+        self.heart_rate = heart_rate = self.aouda.read_heart_rate()
+        print("read_heart_rate")
+        the_att.set_value(heart_rate)
+############### END heart_rate ################################################
+
+############## BEGIN acc_magn #################################################
+    def is_acc_magn_allowed(self, req_type):
+        return self.get_state() in (PyTango.DevState.ON,)
+
+    def read_acc_magn(self, the_att):
+        self.acc_magn = acc_magn = self.aouda.read_acc_magn()
+        print("read_acc_magn")
+        the_att.set_value(acc_magn)
+############### END acc_magn ##################################################
+
+
+print("Reading configuration file")
+config = ConfigParser.RawConfigParser()
+dirname = os.path.dirname(os.path.abspath(sys.argv[0]))
+cfg_filename = os.path.join(dirname, 'aouda.cfg')
+config.read(cfg_filename)
+PyDsExp.cycle_through_data = config.getboolean('Data', 'cycle_through_data')
+
+
+if __name__ == '__main__':
+    print(sys.argv)
+    print("Parsing command line arguments")
+    util = PyTango.Util(sys.argv)
+    print("Setting up Server")
+    util.add_class(PyDsExpClass, PyDsExp)
+
+    print("Getting ancillary classes instances")
+    U = PyTango.Util.instance()
+    print("Initializing Server")
+    U.server_init()
+    print("Running Server")
+    U.server_run()
+    print("Exiting")
