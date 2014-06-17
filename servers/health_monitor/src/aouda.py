@@ -41,15 +41,15 @@ class Aouda(object):
         """
         periods = 1000
         data = og.datasets.mackey_glass(sample_len=periods,
-                                        n_samples=10,
-                                        seed=50).reshape((10, periods))
+                                        n_samples=9,
+                                        seed=50).reshape((9, periods))
         data = data + np.abs(data.min())
         data = data.transpose()
         return pd.DataFrame(data=data,
                             index=pd.date_range(datetime.now(),
                                                 periods=periods,
                                                 freq='500L'),
-                            columns=['timestamp', 'ecg_v1', 'ecg_v2', 'o2',
+                            columns=['ecg_v1', 'ecg_v2', 'o2',
                                      'temperature', 'air_flow', 'hr',
                                      'acc_x', 'acc_y', 'acc_z'])
 
