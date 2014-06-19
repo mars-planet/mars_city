@@ -1,22 +1,39 @@
 from __future__ import division
 
 from datetime import datetime, timedelta
+import re
 
-from sqlalchemy import Column, DateTime, Float, String, Enum
+from sqlalchemy import Column, DateTime, Enum, Float, Index, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declared_attr
+
+
+def camel_to_underscore(name):
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 
 Base = declarative_base()
 
 
-class EcgV1Datapoint(Base):
-    __tablename__ = 'ecg_v1_datapoints'
+class TimestampSourceMixin(object):
     timestamp = Column(DateTime, primary_key=True)
     millisecond = Column(Float, primary_key=True)
-    ecg_v1 = Column(Float)
+    source_id = Column(Integer, primary_key=True)
     doe = Column(DateTime, default=datetime.now)
 
-    def __init__(self, timestamp, ecg_v1, millisecond=None):
+    @declared_attr
+    @classmethod
+    def __table_args__(cls):
+        return (Index('idx_%s' % cls.__tablename__,
+                      'timestamp', 'millisecond', 'source_id'),)
+
+    @declared_attr
+    @classmethod
+    def __tablename__(cls):
+        return camel_to_underscore(cls.__name__)
+
+    def __init__(self, timestamp, source_id, millisecond=None):
         self.timestamp = timestamp
         if millisecond:
             self.timestamp -= timedelta(microseconds=timestamp.microsecond)
@@ -24,153 +41,87 @@ class EcgV1Datapoint(Base):
             self.millisecond = millisecond
         else:
             self.millisecond = timestamp.microsecond / 1000
+
+    def __repr__(self):
+        attr_repr = ', '.join('%s=%s' % (k, self.__dict__[k])
+                                            for k in sorted(self.__dict__)
+                                                if '_sa_' != k[:4])
+        return ("<%s(%s)>"
+                % (self.__class__.__name__, attr_repr))
+
+
+class EcgV1Datapoint(TimestampSourceMixin, Base):
+    ecg_v1 = Column(Float)
+
+    def __init__(self, timestamp, source_id, ecg_v1, millisecond=None):
+        super(EcgV1Datapoint, self).__init__(timestamp, source_id, millisecond)
         self.ecg_v1 = ecg_v1
 
-    def __repr__(self):
-        return ("<EcgV1Datapoint('%s','%s')>" % (self.timestamp, self.ecg_v1))
 
-
-class EcgV2Datapoint(Base):
-    __tablename__ = 'ecg_v2_datapoints'
-    timestamp = Column(DateTime, primary_key=True)
-    millisecond = Column(Float, primary_key=True)
+class EcgV2Datapoint(TimestampSourceMixin, Base):
     ecg_v2 = Column(Float)
-    doe = Column(DateTime, default=datetime.now)
 
-    def __init__(self, timestamp, ecg_v2, millisecond=None):
-        self.timestamp = timestamp
-        if millisecond:
-            self.timestamp -= timedelta(microseconds=timestamp.microsecond)
-            self.timestamp += timedelta(microseconds=millisecond * 1000)
-            self.millisecond = millisecond
-        else:
-            self.millisecond = timestamp.microsecond / 1000
+    def __init__(self, timestamp, source_id, ecg_v2, millisecond=None):
+        super(EcgV2Datapoint, self).__init__(timestamp, source_id, millisecond)
         self.ecg_v2 = ecg_v2
 
-    def __repr__(self):
-        return ("<EcgV2Datapoint('%s','%s')>" % (self.timestamp, self.ecg_v2))
 
-
-class O2Datapoint(Base):
-    __tablename__ = 'o2_datapoints'
-    timestamp = Column(DateTime, primary_key=True)
-    millisecond = Column(Float, primary_key=True)
+class O2Datapoint(TimestampSourceMixin, Base):
     o2 = Column(Float)
-    doe = Column(DateTime, default=datetime.now)
 
-    def __init__(self, timestamp, o2, millisecond=None):
-        self.timestamp = timestamp
-        if millisecond:
-            self.timestamp -= timedelta(microseconds=timestamp.microsecond)
-            self.timestamp += timedelta(microseconds=millisecond * 1000)
-            self.millisecond = millisecond
-        else:
-            self.millisecond = timestamp.microsecond / 1000
+    def __init__(self, timestamp, source_id, o2, millisecond=None):
+        super(O2Datapoint, self).__init__(timestamp, source_id, millisecond)
         self.o2 = o2
 
-    def __repr__(self):
-        return ("<O2Datapoint('%s','%s')>" % (self.timestamp, self.o2))
 
-
-class TemperatureDatapoint(Base):
-    __tablename__ = 'temperature_datapoints'
-    timestamp = Column(DateTime, primary_key=True)
-    millisecond = Column(Float, primary_key=True)
+class TemperatureDatapoint(TimestampSourceMixin, Base):
     temperature = Column(Float)
-    doe = Column(DateTime, default=datetime.now)
 
-    def __init__(self, timestamp, temperature, millisecond=None):
-        self.timestamp = timestamp
-        if millisecond:
-            self.timestamp -= timedelta(microseconds=timestamp.microsecond)
-            self.timestamp += timedelta(microseconds=millisecond * 1000)
-            self.millisecond = millisecond
-        else:
-            self.millisecond = timestamp.microsecond / 1000
+    def __init__(self, timestamp, source_id, temperature, millisecond=None):
+        super(TemperatureDatapoint, self).__init__(timestamp,
+                                                   source_id,
+                                                   millisecond)
         self.temperature = temperature
 
-    def __repr__(self):
-        return ("<TemperatureDatapoint('%s','%s')>"
-                % (self.timestamp, self.temperature))
 
-
-class AirFlowDatapoint(Base):
-    __tablename__ = 'air_flow_datapoints'
-    timestamp = Column(DateTime, primary_key=True)
-    millisecond = Column(Float, primary_key=True)
+class AirFlowDatapoint(TimestampSourceMixin, Base):
     air_flow = Column(Float)
-    doe = Column(DateTime, default=datetime.now)
 
-    def __init__(self, timestamp, air_flow, millisecond=None):
-        self.timestamp = timestamp
-        if millisecond:
-            self.timestamp -= timedelta(microseconds=timestamp.microsecond)
-            self.timestamp += timedelta(microseconds=millisecond * 1000)
-            self.millisecond = millisecond
-        else:
-            self.millisecond = timestamp.microsecond / 1000
+    def __init__(self, timestamp, source_id, air_flow, millisecond=None):
+        super(AirFlowDatapoint, self).__init__(timestamp,
+                                               source_id,
+                                               millisecond)
         self.air_flow = air_flow
 
-    def __repr__(self):
-        return ("<AirFlowDatapoint('%s','%s')>"
-                % (self.timestamp, self.air_flow))
 
-
-class HeartRateDatapoint(Base):
-    __tablename__ = 'heart_rate_datapoints'
-    timestamp = Column(DateTime, primary_key=True)
-    millisecond = Column(Float, primary_key=True)
+class HeartRateDatapoint(TimestampSourceMixin, Base):
     heart_rate = Column(Float)
-    doe = Column(DateTime, default=datetime.now)
 
-    def __init__(self, timestamp, heart_rate, millisecond=None):
-        self.timestamp = timestamp
-        if millisecond:
-            self.timestamp -= timedelta(microseconds=timestamp.microsecond)
-            self.timestamp += timedelta(microseconds=millisecond * 1000)
-            self.millisecond = millisecond
-        else:
-            self.millisecond = timestamp.microsecond / 1000
+    def __init__(self, timestamp, source_id, heart_rate, millisecond=None):
+        super(HeartRateDatapoint, self).__init__(timestamp,
+                                                 source_id,
+                                                 millisecond)
         self.heart_rate = heart_rate
 
-    def __repr__(self):
-        return ("<HeartRateDatapoint('%s','%s')>"
-                % (self.timestamp, self.heart_rate))
 
-
-class AccelerationDatapoint(Base):
-    __tablename__ = 'datapoints'
-    timestamp = Column(DateTime, primary_key=True)
-    millisecond = Column(Float, primary_key=True)
+class AccelerationDatapoint(TimestampSourceMixin, Base):
     acc_x = Column(Float)
     acc_y = Column(Float)
     acc_z = Column(Float)
     acc_magn = Column(Float)
-    doe = Column(DateTime, default=datetime.now)
 
-    def __init__(self, timestamp, acc_x, acc_y, acc_z, millisecond=None):
-        self.timestamp = timestamp
-        if millisecond:
-            self.timestamp -= timedelta(microseconds=timestamp.microsecond)
-            self.timestamp += timedelta(microseconds=millisecond * 1000)
-            self.millisecond = millisecond
-        else:
-            self.millisecond = timestamp.microsecond / 1000
+    def __init__(self, timestamp, source_id,
+                 acc_x, acc_y, acc_z, millisecond=None):
+        super(AccelerationDatapoint, self).__init__(timestamp,
+                                                    source_id,
+                                                    millisecond)
         self.acc_x = acc_x
         self.acc_y = acc_y
         self.acc_z = acc_z
         self.acc_magn = (acc_x ** 2 + acc_y ** 2 + acc_z ** 2) ** 0.5
 
-    def __repr__(self):
-        return ("<AccelerationDatapoint('%s','%s','%s','%s','%s')>"
-                % (self.timestamp,
-                   self.acc_x, self.acc_y, self.acc_z, self.acc_magn))
 
-
-class Alarm(Base):
-    __tablename__ = 'alarms'
-    timestamp = Column(DateTime, primary_key=True)
-    millisecond = Column(Float, primary_key=True)
+class Alarm(TimestampSourceMixin, Base):
     alarm_lvl = Column(Float, nullable=False)
     kind = Column(Enum('ecg_v1', 'ecg_v2', 'o2',
                        'temperature', 'air_flow', 'hr',
@@ -180,31 +131,34 @@ class Alarm(Base):
                              'temperature', 'air_flow', 'hr',
                              'acc_x', 'acc_y', 'acc_z', 'acc_magn'),
                         nullable=True)
-    bitmp1 = Column(String(length=512), nullable=False)
-    bitmp2 = Column(String(length=512), nullable=False)
     sgmt_begin = Column(DateTime, nullable=False)
     sgmt_end = Column(DateTime, nullable=False)
 
-    def __init__(self, alarm_lvl, sgmt_begin, sgmt_end, bitmp1, bitmp2,
-                 timestamp=None, millisecond=None):
+    def __init__(self, alarm_lvl, sgmt_begin, sgmt_end,
+                 source_id, timestamp=None, millisecond=None):
         if not timestamp:
             self.timestamp = datetime.now()
         else:
             self.timestamp = timestamp
-        ts = self.timestamp
-        if millisecond:
-            self.timestamp -= timedelta(microseconds=ts.microsecond)
-            self.timestamp += timedelta(microseconds=millisecond * 1000)
-            self.millisecond = millisecond
-        else:
-            self.millisecond = ts.microsecond / 1000
+        super(AccelerationDatapoint, self).__init__(timestamp,
+                                                    source_id,
+                                                    millisecond)
         self.alarm_lvl = alarm_lvl
-        self.bitmp1 = bitmp1
-        self.bitmp2 = bitmp2
         self.sgmt_begin = sgmt_begin
         self.sgmt_end = sgmt_end
 
+
+class Suit(Base):
+    suit_id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    connection_str = Column(String, nullable=False)
+    doe = Column(DateTime, default=datetime.now)
+
+    def __init__(self, suit_id, name, connection_str):
+        self.suit_id = suit_id
+        self.name = name
+        self.connection_str = connection_str
+
     def __repr__(self):
-        return ("<Alarm('%s','%s', '%s', '%s')>"
-                % (self.timestamp, self.alarm_lvl,
-                   self.sgmt_begin, self.sgmt_end))
+        return ("<Suit('%s','%s','%s','%s')>"
+                    % (self.suit_id, self.name, self.connection_str, self.doe))
