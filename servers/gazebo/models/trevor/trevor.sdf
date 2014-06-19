@@ -56,8 +56,8 @@
             <child>front_gripper::guide_rail</child>
             <axis>
                 <limit>
-                    <lower>0</lower>
-                    <upper>0</upper>
+                    <lower>-1</lower>
+                    <upper>1</upper>
                 </limit>
                 <xyz>0 0 1</xyz>
             </axis>
