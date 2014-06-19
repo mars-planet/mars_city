@@ -116,18 +116,17 @@
                 <always_on>1</always_on>
                 <update_rate>50</update_rate>
                 <visualize>1</visualize>
-                <pose>0 0 0 0 -1.5708 0</pose>
+                <pose>0 0 0 0 1.5708 0</pose>
                 <camera>
                     <pose>0 0 0 0 0 0</pose>
                     <horizontal_fov>1.047</horizontal_fov>
                     <image>
                         <width>320</width>
                         <height>240</height>
-                        <format>R8G8B8</format>
                     </image>
                     <clip>
-                        <near>1</near>
-                        <far>20</far>
+                        <near>0.1</near>
+                        <far>100</far>
                     </clip>
                 </camera>
                 <!--
@@ -186,7 +185,7 @@
                 <always_on>1</always_on>
                 <update_rate>50</update_rate>
                 <visualize>1</visualize>
-                <pose>0 0 0 0 -1.5708 0</pose>
+                <pose>0 0 0 0 1.5708 0</pose>
                 <!--<topic>/stereo/left_camera/left_camera/image</topic>-->
                 <camera>
                     <pose>0 0 0 0 0 0</pose>
@@ -194,11 +193,10 @@
                     <image>
                         <width>320</width>
                         <height>240</height>
-                        <format>R8G8B8</format>
                     </image>
                     <clip>
-                        <near>1</near>
-                        <far>20</far>
+                        <near>0.1</near>
+                        <far>100</far>
                     </clip>
                     <!-- save and noise to be done if required -->
                 </camera>
