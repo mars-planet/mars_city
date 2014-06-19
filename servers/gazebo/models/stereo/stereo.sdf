@@ -48,32 +48,33 @@
                 <pose>0 0 0 0 0 1.5707</pose>
                 <topic>/stereo/image_raw</topic>
                 <camera name="right_camera">
-                    <pose>0 -0.1 0 0 0 0</pose>
+                    <pose>0.2 -0.2 0 0 0 0</pose>
                     <horizontal_fov>2.194</horizontal_fov>
                     <image>
                         <width>320</width>
                         <height>240</height>
-                        <format>B8G8R8</format>
+                        <format>R8G8B8</format>
                     </image>
                     <clip>
-                        <near>1</near>
+                        <near>0.1</near>
                         <far>20</far>
                     </clip>
                 </camera>
                 <camera name="left_camera">
-                    <pose>0 0.1 0 0 0 0</pose>
+                    <pose>0.2 0.2 0 0 0 0</pose>
                     <horizontal_fov>2.194</horizontal_fov>
                     <image>
                         <width>320</width>
                         <height>240</height>
-                        <format>B8G8R8</format>
+                        <format>R8G8B8</format>
                     </image>
                     <clip>
-                        <near>1</near>
+                        <near>0.1</near>
                         <far>20</far>
                     </clip>
                 </camera>
-            </sensor/> save and noise to be done if required -->
+            </sensor/>
+            <!-- save and noise to be done if required -->
         </link>
         <link name="right_camera">
             <pose>0.0 -0.1 0 0 1.5707 0</pose>
@@ -115,22 +116,35 @@
                 <always_on>1</always_on>
                 <update_rate>50</update_rate>
                 <visualize>1</visualize>
-                <pose>0 0 0 0 0 1.5707</pose>
-                <topic>/stereo/right_camera/image_raw</topic>
-                <camera name="right_camera">
-                    <pose>0 -0.1 0 0 0 0</pose>
-                    <horizontal_fov>2.194</horizontal_fov>
+                <pose>0 0 0 0 -1.5708 0</pose>
+                <camera>
+                    <pose>0 0 0 0 0 0</pose>
+                    <horizontal_fov>1.047</horizontal_fov>
                     <image>
                         <width>320</width>
                         <height>240</height>
-                        <format>B8G8R8</format>
+                        <format>R8G8B8</format>
                     </image>
                     <clip>
                         <near>1</near>
                         <far>20</far>
                     </clip>
-                    <!-- save and noise to be done if required -->
                 </camera>
+                <!--
+                <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+                    <cameraName>right_camera</cameraName>
+                    <alwaysOn>true</alwaysOn>
+                    <updateRate>20.0</updateRate>
+                    <imageTopicName>/right_camera/image_raw</imageTopicName>
+                    <frameName>right_camera</frameName>
+                    <hackBaseline>0.07</hackBaseline>
+                    <distortionK1>0.0</distortionK1>
+                    <distortionK2>0.0</distortionK2>
+                    <distortionK3>0.0</distortionK3>
+                    <distortionT1>0.0</distortionT1>
+                    <distortionT2>0.0</distortionT2>
+                </plugin>
+                -->
             </sensor>
         </link>
         <link name="left_camera">
@@ -168,19 +182,19 @@
                     </script>
                 </material>
             </visual>
-            <sensor name="right_camera" type="camera">
+            <sensor name="left_camera" type="camera">
                 <always_on>1</always_on>
                 <update_rate>50</update_rate>
                 <visualize>1</visualize>
-                <pose>0 0 0 0 0 1.5707</pose>
-                <topic>/stereo/right_camera/image_raw</topic>
-                <camera name="right_camera">
-                    <pose>0 -0.1 0 0 0 0</pose>
-                    <horizontal_fov>2.194</horizontal_fov>
+                <pose>0 0 0 0 -1.5708 0</pose>
+                <!--<topic>/stereo/left_camera/left_camera/image</topic>-->
+                <camera>
+                    <pose>0 0 0 0 0 0</pose>
+                    <horizontal_fov>1.047</horizontal_fov>
                     <image>
                         <width>320</width>
                         <height>240</height>
-                        <format>B8G8R8</format>
+                        <format>R8G8B8</format>
                     </image>
                     <clip>
                         <near>1</near>
