@@ -40,6 +40,7 @@
                     </script>
                 </material>
             </visual>
+            <!--
             <sensor name="stereo_camera" type="multicamera">
                 <always_on>1</always_on>
                 <update_rate>50</update_rate>
@@ -58,7 +59,6 @@
                         <near>1</near>
                         <far>20</far>
                     </clip>
-                    <!-- save and noise to be done if required -->
                 </camera>
                 <camera name="left_camera">
                     <pose>0 0.1 0 0 0 0</pose>
@@ -72,9 +72,8 @@
                         <near>1</near>
                         <far>20</far>
                     </clip>
-                    <!-- save and noise to be done if required -->
                 </camera>
-            </sensor>
+            </sensor/> save and noise to be done if required -->
         </link>
         <link name="right_camera">
             <pose>0.0 -0.1 0 0 1.5707 0</pose>
@@ -112,6 +111,27 @@
                     </script>
                 </material>
             </visual>
+            <sensor name="right_camera" type="camera">
+                <always_on>1</always_on>
+                <update_rate>50</update_rate>
+                <visualize>1</visualize>
+                <pose>0 0 0 0 0 1.5707</pose>
+                <topic>/stereo/right_camera/image_raw</topic>
+                <camera name="right_camera">
+                    <pose>0 -0.1 0 0 0 0</pose>
+                    <horizontal_fov>2.194</horizontal_fov>
+                    <image>
+                        <width>320</width>
+                        <height>240</height>
+                        <format>B8G8R8</format>
+                    </image>
+                    <clip>
+                        <near>1</near>
+                        <far>20</far>
+                    </clip>
+                    <!-- save and noise to be done if required -->
+                </camera>
+            </sensor>
         </link>
         <link name="left_camera">
             <pose>0 0.1 0 0 1.5707 0</pose>
@@ -148,6 +168,27 @@
                     </script>
                 </material>
             </visual>
+            <sensor name="right_camera" type="camera">
+                <always_on>1</always_on>
+                <update_rate>50</update_rate>
+                <visualize>1</visualize>
+                <pose>0 0 0 0 0 1.5707</pose>
+                <topic>/stereo/right_camera/image_raw</topic>
+                <camera name="right_camera">
+                    <pose>0 -0.1 0 0 0 0</pose>
+                    <horizontal_fov>2.194</horizontal_fov>
+                    <image>
+                        <width>320</width>
+                        <height>240</height>
+                        <format>B8G8R8</format>
+                    </image>
+                    <clip>
+                        <near>1</near>
+                        <far>20</far>
+                    </clip>
+                    <!-- save and noise to be done if required -->
+                </camera>
+            </sensor>
         </link>
 
         <joint name="right_mount" type="prismatic">

@@ -7,13 +7,13 @@
 
         <include>
             <uri>model://wheel</uri>
-            <pose>-0.7 0 0.145 0 0 0</pose>
+            <pose>0.7 0 0.145 0 0 0</pose>
             <name>front_wheel</name>
         </include>
 
         <include>
             <uri>model://wheel</uri>
-            <pose>0.7 0 0.145 0 0 0</pose> <!-- 0.125 for the wheel, 0.02 for the link -->
+            <pose>-0.7 0 0.145 0 0 0</pose> <!-- 0.125 for the wheel, 0.02 for the link -->
             <name>rear_wheel</name>
         </include>
 
@@ -22,11 +22,23 @@
             <pose>0 0 0.02 0 0 0</pose>
             <name>chain_straight_bottom</name>
         </include>
-<!--
+
         <include>
             <uri>model://chain_straight</uri>
-            <pose>0 0 0.29 0 0 0</pose>
+            <pose>0 0 0.27 0 0 0</pose>
             <name>chain_straight_top</name>
+        </include>
+
+        <include>
+            <uri>model://chain_curved</uri>
+            <pose>-0.7 0 0.145 0 0 0</pose>
+            <name>chain_curved_rear</name>
+        </include>
+
+        <include>
+            <uri>model://chain_curved</uri>
+            <pose>0.7 0 0.145 0 0 3.1416</pose>
+            <name>chain_curved_front</name>
         </include>
 
         <joint name="slip_rear_top" type="prismatic">
@@ -34,15 +46,11 @@
             <child>chain_straight_top::chain_link_01::link_a</child>
             <parent>rear_wheel::wheel</parent>
             <axis>
-                <dynamics>
-                    <damping>0.1</damping>
-                    <friction>0.6</friction>
-                </dynamics>
                 <limit>
-                    <lower>-0.01</lower>
-                    <upper>0.01</upper>
+                    <lower>0</lower>
+                    <upper>0</upper>
                 </limit>
-                <xyz>1 0 0</xyz>
+                <xyz>0 1 0</xyz>
             </axis>
         </joint>
 
@@ -51,15 +59,11 @@
             <child>chain_straight_top::chain_link_21::link_b</child>
             <parent>front_wheel::wheel</parent>
             <axis>
-                <dynamics>
-                    <damping>0.1</damping>
-                    <friction>0.6</friction>
-                </dynamics>
                 <limit>
-                    <lower>-0.01</lower>
-                    <upper>0.01</upper>
+                    <lower>0</lower>
+                    <upper>0</upper>
                 </limit>
-                <xyz>1 0 0</xyz>
+                <xyz>0 1 0</xyz>
             </axis>
         </joint>
 
@@ -68,34 +72,102 @@
             <child>chain_straight_bottom::chain_link_01::link_a</child>
             <parent>rear_wheel::wheel</parent>
             <axis>
-                <dynamics>
-                    <damping>0.1</damping>
-                    <friction>0.6</friction>
-                </dynamics>
                 <limit>
-                    <lower>-0.01</lower>
-                    <upper>0.01</upper>
-                </limit>
-                <xyz>1 0 0</xyz>
-            </axis>
-        </joint>
--->
-        <joint name="slip_front_bottom" type="prismatic">
-            <pose>0 0 0 0 0 0</pose>
-            <child>chain_straight_bottom::chain_link_21::link_b</child>
-            <parent>front_wheel::wheel</parent>
-            <axis>
-                <dynamics>
-                    <damping>0.1</damping>
-                    <friction>0.6</friction>
-                </dynamics>
-                <limit>
-                    <lower>-0.01</lower>
-                    <upper>0.01</upper>
+                    <lower>0</lower>
+                    <upper>0</upper>
                 </limit>
                 <xyz>1 0 0</xyz>
             </axis>
         </joint>
 
+        <joint name="slip_front_bottom" type="prismatic">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_straight_bottom::chain_link_21::link_b</child>
+            <parent>front_wheel::wheel</parent>
+            <axis>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0</upper>
+                </limit>
+                <xyz>1 0 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="static_rear_bottom" type="prismatic">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_curved_rear::chain_link_02::link_a</child>
+            <parent>rear_wheel::wheel</parent>
+            <axis>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0</upper>
+                </limit>
+                <xyz>1 0 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="static_front_bottom" type="prismatic">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_curved_front::chain_link_02::link_a</child>
+            <parent>front_wheel::wheel</parent>
+            <axis>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0</upper>
+                </limit>
+                <xyz>1 0 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="static_rear_top" type="prismatic">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_curved_rear::chain_link_06::link_b</child>
+            <parent>rear_wheel::wheel</parent>
+            <axis>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0</upper>
+                </limit>
+                <xyz>1 0 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="static_front_top" type="prismatic">
+            <pose>0 0 0 0 0 0</pose>
+            <child>chain_curved_front::chain_link_06::link_b</child>
+            <parent>front_wheel::wheel</parent>
+            <axis>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0</upper>
+                </limit>
+                <xyz>1 0 0</xyz>
+            </axis>
+        </joint>
+<!-- DEBUG
+        <joint name="temporary_one" type="revolute">
+            <parent>world</parent>
+            <child>front_wheel::axle</child>
+            <axis>
+                <dynamics>
+                    <damping>1</damping>
+                    <friction>1</friction>
+                </dynamics>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="temporary_two" type="revolute">
+            <parent>world</parent>
+            <child>rear_wheel::axle</child>
+            <axis>
+                <dynamics>
+                    <damping>1</damping>
+                    <friction>1</friction>
+                </dynamics>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+-->
     </model>
 </sdf>
