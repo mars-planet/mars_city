@@ -13,6 +13,8 @@ install
 	
 	using apt-get install python-"package name" or pip install package name
 
+Run importacoustic.sh in order to store adapted hmm model in home directory. 
+
 
 2. Sphinxbase
 =============
