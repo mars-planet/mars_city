@@ -4,7 +4,6 @@ from sklearn.cluster import MiniBatchKMeans, DBSCAN
 from sklearn.semi_supervised import LabelSpreading
 from sklearn.decomposition import PCA
 import pylab as pl
-# TODO: save the clustering predictions so that we do not always have to `fit`
 
 
 class ObjectRecognizerManager(object):
@@ -14,9 +13,56 @@ class ObjectRecognizerManager(object):
         # TODO: Change this to an actual database [Redis array store?]
         self.IMAGE_STORE = []
 
+        # Parameters
+        self.dbscan_params = {'eps': 2000}
+
     @property
     def amount_of_images(self):
         return len(self.IMAGE_STORE)
+
+    def estimate_objects_memorized(self):
+        """A rough estimate of the number of objects which we have learned"""
+        
+        # Use the elbow method to estimate K (number of clusters)
+        hog_vectors = PCA(n_components=2).fit_transform(np.vstack(self.IMAGE_STORE))
+        # Wait until cluster inertia decreases linearly.
+        # Meaning, Let's wait for 2nd derivative = ~0
+        def f(x):
+            kmeans = MiniBatchKMeans(n_clusters=x)
+            kmeans.fit(hog_vectors)
+            print kmeans.inertia_
+            return kmeans.inertia_
+
+        def g(x):
+            return f(x) - f(x+1)
+
+        def optimize(func, initial_x=0, max_iter = 10):
+            
+            cur_x=initial_x
+            cur_iter = 0
+            past_estimate = None
+            while True:
+
+                estimate = func(x=cur_x)
+
+                if past_estimate:
+                    diff_estimate = past_estimate - estimate
+                    print diff_estimate
+                past_estimate = estimate
+
+                cur_x=-1
+                cur_iter+=1
+                if cur_iter>max_iter:
+                    break
+            return cur_x
+
+        # Start at standard approximation
+        n_images = self.amount_of_images
+        initial_estimate = int(np.sqrt(n_images/2))
+
+        # Start optimizing
+        k_clusters = optimize(g, initial_x=initial_estimate, max_iter=10)
+        return k_clusters
 
     def _pre_process_new_image(self, image, bin_n=100):
         """Find a histogram of oriented gradients vector representation of
@@ -40,17 +86,40 @@ class ObjectRecognizerManager(object):
         hist = np.hstack(hists)
         return hist
 
-    def summarize(self, strategy="kmeans", n_clusters=None):
+    def summarize(self, strategy="dbscan", n_clusters=None):
         """Storing millions of images of the same object is not efficent.
         This function will reduce the number of datapoints, trying keeping only
         the ones which are most significant."""
         pca = PCA(n_components=2)
         pca.fit(np.vstack(self.IMAGE_STORE))
         X_reduced = pca.transform(np.vstack(self.IMAGE_STORE))
-        pl.scatter(X_reduced[:, 0], X_reduced[:, 1])
-        pl.savefig("loolol.png")
-        if strategy == "kmeans":
-            pass
+        if strategy == "dbscan":
+            
+            dbscan = DBSCAN(**self.dbscan_params).fit(X_reduced)
+
+            
+            core_points = dbscan.components_
+            unique = np.unique(dbscan.labels_)
+
+            # Now we shall obtain the medoids of each cluster
+            kmeans = MiniBatchKMeans(n_clusters=len(unique)).fit(core_points)
+            cluster_centers = kmeans.cluster_centers_
+            medoids = []
+            for centroid in cluster_centers:
+                dist=np.abs(core_points-centroid)
+
+                # Point with the minimum distance from centroid
+                min_dist_index = np.argmin(dist, axis=1)
+                medoids.append(core_points[min_dist_index])
+
+
+            self.IMAGE_STORE = medoids
+
+            d = np.vstack(self.IMAGE_STORE)
+            pl.clf()
+            pl.scatter(d[:, 0], d[:, 1])
+            pl.savefig("visualize_objects.png")
+            
         else:
             raise ValueError("Summarization method not available!")
 
@@ -97,13 +166,8 @@ class ObjectRecognizerManager(object):
         X_train = pca.transform(np.vstack(self.IMAGE_STORE))
         X_predict = pca.transform(image_vector)
 
-        dbscan = DBSCAN(eps=2000)
+        dbscan = DBSCAN(**self.dbscan_params)
         cluster_association = dbscan.fit_predict(X_train, image_vector)
-
-        pl.clf()
-        pl.scatter(X_train[:, 0], X_train[:, 1], c=dbscan.labels_)
-        pl.scatter(X_predict[:, 0], X_predict[:, 1], marker='^', s=100)
-        pl.savefig("visualize_objects.png")
 
         return cluster_association
 

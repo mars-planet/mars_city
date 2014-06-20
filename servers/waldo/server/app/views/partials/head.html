@@ -1,0 +1,13 @@
+    <script src="/js/jquery-1.10.2.js"></script>
+    <script type="text/javascript">
+        var csrfToken = '{{csrftoken}}';
+        var PJAX = false;
+        
+        function csrf_insert(){
+	        $("form").each(function(){
+	          if ($(this).find(".csrf").length==0){
+	          	$(this).append('<input class="csrf" type="hidden" name="_csrf" value='+csrfToken+'></input>');
+	          }
+	        });
+        }
+    </script>

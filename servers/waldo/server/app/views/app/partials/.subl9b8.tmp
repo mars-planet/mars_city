@@ -1,0 +1,48 @@
+<div class="sidebar-collapse">
+    <ul class="nav" id="side-menu">
+    <li class="sidebar-search">
+        <div class="input-group custom-search-form">
+            <input type="text" class="form-control" placeholder="Search...">
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button">
+                    <i class="fa fa-search"></i>
+                </button>
+            </span>
+        </div>
+        <!-- /input-group -->
+    </li>
+    <li>
+        <a href="/dashboard"><i class="fa fa-dashboard fa-fw"></i> Applications</a>
+    </li>
+    <li>
+        <a href="#"><i class="fa fa-table fa-fw"></i> Applications</a>
+        <ul class="nav nav-second-level">
+            <li>
+                <a href="flot.html">Manage</a>
+            </li>
+            <li>
+                <a href="morris.html">Morris.js Charts</a>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> User Database<span class="fa arrow"></span></a>
+        <ul class="nav nav-second-level">
+            <li>
+                <a href="flot.html">Profiles</a>
+            </li>
+            <li>
+                <a href="morris.html">Morris.js Charts</a>
+            </li>
+        </ul>
+        <!-- /.nav-second-level -->
+    </li>
+    <li>
+        <a href="forms.html"><i class="fa fa-edit fa-fw"></i> Settings</a>
+    </li>
+
+    </ul>
+    <!-- /#side-menu -->
+</div>
+<!-- /.sidebar-collapse -->
+</nav>

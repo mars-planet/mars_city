@@ -1,0 +1,156 @@
+{{> head_subpage this}}
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-7">
+        <h1 style="display: inline"><span class="glyphicon glyphicon-th-large"></span> Current Tasks</h1> 
+        <button type="button" data-toggle="modal" data-target="#myModal" class="btn btn-default btn-lg" style="float:right;margin-left:10px"> 
+            Schedule New Task
+        </button>
+        <hr/>
+       {{#if tasks}}
+          {{#each tasks}}
+
+            <div class="alert section-box">
+              <header>
+                <div style="display:inline">
+                  <div class="dropdown">
+                    <a href="#" class="glyphicon glyphicon-cog dropdown-toggle" data-toggle="dropdown" style="float:right;color:#979ca2;font-size:18px;margin-top:7px"></a>
+
+                    <ul class="dropdown-menu pull-right" style="top:auto;right:18px">
+                      <li><a href="#">Explore</a></li>
+                      <li class="divider"></li>
+                      <li><a onclick="deleteApplication('{{_id}}')">Delete</a></li>
+                    </ul>
+                  </div>
+                  <h2>
+                    <a href="/dashboard/tasks/{{_id}}/activity">{{name}}<span class="glyphicon glyphicon-chevron-right" style="font-size:14px;top:auto"></span></a>
+                  </h2>
+                </div>
+                </header>
+
+                <footer>
+                    <div class="control-wrapper">
+                      <span>Date Scheduled </span>
+                      <div style="display: inline">
+                        <span class="connection_url">May 19th 11:00PM</span>
+                      </div>
+                    </div>
+                  </footer>
+            </div>
+
+
+
+          {{/each}}
+          <style>
+          .section-box {
+            border: 1px solid #DBDDE3; width:100%;position:relative;
+          }
+          .section-box header{display:block; margin-top: -20px;}
+          .section-box .connection_url{
+            border-bottom: 1px dotted #999;
+            font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
+            font-size:13px;
+          }
+
+          .dropdown:hover > .dropdown-menu {
+              display: block;    
+          }
+
+          </style>
+       {{else}}
+       <div class="alert alert-info">
+            There are currently no scheduled tasks
+       </div>
+       {{/if}}
+
+
+      </div>
+      <div class="col-md-4 account_details">
+        <h1 style="display: inline"><span class="glyphicon glyphicon-user"></span> Account Details</h1>
+        <hr/>
+        <div>
+          <div class="question_row">
+          <label class="question">Account Name</label><label class="answer">Bob</label>
+          </div>
+          <div class="question_row">
+            <label class="question">Access Level</label><label class="answer">admin</label>
+          </div>
+        </div>
+
+      </div>
+      <style>
+      .account_details{
+        font-family: proxima-nova, proxima-nova-n4, Helvetica, Arial, sans-serif;
+        display:block;
+
+      }
+
+      .account_details .question{
+        color:#898F95;
+      }
+
+      .account_details .answer{
+        float:right;
+        color:#333;
+      }
+
+      .account_details .question_row{
+        padding: 3px;
+      }
+      </style>
+  </div>
+</div>
+
+
+
+<!-- MODALS -->
+                <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <form method="post" action="/dashboard/apps" class="modal-dialog">
+                        {{> csrf_insert}}
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title" id="myModalLabel"><span class="glyphicon glyphicon-th-large"></span> Create a new task</h4>
+                          </div>
+                          <div class="modal-body">
+                            <b>Task Name</b>
+                            <br>
+                            <span style="color:gray;font-size:12px">Task names are case sensitive, must be alphanumeric (1-128 chars), and can include non-leading -, _, ., @ and :</span>
+                            <br><br>
+                            <input type="text" class="form-control" name="application_name" placeholder="Task Name">
+                          </div>                          
+                          <div class="modal-footer">
+                            <a style="padding-right:20px" href="#" data-dismiss="modal">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Create</button>
+                          </div>
+                        </div>
+                    </form>
+                </div>
+
+
+                <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <form method="post" class="modal-dialog">
+                        {{> csrf_insert}}
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title" id="myModalLabel"><span class="glyphicon glyphicon-warning-sign"></span> Are you sure?</h4>
+                          </div>
+                          <div class="modal-body">
+                            <b>WARNING: Deleted tasks cannot be revived.</b>
+                            <br>
+                            <span style="color:gray;font-size:12px">
+                              <span>Doing so will result in the following:</span><br>
+                              <li>All data assoicated to the given task will be deleted</li>
+                            </span>
+                            <br><br>
+                          </div>                          
+                          <div class="modal-footer">
+                            <a style="padding-right:20px" href="#" data-dismiss="modal">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Delete Forever</button>
+                          </div>
+                        </div>
+                    </form>
+                </div>
+<!-- /MODALS -->

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{title}}</title>
+
+
+    {{> head}}
+
+
+    <!-- Core CSS - Include with every page -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/font-awesome/css/font-awesome.css" rel="stylesheet">
+
+    <!-- Page-Level Plugin CSS - Dashboard -->
+    <link href="/css/plugins/morris/morris-0.4.3.min.css" rel="stylesheet">
+    <link href="/css/plugins/timeline/timeline.css" rel="stylesheet">
+
+    <!-- SB Admin CSS - Include with every page -->
+    <link href="/css/sb-admin.css" rel="stylesheet">
+
+    <!-- SB Admin Scripts - Include with every page -->
+    <script src="/js/sb-admin.js"></script>
+
+
+
+</head>
+
+<body>
+
+
+    <div id="sidebar_tab" style="display:none">
+        {{> sidebar_tab}}        
+    </div>
+    <div id="wrapper">
+
+        {{> navbar}}
+        {{> sidebar}}
+
+        <!-- /.navbar-static-side -->
+
+        <div id="page-wrapper">
+            <div class="container" id="pjax-container">
+                {{partial body}}
+            </div>
+        </div>
+        <!-- /#wrapper -->
+
+        <!-- Core Scripts - Include with every page -->
+        <script src="/js/bootstrap.min.js"></script>
+        <script src="/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+
+        <!-- Page-Level Plugin Scripts - Dashboard -->
+        <script src="/js/plugins/morris/raphael-2.1.0.min.js"></script>
+        <script src="/js/plugins/morris/morris.js"></script>
+
+        <!-- Page-Level Demo Scripts - Dashboard - Use for reference -->
+        <script src="/js/demo/dashboard-demo.js"></script>
+
+         <script src="/js/nprogress.js"></script>
+
+        <! -- NProgress Bar -->
+        <link href="/css/nprogress.css" rel="stylesheet">
+
+        <! -- Pjax -->
+        <script src="/js/jquery.pjax.js"></script>
+
+        <link rel="stylesheet" type="text/css" href="/css/jquery.tagsinput.css" />
+        <script src="/js/jquery.tagsinput.min.js"></script>
+
+        <script type="text/javascript">
+            function loadPage(){
+                loadSidebar($("#sidetab_json").html());
+                var script = document.createElement('script');
+                script.src=$("#sidetab_json").data("js");
+                document.head.appendChild(script);
+            }
+            loadPage();
+        </script>
+
+
+
+         <!-- NProgress Between Pages -->
+        <script type="text/javascript">
+            $(document).pjax("a", '#pjax-container');
+            $(document).on('pjax:start', function() { NProgress.start(); });
+            $(document).on('pjax:end',   function() {
+                loadPage();
+                NProgress.done();
+            });
+        </script>
+    </body>
+
+    </html>
+
+    <style>
+    .affix{
+        position:fixed;
+    }
+
+    .modal-dialog {
+      padding-top: 5%;
+    }
+
+    </style>

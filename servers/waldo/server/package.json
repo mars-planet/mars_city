@@ -1,0 +1,47 @@
+{
+  "name": "Waldo",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "grunt serve"
+  },
+  "contributors": [
+    {
+      "name": "Mathew Kallada",
+      "url": "https://github.com/kallada"
+    }
+  ],
+  "dependencies": {
+    "zerorpc": "",
+    "cors": "",
+    "mongoose": "",
+    "express": "latest",
+    "redis": "latest",
+    "hbs": "latest",
+    "passport": "latest",
+    "passport-local": "latest",
+    "connect-flash": "latest",
+    "body-parser": "",
+    "bcrypt": "latest"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-cli": "~0.1.13",
+    "grunt-contrib-uglify": "~0.4.0",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-watch": "",
+    "grunt-open": "~0.2.3",
+    "load-grunt-tasks": "",
+    "grunt-contrib-jshint": "~0.8.0",
+    "grunt-jsdoc": "~0.5.1",
+    "grunt-concurrent": "",
+    "grunt-newer": "~0.6.1",
+    "jshint-stylish": "~0.1.5",
+    "jsdoc": "",
+    "grunt-contrib-connect": "~0.7.1",
+    "connect-livereload": "~0.3.2",
+    "time-grunt": "~0.2.10",
+    "grunt-shell-spawn": "~0.3.0",
+    "grunt-contrib-copy": "~0.5.0"
+  }
+}
