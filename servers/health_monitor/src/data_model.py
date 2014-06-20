@@ -44,7 +44,7 @@ class Mixin(object):
                               for k, v in self.variables(filter_common=False))
         return ("<%s(%s)>" % (self.__class__.__name__, attr_repr))
 
-    def variables(self, *args, **kwargs):
+    def variables(self, filter_common=True, *args, **kwargs):
         return OrderedDict({k: self.__dict__[k]
                             for k in self.variable_names(filter_common)})
 
