@@ -1,7 +1,6 @@
+
 from ctypes import byref
-from pyOVR import ovr_Initialize, ovrHmd_Create, ovrHmdDesc, ovrHmd_GetDesc, ovrHmd_StartSensor, ovrSensorCap_Orientation, ovrSensorCap_YawCorrection, ovr_GetTimeInSeconds, ovrHmd_Destroy, ovrHmd_GetSensorState
-####
-# Get orientation returns the Rotation Quaternion, which can then be set for the object 
+from .pyOVR import ovr_Initialize, ovrHmd_Create, ovrHmdDesc, ovrHmd_GetDesc, ovrHmd_StartSensor, ovrSensorCap_Orientation, ovrHmd_GetSensorState, ovrSensorCap_YawCorrection, ovr_GetTimeInSeconds, ovrHmd_Destroy
 
 class RiftDevice(object):
     def __init__(self):
@@ -14,7 +13,7 @@ class RiftDevice(object):
 
     def __exit__(self, type, value, traceback):
         ovrHmd_Destroy()
-        
+
     def get_orientation(self):
         self.ss = ovrHmd_GetSensorState(self.hmd, ovr_GetTimeInSeconds())
         pose = self.ss.Predicted.Pose
