@@ -1,5 +1,5 @@
 ===========================================
-Software Architecture Document for the Computer Vision on the Trevor Rover  
+Computer Vision on the Trevor Rover  
 ===========================================
 
 :Author: Mathew Kallada
@@ -8,7 +8,8 @@ Software Architecture Document for the Computer Vision on the Trevor Rover
 Change Record
 =============
 
-2014.05.21 - Document created.
+| 2014.06.24 - Document updated.
+| 2014.05.21 - Document created.
 
 Introduction
 ============
@@ -16,7 +17,10 @@ Introduction
 Purpose
 -------
 
-This module provides critical computer vision functions for the Trevor Rover. This includes primal features such as hazard detection and target tracking.
+Computer vision capabilities are crucial in a rover helping it to analyze and 
+understand its enviroment. This document outlines the key features of the 
+computer vision features of the Italian Mars Society's Trevor Rover.
+
 
 Applicable Documents
 --------------------
@@ -47,13 +51,6 @@ Applicable Documents
 .. _`Histogram of Oriented Gradients`: <http://www.vlfeat.org/overview/hog.html>
 .. _`Principal Component Analysis`: <https://www.ce.yildiz.edu.tr/personal/songul/file/1097/principal_components.pdf>
 .. _`Denisty-based scan`: <http://staffwww.itn.liu.se/~aidvi/courses/06/dm/Seminars2011/DBSCAN(4).pdf>
-
-Reference Documents
--------------------
-
-Glossary
---------
-
 
 Glossary
 --------
@@ -86,18 +83,30 @@ Hardware Requirements
 We will be using the Minoru3D Webcam and the RaspberryPi. In case of fast 
 moving objects, we will need to optimize the speed of the Minoru+RPi.
 
-To minimize
-
 Software Requirements
 ----------------------------
-We will use scikit-learn for machine learning, and OpenCV2 for computer vision.
+
+Object Recognition and Tracking
+--------
+We will use scikit-learn for machine learning (predicting which objects 
+it has previously seen), and OpenCV2 for image analysis (creating disparity 
+fields, locating images).
 
 Interface Requirements
 ----------------------------
 
-To add human reasoning (supervision) into the rover's decision making abilities, 
-there will be a web app to allow operators to include:
-- samples of objects which are hazardous (and should be avoided)
+Hardware Interfaces
+--------
+
+We will be using the Minoru 3D webcam and the RaspberryPi for computer vision
+processing and AI planning and scheduling.
+
+User Interfaces
+--------
+
+To add human reasoning into the rover's decision making abilities, 
+there will be an interface to allow operators to specify properties of
+previously seen objects.
 
 Software Interfaces
 --------
@@ -106,8 +115,15 @@ Software Interfaces
 
 An inputted image is sent to several tasks for processing. These tasks include 
 object recognition and depth detection. Once we retrieve this information, we 
-can infer conclusions such as hazard detection, and finally send this data to 
+can infer conclusions such as hazards nearby, and finally send this data to 
 the EUROPA system ([10]).
+
+Performance Requirements
+----------------------------
+
+Ideally, the rover will want to interact and respond to it's enviroment in real 
+time.
+
 
 Software Design
 ===============
@@ -120,72 +136,33 @@ High-level view of Object Recognition
 .. image:: https://bytebucket.org/italianmarssociety/eras/raw/a6a9815420161a89065421be5786981300a74be5/servers/vision/doc/Images/IR.png
 
 This module takes a HOG representation ([11]) of each object on screen. Below, I
- have collected a series of objects and have PCA'ed ([12]) the dataset to 
- two-dimensions.
+ have collected a series of objects and have shown ([12]) the dataset to 
+ two-dimensions (with PCA).
 
 .. image:: https://bytebucket.org/italianmarssociety/eras/raw/4afa68b5bec747daa40b1cc18420f806cb6f1d74/servers/vision/doc/Images/IR_data.png
 
 Each color represents a different cluster (found by DBSCAN as described in [13]).
 Each cluster represents an object on screen. This way, we can recognize objects
-we have seen earlier (the triangle is an object we are trying to predict). The
-triangle clearly belongs to the blue-labelled objects. 
+we have seen earlier (the triangle is an object we are trying to predict).
+
+
+Development and Progression
+----------------------------
+
+Standards Compliance
+--------
+The guidelines defined in [3] should be followed.
 
 
 Planning
-=====================
+--------
+
+A high level schedule is shown below.
 
 - Milestone I: Finish Object Recognition & Target Tracking
-- Milestone II: Path Travelling Module
-- Milestone II: Integrate with PyEuropa
+- Milestone II: Enviroment Analysis
 
-Appendix A: Use Case template
-=============================
+[Midterm Evaluation]
 
-Use Cases drive the whole software process and bind together all the phases
-from requirements capture to final delivery of the system and maintenance.
-They are a very effective way of communicating with customers and among team
-members. Before every discussion always provide the partners with a set of
-relevant Use Cases.
-
-During meetings, they stimulate focused discussions and help identifying
-important details. It is important to keep in mind that Use Cases have to
-describe WHAT the system has to do in response to certain external stimuli
-and NOT HOW it will do it. The HOW is part of the architecture and of the
-design.
-
-What follows is the empty template:
-
-Use Case: <Name>
-================
-<Short description>
-
-Actors
-------
-<List of Actors>
-
-Priority
---------
-<Low, Normal, Critical>
-
-Preconditions
--------------
-<List of preconditions that must be fulfilled>
-
-Basic Course
-------------
-<Step-by-step description of the basic course>
-
-Alternate Course
-----------------
-<Step-by-step description of the alternate course>
-
-Exception Course
-----------------
-<Step-by-step description of the exception course>
-
-Postconditions
---------------
-<List of postconditions (if apply)>
-
-Notes
------
+- Milestone II: Integrate with pyEUROPA
+- Milestone IV: Integrate with the Waldo interface
