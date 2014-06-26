@@ -16,7 +16,7 @@
             <pose>-0.7 0 0.145 0 0 0</pose> <!-- 0.125 for the wheel, 0.02 for the link -->
             <name>rear_wheel</name>
         </include>
-
+<!--
         <include>
             <uri>model://chain_straight</uri>
             <pose>0 0 0.02 0 0 0</pose>
@@ -40,7 +40,7 @@
             <pose>0.7 0 0.145 0 0 3.1416</pose>
             <name>chain_curved_front</name>
         </include>
-
+<!--
         <joint name="slip_rear_top" type="prismatic">
             <pose>0 0 0 0 0 0</pose>
             <child>chain_straight_top::chain_link_01::link_a</child>

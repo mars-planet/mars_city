@@ -27,16 +27,6 @@
                         <length>.05</length>
                     </cylinder>
                 </geometry>
-                <surface>
-                    <friction>
-                        <ode>
-                            <mu>10</mu>
-                            <mu2>10</mu2>
-                            <slip1>1.0</slip1>
-                            <slip2>1.0</slip2>
-                        </ode>
-                    </friction>
-                </surface>
             </collision>
             <visual name="wheel_visual">
                 <geometry>
