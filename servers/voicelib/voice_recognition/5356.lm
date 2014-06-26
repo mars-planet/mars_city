@@ -1,0 +1,55 @@
+Language model created by QuickLM on Tue May 27 12:44:28 EDT 2014
+Copyright (c) 1996-2010 Carnegie Mellon University and Alexander I. Rudnicky
+
+The model is in standard ARPA format, designed by Doug Paul while he was at MITRE.
+
+The code that was used to produce this language model is available in Open Source.
+Please visit http://www.speech.cs.cmu.edu/tools/ for more information
+
+The (fixed) discount mass is 0.5. The backoffs are computed using the ratio method.
+This model based on a corpus of 6 sentences and 9 words
+
+\data\
+ngram 1=9
+ngram 2=13
+ngram 3=10
+
+\1-grams:
+-0.8653 </s> -0.3010
+-0.8653 <s> -0.2374
+-1.6435 BACKWARD. -0.2374
+-1.6435 FORWARD. -0.2374
+-1.6435 LEFT. -0.2374
+-1.6435 RIGHT. -0.2374
+-1.0414 TREVOR,MOVE -0.2596
+-1.6435 TREVOR,STOP. -0.2374
+-1.6435 TREVOR. -0.2374
+
+\2-grams:
+-0.4771 <s> TREVOR,MOVE 0.0000
+-1.0792 <s> TREVOR,STOP. 0.0000
+-1.0792 <s> TREVOR. 0.0000
+-0.3010 BACKWARD. </s> -0.3010
+-0.3010 FORWARD. </s> -0.3010
+-0.3010 LEFT. </s> -0.3010
+-0.3010 RIGHT. </s> -0.3010
+-0.9031 TREVOR,MOVE BACKWARD. 0.0000
+-0.9031 TREVOR,MOVE FORWARD. 0.0000
+-0.9031 TREVOR,MOVE LEFT. 0.0000
+-0.9031 TREVOR,MOVE RIGHT. 0.0000
+-0.3010 TREVOR,STOP. </s> -0.3010
+-0.3010 TREVOR. </s> -0.3010
+
+\3-grams:
+-0.9031 <s> TREVOR,MOVE BACKWARD.
+-0.9031 <s> TREVOR,MOVE FORWARD.
+-0.9031 <s> TREVOR,MOVE LEFT.
+-0.9031 <s> TREVOR,MOVE RIGHT.
+-0.3010 <s> TREVOR,STOP. </s>
+-0.3010 <s> TREVOR. </s>
+-0.3010 TREVOR,MOVE BACKWARD. </s>
+-0.3010 TREVOR,MOVE FORWARD. </s>
+-0.3010 TREVOR,MOVE LEFT. </s>
+-0.3010 TREVOR,MOVE RIGHT. </s>
+
+\end\

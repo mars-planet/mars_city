@@ -1,0 +1,45 @@
+{{> head_subpage this}}
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-7">
+        <h1 style="display: inline"><span class="glyphicon glyphicon-chevron-right"></span> {{application.name}}</h1> 
+
+        <hr/>
+
+        Details here
+
+
+      </div>
+      <div class="col-md-4 account_details">
+        <h1 style="display: inline"><span class="glyphicon glyphicon-user"></span> Task Details</h1>
+        <hr/>
+        <div>
+          <div class="question_row">
+          <label class="question">Task Scheduled</label><label class="answer">X.X.X</label>
+          </div>
+        </div>
+
+      </div>
+      <style>
+      .account_details{
+        font-family: proxima-nova, proxima-nova-n4, Helvetica, Arial, sans-serif;
+        display:block;
+
+      }
+
+      .account_details .question{
+        color:#898F95;
+      }
+
+      .account_details .answer{
+        float:right;
+        color:#333;
+      }
+
+      .account_details .question_row{
+        padding: 3px;
+      }
+      </style>
+  </div>
+</div>

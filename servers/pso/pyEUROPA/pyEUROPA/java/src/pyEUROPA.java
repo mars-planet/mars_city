@@ -14,6 +14,11 @@ public class pyEUROPA {
 
     // Main thread of py4j
     public static void main(String[] args){
+
+        // Kill existing bound ports
+        p = Runtime.getRuntime().exec("fuser -k "+PORT+"/tcp");
+        p.waitFor();
+
         GatewayServer gatewayServer = new GatewayServer(new pyEUROPA(), PORT);
         gatewayServer.start();
     }

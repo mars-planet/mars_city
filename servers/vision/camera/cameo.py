@@ -68,8 +68,9 @@ class Cameo(object):
                         centroid[0]), y=int(
                         centroid[1]))
 
-            if self.object_recognition_manager.amount_of_images > 4:
-                self.object_recognition_manager.recognize_object(image)
+            if self.object_recognition_manager.amount_of_images > 100:
+
+                print self.object_recognition_manager.estimate_objects_memorized()
 
             # Display left frame
             self.window_manager.show(left_frame)

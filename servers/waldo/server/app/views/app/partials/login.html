@@ -1,0 +1,131 @@
+<div id="hello" style="padding-top:90px">
+  <script type="text/javascript">
+    $("body").css('background-image','url(/images/rover.png)');
+    $("body").css('background-repeat','no-repeat');
+    $("body").css('background-position','left');
+    $("body").css('background-size','55%');
+
+  </script>
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-8 col-lg-offset-2 centered">
+				<div id="login">
+				  {{#each error}}
+				  	<div class="alert alert-danger">{{this}}</div>
+				  {{/each}}
+				  <h1>{{#if login}}Log into your account{{else}}Register for a new account{{/if}}</h1>
+				  <form action="{{#if login}}/login{{else}}/register{{/if}}" method="post">
+            {{> csrf_insert}}
+				  	{{#unless login}}
+				  	<input type="first_name" name="first_name" placeholder="First Name" />
+				    {{/unless}}
+
+				    <input type="email" name="email" placeholder="Email" />
+				    <input type="password" name="password" placeholder="Password" />
+				    {{#if login}}
+				    <input type="submit" value="Log in" />
+				    {{else}}
+				    <input type="submit" value="Sign Up" />
+				    {{/if}}
+				  </form>
+				</div>
+			</div><!-- /col-lg-8 -->
+		</div><!-- /row -->
+	</div> <!-- /container -->
+	<div style="text-align:center">
+
+		{{#if login}}
+		<u><a style="color:#B1B1B1" href="/forgot">Forgot password?</a></u>
+		{{else}}
+		<div style="color:#B1B1B1;font-size:17px; display: inline">By signing up you agree to our </div><u><a style="color:#B1B1B1;font-size:16px" href="/terms">Terms of Service</a></u>
+		{{/if}}
+
+		<!-- Bottom messages -->
+		<h3 style="color:gray;font-size:16px;">
+
+			{{#if login}}Don't have an account yet?{{else}}Already have an account?{{/if}}
+			{{#if login}}
+			<a href="/register" style="color:gray;font-size:16px"><u>Sign Up</u></a>
+			{{else}}
+			<a href="/login" style="color:gray;font-size:16px"><u>Sign In</u></a>
+			{{/if}}
+		
+		</h3>
+	</div>
+</div><!-- /hello -->
+<style>
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:300,400,700);
+
+*{margin:0;padding:0;}
+
+.button{
+  width:100px;
+  background:#3399cc;
+  display:block;
+  margin:0 auto;
+  margin-top:1%;
+  padding:10px;
+  text-align:center;
+  text-decoration:none;
+  color:#fff;
+  cursor:pointer;
+  transition:background .3s;
+  -webkit-transition:background .3s;
+}
+
+.button:hover{
+  background:#2288bb;
+}
+
+#login{
+  width:400px;
+  margin:0 auto;
+  margin-top:8px;
+  margin-bottom:2%;
+  transition:opacity 1s;
+  -webkit-transition:opacity 1s;
+}
+
+#login h1{
+  background:#3399cc;
+  padding:20px 0;
+  font-size:140%;
+  font-weight:300;
+  text-align:center;
+  color:#fff;
+}
+
+form{
+  background:#f0f0f0;
+  padding:6% 4%;
+  margin-top: -10px;
+}
+
+input[type="email"],input[type="password"],input[type="first_name"]{
+  width:92%;
+  background:#fff;
+  margin-bottom:4%;
+  border:1px solid #ccc;
+  padding:4%;
+  font-family:'Open Sans',sans-serif;
+  font-size:95%;
+  color:#555;
+}
+
+input[type="submit"]{
+  width:100%;
+  background:#3399cc;
+  border:0;
+  padding:4%;
+  font-family:'Open Sans',sans-serif;
+  font-size:100%;
+  color:#fff;
+  cursor:pointer;
+  transition:background .3s;
+  -webkit-transition:background .3s;
+}
+
+input[type="submit"]:hover{
+  background:#2288bb;
+}
+</style>

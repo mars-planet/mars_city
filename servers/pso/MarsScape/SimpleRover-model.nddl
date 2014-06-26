@@ -1,0 +1,35 @@
+class Location;
+class Rover;
+
+class Rover extends Timeline
+{
+
+    Rover()
+    {
+    }
+    
+    predicate At { Location location; duration=1;}
+    action Go { Location dest; duration=1;}
+        
+}
+
+// A point on the planet's surface. We assume a Euclidean Plane.
+class Location {
+   string name;
+   int x;
+   int y;
+
+   Location(string _name, int _x, int _y){
+     name = _name;
+     x = _x;
+     y = _y;
+   }
+}
+
+Rover::Go
+{    
+    met_by(condition At _from);
+    meets(effect At _to);
+    eq(_to.location, dest);
+
+}
