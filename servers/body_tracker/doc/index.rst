@@ -6,3 +6,4 @@ Body Tracker
    :maxdepth: 1
 
    sad
+   setup
