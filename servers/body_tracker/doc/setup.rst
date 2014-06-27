@@ -19,6 +19,7 @@ installation process.
 Quick install with `kinect-install.sh`
 ......................................
 
+It is provided inside **body_tracker/tracker** at ERAS code base on github.
 This script automates all the manual steps provided in the next section. Note
 that it needs to be run with sudo. This ensures that also the non-root account
 gets all the required permissions.
