@@ -27,7 +27,7 @@ class Aouda(object):
     def __init__(self, dataframe=None, base_datetime=None,
                  shift_data=False, log_function=None):
         if log_function is None:
-            log_function = self.log_function
+            log_function = print
         self.log_function = log_function
         self.log_function('Constructing Aouda')
         self.base_datetime = base_datetime
