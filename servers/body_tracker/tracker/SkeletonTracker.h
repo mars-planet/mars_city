@@ -4,6 +4,8 @@
  *****************************************************************************/
 
 #include "NiTE.h"
+#include <cstdlib>
+#include <string>
 
 class SkeletonTracker {
     private:
@@ -18,15 +20,31 @@ class SkeletonTracker {
             nite::NiTE::initialize();
 
             this->maxUsers = maxUsers;
+            bool color_output = false;
             niteRc = userTracker.create();
 
-            if (niteRc != nite::STATUS_OK) {
-                printf("%s", "Couldn't create user tracker\n");
-                exit(1); // check for this
+            if (isatty(STDOUT_FILENO) && strcmp(getenv("TERM"), "dumb")) {
+                color_output = true;
             }
 
-            printf("\nStart moving around to get detected...\n");
-            printf("PSI pose may be required for calibration\n");
+            if (niteRc != nite::STATUS_OK) {
+                if (!color_output) {
+                    printf("%s", "Couldn't create user tracker\n");
+                exit(1);
+                }
+                else {
+                    printf("%s", "\033[1;31mCouldn't create user tracker\n\033[m");
+                }
+            }
+
+            if (!color_output) {
+                printf("\nStart moving around to get detected...\n");
+                printf("PSI pose may be required for calibration\n");
+            }
+            else {
+                printf("\n\033[1;34mStart moving around to get detected...\n\033[m");
+                printf("\033[1;34mPSI pose may be required for calibration\n\033[m");
+            }
 
             niteRc = userTracker.readFrame(&userTrackerFrame);
 

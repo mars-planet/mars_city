@@ -11,11 +11,18 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import reconstructor
 
 
-p = inflect.engine()
+_inflct_engn = inflect.engine()
+
+_datapoint_classes = {}
+
+
+def datapoint_class(cls):
+    _datapoint_classes[cls.__name__] = cls
+    return cls
 
 
 def get_datapoint_class(name):
-    return globals()[name]
+    return _datapoint_classes[name]
 
 
 def camel_to_underscore(name):
@@ -29,7 +36,7 @@ Base = declarative_base()
 class Mixin(object):
     @declared_attr
     def __tablename__(cls):
-        return p.plural(camel_to_underscore(cls.__name__))
+        return _inflct_engn.plural(camel_to_underscore(cls.__name__))
 
     @classmethod
     def variable_names(cls, *args, **kwargs):
@@ -41,12 +48,16 @@ class Mixin(object):
 
     def __repr__(self):
         attr_repr = ', '.join('%s=%s' % (k, v)
-                              for k, v in self.variables(filter_common=False))
+                              for k, v
+                              in self.variables(filter_common=False).items())
         return ("<%s(%s)>" % (self.__class__.__name__, attr_repr))
 
     def variables(self, filter_common=True, *args, **kwargs):
-        return OrderedDict({k: self.__dict__[k]
-                            for k in self.variable_names(filter_common)})
+        ret_val = OrderedDict()
+        for k in self.variable_names(filter_common):
+            if k in self.__dict__:
+                ret_val[k] = self.__dict__[k]
+        return ret_val
 
 
 class DatapointMixin(Mixin):
@@ -62,17 +73,21 @@ class DatapointMixin(Mixin):
 
     @classmethod
     def variable_names(cls, filter_common=True):
-        ret_val = super(DatapointMixin).variable_names()
-        if filter_common:
-            ret_val.remove('timestamp')
-            ret_val.remove('millisecond')
-            ret_val.remove('source_id')
-            ret_val.remove('doe')
+        ret_val = super(DatapointMixin, cls).variable_names()
+        ret_val.remove('millisecond')
+        ret_val.remove('timestamp')
+        ret_val.remove('source_id')
+        ret_val.remove('doe')
+
+        if not filter_common:
+            ret_val.insert(0, 'doe')
+            ret_val.insert(0, 'timestamp')
+            ret_val.insert(0, 'source_id')
         return ret_val
 
     @classmethod
     def columns(cls, filter_common=True):
-        ret_val = [c for c in super(DatapointMixin).columns()
+        ret_val = [c for c in super(DatapointMixin, cls).columns()
                         if not filter_common
                             or c.name not in ('timestamp', 'millisecond',
                                               'source_id', 'doe')]
@@ -99,17 +114,21 @@ class SourceMixin(Mixin):
 
     @classmethod
     def variable_names(cls, filter_common=True):
-        ret_val = super(SourceMixin).variable_names()
-        if filter_common:
-            ret_val.remove('source_id')
-            ret_val.remove('name')
-            ret_val.remove('doe')
-            ret_val.remove('connection_str')
+        ret_val = super(SourceMixin, cls).variable_names()
+        ret_val.remove('source_id')
+        ret_val.remove('name')
+        ret_val.remove('doe')
+        ret_val.remove('connection_str')
+        if not filter_common:
+            ret_val.insert(0, 'doe')
+            ret_val.insert(0, 'connection_str')
+            ret_val.insert(0, 'name')
+            ret_val.insert(0, 'source_id')
         return ret_val
 
     @classmethod
     def columns(cls, filter_common=True):
-        ret_val = [c for c in super(SourceMixin).columns()
+        ret_val = [c for c in super(SourceMixin, cls).columns()
                         if not filter_common
                             or c.name not in ('source_id', 'name',
                                               'connection_str', 'doe',
@@ -130,11 +149,12 @@ class SourceMixin(Mixin):
 
     @reconstructor
     def reconstruct(self):
-        self.variable_classes = [globals()[cls_name]
+        self.variable_classes = [get_datapoint_class(cls_name)
                                  for cls_name in self._variable_classes_str
                                                      .split(';')]
 
 
+@datapoint_class
 class EcgV1Datapoint(DatapointMixin, Base):
     ecg_v1 = Column(Float)
 
@@ -143,6 +163,7 @@ class EcgV1Datapoint(DatapointMixin, Base):
         self.ecg_v1 = ecg_v1
 
 
+@datapoint_class
 class EcgV2Datapoint(DatapointMixin, Base):
     ecg_v2 = Column(Float)
 
@@ -151,6 +172,7 @@ class EcgV2Datapoint(DatapointMixin, Base):
         self.ecg_v2 = ecg_v2
 
 
+@datapoint_class
 class O2Datapoint(DatapointMixin, Base):
     o2 = Column(Float)
 
@@ -159,6 +181,7 @@ class O2Datapoint(DatapointMixin, Base):
         self.o2 = o2
 
 
+@datapoint_class
 class TemperatureDatapoint(DatapointMixin, Base):
     temperature = Column(Float)
 
@@ -169,6 +192,7 @@ class TemperatureDatapoint(DatapointMixin, Base):
         self.temperature = temperature
 
 
+@datapoint_class
 class AirFlowDatapoint(DatapointMixin, Base):
     air_flow = Column(Float)
 
@@ -179,6 +203,7 @@ class AirFlowDatapoint(DatapointMixin, Base):
         self.air_flow = air_flow
 
 
+@datapoint_class
 class HeartRateDatapoint(DatapointMixin, Base):
     heart_rate = Column(Float)
 
@@ -189,6 +214,7 @@ class HeartRateDatapoint(DatapointMixin, Base):
         self.heart_rate = heart_rate
 
 
+@datapoint_class
 class AccelerationDatapoint(DatapointMixin, Base):
     acc_x = Column(Float)
     acc_y = Column(Float)
@@ -223,9 +249,7 @@ class Alarm(DatapointMixin, Base):
                  source_id, timestamp=None, millisecond=None):
         if not timestamp:
             timestamp = datetime.now()
-        super(AccelerationDatapoint, self).__init__(timestamp,
-                                                    source_id,
-                                                    millisecond)
+        super(Alarm, self).__init__(timestamp, source_id, millisecond)
         self.alarm_lvl = alarm_lvl
         self.sgmt_begin = sgmt_begin
         self.sgmt_end = sgmt_end

@@ -44,3 +44,5 @@ else
     echo "No installation of Gazebo found"
     echo "Install Gazebo version 2.2 from http://gazebosim.org/wiki/2.2/install"
 fi
+
+echo "Finished"

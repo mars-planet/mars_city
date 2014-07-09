@@ -20,7 +20,7 @@ Install
 Example
 -------------
 
-        from pyEUROPA.gateway import makePSEngine, stopPSEngine
+        from pyEUROPA import makePSEngine, stopPSEngine
 
         # Launch & connect to EUROPA
         europa = makePSEngine()

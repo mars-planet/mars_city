@@ -51,13 +51,162 @@
             <name>back_sensor</name>
         </include>
 
+        <include>
+            <uri>model://wheel</uri>
+            <pose>-0.7 0.6 0.125 0 0 0</pose>
+            <name>left_rear</name>
+        </include>
+
+        <include>
+            <uri>model://wheel</uri>
+            <pose>0.7 0.6 0.125 0 0 0</pose>
+            <name>left_front</name>
+        </include>
+        <!--
+        <plugin name="SkidSteerDrivePlugin" filename="libSkidSteerDrivePlugin.so">
+            <right_front>right_front</right_front>
+            <right_rear>right_rear</right_rear>
+            <left_front>left_front</left_front>
+            <left_rear>left_rear</left_rear>
+            <max_force>100.0</max_force>
+        </plugin>
+        -->
+
+        <!-- <include>
+            <uri>model://wheel</uri>
+            <pose>-0.7 -0.6 0.125 0 0 0</pose>
+            <name>right_rear</name>
+        </include>
+
+        <include>
+            <uri>model://wheel</uri>
+            <pose>0.7 -0.6 0.125 0 0 0</pose>
+            <name>right_front</name>
+        </include>
+
+        <joint name="left_rear_wheel" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>left_rear::wheel</child>
+            <parent>chassis::platform</parent>
+           <axis>
+                <dynamics>
+                    <damping>0.5</damping>
+                    <friction>0.5</friction>
+                </dynamics>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="left_front_wheel" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>left_front::wheel</child>
+            <parent>chassis::platform</parent>
+           <axis>
+                <dynamics>
+                    <damping>0.5</damping>
+                    <friction>0.5</friction>
+                </dynamics>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="right_rear_wheel" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>right_rear::wheel</child>
+            <parent>chassis::platform</parent>
+           <axis>
+                <dynamics>
+                    <damping>0.5</damping>
+                    <friction>0.5</friction>
+                </dynamics>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <joint name="right_front_wheel" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>right_front::wheel</child>
+            <parent>chassis::platform</parent>
+           <axis>
+                <dynamics>
+                    <damping>0.5</damping>
+                    <friction>0.5</friction>
+                </dynamics>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint> -->
+
+<!--         <include>
+            <uri>model://track_drive</uri>
+            <pose>0 0.6 0 0 0 0</pose>
+            <name>left_track</name>
+        </include>
+
+        <include>
+            <uri>model://track_drive</uri>
+            <pose>0 -0.6 0 0 0 0</pose>
+            <name>right_track</name>
+        </include>
+
+        <joint name="left_rear_wheel" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>left_track::rear_wheel::wheel</child>
+            <parent>chassis::platform</parent>
+           <axis>
+                <dynamics>
+                    <damping>1</damping>
+                    <friction>1</friction>
+                </dynamics>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint> -->
+
+<!--         <joint name="left_front_wheel" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>left_track::front_wheel::axle</child>
+            <parent>chassis::platform</parent>
+            <axis>
+                <dynamics>
+                    <damping>1</damping>
+                    <friction>1</friction>
+                </dynamics>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint> -->
+
+<!--         <joint name="right_rear_wheel" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>right_track::rear_wheel::wheel</child>
+            <parent>chassis::platform</parent>
+            <axis>
+                <dynamics>
+                    <damping>1</damping>
+                    <friction>1</friction>
+                </dynamics>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint> -->
+
+<!--         <joint name="right_front_wheel" type="revolute">
+            <pose>0 0 0 0 0 0</pose>
+            <child>right_track::front_wheel::axle</child>
+            <parent>chassis::platform</parent>
+            <axis>
+                <dynamics>
+                    <damping>1</damping>
+                    <friction>1</friction>
+                </dynamics>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint> -->
+
         <joint name="chassis_gripper_joint" type="revolute">
             <parent>chassis::platform</parent>
             <child>front_gripper::guide_rail</child>
             <axis>
                 <limit>
-                    <lower>0</lower>
-                    <upper>0</upper>
+                    <lower>-1</lower>
+                    <upper>1</upper>
                 </limit>
                 <xyz>0 0 1</xyz>
             </axis>

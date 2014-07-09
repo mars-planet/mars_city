@@ -1,9 +1,8 @@
 from ctypes import *
 
-open("SkeletonTracker.so", "rb")
+
 lib = CDLL("SkeletonTracker.so")
 
-skeletonTracker = lib.SkeletonTracker_new()
 lib.getUserSkeletonHeadX.restype = c_float
 lib.getUserSkeletonHeadY.restype = c_float
 lib.getUserSkeletonHeadZ.restype = c_float
@@ -63,11 +62,3 @@ lib.getUserSkeletonL_FootZ.restype = c_float
 lib.getUserSkeletonR_FootX.restype = c_float
 lib.getUserSkeletonR_FootY.restype = c_float
 lib.getUserSkeletonR_FootZ.restype = c_float
-
-while(True):
-    lib.loop(skeletonTracker)
-    if lib.getUsersCount(skeletonTracker) > 0:
-        headX = lib.getUserSkeletonHeadX(skeletonTrack, 0)
-        headY = lib.getUserSkeletonHeadY(skeletonTrack, 0)
-        headZ = lib.getUserSkeletonHeadZ(skeletonTrack, 0)
-        print str(headX) + " " + str(headY) + " " + str(headZ)

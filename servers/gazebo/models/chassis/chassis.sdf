@@ -40,12 +40,7 @@
                     </script>
                 </material>
             </visual>
-<!--        </link>
-        <link name="caster">
-            <inertial>
-                <pose 0 0 0 0 0 0</pose>
-                <mass>1</mass>
--->
+            <!--
             <collision name='caster_collision'>
                 <pose>-0.8 0 -0.125 0 0 0</pose>
                 <geometry>
@@ -72,7 +67,9 @@
                     </sphere>
                 </geometry>
             </visual>
+            -->
         </link>
+        <!--
         <link name="left_wheel">
             <pose>0.8 0.6 0.125 0 1.5707 1.5707</pose>
             <collision name="wheel_collision">
@@ -120,6 +117,7 @@
                 <xyz>0 1 0</xyz>
             </axis>
         </joint>
+
         <joint type="revolute" name="right_wheel_hinge">
             <pose>0 0 0.03 0 0 0</pose>
             <child>right_wheel</child>
@@ -128,6 +126,6 @@
                 <xyz>0 1 0</xyz>
             </axis>
         </joint>
-
+        -->
     </model>
 </sdf>
