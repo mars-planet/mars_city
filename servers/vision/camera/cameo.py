@@ -57,6 +57,11 @@ class Cameo(object):
             for n, image in enumerate(objects):
                 centroid = blob_centroids[n]
 
+                # Have we seen this object before?
+                memorization = self.object_recognition_manager.recognize_object(
+                                                                        image)
+                
+                # Analyze and Add this Object to memory
                 self.object_recognition_manager.add_object(image)
 
                 self.window_manager.draw_circle(
@@ -64,13 +69,9 @@ class Cameo(object):
                         centroid[0]), y=int(
                         centroid[1]), radius=10)
                 self.window_manager.draw_text(
-                    left_frame, "Object", x=int(
+                    left_frame, "Object %s"%memorization, x=int(
                         centroid[0]), y=int(
                         centroid[1]))
-
-            if self.object_recognition_manager.amount_of_images > 100:
-
-                print self.object_recognition_manager.estimate_objects_memorized()
 
             # Display left frame
             self.window_manager.show(left_frame)

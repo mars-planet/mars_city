@@ -12,7 +12,11 @@ PID = None
 GATEWAY = None
 ps_engine_instances = []
 
-def makePSEngine():
+def makePSEngine(debug="g"):
+    # Possible values for debug:
+    #	o: optimized EUROPA for production
+    #   g: EUROPA on debug mode
+
     global PID, GATEWAY, ps_engine_instances
 
     # Check location of EUROPA
@@ -43,7 +47,9 @@ def makePSEngine():
     for lib_jar in glob.glob(os.path.join(java_lib, '*.jar')):
         classpath = ''.join([os.path.join(java_lib, lib_jar), ':', classpath])
 
-    classpath = ''.join([europa_dir+"/lib/PSEngine.jar", ':', classpath])
+    classpath = ':'.join([europa_dir+"/lib/PSEngine.jar",
+			  classpath
+			])
 
     # JAVA_HOME
     javahome = os.environ.get("JAVA_HOME")
@@ -66,7 +72,7 @@ def makePSEngine():
 
     try:
         GATEWAY = JavaGateway()
-        psengine = GATEWAY.entry_point.makePSEngine("o")
+        psengine = GATEWAY.entry_point.makePSEngine(debug)
         ps_engine_instances.append(psengine)
     except:
         stopPSEngine()
@@ -87,3 +93,4 @@ def stopPSEngine():
         os.killpg(PID, signal.SIGTERM)
     else:
         raise ValueError("You must first create a gateway.")
+

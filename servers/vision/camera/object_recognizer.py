@@ -3,6 +3,7 @@ import cv2
 from sklearn.cluster import MiniBatchKMeans, DBSCAN
 from sklearn.semi_supervised import LabelSpreading
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import normalize
 import pylab as pl
 
 
@@ -13,56 +14,12 @@ class ObjectRecognizerManager(object):
         # TODO: Change this to an actual database [Redis array store?]
         self.IMAGE_STORE = []
 
-        # Parameters
+        # Tuned Parameters
         self.dbscan_params = {'eps': 2000}
 
     @property
     def amount_of_images(self):
         return len(self.IMAGE_STORE)
-
-    def estimate_objects_memorized(self):
-        """A rough estimate of the number of objects which we have learned"""
-        
-        # Use the elbow method to estimate K (number of clusters)
-        hog_vectors = PCA(n_components=2).fit_transform(np.vstack(self.IMAGE_STORE))
-        # Wait until cluster inertia decreases linearly.
-        # Meaning, Let's wait for 2nd derivative = ~0
-        def f(x):
-            kmeans = MiniBatchKMeans(n_clusters=x)
-            kmeans.fit(hog_vectors)
-            print kmeans.inertia_
-            return kmeans.inertia_
-
-        def g(x):
-            return f(x) - f(x+1)
-
-        def optimize(func, initial_x=0, max_iter = 10):
-            
-            cur_x=initial_x
-            cur_iter = 0
-            past_estimate = None
-            while True:
-
-                estimate = func(x=cur_x)
-
-                if past_estimate:
-                    diff_estimate = past_estimate - estimate
-                    print diff_estimate
-                past_estimate = estimate
-
-                cur_x=-1
-                cur_iter+=1
-                if cur_iter>max_iter:
-                    break
-            return cur_x
-
-        # Start at standard approximation
-        n_images = self.amount_of_images
-        initial_estimate = int(np.sqrt(n_images/2))
-
-        # Start optimizing
-        k_clusters = optimize(g, initial_x=initial_estimate, max_iter=10)
-        return k_clusters
 
     def _pre_process_new_image(self, image, bin_n=100):
         """Find a histogram of oriented gradients vector representation of
@@ -138,6 +95,9 @@ class ObjectRecognizerManager(object):
         label will be returned.
         """
 
+        if not self.IMAGE_STORE:
+            return Warning("Nothing in recognition memory")
+
         image_vector = self._pre_process_new_image(image_object)
 
         # Has the user specified any semi-supervision?
@@ -159,17 +119,15 @@ class ObjectRecognizerManager(object):
 
             return predicted_label
 
-        # Initialize and learn the currently stored images
+        X_train = self.IMAGE_STORE
+        X_predict = image_vector
 
-        pca = PCA(n_components=2)
-        pca.fit(np.vstack(self.IMAGE_STORE))
-        X_train = pca.transform(np.vstack(self.IMAGE_STORE))
-        X_predict = pca.transform(image_vector)
+        # Find the distance between each point and the query point
+        dbscan = DBSCAN(min_samples=10, eps=1000)
+        dbscan.fit(np.vstack([X_train, X_predict]))
+        result = dbscan.labels_[-1]
 
-        dbscan = DBSCAN(**self.dbscan_params)
-        cluster_association = dbscan.fit_predict(X_train, image_vector)
-
-        return cluster_association
+        return result
 
     def find_objects(self, image, sample_labelled_vectors=None):
         """Find the known objects in a specified image. This function returns
