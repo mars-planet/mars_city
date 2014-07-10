@@ -20,10 +20,10 @@ Install
 Example
 -------------
 
-        from pyEUROPA import makePSEngine, stopPSEngine
+        from pyEUROPA.psengine import makePSEngine, stopPSEngine
 
         # Launch & connect to EUROPA
-        europa = makePSEngine()
+        europa = makePSEngine("g")
         europa.start()
 
         # Shuts down all PSEngine instances
