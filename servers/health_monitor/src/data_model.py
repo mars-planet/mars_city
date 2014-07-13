@@ -63,7 +63,7 @@ class Mixin(object):
 class DatapointMixin(Mixin):
     timestamp = Column(DateTime, primary_key=True)
     millisecond = Column(Float, primary_key=True)
-    source_id = Column(Integer, primary_key=True)
+    source_id = Column(String, primary_key=True)
     doe = Column(DateTime, default=datetime.now)
 
     @declared_attr
@@ -105,7 +105,7 @@ class DatapointMixin(Mixin):
 
 
 class SourceMixin(Mixin):
-    source_id = Column(Integer, primary_key=True,
+    source_id = Column(String, primary_key=True,
                        index=True, autoincrement=True)
     name = Column(String, nullable=False)
     doe = Column(DateTime, default=datetime.now)
@@ -158,7 +158,8 @@ class SourceMixin(Mixin):
 class EcgV1Datapoint(DatapointMixin, Base):
     ecg_v1 = Column(Float)
 
-    def __init__(self, timestamp, source_id, ecg_v1, millisecond=None):
+    def __init__(self, timestamp, source_id, ecg_v1,
+                 millisecond=None, **kwargs):
         super(EcgV1Datapoint, self).__init__(timestamp, source_id, millisecond)
         self.ecg_v1 = ecg_v1
 
@@ -167,7 +168,8 @@ class EcgV1Datapoint(DatapointMixin, Base):
 class EcgV2Datapoint(DatapointMixin, Base):
     ecg_v2 = Column(Float)
 
-    def __init__(self, timestamp, source_id, ecg_v2, millisecond=None):
+    def __init__(self, timestamp, source_id, ecg_v2,
+                 millisecond=None, **kwargs):
         super(EcgV2Datapoint, self).__init__(timestamp, source_id, millisecond)
         self.ecg_v2 = ecg_v2
 
@@ -176,7 +178,8 @@ class EcgV2Datapoint(DatapointMixin, Base):
 class O2Datapoint(DatapointMixin, Base):
     o2 = Column(Float)
 
-    def __init__(self, timestamp, source_id, o2, millisecond=None):
+    def __init__(self, timestamp, source_id, o2,
+                 millisecond=None, **kwargs):
         super(O2Datapoint, self).__init__(timestamp, source_id, millisecond)
         self.o2 = o2
 
@@ -185,7 +188,8 @@ class O2Datapoint(DatapointMixin, Base):
 class TemperatureDatapoint(DatapointMixin, Base):
     temperature = Column(Float)
 
-    def __init__(self, timestamp, source_id, temperature, millisecond=None):
+    def __init__(self, timestamp, source_id, temperature,
+                 millisecond=None, **kwargs):
         super(TemperatureDatapoint, self).__init__(timestamp,
                                                    source_id,
                                                    millisecond)
@@ -196,7 +200,8 @@ class TemperatureDatapoint(DatapointMixin, Base):
 class AirFlowDatapoint(DatapointMixin, Base):
     air_flow = Column(Float)
 
-    def __init__(self, timestamp, source_id, air_flow, millisecond=None):
+    def __init__(self, timestamp, source_id, air_flow,
+                 millisecond=None, **kwargs):
         super(AirFlowDatapoint, self).__init__(timestamp,
                                                source_id,
                                                millisecond)
@@ -207,7 +212,8 @@ class AirFlowDatapoint(DatapointMixin, Base):
 class HeartRateDatapoint(DatapointMixin, Base):
     heart_rate = Column(Float)
 
-    def __init__(self, timestamp, source_id, heart_rate, millisecond=None):
+    def __init__(self, timestamp, source_id, heart_rate,
+                 millisecond=None, **kwargs):
         super(HeartRateDatapoint, self).__init__(timestamp,
                                                  source_id,
                                                  millisecond)
@@ -222,7 +228,7 @@ class AccelerationDatapoint(DatapointMixin, Base):
     acc_magn = Column(Float)
 
     def __init__(self, timestamp, source_id,
-                 acc_x, acc_y, acc_z, millisecond=None):
+                 acc_x, acc_y, acc_z, millisecond=None, **kwargs):
         super(AccelerationDatapoint, self).__init__(timestamp,
                                                     source_id,
                                                     millisecond)

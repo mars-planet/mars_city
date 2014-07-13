@@ -4,7 +4,7 @@ Implements the Aouda Suit Server Interface.
 from __future__ import division, print_function
 
 from collections import namedtuple
-from datetime import datetime, timedelta
+from datetime import datetime
 import gc
 
 import Oger as og
@@ -24,25 +24,29 @@ class Aouda(object):
     Implements the Aouda Server Interface.
     """
 
-    def __init__(self, dataframe=None,
-                 base_datetime=None,
-                 shift_data=False):
-        print('Constructing Aouda')
+    def __init__(self, dataframe=None, base_datetime=None,
+                 shift_data=False, log_function=None):
+        if log_function is None:
+            log_function = print
+        self.log_function = log_function
+        self.log_function('Constructing Aouda')
         self.base_datetime = base_datetime
-        print('Loading Data')
+        self.log_function('Loading Data')
         if dataframe is not None:
             self.data = dataframe.copy()
         self.shift_data = shift_data
-        print('Finished constructing Aouda')
+        self.data = self._load_data()
+        self.log_function('Finished constructing Aouda')
 
-    def _load_data(self, filename):
+    def _load_data(self):
         """
         Loads hr and acc data into a pandas.DataFrame from a dataset file.
         """
         periods = 1000
         data = og.datasets.mackey_glass(sample_len=periods,
                                         n_samples=9,
-                                        seed=50).reshape((9, periods))
+                                        seed=50)
+        data = np.asanyarray(data).reshape((9, periods))
         data = data + np.abs(data.min())
         data = data.transpose()
         return pd.DataFrame(data=data,
@@ -56,31 +60,9 @@ class Aouda(object):
     def _shift_data(self, from_datetime):
         if self.shift_data and self.data.index[-1] <= from_datetime:
             delta = (from_datetime - self.data.index[0]).total_seconds()
-            print('Shifting data % s seconds.' % delta)
+            self.log_function('Shifting data % s seconds.' % delta)
             self.data = self.data.shift(periods=int(delta), freq='S')
             gc.collect()
-
-    def get_data(self, period):
-        """
-        Returns an array with all datapoints in the last period seconds.
-        """
-        until = datetime.now()
-        self._shift_data(until)
-        since = until - timedelta(seconds=period)
-        filtered_data = self.data[self.data.index >= since]
-        filtered_data = filtered_data[filtered_data.index <= until]
-        ret_val = []
-        try:
-            if len(filtered_data) > 0:
-                for index, row in filtered_data.iterrows():
-                    datum = Aouda.DP(index, row['hr'], row['acc_x'],
-                                  row['acc_y'], row['acc_z'])
-                    ret_val.append(datum)
-                return ret_val, until
-            else:
-                raise NoDataAvailableError()
-        finally:
-            del filtered_data
 
     def _get_instantaneos_values(self):
         """
@@ -158,16 +140,20 @@ class Aouda(object):
             heart_rate = np.nan
         return heart_rate
 
-    def read_acc_magn(self):
+    def read_acceleration(self):
         """
         Returns instantaneous acceleration magnitude.
         """
-        acc_magn = self._get_instantaneos_values()
-        if len(acc_magn) > 0:
-            acc_magn = acc_magn['acc']
+        acc = self._get_instantaneos_values()
+        if len(acc) > 0:
+            acc_x = acc['acc_x']
+            acc_y = acc['acc_y']
+            acc_z = acc['acc_z']
         else:
-            acc_magn = np.nan
-        return acc_magn
+            acc_x = np.nan
+            acc_y = np.nan
+            acc_z = np.nan
+        return (acc_x, acc_y, acc_z)
 
 
 Aouda.DP = namedtuple('DP', ['timestamp', 'ecg_v1', 'ecg_v2', 'o2',
