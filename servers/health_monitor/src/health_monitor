@@ -11,8 +11,9 @@ import time
 
 from PyTango import ConnectionFailed, DevFailed, AttrWriteType, AttrQuality
 from PyTango import DevState, DevVarLongStringArray, DeviceProxy
+from PyTango import NonSupportedFeature, CommunicationFailed
 from PyTango.server import Device, DeviceMeta, attribute, DispLevel
-from PyTango.server import run, class_property, command
+from PyTango.server import run, command
 
 from health_monitor import HealthMonitor
 import numpy as np
@@ -21,13 +22,13 @@ import numpy as np
 class HealthMonitorServer(Device):
     __metaclass__ = DeviceMeta
 
-    source_addresses = attribute(label='Source Addresses', dtype=(str,),
+    src_addrs = attribute(label='Source Addresses', dtype=(str,),
                                  display_level=DispLevel.OPERATOR,
                                  access=AttrWriteType.READ,
                                  doc='Source Addresses')
 
     def read_source_addresses(self):
-        self.info_stream('read_source_addresses(%s, %s)',
+        self.log_function('read_source_addresses(%s, %s)',
                          self.source_id, self.name)
         return self._source_addresses, time.time(), AttrQuality.ATTR_VALID
 
@@ -51,7 +52,13 @@ class HealthMonitorServer(Device):
         self.stop_polling.set()
 
     def init_device(self):
-        self.info_stream('Initializing device')
+        # if self.log_function is not defined, then set it as Tango's log
+        try:
+            self.log_function('Initializing device')
+        except:
+            self.log_function = self.info_stream
+            self.log_function('Initializing device')
+
         self.health_mon = HealthMonitor(
                                     sources=self._source_addresses,
                                     word_size=self.word_size,
@@ -62,33 +69,42 @@ class HealthMonitorServer(Device):
                                     conn_str=self.conn_str
                                         )
         self.stop_polling = Event()
-        Thread(target=self._poll_suit).start()
+        Thread(target=self._poll_sources).start()
         self.set_state(DevState.ON)
-        self.info_stream('Finished initializing device')
+        self.log_function('Finished initializing device')
 
-    def _poll_suit(self):
-        self.info_stream('Polling from: %s' % self._source_addresses)
-        for address in self._source_addresses:
-            proxy = DeviceProxy(address)
-            while not self.stop_polling.is_set():
+    def _get_source_data(self, address):
+        proxy = DeviceProxy(address)
+        data = {}
+        for attr, poll_freq in self._source_attributes:
+            try:
+                # depth is the amount of datapoints to retrieve,
+                # polling_frequency is in secs, and poll_freq
+                # (of the attribute) is in ms.
+                # so what's below should retrieve all datapoints since
+                # last polling cycle
+                depth = (self.polling_frequency * 1000) / poll_freq
+                # get the things I really need
+                data[attr] = [(d.time.todatetime(), d.value)
+                              for d in proxy.attribute_history(attr, depth)]
+            except (NonSupportedFeature, ConnectionFailed,
+                    CommunicationFailed, DevFailed) as e:
+                self.log_function('Problem when retrieving attribute %s '
+                                  ' from source %s: %s. Setting %s to np.nan' %
+                                  (attr, address, e, attr))
+                data[attr] = []
+
+        self.health_mon.register_datapoints(address, **data)
+
+    def _poll_sources(self):
+        self.log_function('Polling from: %s' % self._source_addresses)
+        while not self.stop_polling.is_set():
+            for address in self._source_addresses:
                 try:
-                    data = proxy.get_data(self.polling_frequency)
-                    if len(data[0]) > 0:
-                        for i in range(0, len(data), 4):
-                            self.info_stream(data[0][i], data[1][i])
-                            timestamp = datetime.strptime(data[1][i],
-                                                          '%Y-%m-%d '
-                                                          '%H:%M:%S.%f')
-                            timestamp = float(timestamp.strftime('%s.%f'))
-                            hr = data[0][i]
-                            acc_x = data[0][i + 1]
-                            acc_y = data[0][i + 2]
-                            acc_z = data[0][i + 3]
-                            datapoint = np.array((timestamp, hr, acc_x,
-                                                  acc_y, acc_z))
-                            self.register_datapoint(datapoint)
-                except (ConnectionFailed, DevFailed, AttributeError):
-                    self.info_stream('The Source seems to be down.')
+                    self._get_source_data(address)
+                except (ConnectionFailed, DevFailed, AttributeError) as e:
+                    self.log_function('The Source %s seems to be down: %s' %
+                                      (address, e))
             time.sleep(self.polling_frequency)
 
 
@@ -126,10 +142,20 @@ if __name__ == '__main__':
     conn_str = config.get('Monitor', 'conn_str')
     HealthMonitorServer.conn_str = conn_str
 
-    source_addresses = config.get('Monitor', 'source_addresses').split(';')
-    HealthMonitorServer._source_addresses = source_addresses
+    src_addrs = config.get('Monitor', 'src_addrs').split(';')
+    HealthMonitorServer._source_addresses = src_addrs
 
-    polling_frequency = config.getint('Monitor', 'polling_frequency')
-    HealthMonitorServer.polling_frequency = polling_frequency
+    src_attr = []
+    if src_addrs:
+        proxy = DeviceProxy(src_addrs[0])
+        for attr in proxy.attribute_list_query():
+            src_attr.append([attr.name,
+                             proxy.get_attribute_poll_period(attr.name)])
+    HealthMonitorServer._source_attributes = src_attr
+
+    polling_freq = config.getint('Monitor', 'polling_freq')
+    HealthMonitorServer.polling_frequency = polling_freq
+
+    HealthMonitorServer.log_function = print
 
     run([HealthMonitorServer])

@@ -20,6 +20,16 @@ import numpy as np
 import pandas as pd
 
 
+def store_datapoints(source_id, data, timestamp, cls, session):
+    # it doesn't make sense to store nans in the database
+    row = data.loc[timestamp][[cls.variable_names()]]
+    if not np.isnan(row).all():
+        Datapoint = dm.get_datapoint_class(name=cls)
+        var_vals = {k: v for k, v in row.iterkv()}
+        datum = Datapoint(timestamp=timestamp, source_id=source_id, **var_vals)
+        session.add(datum)
+
+
 class HealthMonitor(object):
     '''
     Implements the Health Monitor Server Interface.
@@ -100,23 +110,33 @@ class HealthMonitor(object):
             self.log_function('Creating Tables')
             dm.Base.metadata.create_all(self.engine)
 
-    def register_datapoints(self, timestamp, source_id, **kwargs):
+    def register_datapoints(self, source_id, min_poll_freq, **kwargs):
         '''
-        Registers a new datapoint in the database and launches a new thread to
+        Registers new datapoints in the database and launches a new thread to
         analyze the data collected so far.
-        args should be (timestamp, hr, acc_x, acc_y, acc_z).
+        kwargs should be a dictionary with the variables as names and
+        lists of pairs (timestamp, variable value) as values, e.g.:
+        kwargs['heart_rate'] = [(2014-07-13 20:56:41.0, 0.583374),
+                                (2014-07-13 20:56:41.5, 0.585754),
+                                (2014-07-13 20:56:42.0, 0.583782),
+                                (2014-07-13 20:56:42.5, 0.579044)]
         '''
+        # convert data to a dataframe to sort it and organize it by timestamp
+        data = pd.DataFrame()
+        for k in kwargs:
+            data.append(pd.DataFrame(kwargs[k], columns=['timestamp', k])
+                          .set_index('timestamp'))
+        data = data.sort_index().resample('%dL' % min_poll_freq)
         with self.Session() as session:
-            for cls in self.dp_entities:
-                Datapoint = dm.get_datapoint_class(name=cls)
-                datum = Datapoint(timestamp=timestamp, source_id=source_id,
-                                  **kwargs)
-                try:
-                    session.add(datum)
-                    Thread(target=self._generate_alarms).start()
-                except IntegrityError:
-                    pass
-            session.commit()
+            for timestamp in data.index:
+                for cls in self.dp_entities:
+                    try:
+                        store_datapoints(source_id, data, timestamp,
+                                         cls, session)
+                    except IntegrityError:
+                        pass
+                    session.commit()
+        Thread(target=self._generate_alarms).start()
 
     # this isn't used at the moment
     def register_datasource(self, name, connection_str):
