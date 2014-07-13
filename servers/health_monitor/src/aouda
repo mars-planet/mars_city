@@ -21,37 +21,44 @@ class AoudaServer(Device):
                        display_level=DispLevel.OPERATOR,
                        access=AttrWriteType.READ,
                        unit='V', format='8.4f',
+                       polling_period=5,
                        doc='ECG V1 electrode')
     ecg_v2 = attribute(label='ECG V2', dtype=float,
                        display_level=DispLevel.OPERATOR,
                        access=AttrWriteType.READ,
                        unit='V', format='8.4f',
+                       polling_period=5,
                        doc='ECG V2 electrode')
     o2 = attribute(label='Oxigen', dtype=float,
                    display_level=DispLevel.OPERATOR,
                    access=AttrWriteType.READ,
                    unit='SpO2', format='8.4f',
+                   polling_period=500,
                    doc='Saturation of peripheral oxygen')
     temperature = attribute(label='Temperature', dtype=float,
                             display_level=DispLevel.OPERATOR,
                             access=AttrWriteType.READ,
                             unit='°C', format='8.4f',
+                            polling_period=2000,
                             doc='Body temperature')
     air_flow = attribute(label='Air Flow', dtype=float,
                          display_level=DispLevel.OPERATOR,
                          access=AttrWriteType.READ,
                          unit='m3/s', format='8.4f',
+                         polling_period=500,
                          doc='Air flow volume')
     heart_rate = attribute(label='Heart Rate', dtype=float,
                            display_level=DispLevel.OPERATOR,
                            access=AttrWriteType.READ,
                            unit='bpm', format='8.4f',
+                           polling_period=500,
                            doc='Heart rate')
     acceleration = attribute(label='Acceleration', dtype=(float,),
                              max_dim_x=3,
                              display_level=DispLevel.OPERATOR,
                              access=AttrWriteType.READ,
                              unit='(m/s2, m/s2, m/s2)', format='8.4f',
+                             polling_period=250,
                              doc='Body acceleration vector')
 
     source_id = device_property(dtype=str, default_value='')
