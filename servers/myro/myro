@@ -32,6 +32,7 @@ class PyDevice(PyTango.DeviceClass):
 class PyMyro(PyTango.Device_4Impl):
     def __init__(self, cl, name):
         self.devices = {}
+        self.arrows = PyTango.DeviceProxy('C3/GUI/arrow')
         PyTango.Device_4Impl.__init__(self, cl, name)
         self.info_stream('In PyMyro.__init__')
         PyMyro.init_device(self)
@@ -39,14 +40,28 @@ class PyMyro(PyTango.Device_4Impl):
     def __del__(self):
         print ("destructor")
 	#myro.destroy()
-	
+
     def start(self):
         print 'start'
+
+	def read_translate_speed(self, the_att):
+		print('in read_translate_speed')
+		self.translate_speed = self.arrows['translate_speed'].value
+		#the_att.set_value(self.traslate_speed)
+		#print 'translate_speed', self.translate_speed
+		myro.move(self.translate_speed, self.rotate_speed)
+
+	def read_rotate_speed(self, the_att):
+		print('in read_rotate_speed')
+		self.translate_speed = self.arrows['translate_speed'].value
+		self.rotate_speed = self.arrows['rotate_speed'].value
+		the_att.set_value(self.rotate_speed)
+		#print 'rotate_speed', self.rotate_speed
 
     def stop(self):
         myro.stop()
         print 'stop'
-        
+
 
     def move(self, speed):
         self.translate_speed = float(speed[0])
