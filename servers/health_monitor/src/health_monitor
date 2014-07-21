@@ -3,153 +3,44 @@
 from __future__ import division, print_function
 
 import ConfigParser
-from datetime import datetime
 import os
 import sys
 from threading import Thread, Event
-from time import sleep
+import time
 
-from PyTango import ArgType, AttrDataFormat, AttrWriteType
-from PyTango import DeviceProxy, ConnectionFailed, DevFailed
-import PyTango
-from health_monitor import HealthMonitor, DuplicatedDatapointError
-import numpy as np
+from PyTango import ConnectionFailed, DevFailed, AttrWriteType, AttrQuality
+from PyTango import DevState, DevVarLongStringArray, DeviceProxy
+from PyTango import DevVarDoubleStringArray
+from PyTango import NonSupportedFeature, CommunicationFailed
+from PyTango.server import Device, DeviceMeta, attribute, DispLevel
+from PyTango.server import run, command
 
-
-class PyDsExpClass(PyTango.DeviceClass):
-    cmd_list = {
-        'get_avg_hr': [[ArgType.DevLong, "Period"],
-                       [ArgType.DevFloat,
-                        "Average HR in last [Period] seconds"]],
-
-        'get_avg_acc': [[ArgType.DevLong, "Period"],
-                        [ArgType.DevFloat,
-                         "Average acc in last [Period] seconds"]],
-
-        'get_current_alarms': [[ArgType.DevLong, "Period"],
-                               [ArgType.DevVarDoubleStringArray,
-                                "Two arrays: alarm levels of the last [Period]"
-                                + " seconds, and corresponding timestamps"]],
-                }
-
-    attr_list = {
-                 'alarm_lvl': [[ArgType.DevFloat,
-                                 AttrDataFormat.SCALAR,
-                                 AttrWriteType.READ],
-                                {'polling period': 2000}]
-                 }
-
-    def __init__(self, name):
-        print('Constructing PyDsExpClass')
-        PyTango.DeviceClass.__init__(self, name)
-        self.set_type("TestDevice")
-        print('Finished constructing PyDsExpClass')
+from health_monitor import HealthMonitor
 
 
-class PyDsExp(PyTango.Device_4Impl):
+class HealthMonitorServer(Device):
+    __metaclass__ = DeviceMeta
 
-    word_size = 5
-    window_factor = 2
-    lead_window_factor = 2
-    lag_window_factor = 4
-    resolution = 1000
-    conn_str = 'mysql+mysqldb://root@localhost/health_monitor'
-    aouda_address = 'C3/aouda/1'
-    polling_frequency = 2
+    source_addresses = attribute(label='Source Addresses', dtype=(str,),
+                                 max_dim_x=100000,
+                                 display_level=DispLevel.OPERATOR,
+                                 access=AttrWriteType.READ,
+                                 doc='Source Addresses')
 
-    def __init__(self, cl, name):
-        print('Constructing PyDsExp')
-        PyTango.Device_4Impl.__init__(self, cl, name)
-        PyDsExp.init_device(self)
-        print('Finished constructing PyDsExp')
+    def read_source_addresses(self):
+        self.log_function('read_source_addresses(%s)' %
+                         self._source_addresses)
+        return self._source_addresses, time.time(), AttrQuality.ATTR_VALID
 
-    def __del__(self):
-        self.stop_polling.set()
-
-    def init_device(self):
-        print('Initializing device')
-        self.health_mon = HealthMonitor(word_size=PyDsExp.word_size,
-                                window_factor=PyDsExp.window_factor,
-                                lead_window_factor=PyDsExp.lead_window_factor,
-                                lag_window_factor=PyDsExp.lag_window_factor,
-                                resolution=PyDsExp.resolution,
-                                conn_str=PyDsExp.conn_str)
-        self.stop_polling = Event()
-        Thread(target=self._poll_suit).start()
-        self.set_state(PyTango.DevState.ON)
-        print('Finished initializing device')
-
-    def _poll_suit(self):
-        print('Polling from: %s' % PyDsExp.aouda_address)
-        proxy = DeviceProxy(PyDsExp.aouda_address)
-        while not self.stop_polling.is_set():
-            try:
-                data = proxy.get_data(PyDsExp.polling_frequency)
-                if len(data[0]) > 0:
-                    for i in range(0, len(data), 4):
-                        print(data[0][i], data[1][i])
-                        timestamp = datetime.strptime(data[1][i],
-                                                      '%Y-%m-%d %H:%M:%S.%f')
-                        timestamp = float(timestamp.strftime('%s.%f'))
-                        hr = data[0][i]
-                        acc_x = data[0][i + 1]
-                        acc_y = data[0][i + 2]
-                        acc_z = data[0][i + 3]
-                        datapoint = np.array((timestamp, hr, acc_x,
-                                              acc_y, acc_z))
-                        self.register_datapoint(datapoint)
-            except (ConnectionFailed, DevFailed, AttributeError):
-                print("The Aouda Server seems to be down.")
-            sleep(PyDsExp.polling_frequency)
-
-############## BEGIN alarm_lvl ################################################
-    def is_alarm_lvl_allowed(self, req_type):
-        return self.get_state() == PyTango.DevState.ON
-
-    def read_alarm_lvl(self, the_att):
-        last_alarms = self.health_mon.get_current_alarms(4)
-        self.alarm_lvl = np.nan
-        if len(last_alarms) > 0:
-            self.alarm_lvl = last_alarms[-1].alarm_lvl
-        the_att.set_value(self.alarm_lvl)
-############### END alarm_lvl #################################################
-
-############## BEGIN register_datapoint #######################################
-    def is_register_datapoint_allowed(self):
-        return self.get_state() == PyTango.DevState.ON
-
-    def register_datapoint(self, args):
-        timestamp = datetime.fromtimestamp(args[0])
-        new_args = args.tolist()
-        new_args[0] = timestamp
-        try:
-            self.health_mon.register_datapoint(*new_args)
-        except DuplicatedDatapointError:
-            print("Duplicated datapoint.")
-############### END register_datapoint ########################################
-
-############### BEGIN get_avg_hr ##############################################
-    def is_get_avg_hr_allowed(self):
-        return self.get_state() == PyTango.DevState.ON
-
-    def get_avg_hr(self, period):
-        return self.health_mon.get_avg_hr(period)
-############### END get_avg_hr ################################################
-
-############### BEGIN get_acc_avg #############################################
-    def is_get_avg_acc_allowed(self):
-        return self.get_state() == PyTango.DevState.ON
-
-    def get_avg_acc(self, period):
-        return self.health_mon.get_avg_acc(period)
-############### END get_acc_avg ###############################################
-
-############### BEGIN get_current_alarms ######################################
-    def is_get_current_alarms_allowed(self):
-        return self.get_state() == PyTango.DevState.ON
-
-    def get_current_alarms(self, period):
-        alarms = self.health_mon.get_current_alarms(period)
+    @command(dtype_in=DevVarLongStringArray,
+             doc_in="Get alarms from all the sources for "
+                    "the last [period] seconds",
+             dtype_out=DevVarDoubleStringArray)
+    def get_alarms(self, params):
+        period, source = params[0][0], params[1][0]
+        self.log_function('get_alarms(%s, %s)' % (period, source))
+        alarms = self.health_mon.get_alarms(period, source)
+        print("alarms: %s" % alarms)
         if alarms:
             ret_val = [(a.alarm_lvl,
                         a.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f'))
@@ -158,36 +49,117 @@ class PyDsExp(PyTango.Device_4Impl):
         else:
             ret_val = [[], []]
         return ret_val
-############### END get_current_alarms ########################################
+
+    def __del__(self):
+        self.stop_polling.set()
+
+    def init_device(self):
+        # if self.log_function is not defined, then set it as Tango's log
+        try:
+            self.log_function('Initializing device')
+        except:
+            self.log_function = self.info_stream
+            self.log_function('Initializing device')
+
+        self.health_mon = HealthMonitor(
+                                    sources=self._source_addresses,
+                                    word_size=self.word_size,
+                                    window_factor=self.window_factor,
+                                    lead_window_factor=self.lead_window_factor,
+                                    lag_window_factor=self.lag_window_factor,
+                                    conn_str=self.conn_str
+                                        )
+        self.stop_polling = Event()
+        Thread(target=self._poll_sources).start()
+        self.set_state(DevState.ON)
+        self.log_function('Finished initializing device')
+
+    def _get_source_data(self, proxy):
+        data = {}
+        for attr, poll_freq in self._source_attributes:
+            try:
+                # depth is the amount of datapoints to retrieve,
+                # polling_frequency is in secs, and poll_freq
+                # (of the attribute) is in ms.
+                # so what's below should retrieve all datapoints since
+                # last polling cycle
+                depth = (self.polling_frequency * 1000) // poll_freq
+                # get the things I really need
+                data[attr] = [(d.time.todatetime(), d.value)
+                              for d in proxy.attribute_history(attr, depth)]
+            except (NonSupportedFeature, ConnectionFailed,
+                    CommunicationFailed, DevFailed) as e:
+                self.log_function('Problem when retrieving attribute %s '
+                                  ' from source %s: %s. Setting %s to np.nan' %
+                                  (attr, proxy.name(), e, attr))
+                data[attr] = []
+
+        # self.log_function("data: %s" % data)
+        print('proxy: %s' % proxy.name())
+        self.health_mon.generate_alarms(proxy.name(), ** data)
+
+    def _poll_sources(self):
+        self.log_function('Polling from: %s' % self._source_addresses)
+        while not self.stop_polling.is_set():
+            for address in self._source_addresses:
+                try:
+                    proxy = DeviceProxy(address)
+                except (ConnectionFailed, DevFailed, AttributeError) as e:
+                    self.log_function('The Source %s seems to be down: %s' %
+                                      (address, e.message))
+                self._get_source_data(proxy)
+            time.sleep(self.polling_frequency)
 
 
-print("Reading configuration file")
-config = ConfigParser.RawConfigParser()
-dirname = os.path.dirname(os.path.abspath(sys.argv[0]))
-cfg_filename = os.path.join(dirname, 'health_monitor.cfg')
-config.read(cfg_filename)
-PyDsExp.word_size = config.getint('Detector', 'word_size')
-PyDsExp.window_factor = config.getint('Detector', 'window_factor')
-PyDsExp.lead_window_factor = config.getint('Detector', 'lead_window_factor')
-PyDsExp.lag_window_factor = config.getint('Detector', 'lag_window_factor')
-
-PyDsExp.resolution = config.getint('Monitor', 'resolution')
-PyDsExp.conn_str = config.get('Monitor', 'conn_str')
-PyDsExp.aouda_address = config.get('Monitor', 'aouda_address')
-PyDsExp.polling_frequency = config.getint('Monitor', 'polling_frequency')
+HealthMonitorServer.word_size = 5
+HealthMonitorServer.window_factor = 2
+HealthMonitorServer.lead_window_factor = 2
+HealthMonitorServer.lag_window_factor = 4
+HealthMonitorServer.resolution = 1000
+HealthMonitorServer.conn_str = 'sqlite://'
+HealthMonitorServer.polling_frequency = 2
 
 
 if __name__ == '__main__':
-    print("Parsing command line arguments")
-    util = PyTango.Util(sys.argv)
-    print("Setting up Server")
-    util.add_class(PyDsExpClass, PyDsExp)
+    print('Reading configuration file')
+    config = ConfigParser.RawConfigParser()
+    dirname = os.path.dirname(os.path.abspath(sys.argv[0]))
+    cfg_filename = os.path.join(dirname, 'health_monitor.cfg')
+    config.read(cfg_filename)
 
-    print("Getting ancillary classes instances")
-    U = PyTango.Util.instance()
-    print("Initializing Server")
-    U.server_init()
-    print("Running Server")
-    U.server_run()
-    print("Exiting")
-    U.server_cleanup()
+    word_size = config.getint('Detector', 'word_size')
+    HealthMonitorServer.word_size = word_size
+
+    window_factor = config.getint('Detector', 'window_factor')
+    HealthMonitorServer.window_factor = window_factor
+
+    lead_window_factor = config.getint('Detector', 'lead_window_factor')
+    HealthMonitorServer.lead_window_factor = lead_window_factor
+
+    lag_window_factor = config.getint('Detector', 'lag_window_factor')
+    HealthMonitorServer.lag_window_factor = lag_window_factor
+
+    resolution = config.getint('Monitor', 'resolution')
+    HealthMonitorServer.resolution = resolution
+
+    conn_str = config.get('Monitor', 'conn_str')
+    HealthMonitorServer.conn_str = conn_str
+
+    src_addrs = config.get('Monitor', 'source_addresses').split(';')
+    HealthMonitorServer._source_addresses = src_addrs
+
+    src_attr = []
+    if src_addrs:
+        proxy = DeviceProxy(src_addrs[0])
+        src_attr = [[attr.name, proxy.get_attribute_poll_period(attr.name)]
+                    for attr in proxy.attribute_list_query()
+                    if attr.name not in ('State', 'Status')]
+    print("Source's attributes: %s" % src_attr)
+    HealthMonitorServer._source_attributes = src_attr
+
+    polling_freq = config.getint('Monitor', 'polling_frequency')
+    HealthMonitorServer.polling_frequency = polling_freq
+
+    HealthMonitorServer.log_function = print
+
+    run([HealthMonitorServer])
