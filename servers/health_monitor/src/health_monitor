@@ -3,7 +3,6 @@
 from __future__ import division, print_function
 
 import ConfigParser
-from datetime import datetime
 import os
 import sys
 from threading import Thread, Event
@@ -11,34 +10,37 @@ import time
 
 from PyTango import ConnectionFailed, DevFailed, AttrWriteType, AttrQuality
 from PyTango import DevState, DevVarLongStringArray, DeviceProxy
+from PyTango import DevVarDoubleStringArray
 from PyTango import NonSupportedFeature, CommunicationFailed
 from PyTango.server import Device, DeviceMeta, attribute, DispLevel
 from PyTango.server import run, command
 
 from health_monitor import HealthMonitor
-import numpy as np
 
 
 class HealthMonitorServer(Device):
     __metaclass__ = DeviceMeta
 
-    src_addrs = attribute(label='Source Addresses', dtype=(str,),
+    source_addresses = attribute(label='Source Addresses', dtype=(str,),
+                                 max_dim_x=100000,
                                  display_level=DispLevel.OPERATOR,
                                  access=AttrWriteType.READ,
                                  doc='Source Addresses')
 
     def read_source_addresses(self):
-        self.log_function('read_source_addresses(%s, %s)',
-                         self.source_id, self.name)
+        self.log_function('read_source_addresses(%s)' %
+                         self._source_addresses)
         return self._source_addresses, time.time(), AttrQuality.ATTR_VALID
 
     @command(dtype_in=DevVarLongStringArray,
              doc_in="Get alarms from all the sources for "
                     "the last [period] seconds",
-             dtype_out=DevVarLongStringArray)
+             dtype_out=DevVarDoubleStringArray)
     def get_alarms(self, params):
-        period, source = params[0]
+        period, source = params[0][0], params[1][0]
+        self.log_function('get_alarms(%s, %s)' % (period, source))
         alarms = self.health_mon.get_alarms(period, source)
+        print("alarms: %s" % alarms)
         if alarms:
             ret_val = [(a.alarm_lvl,
                         a.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f'))
@@ -65,7 +67,6 @@ class HealthMonitorServer(Device):
                                     window_factor=self.window_factor,
                                     lead_window_factor=self.lead_window_factor,
                                     lag_window_factor=self.lag_window_factor,
-                                    resolution=self.resolution,
                                     conn_str=self.conn_str
                                         )
         self.stop_polling = Event()
@@ -73,8 +74,7 @@ class HealthMonitorServer(Device):
         self.set_state(DevState.ON)
         self.log_function('Finished initializing device')
 
-    def _get_source_data(self, address):
-        proxy = DeviceProxy(address)
+    def _get_source_data(self, proxy):
         data = {}
         for attr, poll_freq in self._source_attributes:
             try:
@@ -83,7 +83,7 @@ class HealthMonitorServer(Device):
                 # (of the attribute) is in ms.
                 # so what's below should retrieve all datapoints since
                 # last polling cycle
-                depth = (self.polling_frequency * 1000) / poll_freq
+                depth = (self.polling_frequency * 1000) // poll_freq
                 # get the things I really need
                 data[attr] = [(d.time.todatetime(), d.value)
                               for d in proxy.attribute_history(attr, depth)]
@@ -91,20 +91,23 @@ class HealthMonitorServer(Device):
                     CommunicationFailed, DevFailed) as e:
                 self.log_function('Problem when retrieving attribute %s '
                                   ' from source %s: %s. Setting %s to np.nan' %
-                                  (attr, address, e, attr))
+                                  (attr, proxy.name(), e, attr))
                 data[attr] = []
 
-        self.health_mon.register_datapoints(address, **data)
+        # self.log_function("data: %s" % data)
+        print('proxy: %s' % proxy.name())
+        self.health_mon.generate_alarms(proxy.name(), ** data)
 
     def _poll_sources(self):
         self.log_function('Polling from: %s' % self._source_addresses)
         while not self.stop_polling.is_set():
             for address in self._source_addresses:
                 try:
-                    self._get_source_data(address)
+                    proxy = DeviceProxy(address)
                 except (ConnectionFailed, DevFailed, AttributeError) as e:
                     self.log_function('The Source %s seems to be down: %s' %
-                                      (address, e))
+                                      (address, e.message))
+                self._get_source_data(proxy)
             time.sleep(self.polling_frequency)
 
 
@@ -142,18 +145,19 @@ if __name__ == '__main__':
     conn_str = config.get('Monitor', 'conn_str')
     HealthMonitorServer.conn_str = conn_str
 
-    src_addrs = config.get('Monitor', 'src_addrs').split(';')
+    src_addrs = config.get('Monitor', 'source_addresses').split(';')
     HealthMonitorServer._source_addresses = src_addrs
 
     src_attr = []
     if src_addrs:
         proxy = DeviceProxy(src_addrs[0])
-        for attr in proxy.attribute_list_query():
-            src_attr.append([attr.name,
-                             proxy.get_attribute_poll_period(attr.name)])
+        src_attr = [[attr.name, proxy.get_attribute_poll_period(attr.name)]
+                    for attr in proxy.attribute_list_query()
+                    if attr.name not in ('State', 'Status')]
+    print("Source's attributes: %s" % src_attr)
     HealthMonitorServer._source_attributes = src_attr
 
-    polling_freq = config.getint('Monitor', 'polling_freq')
+    polling_freq = config.getint('Monitor', 'polling_frequency')
     HealthMonitorServer.polling_frequency = polling_freq
 
     HealthMonitorServer.log_function = print

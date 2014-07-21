@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import re
 
 import inflect
-from sqlalchemy import Column, DateTime, Enum, Float, Index, Integer, String
+from sqlalchemy import Column, DateTime, Enum, Float, Index, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import reconstructor
@@ -43,14 +43,19 @@ class Mixin(object):
         return sorted(c.name for c in cls.__table__.columns)
 
     @classmethod
-    def columns(cls, *args, **kwargs):
-        return sorted(cls.__table__.columns.values())
+    def variable_columns(cls, *args, **kwargs):
+        return sorted(cls.__table__.columns.values(), key=lambda x: x.name)
 
     def __repr__(self):
         attr_repr = ', '.join('%s=%s' % (k, v)
                               for k, v
                               in self.variables(filter_common=False).items())
         return ("<%s(%s)>" % (self.__class__.__name__, attr_repr))
+
+    def __getitem__(self, key):
+        if key not in self.__table__.columns:
+            raise ValueError('No such column: %s' % key)
+        return self.__dict__[key]
 
     def variables(self, filter_common=True, *args, **kwargs):
         ret_val = OrderedDict()
@@ -86,8 +91,8 @@ class DatapointMixin(Mixin):
         return ret_val
 
     @classmethod
-    def columns(cls, filter_common=True):
-        ret_val = [c for c in super(DatapointMixin, cls).columns()
+    def variable_columns(cls, filter_common=True):
+        ret_val = [c for c in super(DatapointMixin, cls).variable_columns()
                         if not filter_common
                             or c.name not in ('timestamp', 'millisecond',
                                               'source_id', 'doe')]
@@ -127,8 +132,8 @@ class SourceMixin(Mixin):
         return ret_val
 
     @classmethod
-    def columns(cls, filter_common=True):
-        ret_val = [c for c in super(SourceMixin, cls).columns()
+    def variable_columns(cls, filter_common=True):
+        ret_val = [c for c in super(SourceMixin, cls).variable_columns()
                         if not filter_common
                             or c.name not in ('source_id', 'name',
                                               'connection_str', 'doe',
@@ -227,38 +232,61 @@ class AccelerationDatapoint(DatapointMixin, Base):
     acc_z = Column(Float)
     acc_magn = Column(Float)
 
-    def __init__(self, timestamp, source_id,
-                 acc_x, acc_y, acc_z, millisecond=None, **kwargs):
+    def __init__(self, timestamp, source_id, acceleration=None,
+                 acc_x=None, acc_y=None, acc_z=None, acc_magn=None,
+                 millisecond=None, **kwargs):
         super(AccelerationDatapoint, self).__init__(timestamp,
                                                     source_id,
                                                     millisecond)
-        self.acc_x = acc_x
-        self.acc_y = acc_y
-        self.acc_z = acc_z
-        self.acc_magn = (acc_x ** 2 + acc_y ** 2 + acc_z ** 2) ** 0.5
+        if acceleration is not None:
+            self.acc_x, self.acc_y, self.acc_z = acceleration
+        elif acc_x is not None and acc_y is not None and acc_z is not None:
+            self.acc_x = acc_x
+            self.acc_y = acc_y
+            self.acc_z = acc_z
+        else:
+            raise ValueError("Either acceleration or (acc_x, acc_y, acc_z) "
+                             "must be provided")
+
+        self.acc_magn = acc_magn
+        if acc_magn is None:
+            self.acc_magn = (self.acc_x ** 2 +
+                             self.acc_y ** 2 +
+                             self.acc_z ** 2) ** 0.5
+
+    @classmethod
+    def variable_names(cls, filter_common=True):
+        var_names = (super(AccelerationDatapoint, cls)
+                          .variable_names(filter_common))
+        var_names.remove('acc_magn')
+        var_names.insert(0, 'acc_magn')
+        return var_names
 
 
 class Alarm(DatapointMixin, Base):
     alarm_lvl = Column(Float, nullable=False)
     kind = Column(Enum('ecg_v1', 'ecg_v2', 'o2',
-                       'temperature', 'air_flow', 'hr',
+                       'temperature', 'air_flow', 'heart_rate',
                        'acc_x', 'acc_y', 'acc_z', 'acc_magn'),
-                  nullable=False)
+                  primary_key=True)
     mixed_kind = Column(Enum('ecg_v1', 'ecg_v2', 'o2',
-                             'temperature', 'air_flow', 'hr',
+                             'temperature', 'air_flow', 'heart_rate',
                              'acc_x', 'acc_y', 'acc_z', 'acc_magn'),
                         nullable=True)
     sgmt_begin = Column(DateTime, nullable=False)
     sgmt_end = Column(DateTime, nullable=False)
 
     def __init__(self, alarm_lvl, sgmt_begin, sgmt_end,
-                 source_id, timestamp=None, millisecond=None):
+                 source_id, kind, mixed_kind=None,
+                 timestamp=None, millisecond=None):
         if not timestamp:
             timestamp = datetime.now()
         super(Alarm, self).__init__(timestamp, source_id, millisecond)
         self.alarm_lvl = alarm_lvl
         self.sgmt_begin = sgmt_begin
         self.sgmt_end = sgmt_end
+        self.kind = kind
+        self.mixed_kind = mixed_kind
 
 
 class Suit(SourceMixin, Base):

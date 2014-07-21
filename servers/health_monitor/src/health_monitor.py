@@ -4,10 +4,8 @@ Implements the Health Monitor Server Interface.
 '''
 from __future__ import division, print_function
 
-from collections import deque, Iterable
+from collections import Iterable
 from datetime import datetime, timedelta
-from random import randint
-from threading import Thread, Lock
 
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
@@ -20,14 +18,19 @@ import numpy as np
 import pandas as pd
 
 
-def store_datapoints(source_id, data, timestamp, cls, session):
-    # it doesn't make sense to store nans in the database
-    row = data.loc[timestamp][[cls.variable_names()]]
-    if not np.isnan(row).all():
-        Datapoint = dm.get_datapoint_class(name=cls)
-        var_vals = {k: v for k, v in row.iterkv()}
-        datum = Datapoint(timestamp=timestamp, source_id=source_id, **var_vals)
-        session.add(datum)
+def _analize_datapoints(datapoints, detector):
+    if not isinstance(datapoints, pd.Series):
+        raise ValueError('The datapoints parameter must be an instance of '
+                         'pandas.DataFrame insted of: %s' %
+                         datapoints.__class__.__name__)
+    if not datapoints.isnull().all():
+        datapoints = datapoints.dropna()
+        sgmt_begin = datapoints.index.min()
+        sgmt_end = datapoints.index.max()
+
+        analysis_result = detector.detect(np.asarray(datapoints))
+        if analysis_result:
+            return analysis_result, sgmt_begin, sgmt_end
 
 
 class HealthMonitor(object):
@@ -37,14 +40,13 @@ class HealthMonitor(object):
 
     def __init__(self, sources,
                  word_size=5, window_factor=2, lead_window_factor=2,
-                 lag_window_factor=4, resolution=1000, engine=None,
+                 lag_window_factor=4, engine=None,
                  conn_str='sqlite://', log_function=None):
         '''
         word_size,
         window_factor,
         lead_window_factor,
         lag_window_factor: parameters passed to the anomaly detector;
-        resolution: determines how often should alarms be generated;
         engine: allows to inject an sqlalchemy.engine instance;
         conn_str: database's connection string.
         '''
@@ -54,11 +56,10 @@ class HealthMonitor(object):
         self.log_function('Constructing HealthMonitor')
         if not isinstance(sources, Iterable):
             raise ValueError('An iterable of sources must be provided.')
-        self.sources = sources
         if engine is not None:
             self.engine = engine
         else:
-            print(conn_str)
+            self.log_function(conn_str)
             self.engine = create_engine(conn_str,
                                         connect_args={'check_same_thread':
                                                       False},
@@ -66,22 +67,20 @@ class HealthMonitor(object):
                                         isolation_level='SERIALIZABLE')
             self._setup_database()
         self.Session = sessionmaker(bind=self.engine, autocommit=False)
-        self.resolution = resolution  # in millisecs
-        self.last_alarm_timestamp = datetime.now()
-        self.last_detection_timestamp = datetime.now()
         self.log_function('Constructing Detector')
-        self.detector = Detector(word_size=word_size,
-                                 window_factor=window_factor,
-                                 lead_window_factor=lead_window_factor,
-                                 lag_window_factor=lag_window_factor)
+        detector = (lambda: Detector(word_size=word_size,
+                                     window_factor=window_factor,
+                                     lead_window_factor=lead_window_factor,
+                                     lag_window_factor=lag_window_factor))
         self.log_function('Finished constructing HealthMonitor')
-        self.timestamps = deque(maxlen=self.detector.universe_size)
-        self.lock = Lock()
         self.source_entity = dm.Suit
         self.dp_entities = [dm.AccelerationDatapoint, dm.AirFlowDatapoint,
                             dm.EcgV1Datapoint, dm.EcgV2Datapoint,
                             dm.HeartRateDatapoint, dm.O2Datapoint,
                             dm.TemperatureDatapoint]
+        self.sources = {s: [(entity, detector())
+                            for entity in self.dp_entities]
+                        for s in sources}
 
     def __del__(self):
         '''
@@ -110,34 +109,6 @@ class HealthMonitor(object):
             self.log_function('Creating Tables')
             dm.Base.metadata.create_all(self.engine)
 
-    def register_datapoints(self, source_id, min_poll_freq, **kwargs):
-        '''
-        Registers new datapoints in the database and launches a new thread to
-        analyze the data collected so far.
-        kwargs should be a dictionary with the variables as names and
-        lists of pairs (timestamp, variable value) as values, e.g.:
-        kwargs['heart_rate'] = [(2014-07-13 20:56:41.0, 0.583374),
-                                (2014-07-13 20:56:41.5, 0.585754),
-                                (2014-07-13 20:56:42.0, 0.583782),
-                                (2014-07-13 20:56:42.5, 0.579044)]
-        '''
-        # convert data to a dataframe to sort it and organize it by timestamp
-        data = pd.DataFrame()
-        for k in kwargs:
-            data.append(pd.DataFrame(kwargs[k], columns=['timestamp', k])
-                          .set_index('timestamp'))
-        data = data.sort_index().resample('%dL' % min_poll_freq)
-        with self.Session() as session:
-            for timestamp in data.index:
-                for cls in self.dp_entities:
-                    try:
-                        store_datapoints(source_id, data, timestamp,
-                                         cls, session)
-                    except IntegrityError:
-                        pass
-                    session.commit()
-        Thread(target=self._generate_alarms).start()
-
     # this isn't used at the moment
     def register_datasource(self, name, connection_str):
         '''
@@ -146,82 +117,68 @@ class HealthMonitor(object):
         '''
         source = self.source_entity(name=name, connection_str=connection_str,
                                     variable_classes=self.dp_entities)
-        with self.Session() as session:
+        try:
+            session = self.Session()
             session.add(source)
             session.commit()
+        finally:
+            session.close()
 
-    def _generate_alarms(self):
+    def generate_alarms(self, source_id, **kwargs):
         '''
         Analyzes the data collected so far and inserts in the database
         the scores generated (if any).
+        kwargs should be a dictionary with the variables as names and
+        lists of pairs (timestamp, variable value) as values, e.g.:
+        kwargs['heart_rate'] = [(2014-07-13 20:56:41.0, 0.583374),
+                                (2014-07-13 20:56:41.5, 0.585754),
+                                (2014-07-13 20:56:42.0, 0.583782),
+                                (2014-07-13 20:56:42.5, 0.579044)]
         '''
-        timerange = datetime.now() - self.last_alarm_timestamp
-        timerange = timerange.total_seconds() * 1000
-        if timerange >= self.resolution:
-            self.last_alarm_timestamp = datetime.now()
-            with self.Session() as session:
-                query = session.query()
-                for entity in self.dp_entities:
-                    query = query.add_columns(
-                                  [c.label('%s_%s' % (c.table.name, c.key))
-                                   for c in entity.columns()])
-                    query = query.filter(entity.timestamp
-                                         >= self.last_detection_timestamp)
-                datapoints = query.all()
+        data = pd.DataFrame()
+        for k in kwargs:
+            data = data.append(pd.DataFrame(kwargs[k],
+                                            columns=['timestamp', k])
+                                 .set_index('timestamp'))
+        data = data.sort_index()
+        for entity, detector in self.sources[source_id]:
+            try:
+                session = self.Session()
+                result = _analize_datapoints(data[entity.variable_names()[0]],
+                                             detector)
+                if result:
+                    analysis, sgmt_begin, sgmt_end = result
+                    analysis = analysis[0]
+                    session.add(
+                            dm.Alarm(timestamp=sgmt_end,
+                                     alarm_lvl=analysis.score,
+                                     sgmt_begin=sgmt_begin,
+                                     sgmt_end=sgmt_end,
+                                     source_id=source_id,
+                                     kind=entity.variable_names()[0]))
+                session.commit()
+            except IntegrityError as e:
+                print('IntegrityError: %s' % e)
+            finally:
                 session.close()
-                datapoints = pd.DataFrame(
-                       {
-                        'timestamp': [d.timestamp for d in datapoints],
-                        'ratio': [d.hr / d.acc_magn for d in datapoints]
-                       })
-                datapoints.set_index('timestamp', inplace=True)
-                datapoints = datapoints.resample('%sL' % self.resolution,
-                                                 how='mean')
-                datapoints = datapoints.fillna(method='ffill')
-                datapoints = datapoints.fillna(method='bfill')
-                if len(datapoints) > 0:
-                    first_timestamp = datapoints.index.min()
-                    last_timestamp = datapoints.index.max()
-                    self.timestamps.extend(datapoints.index.tolist())
 
-                    self.lock.acquire()
-                    self.last_detection_timestamp = last_timestamp
-                    analysis = self.detector.detect(datapoints.ratio)
-                    self.lock.release()
-
-                    if analysis:
-                        session = self.Session()
-                        if self.timestamps:
-                            first_timestamp = self.timestamps.popleft()
-                        analysis = analysis[0]
-                        session.add(
-                                dm.Alarm(timestamp=last_timestamp,
-                                      alarm_lvl=analysis.score,
-                                      sgmt_begin=first_timestamp,
-                                      sgmt_end=last_timestamp))
-                        try:
-                            session.commit()
-                        except IntegrityError:
-                            session.rollback()
-                            musecs = randint(0, 10 ** 6)
-                            session.add(
-                                    dm.Alarm(timestamp=last_timestamp
-                                            + timedelta(microseconds=musecs),
-                                          alarm_lvl=analysis.score,
-                                          sgmt_begin=first_timestamp,
-                                          sgmt_end=last_timestamp))
-                            session.commit()
-
-    def get_alarms(self, period):
+    def get_alarms(self, period, source):
         '''
         Returns the alarm scores generated in the last [period] seconds.
         '''
         current = datetime.now()
         current -= timedelta(microseconds=current.microsecond)
-        init = current - timedelta(seconds=period)
-        with self.Session() as session:
-            query = session.query(dm.Alarm)
-            query = query.filter(dm.Alarm.timestamp >= init)
+        init = current - timedelta(seconds=int(period))
+        print('init: %s' % init)
+        results = []
+        try:
+            session = self.Session()
+            query = (session.query(dm.Alarm)
+                            .filter((dm.Alarm.timestamp >= init) &
+                                    (dm.Alarm.source_id == source))
+                            .order_by(dm.Alarm.timestamp))
             results = query.all()
+        finally:
+            session.close()
 
         return results
