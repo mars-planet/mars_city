@@ -13,6 +13,7 @@ import time
 from PyTango import AttrQuality, AttrWriteType, DispLevel, DevState
 from PyTango.server import Device, DeviceMeta, attribute, run, device_property
 from aouda import Aouda, NoDataAvailableError
+import numpy.linalg as lnp
 
 
 class AoudaServer(Device):
@@ -60,6 +61,12 @@ class AoudaServer(Device):
                              unit='(m/s2, m/s2, m/s2)', format='8.4f',
                              polling_period=250,
                              doc='Body acceleration vector')
+    acc_magn = attribute(label='Acceleration Magnitude', dtype=float,
+                         display_level=DispLevel.OPERATOR,
+                         access=AttrWriteType.READ,
+                         unit='m/s2', format='8.4f',
+                         polling_period=250,
+                         doc="Body acceleration vector's magnitude")
 
     source_id = device_property(dtype=str, default_value='')
     name = device_property(dtype=str, default_value='NN')
@@ -117,9 +124,15 @@ class AoudaServer(Device):
 
     def read_acceleration(self):
         self.acceleration = acceleration = self.aouda.read_acceleration()
-        self.info_stream('read_acceleration(%s, %s, %s)',
-                         self.source_id, self.name, acceleration)
+        self.info_stream('read_acceleration(%s, %s, %s)' %
+                         (self.source_id, self.name, acceleration))
         return self.acceleration, time.time(), AttrQuality.ATTR_VALID
+
+    def read_acc_magn(self):
+        self.acc_magn = acc_magn = lnp.norm(self.aouda.read_acceleration())
+        self.info_stream('read_acc_magn(%s, %s, %s)' %
+                         (self.source_id, self.name, acc_magn))
+        return self.acc_magn, time.time(), AttrQuality.ATTR_VALID
 
 if __name__ == '__main__':
     print('Reading configuration file')
