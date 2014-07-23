@@ -122,3 +122,4 @@ A high level schedule is shown below.
 [Midterm Evaluation]
 
 - Milestone II: Integrate with Trevor & Waldo Interface
+- Milestone III: Finalize Integration with RaspberryPi

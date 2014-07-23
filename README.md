@@ -14,6 +14,6 @@ The European MaRs Analog Station for Advanced Technologies Integration (ERAS) pr
 * Martian Dust
 * Planetary Protection (Forward- and back-contamination)
 
-### Contribution guidelines ### 
+### Contribution Guidelines 
 
 * [Software Engineering Guidelines](http://eras.readthedocs.org/en/latest/doc/guidelines.html)

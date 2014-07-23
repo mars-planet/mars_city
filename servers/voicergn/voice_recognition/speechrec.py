@@ -72,7 +72,7 @@ def passiveListen():
 	CHUNK = 1024
 
 	# number of seconds to allow to establish threshold
-	THRESHOLD_TIME = 1
+	THRESHOLD_TIME = 2
 
 	# number of seconds to listen before forcing restart
 	LISTEN_TIME = 10
@@ -124,6 +124,7 @@ def passiveListen():
 	# no use continuing if no flag raised
 	if not didDetect:
 		print "No disturbance detected"
+		print score,THRESHOLD
 		return
 
 	# cutoff any recording before this disturbance was detected
@@ -152,6 +153,9 @@ def passiveListen():
 	with open(passivewav, 'rb') as passivewav:
 		speechRec.decode_raw(passivewav)
         result = speechRec.get_hyp()
+	print result[0]
+
+
 
 	if "trevor" in result[0]:
 		return (THRESHOLD, result[0])
@@ -165,7 +169,7 @@ def record(THRESHOLD=None):
     FORMAT = pyaudio.paInt16
     CHANNELS = 1
     RATE = 16000
-    RECORD_SECONDS = 2
+    RECORD_SECONDS = 12
     WAVE_OUTPUT_FILENAME = "livewav.wav"
 
     p = pyaudio.PyAudio()
@@ -174,7 +178,7 @@ def record(THRESHOLD=None):
 
 
     stream = p.open(format=FORMAT,
-                    channels=CHANNELS,
+                    channels=1,
                     rate=RATE,
                     input=True,
                     frames_per_buffer=chunk)
@@ -204,7 +208,7 @@ def record(THRESHOLD=None):
     # write data to WAVE file
     data = ''.join(frames)
     wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
-    wf.setnchannels(CHANNELS)
+    wf.setnchannels(1)
     wf.setsampwidth(p.get_sample_size(FORMAT))
     wf.setframerate(RATE)
     wf.writeframes(data)

@@ -37,9 +37,7 @@ then
 
     export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:$ERAS_DIR/servers/gazebo/models/
 
-    # required soon: a plugin path, somewhere the lib*.so files would reside
-    # NB: the lib*.so files are made from C++ files and required for Gazebo to run properly
-    # export GAZEBO_PLUGIN_PATH=$(pwd)/lib
+    export GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:$(pwd)/plugins
 else
     echo "No installation of Gazebo found"
     echo "Install Gazebo version 2.2 from http://gazebosim.org/wiki/2.2/install"
