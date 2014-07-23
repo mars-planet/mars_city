@@ -1,181 +1,232 @@
 Objects *************************
-	Location:Home*************************
+	Location:lander*************************
 		Variables *************************
-			Home.name=string:CLOSED{Home}
+			lander.name=string:CLOSED{LANDER}
+			lander.x=int:CLOSED[0, 0]
+			lander.y=int:CLOSED[0, 0]
 		End Variables *********************
-	End Location:Home*************************
-	Location:SuperMarket*************************
+	End Location:lander*************************
+	Location:rock1*************************
 		Variables *************************
-			SuperMarket.name=string:CLOSED{SuperMarket}
+			rock1.name=string:CLOSED{ROCK1}
+			rock1.x=int:CLOSED[9, 9]
+			rock1.y=int:CLOSED[9, 9]
 		End Variables *********************
-	End Location:SuperMarket*************************
-	Location:HardwareStore*************************
+	End Location:rock1*************************
+	Location:rock2*************************
 		Variables *************************
-			HardwareStore.name=string:CLOSED{HardwareStore}
+			rock2.name=string:CLOSED{ROCK2}
+			rock2.x=int:CLOSED[1, 1]
+			rock2.y=int:CLOSED[6, 6]
 		End Variables *********************
-	End Location:HardwareStore*************************
-	Product:Banana*************************
+	End Location:rock2*************************
+	Location:rock3*************************
 		Variables *************************
-			Banana.name=string:CLOSED{Banana}
+			rock3.name=string:CLOSED{ROCK3}
+			rock3.x=int:CLOSED[4, 4]
+			rock3.y=int:CLOSED[8, 8]
 		End Variables *********************
-	End Product:Banana*************************
-	Product:Milk*************************
+	End Location:rock3*************************
+	Location:rock4*************************
 		Variables *************************
-			Milk.name=string:CLOSED{Milk}
+			rock4.name=string:CLOSED{ROCK4}
+			rock4.x=int:CLOSED[3, 3]
+			rock4.y=int:CLOSED[9, 9]
 		End Variables *********************
-	End Product:Milk*************************
-	Product:Drill*************************
+	End Location:rock4*************************
+	Path:p2*************************
 		Variables *************************
-			Drill.name=string:CLOSED{Drill}
+			p2.name=string:CLOSED{Very Long Way}
+			p2.from=Location:CLOSED{lander(12)}
+			p2.to=Location:CLOSED{rock4(72)}
+			p2.cost=float:CLOSED[2000, 2000]
 		End Variables *********************
-	End Product:Drill*************************
-	ProductLocation:bananaLocation*************************
+	End Path:p2*************************
+	Path:p3*************************
 		Variables *************************
-			bananaLocation.location=Location:CLOSED{SuperMarket(17)}
-			bananaLocation.product=Product:CLOSED{Banana(31)}
+			p3.name=string:CLOSED{Moderately Long Way}
+			p3.from=Location:CLOSED{lander(12)}
+			p3.to=Location:CLOSED{rock4(72)}
+			p3.cost=float:CLOSED[1500, 1500]
 		End Variables *********************
-	End ProductLocation:bananaLocation*************************
-	ProductLocation:milkLocation*************************
+	End Path:p3*************************
+	Path:p1*************************
 		Variables *************************
-			milkLocation.location=Location:CLOSED{SuperMarket(17)}
-			milkLocation.product=Product:CLOSED{Milk(38)}
+			p1.name=string:CLOSED{Short Cut}
+			p1.from=Location:CLOSED{lander(12)}
+			p1.to=Location:CLOSED{rock4(72)}
+			p1.cost=float:CLOSED[400, 400]
 		End Variables *********************
-	End ProductLocation:milkLocation*************************
-	ProductLocation:drillLocation*************************
-		Variables *************************
-			drillLocation.location=Location:CLOSED{HardwareStore(24)}
-			drillLocation.product=Product:CLOSED{Drill(45)}
-		End Variables *********************
-	End ProductLocation:drillLocation*************************
-	Agent:agent*************************
+	End Path:p1*************************
+	Battery:battery*************************
 		Tokens *************************
-				[13, 88]
-				Agent.Buy(product=Product:CLOSED{Milk(38)})
-				Key=99  Master=NONE
-				[23, 98]
-				[13, 88]
-				Agent.Buy(product=Product:CLOSED{Banana(31)})
-				Key=115  Master=NONE
-				[23, 98]
-				[2, 77]
-				Agent.Buy(product=Product:CLOSED{Drill(45)})
-				Key=131  Master=NONE
-				[12, 87]
+				[1, 43]
+				Battery.consume()
+				Key=434  Master=325 Go-0(325)[1, 43] --> [2, 44]
+				[1, 43]
+				{50}
+				Battery.consume()
+				Key=544  Master=281 Instrument.TakeSample(281){50} --> {60}
+				{50}
+				[4, 46]
+				Battery.consume()
+				Key=652  Master=594 Place-1(594)[4, 46] --> [7, 49]
+				[4, 46]
+				[2, 44]
+				Battery.consume()
+				Key=764  Master=691 Unstow-2(691)[2, 44] --> [4, 46]
+				[2, 44]
+				{60}
+				Battery.consume()
+				Key=845  Master=825 Rover.PhoneHome(825){60} --> [61, +inf]
+				{60}
 		End Tokens *********************
 		Variables *************************
-			agent.timeline=AgentTimeline:CLOSED{agent.timeline(79)}
+			battery.initialCapacity=float:CLOSED[1000, 1000]
+			battery.levelLimitMin=float:CLOSED[0, 0]
+			battery.levelLimitMax=float:CLOSED[1000, 1000]
+			battery.productionRateMax=float:CLOSED[+inf, +inf]
+			battery.productionMax=float:CLOSED[+inf, +inf]
+			battery.consumptionRateMax=float:CLOSED[+inf, +inf]
+			battery.consumptionMax=float:CLOSED[+inf, +inf]
+			battery.profileType=string:CLOSED{IncrementalFlowProfile}
 		End Variables *********************
-	End Agent:agent*************************
-	AgentTimeline:agent.timeline*************************
+	End Battery:battery*************************
+	Rover:spirit*************************
 		Tokens *************************
-				[0, 75]
-				AgentTimeline.At(loc=Location:CLOSED{Home(10)})
-				Key=83  Master=NONE
-					Merged Key=379 from AgentTimeline.Go(199)[1, 76] --> [2, 77]
-				[1, 76]
-				[1, 76]
-				AgentTimeline.Go(from=Location:CLOSED{Home(10)}to=Location:CLOSED{HardwareStore(24)})
-				Key=199  Master=83 start(83)[0, 75] --> [1, 76]
-					Merged Key=485 from AgentTimeline.At(300)[2, 77] --> [12, 87]
-				[2, 77]
-				[2, 77]
-				AgentTimeline.At(loc=Location:CLOSED{HardwareStore(24)})
-				Key=300  Master=131 buy3(131)[2, 77] --> [12, 87]
-					Merged Key=397 from AgentTimeline.Go(199)[1, 76] --> [2, 77]
-					Merged Key=639 from AgentTimeline.Go(427)[12, 87] --> [13, 88]
-				[12, 87]
-				[12, 87]
-				AgentTimeline.Go(from=Location:CLOSED{HardwareStore(24)}to=Location:CLOSED{SuperMarket(17)})
-				Key=427  Master=230 AgentTimeline.At(230)[13, 88] --> [23, 98]
-					Merged Key=504 from AgentTimeline.At(300)[2, 77] --> [12, 87]
-				[13, 88]
-				[13, 88]
-				AgentTimeline.At(loc=Location:CLOSED{SuperMarket(17)})
-				Key=230  Master=99 buy1(99)[13, 88] --> [23, 98]
-					Merged Key=265 from buy2(115)[13, 88] --> [23, 98]
-					Merged Key=535 from AgentTimeline.Go(331)[23, 98] --> [24, 99]
-					Merged Key=657 from AgentTimeline.Go(427)[12, 87] --> [13, 88]
-				[23, 98]
-				[23, 98]
-				AgentTimeline.Go(from=Location:CLOSED{SuperMarket(17)}to=Location:CLOSED{Home(10)})
-				Key=331  Master=147 finish(147)[24, 99] --> [25, 100]
-					Merged Key=446 from AgentTimeline.At(230)[13, 88] --> [23, 98]
-				[24, 99]
-				[24, 99]
-				AgentTimeline.At(loc=Location:CLOSED{Home(10)})
-				Key=147  Master=NONE
-					Merged Key=553 from AgentTimeline.Go(331)[23, 98] --> [24, 99]
-					Merged Key=583 from AgentTimeline.Go(350)[25, 100] --> [26, +inf]
-				[25, 100]
-				[25, 100]
-				AgentTimeline.Go(from=Location:CLOSED{Home(10)}to=Location:CLOSED{Home(10)})
-				Key=350  Master=147 finish(147)[24, 99] --> [25, 100]
-				[26, +inf]
+				{50}
+				Rover.TakeSample(rock=Location:CLOSED{rock4(72)})
+				Key=231  Master=NONE
+				{60}
+				[1, 43]
+				Rover.Go(dest=Location:CLOSED{rock4(72)})
+				Key=325  Master=NONE
+				[2, 44]
+				{60}
+				Rover.PhoneHome()
+				Key=825  Master=231 sample(231){50} --> {60}
+				[61, +inf]
 		End Tokens *********************
-	End AgentTimeline:agent.timeline*************************
+		Variables *************************
+			spirit.navigator=Navigator:CLOSED{spirit.navigator(161)}
+			spirit.instrument=Instrument:CLOSED{spirit.instrument(165)}
+			spirit.mainBattery=Battery:CLOSED{battery(138)}
+		End Variables *********************
+	End Rover:spirit*************************
+	Navigator:spirit.navigator*************************
+		Tokens *************************
+				{0}
+				Navigator.At(location=Location:CLOSED{lander(12)})
+				Key=178  Master=NONE
+					Merged Key=361 from Go-0(325)[1, 43] --> [2, 44]
+				[1, 43]
+				[1, 43]
+				Navigator.Going(path=Path:CLOSED{p1(121)}from=Location:CLOSED{lander(12)}to=Location:CLOSED{rock4(72)})
+				Key=407  Master=325 Go-0(325)[1, 43] --> [2, 44]
+				[2, 44]
+				[2, 44]
+				Navigator.At(location=Location:CLOSED{rock4(72)})
+				Key=259  Master=231 sample(231){50} --> {60}
+					Merged Key=380 from Go-0(325)[1, 43] --> [2, 44]
+				[60, +inf]
+		End Tokens *********************
+	End Navigator:spirit.navigator*************************
+	Instrument:spirit.instrument*************************
+		Tokens *************************
+				{50}
+				Instrument.TakeSample(rock=Location:CLOSED{rock4(72)})
+				Key=281  Master=231 sample(231){50} --> {60}
+				{60}
+				[4, 46]
+				Instrument.Place(rock=Location:CLOSED{rock4(72)})
+				Key=594  Master=NONE
+				[7, 49]
+				[2, 44]
+				Instrument.Unstow()
+				Key=691  Master=NONE
+				[4, 46]
+		End Tokens *********************
+		Variables *************************
+			spirit.instrument.rover=Rover:CLOSED{spirit(158)}
+			spirit.instrument.location=InstrumentLocation:CLOSED{spirit.instrument.location(169)}
+			spirit.instrument.state=InstrumentState:CLOSED{spirit.instrument.state(172)}
+		End Variables *********************
+	End Instrument:spirit.instrument*************************
+	InstrumentLocation:spirit.instrument.location*************************
+		Tokens *************************
+				{0}
+				InstrumentLocation.Stowed()
+				Key=197  Master=NONE
+					Merged Key=341 from Go-0(325)[1, 43] --> [2, 44]
+					Merged Key=708 from Unstow-2(691)[2, 44] --> [4, 46]
+				[2, 44]
+				[2, 44]
+				InstrumentLocation.Unstowing()
+				Key=726  Master=691 Unstow-2(691)[2, 44] --> [4, 46]
+				[4, 46]
+				[4, 46]
+				InstrumentLocation.Unstowed()
+				Key=502  Master=281 Instrument.TakeSample(281){50} --> {60}
+					Merged Key=612 from Place-1(594)[4, 46] --> [7, 49]
+					Merged Key=746 from Unstow-2(691)[2, 44] --> [4, 46]
+				[60, +inf]
+		End Tokens *********************
+	End InstrumentLocation:spirit.instrument.location*************************
+	InstrumentState:spirit.instrument.state*************************
+		Tokens *************************
+				{0}
+				InstrumentState.Free()
+				Key=214  Master=NONE
+				[1, 49]
+				[7, 49]
+				InstrumentState.Placed(rock=Location:CLOSED{rock4(72)})
+				Key=482  Master=281 Instrument.TakeSample(281){50} --> {60}
+					Merged Key=632 from Place-1(594)[4, 46] --> [7, 49]
+				{50}
+				{50}
+				InstrumentState.Sampling(rock=Location:CLOSED{rock4(72)})
+				Key=522  Master=281 Instrument.TakeSample(281){50} --> {60}
+				{60}
+		End Tokens *********************
+	End InstrumentState:spirit.instrument.state*************************
 Global Variables*************************
-	horizonEnd=int:CLOSED[100, 100]
-	Home=Location:CLOSED{Home(10)}
-	SuperMarket=Location:CLOSED{SuperMarket(17)}
-	HardwareStore=Location:CLOSED{HardwareStore(24)}
-	Banana=Product:CLOSED{Banana(31)}
-	Milk=Product:CLOSED{Milk(38)}
-	Drill=Product:CLOSED{Drill(45)}
-	bananaLocation=ProductLocation:CLOSED{bananaLocation(52)}
-	milkLocation=ProductLocation:CLOSED{milkLocation(61)}
-	drillLocation=ProductLocation:CLOSED{drillLocation(70)}
-	agent=Agent:CLOSED{agent(77)}
+	lander=Location:CLOSED{lander(12)}
+	rock1=Location:CLOSED{rock1(27)}
+	rock2=Location:CLOSED{rock2(42)}
+	rock3=Location:CLOSED{rock3(57)}
+	rock4=Location:CLOSED{rock4(72)}
+	p2=Path:CLOSED{p2(87)}
+	p3=Path:CLOSED{p3(104)}
+	p1=Path:CLOSED{p1(121)}
+	battery=Battery:CLOSED{battery(138)}
+	spirit=Rover:CLOSED{spirit(158)}
 Merged Tokens: *************************
-		[-inf, 89]
-		AgentTimeline.At(loc=Location:CLOSED{SuperMarket(17)})
-		Key=265  Master=115 buy2(115)[13, 88] --> [23, 98]
-		[11, +inf]
-		[-inf, 76]
-		AgentTimeline.At(loc=Location:CLOSED{Home(10)})
-		Key=379  Master=199 AgentTimeline.Go(199)[1, 76] --> [2, 77]
-		[1, 77]
-		[2, 78]
-		AgentTimeline.At(loc=Location:CLOSED{HardwareStore(24),Home(10),SuperMarket(17)})
-		Key=397  Master=199 AgentTimeline.Go(199)[1, 76] --> [2, 77]
-		[3, +inf]
-		[23, 98]
-		AgentTimeline.Go(from=Location:CLOSED{SuperMarket(17)}to=Location:CLOSED{HardwareStore(24),Home(10),SuperMarket(17)})
-		Key=446  Master=230 AgentTimeline.At(230)[13, 88] --> [23, 98]
-		[24, +inf]
-		[-inf, 76]
-		AgentTimeline.Go(from=Location:CLOSED{HardwareStore(24),Home(10),SuperMarket(17)}to=Location:CLOSED{HardwareStore(24)})
-		Key=485  Master=300 AgentTimeline.At(300)[2, 77] --> [12, 87]
-		[2, 77]
-		[12, 87]
-		AgentTimeline.Go(from=Location:CLOSED{HardwareStore(24)}to=Location:CLOSED{HardwareStore(24),Home(10),SuperMarket(17)})
-		Key=504  Master=300 AgentTimeline.At(300)[2, 77] --> [12, 87]
-		[13, +inf]
-		[-inf, 97]
-		AgentTimeline.At(loc=Location:CLOSED{SuperMarket(17)})
-		Key=535  Master=331 AgentTimeline.Go(331)[23, 98] --> [24, 99]
-		[23, 98]
-		[24, 99]
-		AgentTimeline.At(loc=Location:CLOSED{Home(10)})
-		Key=553  Master=331 AgentTimeline.Go(331)[23, 98] --> [24, 99]
-		[25, +inf]
-		[-inf, 99]
-		AgentTimeline.At(loc=Location:CLOSED{Home(10)})
-		Key=583  Master=350 AgentTimeline.Go(350)[25, 100] --> [26, +inf]
-		[25, 100]
-		[-inf, 86]
-		AgentTimeline.At(loc=Location:CLOSED{HardwareStore(24)})
-		Key=639  Master=427 AgentTimeline.Go(427)[12, 87] --> [13, 88]
-		[12, 87]
-		[13, 88]
-		AgentTimeline.At(loc=Location:CLOSED{SuperMarket(17)})
-		Key=657  Master=427 AgentTimeline.Go(427)[12, 87] --> [13, 88]
-		[14, +inf]
-Inactive Tokens: *************************
-		[-inf, 74]
-		AgentTimeline.Go(from=Location:CLOSED{HardwareStore(24),Home(10),SuperMarket(17)}to=Location:CLOSED{Home(10)})
-		Key=180  Master=83 start(83)[0, 75] --> [1, 76]
-		[0, 75]
-		[26, +inf]
-		AgentTimeline.At(loc=Location:CLOSED{Home(10)})
-		Key=601  Master=350 AgentTimeline.Go(350)[25, 100] --> [26, +inf]
-		[27, +inf]
+		[-inf, 49]
+		InstrumentLocation.Stowed()
+		Key=341  Master=325 Go-0(325)[1, 43] --> [2, 44]
+		[2, +inf]
+		[-inf, 48]
+		Navigator.At(location=Location:CLOSED{lander(12)})
+		Key=361  Master=325 Go-0(325)[1, 43] --> [2, 44]
+		[1, 49]
+		[-inf, +inf]
+		Navigator.At(location=Location:CLOSED{lander(12),rock1(27),rock2(42),rock3(57),rock4(72)})
+		Key=380  Master=325 Go-0(325)[1, 43] --> [2, 44]
+		[-inf, +inf]
+		[-inf, 46]
+		InstrumentLocation.Unstowed()
+		Key=612  Master=594 Place-1(594)[4, 46] --> [7, 49]
+		[1, +inf]
+		[-inf, +inf]
+		InstrumentState.Placed(rock=Location:CLOSED{lander(12),rock1(27),rock2(42),rock3(57),rock4(72)})
+		Key=632  Master=594 Place-1(594)[4, 46] --> [7, 49]
+		[-inf, +inf]
+		[-inf, 43]
+		InstrumentLocation.Stowed()
+		Key=708  Master=691 Unstow-2(691)[2, 44] --> [4, 46]
+		[2, 44]
+		[-inf, +inf]
+		InstrumentLocation.Unstowed()
+		Key=746  Master=691 Unstow-2(691)[2, 44] --> [4, 46]
+		[-inf, +inf]
+
