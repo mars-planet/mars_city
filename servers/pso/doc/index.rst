@@ -80,11 +80,18 @@ To give the Trevor rover autonomous capabilities we will be using EUROPA
 which has an API in Java and in C++. To gain full access to EUROPA from Python
 we will create a gateway to the Java API using Py4J.
 
+Communication Channel Between Vision and Web Interface
+--------
+Redis is used to share information between the vision side to the planning side and web interface side.
+
 Hardware Interfaces
 --------
 We will be using the Minoru 3D webcam and the RaspberryPi for computer vision
 processing and AI planning and scheduling.
 
+User Interfaces
+--------
+The WALDO interface which currently supports deleting/viewing details of plans created with this module such as the `one previously generated here <https://bitbucket.org/italianmarssociety/eras/src/036539d82d656047de631a79251a7cc9ccc4bff0/servers/pso/src/log?at=default>`.
 
 pyEUROPA Sample Code
 ===============
