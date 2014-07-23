@@ -5,9 +5,6 @@ from plan import Plan
 import os
 import logging
 
-from itertools import takewhile
-is_tab = '\t'.__eq__
-
 class Planner(object):
 
     def __init__(self, device):
