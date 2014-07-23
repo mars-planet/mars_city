@@ -1,0 +1,150 @@
+-------------- next part --------------
+diff -u -r omniNotify-fix-me/examples/demo_add_filter.cc omniNotify/examples/demo_add_filter.cc
+--- omniNotify-fix-me/examples/demo_add_filter.cc	2004-08-12 11:30:00.931384000 +0200
++++ omniNotify/examples/demo_add_filter.cc	2004-08-11 16:21:05.336468800 +0200
+@@ -1,6 +1,7 @@
+ #include <stdlib.h>
+-#include <iostream.h>
++#include <iostream>
+ #include <stdio.h>
++using namespace std;
+ 
+ #include "CosNotifyShorthands.h"
+ #include "orb_init_name.h"
+diff -u -r omniNotify-fix-me/examples/demo_offer_change.cc omniNotify/examples/demo_offer_change.cc
+--- omniNotify-fix-me/examples/demo_offer_change.cc	2004-08-12 11:30:00.941398400 +0200
++++ omniNotify/examples/demo_offer_change.cc	2004-08-11 16:21:27.868868800 +0200
+@@ -1,7 +1,7 @@
+ #include <stdlib.h>
+-#include <iostream.h>
++#include <iostream>
+ #include <stdio.h>
+-
++using namespace std;
+ #include "CosNotifyShorthands.h"
+ #include "orb_init_name.h"
+ #include "get_channel.h"
+diff -u -r omniNotify-fix-me/examples/demo_subscription_change.cc omniNotify/examples/demo_subscription_change.cc
+--- omniNotify-fix-me/examples/demo_subscription_change.cc	2004-08-12 11:30:00.941398400 +0200
++++ omniNotify/examples/demo_subscription_change.cc	2004-08-11 16:21:52.694566400 +0200
+@@ -1,6 +1,7 @@
+ #include <stdlib.h>
+-#include <iostream.h>
++#include <iostream>
+ #include <stdio.h>
++using namespace std;
+ 
+ #include "CosNotifyShorthands.h"
+ #include "orb_init_name.h"
+diff -u -r omniNotify-fix-me/examples/legacy_clients.cc omniNotify/examples/legacy_clients.cc
+--- omniNotify-fix-me/examples/legacy_clients.cc	2004-08-12 11:30:00.961427200 +0200
++++ omniNotify/examples/legacy_clients.cc	2004-08-11 16:20:34.692404800 +0200
+@@ -4,8 +4,9 @@
+ // See legacy_clients.h
+ // -------------------------------------------------------------- //
+ 
+-#include <iostream.h>
+-#include <iomanip.h>
++#include <iostream>
++#include <iomanip>
++using namespace std;
+ #include "thread_wrappers.h"
+ 
+ #include "CosNotifyShorthands.h"
+diff -u -r omniNotify-fix-me/examples/ndadmin.cc omniNotify/examples/ndadmin.cc
+--- omniNotify-fix-me/examples/ndadmin.cc	2004-08-12 11:30:01.021513600 +0200
++++ omniNotify/examples/ndadmin.cc	2004-08-11 16:13:58.662942400 +0200
+@@ -6,7 +6,8 @@
+ #error COS_USES_BOA should not be set for this example
+ #endif
+ 
+-#include <iostream.h>
++#include <iostream>
++using namespace std;
+ 
+ #include "orb_init_name.h"
+ #include "get_channel.h"
+diff -u -r omniNotify-fix-me/examples/parse_cmd_line.h omniNotify/examples/parse_cmd_line.h
+--- omniNotify-fix-me/examples/parse_cmd_line.h	2004-08-12 11:30:01.031528000 +0200
++++ omniNotify/examples/parse_cmd_line.h	2004-08-11 16:16:56.108096000 +0200
+@@ -4,7 +4,8 @@
+ #define _PARSE_CMD_LINE_H
+ 
+ #include <stdlib.h>
+-#include <iostream.h>
++#include <iostream>
++using namespace std;
+ 
+ #include "CosNotifyShorthands.h"
+ 
+diff -u -r omniNotify-fix-me/examples/sample_clients.cc omniNotify/examples/sample_clients.cc
+--- omniNotify-fix-me/examples/sample_clients.cc	2004-08-12 11:30:01.051556800 +0200
++++ omniNotify/examples/sample_clients.cc	2004-08-11 16:18:38.465278400 +0200
+@@ -7,9 +7,10 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+-#include <fstream.h>
+-#include <iostream.h>
+-#include <iomanip.h>
++#include <fstream>
++#include <iostream>
++#include <iomanip>
++using namespace std;
+ 
+ #ifdef HAVE_UNISTD_H
+ #  include <unistd.h>
+diff -u -r omniNotify-fix-me/examples/sample_functions.cc omniNotify/examples/sample_functions.cc
+--- omniNotify-fix-me/examples/sample_functions.cc	2004-08-12 11:30:01.061571200 +0200
++++ omniNotify/examples/sample_functions.cc	2004-08-11 16:14:57.868075200 +0200
+@@ -2,8 +2,9 @@
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+-#include <iostream.h>
+-#include <iomanip.h>
++#include <iostream>
++using namespace std;
++#include <iomanip>
+ #include "sample_functions.h"
+ 
+ ///////////////////////////////////////////////////////////////////
+diff -u -r omniNotify-fix-me/examples/some_notify_clients.cc omniNotify/examples/some_notify_clients.cc
+--- omniNotify-fix-me/examples/some_notify_clients.cc	2004-08-12 11:30:01.111643200 +0200
++++ omniNotify/examples/some_notify_clients.cc	2004-08-11 16:19:29.678920000 +0200
+@@ -4,7 +4,8 @@
+ #endif
+ 
+ #include <stdlib.h>
+-#include <iostream.h>
++#include <iostream>
++using namespace std;
+ 
+ #include "orb_init_name.h"
+ #include "get_channel.h"
+diff -u -r omniNotify-fix-me/include/ModFlexLexer.h omniNotify/include/ModFlexLexer.h
+--- omniNotify-fix-me/include/ModFlexLexer.h	2004-08-12 11:30:01.432104000 +0200
++++ omniNotify/include/ModFlexLexer.h	2004-08-11 16:04:23.806339200 +0200
+@@ -88,7 +88,8 @@
+ // Never included before - need to define base class.
+ #define __FLEX_LEXER_H
+ 
+-#include <iostream.h>
++#include <iostream>
++using namespace std;
+ 
+ extern "C++" {
+ 
+diff -u -r omniNotify-fix-me/lib/RDIParser_l.cc omniNotify/lib/RDIParser_l.cc
+--- omniNotify-fix-me/lib/RDIParser_l.cc	2004-08-12 11:30:01.842694400 +0200
++++ omniNotify/lib/RDIParser_l.cc	2004-08-11 16:01:32.590142400 +0200
+@@ -53,7 +53,8 @@
+ #ifdef __cplusplus
+ 
+ #include <stdlib.h>
+-#include <iostream.h>
++#include <iostream>
++using namespace std;
+ 
+ /* Use prototypes in function declarations. */
+ #define YY_USE_PROTOS
