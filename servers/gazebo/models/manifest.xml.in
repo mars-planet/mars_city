@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+
+<database>
+    <name>trevorsim</name>
+    <license>Italian Mars Society ERAS LICENSE</license>
+    <last_modified>@CURENT_DATE@</last_modified>
+
+    <models>@MODEL_URI_LIST@</model>
+</database>
