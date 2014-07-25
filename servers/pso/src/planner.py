@@ -32,7 +32,7 @@ class Planner(object):
 
         ### TEST ###
         cp = self.getCurrentPlan() # Get the current plan
-        self.logger.info(cp)
+        self.logger.info(cp.log)
 
     def executePlan(self, plan, target=None):
         """Sends plan to the specified target for plan execution"""
@@ -47,7 +47,10 @@ class Planner(object):
             raise ValueError("%s execution target not-defined!"%target)
 
     def modifyEnviroment(self, type="add"):
-        """Modify the current enviroment that the rover is located in."""
+        """Dynamically Modify the current enviroment
+        that the rover is located in."""
+
+        #TODO: Add this
         pass
 
 
