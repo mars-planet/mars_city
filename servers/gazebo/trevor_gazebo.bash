@@ -9,7 +9,7 @@
 
 # ERAS directory containing the .hg folder
 PWD=`pwd`
-ERAS_DIR=$PWD/../../
+ERAS_DIR=$PWD
 ROOT_UID=0     # Only users with $UID 0 have root privileges.
 E_ROOT=85      # Root exit error
 E_ARG=86       # Unnecessary arguments provided
@@ -35,9 +35,9 @@ if [ -n "$GAZEBO_INSTALLED" ]
 then
     echo "Setting up CLI environment" 
 
-    export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:$ERAS_DIR/servers/gazebo/models/
+    export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:$ERAS_DIR/models
 
-    export GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:$(pwd)/plugins
+    export GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:$ERAS_DIR/plugins
 else
     echo "No installation of Gazebo found"
     echo "Install Gazebo version 2.2 from http://gazebosim.org/wiki/2.2/install"

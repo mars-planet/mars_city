@@ -72,7 +72,7 @@
         </plugin>
         -->
 
-        <!-- <include>
+        <include>
             <uri>model://wheel</uri>
             <pose>-0.7 -0.6 0.125 0 0 0</pose>
             <name>right_rear</name>
@@ -282,7 +282,7 @@
                 </limit>
                 <xyz>0 0 1</xyz>
             </axis>
-        </joint>
+        </joint>-->
 
     </model>
 </sdf>

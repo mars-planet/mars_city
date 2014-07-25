@@ -131,3 +131,25 @@ class UserSkeletonData(object):
         right_footY = lib.getUserSkeletonR_FootY(self.st.addr, self._userid)
         right_footZ = lib.getUserSkeletonR_FootZ(self.st.addr, self._userid)
         return self._Coords(right_footX, right_footY, right_footZ)
+
+    def get_jointInfo(self):
+        '''returns all skeleton joints information.
+           +------------------------------------------------------------------+
+           | Index--> Joint      | Index--> Joint     | Index--> Joint        |
+           -------------------------------------------------------------------+
+           | 0    --> head       | 1    --> neck      | 2    -->left shoulder |
+           +------------------------------------------------------------------+
+           | 3    --> left elbow | 4    --> left hand | 5    -->right shoulder|
+           +------------------------------------------------------------------+
+           | 6    --> right elbow| 7    --> right hand| 8    -->torso         |
+           +------------------------------------------------------------------+
+           | 9    --> left hip   | 10   --> left knee | 11   -->left foot     |
+           +------------------------------------------------------------------+
+           | 12   --> right hip  | 13   --> right knee| 14   -->right foot    |
+           +------------------------------------------------------------------+
+        '''
+        return (self.head, self.neck, self.left_shoulder, self.left_elbow,
+                self.left_hand, self.right_shoulder, self.right_elbow,
+                self.right_hand, self.torso, self.left_hip, self.left_knee,
+                self.left_foot, self.right_hip, self.right_knee,
+                self.right_foot)
