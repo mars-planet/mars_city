@@ -16,7 +16,7 @@ def getScore(data):
 	rms = audioop.rms(data, 2)
 	score = rms / 3
 	return score
-
+#
 
 def fetchThreshold():
 
