@@ -17,7 +17,7 @@ def getScore(data):
 	score = rms / 3
 	return score
 
-
+#
 def fetchThreshold():
 
 	RATE = 16000
