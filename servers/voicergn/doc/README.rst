@@ -19,10 +19,12 @@ Run importacoustic.sh in order to store adapted hmm model in home directory.
 2. Sphinxbase 
 =============
 
-wget http://downloads.sourceforge.net/project/cmusphinx/sphinxbase/0.8/sphinxbase-0.8.tar.gz
-wget http://downloads.sourceforge.net/project/cmusphinx/pocketsphinx/0.8/pocketsphinx-0.8.tar.gz
-tar -zxvf sphinxbase-0.8.tar.gz
-tar -zxvf pocketsphinx-0.8.tar.gz
+::
+
+  wget http://downloads.sourceforge.net/project/cmusphinx/sphinxbase/0.8/sphinxbase-0.8.tar.gz
+  wget http://downloads.sourceforge.net/project/cmusphinx/pocketsphinx/0.8/pocketsphinx-0.8.tar.gz
+  tar -zxvf sphinxbase-0.8.tar.gz
+  tar -zxvf pocketsphinx-0.8.tar.gz
  
 Installation
 ~~~~~~~~~~~~
