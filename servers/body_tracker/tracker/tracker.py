@@ -1,0 +1,157 @@
+#!usr/bin/python
+
+import sys
+import PyTango
+from UserSkeletonData import UserSkeletonData
+
+
+class PyDevice(PyTango.DeviceClass):
+    cmd_list = {}
+    attr_type = [
+        [PyTango.ArgType.DevFloat,
+         PyTango.AttrDataFormat.SPECTRUM,
+         PyTango.AttrWriteType.READ, 3],
+         {'polling period' : 30}
+    ]
+    attr_list = {
+        'skeleton_head' : attr_type,
+        'skeleton_neck' : attr_type,
+        'skeleton_left_shoulder' : attr_type,
+        'skeleton_right_shoulder' : attr_type,
+        'skeleton_left_elbow' : attr_type,
+        'skeleton_right_elbow' : attr_type,
+        'skeleton_left_hand' : attr_type,
+        'skeleton_right_hand' : attr_type,
+        'skeleton_torso' : attr_type,
+        'skeleton_left_hip' : attr_type,
+        'skeleton_right_hip' : attr_type,
+        'skeleton_left_knee' : attr_type,
+        'skeleton_right_knee' : attr_type,
+        'skeleton_left_foot' : attr_type,
+        'skeleton_right_foot' : attr_type
+    }
+
+    def __init__(self, name):
+        PyTango.DeviceClass.__init__(self, name)
+        self.set_type("TrackerDevice")
+
+
+class PyTracker(PyTango.Device_4Impl):
+    def __init__(self, cls, name):
+        self.devices = {}
+        PyTango.Device_4Impl.__init__(self, cls, name)
+        self.info_stream('In Tracker.__init__')
+        PyTracker.init_device(self)
+
+    def __del__(self):
+        print("destructor")
+        # shut down tracker cleanly
+        st.shutdown()
+
+    def read_skeleton_head(self, the_att):
+        user = self.user0
+        st = self.st
+        st.loop()
+        if st.usersCount() > 0:
+            self.skeleton_head = (user.head.x, user.head.y, user.head.z)
+            self.skeleton_neck = (user.neck.x, user.neck.y, user.neck.z)
+            self.skeleton_left_shoulder = (user.left_shoulder.x,
+                                           user.left_shoulder.y,
+                                           user.left_shoulder.z)
+            self.skeleton_right_shoulder = (user.right_shoulder.x,
+                                            user.right_shoulder.y,
+                                            user.right_shoulder.z)
+            self.skeleton_left_elbow = (user.left_elbow.x, user.left_elbow.y,
+                                        user.left_elbow.z)
+            self.skeleton_right_elbow = (user.right_elbow.x, user.right_elbow.y
+                                         , user.right_elbow.z)
+            self.skeleton_left_hand = (user.left_hand.x, user.left_hand.y,
+                                       user.left_hand.z)
+            self.skeleton_right_hand = (user.right_hand.x, user.right_hand.y,
+                                        user.right_hand.z)
+            self.skeleton_torso = (user.torso.x, user.torso.y, user.torso.z)
+            self.skeleton_left_hip = (user.left_hip.x, user.left_hip.y,
+                                      user.left_hip.z)
+            self.skeleton_right_hip = (user.right_hip.x, user.right_hip.y,
+                                       user.right_hip.z)
+            self.skeleton_left_knee = (user.left_knee.x, user.left_knee.y,
+                                       user.left_knee.z)
+            self.skeleton_right_knee = (user.right_knee.x, user.right_knee.y,
+                                        user.right_knee.z)
+            self.skeleton_left_foot = (user.left_foot.x, user.left_foot.y,
+                                       user.left_foot.z)
+            self.skeleton_right_foot = (user.right_foot.x, user.right_foot.y,
+                                        user.right_foot.z)
+        the_att.set_value(self.skeleton_head)
+
+    def read_skeleton_neck(self, the_att):
+        the_att.set_value(self.skeleton_neck)
+
+    def read_skeleton_left_shoulder(self, the_att):
+        the_att.set_value(self.skeleton_left_shoulder)
+
+    def read_skeleton_right_shoulder(self, the_att):
+        the_att.set_value(self.skeleton_right_shoulder)
+
+    def read_skeleton_left_elbow(self, the_att):
+        the_att.set_value(self.skeleton_left_elbow)
+
+    def read_skeleton_right_elbow(self, the_att):
+        the_att.set_value(self.skeleton_right_elbow)
+
+    def read_skeleton_left_hand(self, the_att):
+        the_att.set_value(self.skeleton_left_hand)
+
+    def read_skeleton_right_hand(self, the_att):
+        the_att.set_value(self.skeleton_right_hand)
+
+    def read_skeleton_torso(self, the_att):
+        the_att.set_value(self.skeleton_torso)
+
+    def read_skeleton_left_hip(self, the_att):
+        the_att.set_value(self.skeleton_left_hip)
+
+    def read_skeleton_right_hip(self, the_att):
+        the_att.set_value(self.skeleton_right_hip)
+
+    def read_skeleton_left_knee(self, the_att):
+        the_att.set_value(self.skeleton_left_knee)
+
+    def read_skeleton_right_knee(self, the_att):
+        the_att.set_value(self.skeleton_left_knee)
+
+    def read_skeleton_left_foot(self, the_att):
+        the_att.set_value(self.skeleton_left_foot)
+
+    def read_skeleton_right_foot(self, the_att):
+        the_att.set_value(self.skeleton_right_foot)
+
+    def init_device(self):
+        self.info_stream('In Python init_device method')
+        self.set_state(PyTango.DevState.ON)
+        self.user0 = UserSkeletonData()
+        self.st = self.user0.st
+        self.skeleton_head = (0, 0, 0)
+        self.skeleton_neck = (0, 0, 0)
+        self.skeleton_left_shoulder = (0, 0, 0)
+        self.skeleton_right_shoulder = (0, 0, 0)
+        self.skeleton_left_elbow = (0, 0, 0)
+        self.skeleton_right_elbow = (0, 0, 0)
+        self.skeleton_left_hand = (0, 0, 0)
+        self.skeleton_right_hand = (0, 0, 0)
+        self.skeleton_torso = (0, 0, 0)
+        self.skeleton_left_hip = (0, 0, 0)
+        self.skeleton_right_hip = (0, 0, 0)
+        self.skeleton_left_knee = (0, 0, 0)
+        self.skeleton_right_knee = (0, 0, 0)
+        self.skeleton_left_foot = (0, 0, 0)
+        self.skeleton_right_foot = (0, 0, 0)
+
+
+if __name__ == '__main__':
+    util = PyTango.Util(sys.argv)
+    util.add_class(PyDevice, PyTracker)
+
+    U = PyTango.Util.instance()
+    U.server_init()
+    U.server_run()
