@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!usr/bin/python
 
 import sys
 import PyTango
@@ -118,7 +118,7 @@ class PyTracker(PyTango.Device_4Impl):
         the_att.set_value(self.skeleton_left_knee)
 
     def read_skeleton_right_knee(self, the_att):
-        the_att.set_value(self.skeleton_right_knee)
+        the_att.set_value(self.skeleton_left_knee)
 
     def read_skeleton_left_foot(self, the_att):
         the_att.set_value(self.skeleton_left_foot)
