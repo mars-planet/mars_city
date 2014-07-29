@@ -134,19 +134,13 @@ def passiverecord(THRESHOLD=None):
     wf.close()
     sysdir = os.getcwd()
     wavfile = sysdir+"/passive.wav"
-    #decoded=decodepassive()
-
-
     speechRec = Decoder(hmm=hmdir, lm=lmdir, dict=dictd)
     with open(wavfile, 'rb') as wavFile:
         speechRec.decode_raw(wavFile)
         result = speechRec.get_hyp()
-
-
     return(result[0])
 
 def record(THRESHOLD=None):
-
 
     FORMAT = pyaudio.paInt16
     CHANNELS = 1
@@ -214,7 +208,9 @@ while True:
 	print passive
 	#for item in passive:
 	if "TREVOR" in passive:
+		os.system("aplay beep_hi.wav")
 		print "recognised"
+		os.system("aplay beep_lo.wav")
 
 	#if passive == "TREVOR":
 		command=record()
