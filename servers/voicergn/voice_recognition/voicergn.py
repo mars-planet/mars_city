@@ -10,12 +10,12 @@ import audioop
 
 RATE = 16000
 CHUNK = 1024
-hmdir = "hub4wsj_sc_8kadapt"
+hmdir = "hub4wsj_sc_8kadaptp"
 lmdir = "6491.lm"
 dictd = "a.dic"
 sysdir = os.getcwd
 commands=["LEFT","RIGHT","FORWARD","BACKWARD"]
-myro= DeviceProxy("c3/rovers/myro")
+myro= DeviceProxy("c3/rovers/t1")
 
 def decide(string):
 	for item in commands:
@@ -207,10 +207,10 @@ while True:
 	passive= passiverecord()
 	print passive
 	#for item in passive:
+	os.system("aplay beep_lo.wav")
 	if "TREVOR" in passive:
-		os.system("aplay beep_hi.wav")
 		print "recognised"
-		os.system("aplay beep_lo.wav")
+		os.system("aplay beep_hi.wav")
 
 	#if passive == "TREVOR":
 		command=record()
