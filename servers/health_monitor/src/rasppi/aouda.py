@@ -8,6 +8,7 @@ from datetime import datetime
 import gc
 
 import Oger as og
+import ehealth as eh
 import numpy as np
 import pandas as pd
 
@@ -24,18 +25,24 @@ class Aouda(object):
     Implements the Aouda Server Interface.
     """
 
-    def __init__(self, dataframe=None, base_datetime=None,
+    def __init__(self, simulate=False, dataframe=None, base_datetime=None,
                  shift_data=False, log_function=None):
         if log_function is None:
             log_function = print
         self.log_function = log_function
         self.log_function('Constructing Aouda')
-        self.base_datetime = base_datetime
-        self.log_function('Loading Data')
-        if dataframe is not None:
-            self.data = dataframe.copy()
-        self.shift_data = shift_data
-        self.data = self._load_data()
+        self.simulate = simulate
+        if simulate:
+            self.base_datetime = base_datetime
+            self.log_function('Loading Data')
+            if dataframe is not None:
+                self.data = dataframe.copy()
+            self.shift_data = shift_data
+            self.data = self._load_data()
+        else:
+            self.ehealth = eh.eHealthClass()
+            self.ehealth.initPositionSensor()
+            self.ehealth.initPulsioximeter()
         self.log_function('Finished constructing Aouda')
 
     def _load_data(self):
@@ -78,81 +85,108 @@ class Aouda(object):
         """
         Returns instantaneous readings of the V1 ECG contact.
         """
-        ecg_v1 = self._get_instantaneos_values()
-        if len(ecg_v1) > 0:
-            ecg_v1 = ecg_v1['ecg_v1']
+        if self.simulate:
+            ecg_v1 = self._get_instantaneos_values()
+            if len(ecg_v1) > 0:
+                ecg_v1 = ecg_v1['ecg_v1']
+            else:
+                ecg_v1 = np.nan
         else:
-            ecg_v1 = np.nan
+            ecg_v1 = self.ehealth.getECG()
         return ecg_v1
 
     def read_ecg_v2(self):
         """
         Returns instantaneous readings of the V2 ECG contact.
         """
-        ecg_v2 = self._get_instantaneos_values()
-        if len(ecg_v2) > 0:
-            ecg_v2 = ecg_v2['ecg_v2']
+        if self.simulate:
+            ecg_v2 = self._get_instantaneos_values()
+            if len(ecg_v2) > 0:
+                ecg_v2 = ecg_v2['ecg_v2']
+            else:
+                ecg_v2 = np.nan
         else:
-            ecg_v2 = np.nan
+            ecg_v2 = np.nan  # self.ehealth.getECG()
         return ecg_v2
 
     def read_o2(self):
         """
         Returns instantaneous O2 in blood values.
         """
-        o2 = self._get_instantaneos_values()
-        if len(o2) > 0:
-            o2 = o2['o2']
+        if self.simulate:
+            o2 = self._get_instantaneos_values()
+            if len(o2) > 0:
+                o2 = o2['o2']
+            else:
+                o2 = np.nan
         else:
-            o2 = np.nan
+            o2 = self.ehealth.getOxygenSaturation()
+            self.ehealth.setupPulsioximeterForNextReading()
         return o2
 
     def read_temperature(self):
         """
         Returns instantaneous temperature.
         """
-        temperature = self._get_instantaneos_values()
-        if len(temperature) > 0:
-            temperature = temperature['temperature']
+        if self.simulate:
+            temperature = self._get_instantaneos_values()
+            if len(temperature) > 0:
+                temperature = temperature['temperature']
+            else:
+                temperature = np.nan
         else:
-            temperature = np.nan
+            temperature = self.ehealth.getTemperature()
         return temperature
 
     def read_air_flow(self):
         """
         Returns instantaneous air flow values.
         """
-        air_flow = self._get_instantaneos_values()
-        if len(air_flow) > 0:
-            air_flow = air_flow['air_flow']
+        if self.simulate:
+            air_flow = self._get_instantaneos_values()
+            if len(air_flow) > 0:
+                air_flow = air_flow['air_flow']
+            else:
+                air_flow = np.nan
         else:
-            air_flow = np.nan
+            air_flow = self.ehealth.getAirFlow()
         return air_flow
 
     def read_heart_rate(self):
         """
         Returns instantaneous heart rate.
         """
-        heart_rate = self._get_instantaneos_values()
-        if len(heart_rate) > 0:
-            heart_rate = heart_rate['hr']
+        if self.simulate:
+            heart_rate = self._get_instantaneos_values()
+            if len(heart_rate) > 0:
+                heart_rate = heart_rate['hr']
+            else:
+                heart_rate = np.nan
         else:
-            heart_rate = np.nan
+            heart_rate = self.ehealth.getBPM()
+            self.ehealth.setupPulsioximeterForNextReading()
         return heart_rate
 
     def read_acceleration(self):
         """
         Returns instantaneous acceleration magnitude.
         """
-        acc = self._get_instantaneos_values()
-        if len(acc) > 0:
-            acc_x = acc['acc_x']
-            acc_y = acc['acc_y']
-            acc_z = acc['acc_z']
+        if self.simulate:
+            acc = self._get_instantaneos_values()
+            if len(acc) > 0:
+                acc_x = acc['acc_x']
+                acc_y = acc['acc_y']
+                acc_z = acc['acc_z']
+            else:
+                acc_x = np.nan
+                acc_y = np.nan
+                acc_z = np.nan
         else:
-            acc_x = np.nan
-            acc_y = np.nan
-            acc_z = np.nan
+            acc = self.ehealth.getBodyAcceleration()
+            acc = eh.floatArray_frompointer(acc)
+            acc_x = acc[0]
+            acc_y = acc[1]
+            acc_z = acc[2]
         return (acc_x, acc_y, acc_z)
 
 
