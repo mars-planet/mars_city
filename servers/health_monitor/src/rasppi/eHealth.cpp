@@ -274,9 +274,9 @@ long ar_millis(){
 		float ganancia=5.0;
 		float Vcc=3.3;
 		float RefTension=3.0; // Voltage Reference of Wheatstone bridge.
-		float Ra=4700.0; //Wheatstone bridge resistance.
-		float Rc=4700.0; //Wheatstone bridge resistance.
-		float Rb=821.0; //Wheatstone bridge resistance.
+		float Ra=4645.0; //Wheatstone bridge resistance.
+		float Rc=4725.0; //Wheatstone bridge resistance.
+		float Rb=814.0; //Wheatstone bridge resistance.
 		int sensorValue = analogRead(3);
 
 		float voltage2=((float)sensorValue*Vcc)/1023; // binary to voltage conversion  
