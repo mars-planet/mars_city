@@ -147,7 +147,7 @@ class eHealthClass {
 		\param void
 		\return void
 		*/
-		static void setupPulsioximeterForNextReading(int d);
+		static void setupPulsioximeterForNextReading();
 
 		//! Returns the corporal temperature.
 		/*!
@@ -216,7 +216,14 @@ class eHealthClass {
 		 *		5 == Stand or sit position
 		 */
 		static uint8_t getBodyPosition(void);
-		 
+
+		//! Returns the body 3-axis acceleration.
+		/*!
+		\param void
+		\return uint8_t : the 3-axis acceleration of the pacient.
+		*/
+		static float* getBodyAcceleration(void);
+
 		//! Returns the  value of the systolic pressure.
 		/*!
 		\param void   
@@ -243,7 +250,7 @@ class eHealthClass {
 		\param uint8_t position : the current body position.   
 		\return void  
 		*/
-		static void printPosition( uint8_t position );
+		static void printPosition(uint8_t position);
 
 		//!  Prints air flow wave form in the serial monitor
 		/*!

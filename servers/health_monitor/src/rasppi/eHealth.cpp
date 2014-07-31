@@ -254,9 +254,8 @@ long ar_millis(){
 		attachInterrupt(6, eHealthClass::readPulsioximeterLoop, RISING);
 	}
 
-	void eHealthClass::setupPulsioximeterForNextReading(int d){
+	void eHealthClass::setupPulsioximeterForNextReading(){
 		digitalWrite(2, HIGH);
-		delay(d);
 	}
 	//!******************************************************************************
 	//!		Name:	getTemperature()												*
@@ -474,23 +473,8 @@ long ar_millis(){
 	uint8_t eHealthClass::getBodyPosition(void)
 	{
 		static byte source;
-
-		/* If int1 goes high, all data registers have new data */
-		if (digitalRead(int1Pin)) {// Interrupt pin, should probably attach to interrupt function	
-			readRegisters(0x01, 6, &data[0]);  // Read the six data registers into data array.
-			
-			/* For loop to calculate 12-bit ADC and g value for each axis */
-			for (int i=0; i<6; i+=2) {
-				accelCount[i/2] = ((data[i] << 8) | data[i+1]) >> 4;  // Turn the MSB and LSB into a 12-bit value
-				
-					if (data[i] > 0x7F) {
-						accelCount[i/2] = ~accelCount[i/2] + 1;
-						accelCount[i/2] *= -1;  // Transform into negative 2's complement #
-					}
-					
-				accel[i/2] = (float) accelCount[i/2]/((1<<12)/(2*scale));  // get actual g value, this depends on scale being set
-			}		
-		}
+		// eHealthClass::accel will be modified inside this function
+		eHealthClass::getBodyAcceleration();
 		
 		/* If int2 goes high, either p/l has changed or there's been a single/double tap */
 		if (digitalRead(int2Pin)) {
@@ -507,6 +491,35 @@ long ar_millis(){
 		return bodyPos; 
 	}
 
+	//!******************************************************************************
+	//!		Name:	getBodyAcceleration()												*
+	//!		Description: Returns the current body 3-axis acceleration.							*
+	//!		Param : void															*
+	//!		Returns: float[] with the 3-axis acceleration of the pacient.	 				*
+	//!		Example: float[] accel = eHealth.getBodyAcceleration();					*
+	//!******************************************************************************
+
+	float *eHealthClass::getBodyAcceleration(void)
+	{
+		/* If int1 goes high, all data registers have new data */
+		if (digitalRead(int1Pin)) {// Interrupt pin, should probably attach to interrupt function
+			readRegisters(0x01, 6, &data[0]);  // Read the six data registers into data array.
+
+			/* For loop to calculate 12-bit ADC and g value for each axis */
+			for (int i=0; i<6; i+=2) {
+				accelCount[i/2] = ((data[i] << 8) | data[i+1]) >> 4;  // Turn the MSB and LSB into a 12-bit value
+
+					if (data[i] > 0x7F) {
+						accelCount[i/2] = ~accelCount[i/2] + 1;
+						accelCount[i/2] *= -1;  // Transform into negative 2's complement #
+					}
+
+				accel[i/2] = (float) accelCount[i/2]/((1<<12)/(2*scale));  // get actual g value, this depends on scale being set
+			}
+		}
+
+		return accel;
+	}
 
 	//!******************************************************************************
 	//!		Name:	getSystolicPressure()											*
