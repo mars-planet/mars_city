@@ -3,11 +3,13 @@ Implements the Aouda Suit Server Interface.
 """
 from __future__ import division, print_function
 
+from collections import deque
 from collections import namedtuple
 from datetime import datetime
 import gc
 
-import Oger as og
+import scipy
+
 import ehealth as eh
 import numpy as np
 import pandas as pd
@@ -26,11 +28,14 @@ class Aouda(object):
     """
 
     def __init__(self, simulate=False, dataframe=None, base_datetime=None,
-                 shift_data=False, log_function=None):
+                 shift_data=False, log_function=None,
+                 air_flow_threshold=500, ecg_freq_threshold=100):
         if log_function is None:
             log_function = print
         self.log_function = log_function
         self.log_function('Constructing Aouda')
+        self.air_flow_threshold = air_flow_threshold
+        self.ecg_freq_threshold = ecg_freq_threshold
         self.simulate = simulate
         if simulate:
             self.base_datetime = base_datetime
@@ -42,13 +47,15 @@ class Aouda(object):
         else:
             self.ehealth = eh.eHealthClass()
             self.ehealth.initPositionSensor()
-            self.ehealth.initPulsioximeter()
+            self.ehealth.initPulsioximeter(1)
         self.log_function('Finished constructing Aouda')
+        self.ecg_v1_buffer = deque(maxlen=10000)
 
     def _load_data(self):
         """
         Loads hr and acc data into a pandas.DataFrame from a dataset file.
         """
+        import Oger as og
         periods = 1000
         data = og.datasets.mackey_glass(sample_len=periods,
                                         n_samples=9,
@@ -92,7 +99,18 @@ class Aouda(object):
             else:
                 ecg_v1 = np.nan
         else:
-            ecg_v1 = self.ehealth.getECG()
+            try:
+                ecg_v1 = self.ehealth.getECG()
+                self.ecg_v1_buffer.append(ecg_v1)
+                fft = scipy.fft(self.ecg_v1_buffer)  # (G) and (H)
+                bp = fft[:]
+                for i in range(len(bp)):  # (H-red)
+                    if i >= self.ecg_freq_threshold:
+                        bp[i] = 0
+                ibp = scipy.ifft(bp)  # (I), (J), (K) and (L)
+                ecg_v1 = ibp[-1]
+            except:
+                ecg_v1 = np.nan
         return ecg_v1
 
     def read_ecg_v2(self):
@@ -150,6 +168,8 @@ class Aouda(object):
                 air_flow = np.nan
         else:
             air_flow = self.ehealth.getAirFlow()
+            if air_flow > self.air_flow_threshold:
+                air_flow = 0
         return air_flow
 
     def read_heart_rate(self):
