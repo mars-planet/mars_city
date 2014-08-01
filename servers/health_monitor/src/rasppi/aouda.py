@@ -29,13 +29,12 @@ class Aouda(object):
 
     def __init__(self, simulate=False, dataframe=None, base_datetime=None,
                  shift_data=False, log_function=None,
-                 air_flow_threshold=500, ecg_freq_threshold=100):
+                 air_flow_threshold=500):
         if log_function is None:
             log_function = print
         self.log_function = log_function
         self.log_function('Constructing Aouda')
         self.air_flow_threshold = air_flow_threshold
-        self.ecg_freq_threshold = ecg_freq_threshold
         self.simulate = simulate
         if simulate:
             self.base_datetime = base_datetime
@@ -78,7 +77,7 @@ class Aouda(object):
             self.data = self.data.shift(periods=int(delta), freq='S')
             gc.collect()
 
-    def _get_instantaneos_values(self):
+    def _get_instantaneous_values(self):
         """
         Returns a row from the data such that row.index <= datetime.now().
         """
@@ -93,7 +92,7 @@ class Aouda(object):
         Returns instantaneous readings of the V1 ECG contact.
         """
         if self.simulate:
-            ecg_v1 = self._get_instantaneos_values()
+            ecg_v1 = self._get_instantaneous_values()
             if len(ecg_v1) > 0:
                 ecg_v1 = ecg_v1['ecg_v1']
             else:
@@ -101,14 +100,6 @@ class Aouda(object):
         else:
             try:
                 ecg_v1 = self.ehealth.getECG()
-                self.ecg_v1_buffer.append(ecg_v1)
-                fft = scipy.fft(self.ecg_v1_buffer)  # (G) and (H)
-                bp = fft[:]
-                for i in range(len(bp)):  # (H-red)
-                    if i >= self.ecg_freq_threshold:
-                        bp[i] = 0
-                ibp = scipy.ifft(bp)  # (I), (J), (K) and (L)
-                ecg_v1 = ibp[-1]
             except:
                 ecg_v1 = np.nan
         return ecg_v1
@@ -118,7 +109,7 @@ class Aouda(object):
         Returns instantaneous readings of the V2 ECG contact.
         """
         if self.simulate:
-            ecg_v2 = self._get_instantaneos_values()
+            ecg_v2 = self._get_instantaneous_values()
             if len(ecg_v2) > 0:
                 ecg_v2 = ecg_v2['ecg_v2']
             else:
@@ -132,14 +123,17 @@ class Aouda(object):
         Returns instantaneous O2 in blood values.
         """
         if self.simulate:
-            o2 = self._get_instantaneos_values()
+            o2 = self._get_instantaneous_values()
             if len(o2) > 0:
                 o2 = o2['o2']
             else:
                 o2 = np.nan
         else:
-            o2 = self.ehealth.getOxygenSaturation()
-            self.ehealth.setupPulsioximeterForNextReading()
+            try:
+                o2 = self.ehealth.getOxygenSaturation()
+                self.ehealth.setupPulsioximeterForNextReading()
+            except:
+                o2 = np.nan
         return o2
 
     def read_temperature(self):
@@ -147,13 +141,16 @@ class Aouda(object):
         Returns instantaneous temperature.
         """
         if self.simulate:
-            temperature = self._get_instantaneos_values()
+            temperature = self._get_instantaneous_values()
             if len(temperature) > 0:
                 temperature = temperature['temperature']
             else:
                 temperature = np.nan
         else:
-            temperature = self.ehealth.getTemperature()
+            try:
+                temperature = self.ehealth.getTemperature()
+            except:
+                temperature = np.nan
         return temperature
 
     def read_air_flow(self):
@@ -161,13 +158,16 @@ class Aouda(object):
         Returns instantaneous air flow values.
         """
         if self.simulate:
-            air_flow = self._get_instantaneos_values()
+            air_flow = self._get_instantaneous_values()
             if len(air_flow) > 0:
                 air_flow = air_flow['air_flow']
             else:
                 air_flow = np.nan
         else:
-            air_flow = self.ehealth.getAirFlow()
+            try:
+                air_flow = self.ehealth.getAirFlow()
+            except:
+                air_flow = np.nan
             if air_flow > self.air_flow_threshold:
                 air_flow = 0
         return air_flow
@@ -177,14 +177,17 @@ class Aouda(object):
         Returns instantaneous heart rate.
         """
         if self.simulate:
-            heart_rate = self._get_instantaneos_values()
+            heart_rate = self._get_instantaneous_values()
             if len(heart_rate) > 0:
                 heart_rate = heart_rate['hr']
             else:
                 heart_rate = np.nan
         else:
-            heart_rate = self.ehealth.getBPM()
-            self.ehealth.setupPulsioximeterForNextReading()
+            try:
+                heart_rate = self.ehealth.getBPM()
+                self.ehealth.setupPulsioximeterForNextReading()
+            except:
+                heart_rate = np.nan
         return heart_rate
 
     def read_acceleration(self):
@@ -192,7 +195,7 @@ class Aouda(object):
         Returns instantaneous acceleration magnitude.
         """
         if self.simulate:
-            acc = self._get_instantaneos_values()
+            acc = self._get_instantaneous_values()
             if len(acc) > 0:
                 acc_x = acc['acc_x']
                 acc_y = acc['acc_y']
@@ -202,8 +205,11 @@ class Aouda(object):
                 acc_y = np.nan
                 acc_z = np.nan
         else:
-            acc = self.ehealth.getBodyAcceleration()
-            acc = eh.floatArray_frompointer(acc)
+            try:
+                acc = self.ehealth.getBodyAcceleration()
+                acc = eh.floatArray_frompointer(acc)
+            except:
+                acc = (np.nan, np.nan, np.nan)
             acc_x = acc[0]
             acc_y = acc[1]
             acc_z = acc[2]

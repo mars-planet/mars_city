@@ -77,7 +77,6 @@ class AoudaServer(Device):
                          self.source_id, self.name)
         self.aouda = Aouda(simulate=AoudaServer.simulate_data,
                            air_flow_threshold=AoudaServer.air_flow_threshold,
-                           ecg_freq_threshold=AoudaServer.ecg_freq_threshold,
                            shift_data=AoudaServer.cycle_through_data)
         self.set_state(DevState.ON)
         self.info_stream('Finished initializing device(%s, %s)',
@@ -149,7 +148,5 @@ if __name__ == '__main__':
                                                        'cycle_through_data')
     AoudaServer.air_flow_threshold = config.getint('AirFlow',
                                                    'air_flow_threshold')
-    AoudaServer.ecg_freq_threshold = config.getint('ECG',
-                                                   'ecg_freq_threshold')
 
     run([AoudaServer])
