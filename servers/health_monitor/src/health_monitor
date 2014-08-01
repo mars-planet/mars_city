@@ -67,14 +67,20 @@ class HealthMonitorServer(Device):
                                     window_factor=self.window_factor,
                                     lead_window_factor=self.lead_window_factor,
                                     lag_window_factor=self.lag_window_factor,
-                                    conn_str=self.conn_str
+                                    conn_str=self.conn_str,
+                                    ecg_v1_order=self.ecg_v1_order,
+                                    ecg_v1_lowcut=self.ecg_v1_lowcut,
+                                    ecg_v1_highcut=self.ecg_v1_highcut,
+                                    ecg_v1_min_std=self.ecg_v1_min_std,
+                                    ecg_v1_min_order=self.ecg_v1_min_order,
+                                    ecg_v1_buffer_len=self.ecg_v1_buffer_len
                                         )
         self.stop_polling = Event()
         Thread(target=self._poll_sources).start()
         self.set_state(DevState.ON)
         self.log_function('Finished initializing device')
 
-    def _get_source_data(self, proxy):
+    def _get_source_data(self, proxy, address):
         data = {}
         for attr, poll_freq in self._source_attributes:
             try:
@@ -91,12 +97,10 @@ class HealthMonitorServer(Device):
                     CommunicationFailed, DevFailed) as e:
                 self.log_function('Problem when retrieving attribute %s '
                                   ' from source %s: %s. Setting %s to np.nan' %
-                                  (attr, proxy.name(), e, attr))
+                                  (attr, address, e, attr))
                 data[attr] = []
 
-        # self.log_function("data: %s" % data)
-        print('proxy: %s' % proxy.name())
-        self.health_mon.generate_alarms(proxy.name(), ** data)
+        self.health_mon.process_source_data(proxy.name(), **data)
 
     def _poll_sources(self):
         self.log_function('Polling from: %s' % self._source_addresses)
@@ -107,17 +111,8 @@ class HealthMonitorServer(Device):
                 except (ConnectionFailed, DevFailed, AttributeError) as e:
                     self.log_function('The Source %s seems to be down: %s' %
                                       (address, e.message))
-                self._get_source_data(proxy)
+                self._get_source_data(proxy, address)
             time.sleep(self.polling_frequency)
-
-
-HealthMonitorServer.word_size = 5
-HealthMonitorServer.window_factor = 2
-HealthMonitorServer.lead_window_factor = 2
-HealthMonitorServer.lag_window_factor = 4
-HealthMonitorServer.resolution = 1000
-HealthMonitorServer.conn_str = 'sqlite://'
-HealthMonitorServer.polling_frequency = 2
 
 
 if __name__ == '__main__':
@@ -159,6 +154,19 @@ if __name__ == '__main__':
 
     polling_freq = config.getint('Monitor', 'polling_frequency')
     HealthMonitorServer.polling_frequency = polling_freq
+
+    ecg_v1_order = config.getint('SignalProcessing', 'ecg_v1_order')
+    HealthMonitorServer.ecg_v1_order = ecg_v1_order
+    ecg_v1_lowcut = config.getfloat('SignalProcessing', 'ecg_v1_lowcut')
+    HealthMonitorServer.ecg_v1_lowcut = ecg_v1_lowcut
+    ecg_v1_highcut = config.getfloat('SignalProcessing', 'ecg_v1_highcut')
+    HealthMonitorServer.ecg_v1_highcut = ecg_v1_highcut
+    ecg_v1_min_std = config.getfloat('SignalProcessing', 'ecg_v1_min_std')
+    HealthMonitorServer.ecg_v1_min_std = ecg_v1_min_std
+    ecg_v1_min_order = config.getfloat('SignalProcessing', 'ecg_v1_min_order')
+    HealthMonitorServer.ecg_v1_min_order = ecg_v1_min_order
+    ecg_v1_buffer_len = config.getint('SignalProcessing', 'ecg_v1_buffer_len')
+    HealthMonitorServer.ecg_v1_buffer_len = ecg_v1_buffer_len
 
     HealthMonitorServer.log_function = print
 

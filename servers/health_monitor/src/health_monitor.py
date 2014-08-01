@@ -4,6 +4,7 @@ Implements the Health Monitor Server Interface.
 '''
 from __future__ import division, print_function
 
+from _collections import deque
 from collections import Iterable
 from datetime import datetime, timedelta
 
@@ -13,6 +14,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from assumption_free import AssumptionFreeAA as Detector
+from butterworth_filter import butterworth_filter
 import data_model as dm
 import numpy as np
 import pandas as pd
@@ -41,7 +43,10 @@ class HealthMonitor(object):
     def __init__(self, sources,
                  word_size=5, window_factor=2, lead_window_factor=2,
                  lag_window_factor=4, engine=None,
-                 conn_str='sqlite://', log_function=None):
+                 conn_str='sqlite://', log_function=None,
+                 ecg_v1_order=144, ecg_v1_lowcut=0.5, ecg_v1_highcut=100,
+                 ecg_v1_min_std=0.3, ecg_v1_min_order=60,
+                 ecg_v1_buffer_len=4000):
         '''
         word_size,
         window_factor,
@@ -81,6 +86,13 @@ class HealthMonitor(object):
         self.sources = {s: [(entity, detector())
                             for entity in self.dp_entities]
                         for s in sources}
+        self.ecg_v1_order = ecg_v1_order
+        self.ecg_v1_lowcut = ecg_v1_lowcut
+        self.ecg_v1_highcut = ecg_v1_highcut
+        self.ecg_v1_min_std = ecg_v1_min_std
+        self.ecg_v1_min_order = ecg_v1_min_order
+        self.ecg_v1_buffer = deque([0] * ecg_v1_buffer_len,
+                                   maxlen=ecg_v1_buffer_len)
 
     def __del__(self):
         '''
@@ -124,7 +136,34 @@ class HealthMonitor(object):
         finally:
             session.close()
 
-    def generate_alarms(self, source_id, **kwargs):
+    def process_source_data(self, source_id, **kwargs):
+        '''
+        Analyzes the data collected so far and inserts in the database
+        the scores generated (if any).
+        kwargs should be a dictionary with the variables as names and
+        lists of pairs (timestamp, variable value) as values, e.g.:
+        kwargs['heart_rate'] = [(2014-07-13 20:56:41.0, 0.583374),
+                                (2014-07-13 20:56:41.5, 0.585754),
+                                (2014-07-13 20:56:42.0, 0.583782),
+                                (2014-07-13 20:56:42.5, 0.579044)]
+        '''
+        # TODO: generalize for all kinds of signals
+        # filter ecg_v1 signal
+        if 'ecg_v1' in kwargs:
+            timestamps, signal = zip(*kwargs['ecg_v1'])
+            self.ecg_v1_buffer.extend(signal)
+            if np.std(signal) <= self.ecg_v1_min_std:
+                order = self.ecg_v1_min_order
+            else:
+                order = self.ecg_v1_order
+            filtered = butterworth_filter(self.ecg_v1_buffer,
+                                          order,
+                                          self.ecg_v1_lowcut,
+                                          self.ecg_v1_highcut)
+            kwargs['ecg_v1'] = zip(timestamps, np.real(filtered))
+        self._generate_alarms(source_id, **kwargs)
+
+    def _generate_alarms(self, source_id, **kwargs):
         '''
         Analyzes the data collected so far and inserts in the database
         the scores generated (if any).
@@ -137,9 +176,13 @@ class HealthMonitor(object):
         '''
         data = pd.DataFrame()
         for k in kwargs:
-            data = data.append(pd.DataFrame(kwargs[k],
-                                            columns=['timestamp', k])
-                                 .set_index('timestamp'))
+            try:
+                data = data.append(pd.DataFrame(kwargs[k],
+                                                columns=['timestamp', k])
+                                   .set_index('timestamp'))
+            except:
+                print(kwargs[k])
+                raise
         data = data.sort_index()
         for entity, detector in self.sources[source_id]:
             try:

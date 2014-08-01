@@ -54,13 +54,13 @@ class AoudaServer(Device):
                            unit='bpm', format='8.4f',
                            polling_period=500,
                            doc='Heart rate')
-    acceleration = attribute(label='Acceleration', dtype=(float,),
-                             max_dim_x=3,
-                             display_level=DispLevel.OPERATOR,
-                             access=AttrWriteType.READ,
-                             unit='(m/s2, m/s2, m/s2)', format='8.4f',
-                             polling_period=250,
-                             doc='Body acceleration vector')
+#     acceleration = attribute(label='Acceleration', dtype=(float,),
+#                              max_dim_x=3,
+#                              display_level=DispLevel.OPERATOR,
+#                              access=AttrWriteType.READ,
+#                              unit='(m/s2, m/s2, m/s2)', format='8.4f',
+#                              polling_period=250,
+#                              doc='Body acceleration vector')
     acc_magn = attribute(label='Acceleration Magnitude', dtype=float,
                          display_level=DispLevel.OPERATOR,
                          access=AttrWriteType.READ,
@@ -142,8 +142,12 @@ if __name__ == '__main__':
     dirname = os.path.dirname(os.path.abspath(sys.argv[0]))
     cfg_filename = os.path.join(dirname, 'aouda.cfg')
     config.read(cfg_filename)
-    AoudaServer.simulate_data = config.getboolean('Data',
-                                                  'simulate_data')
+    print(sys.argv)
+    if 'simulate_data' in sys.argv:
+        AoudaServer.simulate_data = True
+    else:
+        AoudaServer.simulate_data = config.getboolean('Data',
+                                                      'simulate_data')
     AoudaServer.cycle_through_data = config.getboolean('Data',
                                                        'cycle_through_data')
     AoudaServer.air_flow_threshold = config.getint('AirFlow',

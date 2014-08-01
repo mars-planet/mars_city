@@ -8,9 +8,6 @@ from collections import namedtuple
 from datetime import datetime
 import gc
 
-import scipy
-
-import ehealth as eh
 import numpy as np
 import pandas as pd
 
@@ -44,6 +41,7 @@ class Aouda(object):
             self.shift_data = shift_data
             self.data = self._load_data()
         else:
+            import ehealth as eh
             self.ehealth = eh.eHealthClass()
             self.ehealth.initPositionSensor()
             self.ehealth.initPulsioximeter(1)
