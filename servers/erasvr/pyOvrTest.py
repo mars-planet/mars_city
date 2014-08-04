@@ -1,5 +1,6 @@
 import time
-from RiftDevice import *
+#from RiftDevice import *
+from pyOVR import RiftDevice
 
 rift = RiftDevice()
 
