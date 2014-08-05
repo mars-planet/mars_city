@@ -18,36 +18,6 @@ import numpy.linalg as lnp
 
 class AoudaServer(Device):
     __metaclass__ = DeviceMeta
-    ecg_v1 = attribute(label='ECG V1', dtype=float,
-                       display_level=DispLevel.OPERATOR,
-                       access=AttrWriteType.READ,
-                       unit='V', format='8.4f',
-                       polling_period=5,
-                       doc='ECG V1 electrode')
-    o2 = attribute(label='Oxigen', dtype=float,
-                   display_level=DispLevel.OPERATOR,
-                   access=AttrWriteType.READ,
-                   unit='SpO2', format='8.4f',
-                   polling_period=500,
-                   doc='Saturation of peripheral oxygen')
-    temperature = attribute(label='Temperature', dtype=float,
-                            display_level=DispLevel.OPERATOR,
-                            access=AttrWriteType.READ,
-                            unit='°C', format='8.4f',
-                            polling_period=2000,
-                            doc='Body temperature')
-    air_flow = attribute(label='Air Flow', dtype=float,
-                         display_level=DispLevel.OPERATOR,
-                         access=AttrWriteType.READ,
-                         unit='m3/s', format='8.4f',
-                         polling_period=500,
-                         doc='Air flow volume')
-    heart_rate = attribute(label='Heart Rate', dtype=float,
-                           display_level=DispLevel.OPERATOR,
-                           access=AttrWriteType.READ,
-                           unit='bpm', format='8.4f',
-                           polling_period=500,
-                           doc='Heart rate')
 #     acceleration = attribute(label='Acceleration', dtype=(float,),
 #                              max_dim_x=3,
 #                              display_level=DispLevel.OPERATOR,
@@ -61,6 +31,36 @@ class AoudaServer(Device):
                          unit='m/s2', format='8.4f',
                          polling_period=250,
                          doc="Body acceleration vector's magnitude")
+    air_flow = attribute(label='Air Flow', dtype=float,
+                         display_level=DispLevel.OPERATOR,
+                         access=AttrWriteType.READ,
+                         unit='m3/s', format='8.4f',
+                         polling_period=500,
+                         doc='Air flow volume')
+    ecg_v1 = attribute(label='ECG V1', dtype=float,
+                       display_level=DispLevel.OPERATOR,
+                       access=AttrWriteType.READ,
+                       unit='V', format='8.4f',
+                       polling_period=5,
+                       doc='ECG V1 electrode')
+    heart_rate = attribute(label='Heart Rate', dtype=float,
+                           display_level=DispLevel.OPERATOR,
+                           access=AttrWriteType.READ,
+                           unit='bpm', format='8.4f',
+                           polling_period=500,
+                           doc='Heart rate')
+    o2 = attribute(label='Oxigen', dtype=float,
+                   display_level=DispLevel.OPERATOR,
+                   access=AttrWriteType.READ,
+                   unit='SpO2', format='8.4f',
+                   polling_period=500,
+                   doc='Saturation of peripheral oxygen')
+    temperature = attribute(label='Temperature', dtype=float,
+                            display_level=DispLevel.OPERATOR,
+                            access=AttrWriteType.READ,
+                            unit='°C', format='8.4f',
+                            polling_period=2000,
+                            doc='Body temperature')
 
     def init_device(self):
         Device.init_device(self)
@@ -71,30 +71,6 @@ class AoudaServer(Device):
         self.set_state(DevState.ON)
         self.info_stream('Finished initializing device')
 
-    def read_ecg_v1(self):
-        self.ecg_v1 = ecg_v1 = self.aouda.read_ecg_v1()
-        self.info_stream('read_ecg_v1(%.3f)' % ecg_v1)
-        return self.ecg_v1, time.time(), AttrQuality.ATTR_VALID
-
-    def read_o2(self):
-        self.o2 = o2 = self.aouda.read_o2()
-        self.info_stream('read_o2(%.3f)' % o2)
-        return o2, time.time(), AttrQuality.ATTR_VALID
-
-    def read_temperature(self):
-        self.temperature = temperature = self.aouda.read_temperature()
-        self.info_stream('read_temperature(%.3f)' % temperature)
-        return self.temperature, time.time(), AttrQuality.ATTR_VALID
-
-    def read_air_flow(self):
-        self.air_flow = air_flow = self.aouda.read_air_flow()
-        self.info_stream('read_air_flow(%.3f)' % air_flow)
-        return self.air_flow, time.time(), AttrQuality.ATTR_VALID
-
-    def read_heart_rate(self):
-        self.heart_rate = heart_rate = self.aouda.read_heart_rate()
-        self.info_stream('read_heart_rate(%.3f)' % heart_rate)
-        return self.heart_rate, time.time(), AttrQuality.ATTR_VALID
 #
 #     def read_acceleration(self):
 #         self.acceleration = acceleration = self.aouda.read_acceleration()
@@ -106,6 +82,31 @@ class AoudaServer(Device):
         self.acc_magn = acc_magn = lnp.norm(self.aouda.read_acceleration())
         self.info_stream('read_acc_magn(%.3f)' % acc_magn)
         return self.acc_magn, time.time(), AttrQuality.ATTR_VALID
+
+    def read_air_flow(self):
+        self.air_flow = air_flow = self.aouda.read_air_flow()
+        self.info_stream('read_air_flow(%.3f)' % air_flow)
+        return self.air_flow, time.time(), AttrQuality.ATTR_VALID
+
+    def read_ecg_v1(self):
+        self.ecg_v1 = ecg_v1 = self.aouda.read_ecg_v1()
+        self.info_stream('read_ecg_v1(%.3f)' % ecg_v1)
+        return self.ecg_v1, time.time(), AttrQuality.ATTR_VALID
+
+    def read_heart_rate(self):
+        self.heart_rate = heart_rate = self.aouda.read_heart_rate()
+        self.info_stream('read_heart_rate(%.3f)' % heart_rate)
+        return self.heart_rate, time.time(), AttrQuality.ATTR_VALID
+
+    def read_o2(self):
+        self.o2 = o2 = self.aouda.read_o2()
+        self.info_stream('read_o2(%.3f)' % o2)
+        return o2, time.time(), AttrQuality.ATTR_VALID
+
+    def read_temperature(self):
+        self.temperature = temperature = self.aouda.read_temperature()
+        self.info_stream('read_temperature(%.3f)' % temperature)
+        return self.temperature, time.time(), AttrQuality.ATTR_VALID
 
 if __name__ == '__main__':
     print('Reading configuration file')

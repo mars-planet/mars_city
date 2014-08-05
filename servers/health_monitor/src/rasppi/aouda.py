@@ -180,15 +180,14 @@ class Aouda(object):
         if self.simulate:
             acc = self._get_instantaneous_values()
             if len(acc) > 0:
-                acc_x = acc['acc_x']
-                acc_y = acc['acc_y']
-                acc_z = acc['acc_z']
+                acc_x = acc_y = acc_z = acc['acc_magn']
             else:
                 acc_x = np.nan
                 acc_y = np.nan
                 acc_z = np.nan
         else:
             try:
+                import ehealth as eh
                 acc = self.ehealth.getBodyAcceleration()
                 acc = eh.floatArray_frompointer(acc)
             except:
