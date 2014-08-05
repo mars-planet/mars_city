@@ -80,9 +80,8 @@ class HealthMonitor(object):
         self.log_function('Finished constructing HealthMonitor')
         self.source_entity = dm.Suit
         self.dp_entities = [dm.AccelerationDatapoint, dm.AirFlowDatapoint,
-                            dm.EcgV1Datapoint, dm.EcgV2Datapoint,
-                            dm.HeartRateDatapoint, dm.O2Datapoint,
-                            dm.TemperatureDatapoint]
+                            dm.EcgV1Datapoint, dm.HeartRateDatapoint,
+                            dm.O2Datapoint, dm.TemperatureDatapoint]
         self.sources = {s: [(entity, detector())
                             for entity in self.dp_entities]
                         for s in sources}

@@ -27,10 +27,31 @@ class HealthMonitorServer(Device):
                                  access=AttrWriteType.READ,
                                  doc='Source Addresses')
 
+    source_names = attribute(label='Source Names',
+                             dtype=(str,),
+                             max_dim_x=100000,
+                             display_level=DispLevel.OPERATOR,
+                             access=AttrWriteType.READ,
+                             doc='Source Names')
+
+    source_sexes = attribute(label='Source Sexes',
+                             dtype=(str,),
+                             max_dim_x=100000,
+                             display_level=DispLevel.OPERATOR,
+                             access=AttrWriteType.READ,
+                             doc='Source Sexes')
+
     def read_source_addresses(self):
-        self.log_function('read_source_addresses(%s)' %
-                         self._source_addresses)
+        self.log_function('read_source_addresses(%s)' % self._source_addresses)
         return self._source_addresses, time.time(), AttrQuality.ATTR_VALID
+
+    def read_source_names(self):
+        self.log_function('source_names(%s)' % self._source_names)
+        return self._source_names
+
+    def read_source_sexes(self):
+        self.log_function('source_sexes(%s)' % self._source_sexes)
+        return self._source_sexes
 
     @command(dtype_in=DevVarLongStringArray,
              doc_in="Get alarms from all the sources for "
@@ -100,7 +121,7 @@ class HealthMonitorServer(Device):
                                   (attr, address, e, attr))
                 data[attr] = []
 
-        self.health_mon.process_source_data(proxy.name(), **data)
+        self.health_mon.process_source_data(address, **data)
 
     def _poll_sources(self):
         self.log_function('Polling from: %s' % self._source_addresses)
@@ -134,14 +155,17 @@ if __name__ == '__main__':
     lag_window_factor = config.getint('Detector', 'lag_window_factor')
     HealthMonitorServer.lag_window_factor = lag_window_factor
 
-    resolution = config.getint('Monitor', 'resolution')
-    HealthMonitorServer.resolution = resolution
-
     conn_str = config.get('Monitor', 'conn_str')
     HealthMonitorServer.conn_str = conn_str
 
     src_addrs = config.get('Monitor', 'source_addresses').split(';')
     HealthMonitorServer._source_addresses = src_addrs
+
+    src_names = config.get('Monitor', 'source_names').split(';')
+    HealthMonitorServer._source_names = src_names
+
+    src_sexes = config.get('Monitor', 'source_sexes').split(';')
+    HealthMonitorServer._source_sexes = src_sexes
 
     src_attr = []
     if src_addrs:
