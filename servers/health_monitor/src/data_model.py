@@ -4,11 +4,12 @@ from collections import OrderedDict
 from datetime import datetime, timedelta
 import re
 
-import inflect
 from sqlalchemy import Column, DateTime, Enum, Float, Index, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import reconstructor
+
+import inflect
 
 
 _inflct_engn = inflect.engine()
@@ -167,16 +168,6 @@ class EcgV1Datapoint(DatapointMixin, Base):
                  millisecond=None, **kwargs):
         super(EcgV1Datapoint, self).__init__(timestamp, source_id, millisecond)
         self.ecg_v1 = ecg_v1
-
-
-@datapoint_class
-class EcgV2Datapoint(DatapointMixin, Base):
-    ecg_v2 = Column(Float)
-
-    def __init__(self, timestamp, source_id, ecg_v2,
-                 millisecond=None, **kwargs):
-        super(EcgV2Datapoint, self).__init__(timestamp, source_id, millisecond)
-        self.ecg_v2 = ecg_v2
 
 
 @datapoint_class

@@ -54,19 +54,18 @@ class Aouda(object):
         """
         import Oger as og
         periods = 1000
+        columns = ['ecg_v1', 'o2', 'temperature', 'air_flow', 'hr', 'acc_magn']
         data = og.datasets.mackey_glass(sample_len=periods,
-                                        n_samples=9,
+                                        n_samples=len(columns),
                                         seed=50)
-        data = np.asanyarray(data).reshape((9, periods))
+        data = np.asanyarray(data).reshape((len(columns), periods))
         data = data + np.abs(data.min())
         data = data.transpose()
         return pd.DataFrame(data=data,
                             index=pd.date_range(datetime.now(),
                                                 periods=periods,
                                                 freq='500L'),
-                            columns=['ecg_v1', 'ecg_v2', 'o2',
-                                     'temperature', 'air_flow', 'hr',
-                                     'acc_x', 'acc_y', 'acc_z'])
+                            columns=columns)
 
     def _shift_data(self, from_datetime):
         if self.shift_data and self.data.index[-1] <= from_datetime:
@@ -101,20 +100,6 @@ class Aouda(object):
             except:
                 ecg_v1 = np.nan
         return ecg_v1
-
-    def read_ecg_v2(self):
-        """
-        Returns instantaneous readings of the V2 ECG contact.
-        """
-        if self.simulate:
-            ecg_v2 = self._get_instantaneous_values()
-            if len(ecg_v2) > 0:
-                ecg_v2 = ecg_v2['ecg_v2']
-            else:
-                ecg_v2 = np.nan
-        else:
-            ecg_v2 = np.nan  # self.ehealth.getECG()
-        return ecg_v2
 
     def read_o2(self):
         """
