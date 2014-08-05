@@ -4,6 +4,7 @@ from plan import Plan
 
 import os
 import logging
+from PyTango import DeviceProxy
 
 class Planner(object):
 
@@ -25,14 +26,19 @@ class Planner(object):
             raise ValueError("Failed loading model:"+errors);
 
         # Create planning logger
+        log_file = 'plans.log'
+        open(log_file,"w").close() # clear old log
         self.logger = logging.getLogger('Planner')
-        hdlr = logging.FileHandler('plans.log')
+        hdlr = logging.FileHandler(log_file)
         self.logger.addHandler(hdlr) 
         self.logger.setLevel(logging.INFO)
 
         ### TEST ###
         cp = self.getCurrentPlan() # Get the current plan
         self.logger.info(cp.log)
+        
+
+        #self.executePlan(cp,"myro")
 
     def executePlan(self, plan, target=None):
         """Sends plan to the specified target for plan execution"""
@@ -40,9 +46,16 @@ class Planner(object):
         if target is None:
             raise ValueError("Must specify target where\
                 plan should be executed!")
+
         elif target=="gazebo":
             # TODO: Execute plan on Gazebo Controls
             pass
+
+        elif target=="myro":
+            myro = DeviceProxy("c3/rovers/myro")
+            myro.move([0.1, 0.2])
+            # Execute plan on myro
+
         else:
             raise ValueError("%s execution target not-defined!"%target)
 
