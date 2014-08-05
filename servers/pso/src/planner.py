@@ -38,7 +38,7 @@ class Planner(object):
         self.logger.info(cp.log)
         
 
-        #self.executePlan(cp,"myro")
+        self.executePlan(cp,"myro")
 
     def executePlan(self, plan, target=None):
         """Sends plan to the specified target for plan execution"""
@@ -53,8 +53,14 @@ class Planner(object):
 
         elif target=="myro":
             myro = DeviceProxy("c3/rovers/myro")
-            myro.move([0.1, 0.2])
+            
+            # Actions which require rover to me
+            rover_move = plan.rover_move
+            print rover_move
+
             # Execute plan on myro
+            # TODO: Add Move to function
+            #.. myro.move_to([0.1, 0.2])
 
         else:
             raise ValueError("%s execution target not-defined!"%target)
