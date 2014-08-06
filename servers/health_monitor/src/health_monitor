@@ -3,9 +3,9 @@
 from __future__ import division, print_function
 
 import ConfigParser
+from multiprocessing import Process, Event
 import os
 import sys
-from threading import Thread, Event
 import time
 
 from PyTango import ConnectionFailed, DevFailed, AttrWriteType, AttrQuality
@@ -54,13 +54,15 @@ class HealthMonitorServer(Device):
         return self._source_sexes
 
     @command(dtype_in=DevVarLongStringArray,
-             doc_in="Get alarms from all the sources for "
-                    "the last [period] seconds",
+             doc_in="""Get alarms from params[1][0] source and
+                       params[1][1] variable for
+                       the last params[0][0] seconds""",
              dtype_out=DevVarDoubleStringArray)
     def get_alarms(self, params):
-        period, source = params[0][0], params[1][0]
-        self.log_function('get_alarms(%s, %s)' % (period, source))
-        alarms = self.health_mon.get_alarms(period, source)
+        period, source, var_name = params[0][0], params[1][0], params[1][1]
+        self.log_function('get_alarms(%s, %s, %s)' %
+                          (period, source, var_name))
+        alarms = self.health_mon.get_alarms(period, source, var_name)
         print("alarms: %s" % alarms)
         if alarms:
             ret_val = [(a.alarm_lvl,
@@ -97,7 +99,7 @@ class HealthMonitorServer(Device):
                                     ecg_v1_buffer_len=self.ecg_v1_buffer_len
                                         )
         self.stop_polling = Event()
-        Thread(target=self._poll_sources).start()
+        Process(target=self._poll_sources).start()
         self.set_state(DevState.ON)
         self.log_function('Finished initializing device')
 
@@ -120,7 +122,6 @@ class HealthMonitorServer(Device):
                                   ' from source %s: %s. Setting %s to np.nan' %
                                   (attr, address, e, attr))
                 data[attr] = []
-
         self.health_mon.process_source_data(address, **data)
 
     def _poll_sources(self):
