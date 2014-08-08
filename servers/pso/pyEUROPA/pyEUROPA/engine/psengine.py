@@ -3,18 +3,22 @@ __author__ = "Mathew Kallada"
 import os
 import subprocess
 import glob
+import os
 import time
 import traceback
 import signal
 from py4j.java_gateway import JavaGateway
+
+root_folder = os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
 
 PID = None
 GATEWAY = None
 ps_engine_instances = []
 
 def makePSEngine(debug="g"):
+
     # Possible values for debug:
-    #	o: optimized EUROPA for production
+    #	o: optimized EUROPA for industry
     #   g: EUROPA on debug mode
 
     global PID, GATEWAY, ps_engine_instances
@@ -29,7 +33,7 @@ def makePSEngine(debug="g"):
             "Please either put EUROPA in ~/europa/ or set the "+\
             "EUROPA_HOME enviroment variable.")
 
-    java_folder = os.path.join(os.path.dirname(__file__), 'java')
+    java_folder = os.path.join(root_folder, 'java')
     java_lib = os.path.join(java_folder, 'lib')
     java_src = os.path.join(java_folder, 'src')
     
@@ -82,15 +86,13 @@ def makePSEngine(debug="g"):
 
     return psengine
 
-def stopPSEngine():
+def stopPSEngine(instance=None):
 
     # Shutdown all PSEngine instances
-    for psengine in ps_engine_instances:
-        psengine.shutdown()
-
-    # Send the signal to all the process groups
-    if PID:
-        os.killpg(PID, signal.SIGTERM)
+    if instance is None:
+        for psengine in ps_engine_instances:
+            psengine.shutdown()
+            os.killpg(psengine.PID, signal.SIGTERM)
     else:
-        raise ValueError("You must first create a gateway.")
-
+        psengine.shutdown()
+        os.killpg(psengine.PID, signal.SIGTERM)
