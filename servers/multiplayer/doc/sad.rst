@@ -1,5 +1,5 @@
 ========================================================================
-Software Architecture Document for the Multi-user integration for V-ERAS
+Software Architecture Document for the Multi-user Integration for V-ERAS
 ========================================================================
 
 :Author: Ezio Melotti
@@ -20,21 +20,42 @@ Introduction
 Purpose
 -------
 
-The main goal of this project is to add support and integrate the Oculus
-Rift VR headset with the Tango framework and with the Blender simulation.
-Once a single user is able to participate in the simulation using the Oculus,
-support for multiple users will be investigated and eventually added.
+The main goal of this project is to add multi-user support in the V-ERAS,
+by integrating the Blender simulation with the Tango framework and with the
+Oculus Rift VR headset.
 
 Scope
 -----
 
 This document will provide an high-level overview of how the multi-user
-integration for V-ERAS will work.
+integration for V-ERAS will work and outline the possible approaches that
+are being considered while developing the networking sub-system of the
+V-ERAS project.
 
-Reference Documents
--------------------
+Goals
+-----
 
-N/A
+The two main goals of the project are:
+
+1) enabling network communication among several machines;
+2) ensure a coherent simulation among all the instances;
+
+Components
+----------
+
+The V-ERAS system includes different components:
+
+* the Tango bus (used to share data among the devices over the network);
+* the devices:
+    * Oculus Rift (used to display the VR simulation and for head tracking);
+    * Kinect (used for body tracking);
+    * possibly others;
+* Blender (used to run the simulation);
+
+In a typical test environment there will be 3 or 4 users.  For each user there
+will be a computer running an instance of the Blender simulation, an Oculus
+Rift and a Kinect.  The computers will be connected through a gigabit local
+network.
 
 Glossary
 --------
@@ -49,197 +70,135 @@ Glossary
 .. Use the main :ref:`glossary` for general terms, and :term:`Term` to link
    to the glossary entries.
 
-Overview
---------
+Goal 1: enabling network communication
+======================================
 
-Make an overview in which you describe the rest of this document the and which chapter is primarily of interest for which reader.
 
-
-Architectural Requirements
-==========================
-
-This section describes the requirements which are important for developing the software architecture.
-
-Non-functional requirements
----------------------------
-
-Since Blender uses Python 3, the ``python3-pytango`` package is required.
-
-Use Case View (functional requirements)
----------------------------------------
-
-See Appendix A.
-
-
-Interface Requirements
-======================
-
-This section describes how the software interfaces with other software products
-or users for input or output. Examples of such interfaces include library
-routines, token streams, shared memory, data streams, and so forth.
-
-User Interfaces
----------------
-
-Describes how this product interfaces with the user.
-
-GUI (Graphical User Interface)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-N/A.
-
-CLI (Command Line Interface)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-N/A.
-
-API (Application Programming Interface)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-See the API document (not available yet).
-
-
-Hardware Interfaces
--------------------
-
-Blender will communicate with the Oculus using a yet-to-be-defined module.
-
-
-Software Interfaces
--------------------
-
-Blender will communicate with Tango using PyTango.
-
-Communication Interfaces
-------------------------
-
-The Tango software bus will be used by different machines to communicate.
-
-
-Performance Requirements
-========================
-
-Specifies speed and memory requirements.
-
-Logical View
-============
-
-Describe the architecturally significant logical structure of the system. Think of decomposition in terms of layers and subsystems. Also describe the way in which, in view of the decomposition, Use Cases are technically translated into Use Case Realizations
-
-Layers
-------
-
-Blender will operate in the application layer and communicate with Tango on the DCS
-layer.
-
-.. image:: layered.jpg
-
-Subsystems
-----------
-
-The 3 macro-subsystems are the user, the machine, and the network.
-
-* The user will use the Oculus and have his movements tracked.
-
-* On the machine Blender will read data from the Oculus (head position) and
-  from the body movements and build a coherent simulation that will be visible
-  with the Oculus.
-  It will also share the state of the simulation with the other machines on
-  the Tango bus to ensure that all the users will be viewing the same thing.
-
-* The network and the Tango bus will be used to exchange information between
-  the machines.
-
-.. image:: tangonet.png
-
-Use Case Realizations
----------------------
-Give examples of the way in which the Use Case Specifications are technically translated into Use Case Realizations, for example, by providing a sequence-diagram.
-
-Implementation View
-===================
-This section describes the technical implementation of the logical view.
-
-Deployment View
-===============
-Describe the physical network and hardware configurations on which the software will be deployed. This includes at least the various physical nodes (computers, CPUs), the interaction between (sub)systems and the connections between these nodes (bus, LAN, point-to-point, messaging, etc.). Use a deployment diagram.
-
-
-Development and Test Factors
-============================
-
-Hardware Limitations
---------------------
-
-Latency might be an issue, since all the simulations on the different machines
-need to be syncronized.
-
-Software validation and verification
-------------------------------------
-
-Unittests will be used to test the software.
-
-Planning
---------
-
-Describe the planning of the whole process mentioning major milestones and
-deliverables at these milestones.
-
-Notes
-=====
-
-.. notes can be handled automatically by Sphinx
-
-
-Appendix A: Use Case template
-=============================
-
-Use Cases drive the whole software process and bind together all the phases
-from requirements capture to final delivery of the system and maintenance.
-They are a very effective way of communicating with customers and among team
-members. Before every discussion always provide the partners with a set of
-relevant Use Cases.
-
-During meetings, they stimulate focused discussions and help identifying
-important details. It is important to keep in mind that Use Cases have to
-describe WHAT the system has to do in response to certain external stimuli
-and NOT HOW it will do it. The HOW is part of the architecture and of the
-design.
-
-What follows is the empty template:
-
-Use Case: <Name>
-================
-<Short description>
-
-Actors
-------
-<List of Actors>
-
-Priority
---------
-<Low, Normal, Critical>
-
-Preconditions
--------------
-<List of preconditions that must be fulfilled>
-
-Basic Course
+Architecture
 ------------
-<Step-by-step description of the basic course>
 
-Alternate Course
-----------------
-<Step-by-step description of the alternate course>
+The are two main architecture:
 
-Exception Course
-----------------
-<Step-by-step description of the exception course>
+1) server-client;
+2) peer to peer;
 
-Postconditions
+Server-client
+~~~~~~~~~~~~~
+
+The advantages of a server-client architecture are:
+
+* easier to maintain coherence (the servers tell the clients what to do);
+* easier to solve conflicts (the server takes the decisions in case
+  of conflict);
+
+However there are disadvantages as well:
+
+* one of the machines has to act as a server:
+  * adding an additional computer will result in additional costs and network
+    overhead;
+  * re-using an existing machine will result in additional overhead for that
+    machine;
+* additional network overhead and possibly lag;
+* different software required for the server and the clients;
+
+Peer to peer
+~~~~~~~~~~~~
+
+The advantages of a peer-to-peer network are:
+
+* less network overhead, less lag;
+* same software running on all the machines;
+
+The disadvantages are:
+
+* more difficult to solve conflicts (the peers have to reach the same decision
+  indipentendly or have to communicate before proceeding);
+
+Depending on how the communication happen, maintaining coherence might be more
+or less difficult.  On one hand, divergence among the simulation might seem
+more likely without a central server, on the other hand a simple architecture
+may reduce lag and result in higher coherence.
+
+
+Implementation
 --------------
-<List of postconditions (if apply)>
 
-Notes
------
+The possible implementation being considered are:
+
+1) Tango;
+2) sockets;
+
+Tango
+~~~~~
+
+Tango is the most obvious choice for several reasons:
+
+* it is already deeply integrated in V-ERAS;
+* it already provides many facilities;
+* it doesn't require writing/using a separate system;
+
+The main drawback is that Tango is a "passive" component, i.e. rather than
+broadcasting the data to all the clients, it relies on the clients requesting
+them.  This means that if data are written on the Tango bus faster than the
+clients are reading or if a client is busy and delays the reading, some
+data might go missing as they are overwritten by most recent data
+
+Sockets
+~~~~~~~
+
+Using sockets is the common approach in the majority of cases, where Tango is
+not used.  Sockets can be used to exchange data between the machines directly
+from the Blender instances, however Blender still needs to read data from
+Tango.
+
+If a server-client architecture is used, the server could be the only machine
+reading data from Tango.  The server will then process the data and send
+instructions to the other clients.
+
+If a peer-to-peer architecture is used, an hybrid approach can be considered.
+In this hybrid approach, all the peers read data from Tango and sockets are
+used to ensure the consistency of the simulation by having the peer exchanging
+information about the objects in the simulation and verifying their
+correctness.
+
+Summary
+-------
+
+In short, these are the possible options:
+
+1) server-client, Tango-based: the Blender instance on the server reads data
+   from Tango, decides what happens in the simulation, and communicates these
+   decisions to the clients through Tango;
+2) server-client, socket-based: as above, but the decisions are send to the
+   clients using sockets;
+3) peer-to-peer, Tango-based: all the Blender instances on the peers read the
+   data from Tango and update the simulation accordingly.  The peers might
+   also use Tango to exchange messages;
+4) peer-to-peer, hybrid (Tango + sockets): as above, but communication between
+   the peers happen via sockets;
+
+
+Goal 2: ensuring coherence within the simulation
+================================================
+
+Approach
+--------
+
+This problem can be addressed in two ways:
+
+1) preemptive;
+2) corrective;
+
+A preemptive approach aims at ensuring that no incoherences are introduced in
+the simulation.  This can be done by ensuring that all the blender instances
+start from the same state and that they all receive exactly the same inputs.
+While this could in theory be done, it is not possible to ensure that the
+same inputs are received at the same time, due to external factors (e.g.
+network latency, machine performance).  The simulation could however be
+designed so that delays in the inputs don't cause inconsistencies.
+
+A corrective approach aims at correcting, rather than preventing, incoherences.
+A way to correct incoherences is to broadcast at regular intervals the
+absolute positions of the objects, so that the clients can update their
+positions in case they are not correct.
 

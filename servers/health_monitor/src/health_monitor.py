@@ -9,9 +9,8 @@ from collections import Iterable
 from datetime import datetime, timedelta
 
 from sqlalchemy import create_engine
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
 from assumption_free import AssumptionFreeAA as Detector
 from butterworth_filter import butterworth_filter
@@ -66,9 +65,6 @@ class HealthMonitor(object):
         else:
             self.log_function(conn_str)
             self.engine = create_engine(conn_str,
-                                        connect_args={'check_same_thread':
-                                                      False},
-                                        poolclass=StaticPool,
                                         isolation_level='SERIALIZABLE')
             self._setup_database()
         self.Session = sessionmaker(bind=self.engine, autocommit=False)
@@ -180,7 +176,7 @@ class HealthMonitor(object):
                                                 columns=['timestamp', k])
                                    .set_index('timestamp'))
             except:
-                print(kwargs[k])
+                self.log_function(kwargs[k])
                 raise
         data = data.sort_index()
         for entity, detector in self.sources[source_id]:
@@ -192,7 +188,7 @@ class HealthMonitor(object):
                     analysis, sgmt_begin, sgmt_end = result
                     analysis = analysis[0]
                     session.add(
-                            dm.Alarm(timestamp=sgmt_end,
+                            dm.Alarm(timestamp=datetime.now(),
                                      alarm_lvl=analysis.score,
                                      sgmt_begin=sgmt_begin,
                                      sgmt_end=sgmt_end,
@@ -200,26 +196,31 @@ class HealthMonitor(object):
                                      kind=entity.variable_names()[0]))
                 session.commit()
             except IntegrityError as e:
-                print('IntegrityError: %s' % e)
+                self.log_function('IntegrityError: %s' % e)
+            except OperationalError as e:
+                self.log_function('OperationalError: %s' % e)
             finally:
                 session.close()
 
-    def get_alarms(self, period, source):
+    def get_alarms(self, period, source, var_name):
         '''
         Returns the alarm scores generated in the last [period] seconds.
         '''
         current = datetime.now()
         current -= timedelta(microseconds=current.microsecond)
         init = current - timedelta(seconds=int(period))
-        print('init: %s' % init)
         results = []
         try:
             session = self.Session()
             query = (session.query(dm.Alarm)
                             .filter((dm.Alarm.timestamp >= init) &
-                                    (dm.Alarm.source_id == source))
+                                    (dm.Alarm.source_id == source) &
+                                    (dm.Alarm.kind == var_name))
                             .order_by(dm.Alarm.timestamp))
             results = query.all()
+        except OperationalError as e:
+            self.log_function('OperationalError: %s' % e)
+            results = None
         finally:
             session.close()
 
