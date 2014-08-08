@@ -1,5 +1,7 @@
 from __future__ import print_function
-from pyEUROPA.psengine import stopPSEngine, makePSEngine
+
+from pyEUROPA.engine import stopPSEngine, makePSEngine
+from pyEUROPA import Actor
 from plan import Plan
 
 import os
@@ -10,20 +12,20 @@ class Planner(object):
 
     def __init__(self, device):
 
+        # Current Planning Device
         self.device = device
-        cwd = os.getcwd()
 
         # Connect to EUROPA
-        print('Connecting to EUROPA platform via pyEUROPA')
         self.europa = makePSEngine("g")
-        print('Launching PSEngine Instance')
         self.europa.start()
 
-        errors = self.europa.executeScript("nddl",
+        # Initial State of Rover
+        self.europa.executeScript("nddl",
             'initial-state.nddl', True);
 
-        if (errors!=""):
-            raise ValueError("Failed loading model:"+errors);
+        # Execute the rover's goals (right now, to go to location)
+        self.europa.executeScript("nddl",
+            'GOALS.nddl', True);
 
         # Create planning logger
         log_file = 'plans.log'
@@ -52,25 +54,14 @@ class Planner(object):
             pass
 
         elif target=="myro":
+            # Execute plan on myro
             myro = DeviceProxy("c3/rovers/myro")
             
-            # Actions which require rover to me
-            rover_move = plan.rover_move
-            print rover_move
 
-            # Execute plan on myro
-            # TODO: Add Move to function
-            #.. myro.move_to([0.1, 0.2])
+            # TODO: Find way to move on Myro
 
         else:
             raise ValueError("%s execution target not-defined!"%target)
-
-    def modifyEnviroment(self, type="add"):
-        """Dynamically Modify the current enviroment
-        that the rover is located in."""
-
-        #TODO: Add this
-        pass
 
 
     def getCurrentPlan(self):
@@ -78,6 +69,7 @@ class Planner(object):
         # Generate plan in current enviroment
         self.generatePlans()
 
+        # The EUROPA Plan Database
         europa_log = self.europa.planDatabaseToString()
         plan = Plan(europa_log) 
 

@@ -12,7 +12,9 @@ class PyDevice(PyTango.DeviceClass):
                 'stop': [[PyTango.ArgType.DevVoid],
                          [PyTango.ArgType.DevVoid]],
                 'move': [[PyTango.ArgType.DevVarFloatArray],
-                          [PyTango.ArgType.DevVoid]],}
+                          [PyTango.ArgType.DevVoid]],
+                'get_battery': [[PyTango.ArgType.DevVoid],
+                         [PyTango.ArgType.DevVoid]],}
     attr_type = [
         [PyTango.ArgType.DevFloat,
          PyTango.AttrDataFormat.SCALAR,
@@ -47,12 +49,14 @@ class PyMyro(PyTango.Device_4Impl):
         myro.stop()
         print 'stop'
         
-
     def move(self, speed):
         self.translate_speed = float(speed[0])
         self.rotate_speed = float(speed[1])
         print 'move with translate_speed and rotate_speed values:', self.translate_speed, self.rotate_speed
         myro.move(self.translate_speed, self.rotate_speed)
+
+    def get_battery(self):
+        print myro.getBattery()
 
     def init_device(self):
         self.info_stream('In Python init_device method')

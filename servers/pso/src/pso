@@ -35,7 +35,7 @@ class PyPSO(PyTango.Device_4Impl):
         self.planner = Planner(self)
 
         PyTango.Device_4Impl.__init__(self, cl, name)
-        self.info_stream('In Arrow.__init__')
+        self.info_stream('In PyPSO.__init__')
         PyPSO.init_device(self)
 
     def __del__(self):
