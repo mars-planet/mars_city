@@ -63,15 +63,6 @@
             <name>left_front</name>
         </include>
 
-        <plugin name="SkidSteerDrivePlugin" filename="libSkidSteerDrivePlugin.so">
-            <right_front>right_front</right_front>
-            <right_rear>right_rear</right_rear>
-            <left_front>left_front</left_front>
-            <left_rear>left_rear</left_rear>
-            <max_force>100.0</max_force>
-        </plugin>
-
-
         <include>
             <uri>model://wheel</uri>
             <pose>-0.7 -0.6 0.125 0 0 0</pose>
@@ -134,7 +125,15 @@
                 </dynamics>
                 <xyz>0 1 0</xyz>
             </axis>
-        </joint> -->
+        </joint>
+
+        <plugin name="SkidSteerDrivePlugin" filename="libSkidSteerDrivePlugin.so">
+            <right_front>right_front_wheel</right_front>
+            <right_rear>right_rear_wheel</right_rear>
+            <left_front>left_front_wheel</left_front>
+            <left_rear>left_rear_wheel</left_rear>
+            <max_force>100.0</max_force>
+        </plugin>
 
 <!--         <include>
             <uri>model://track_drive</uri>
