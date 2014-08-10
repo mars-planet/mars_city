@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 import trollius
 from trollius import From
 
@@ -99,7 +101,7 @@ running = True
 @trollius.coroutine
 def publish_loop():
     manager = yield From(pygazebo.connect())
-    
+
     publisher = yield From(
         manager.advertise('/gazebo/default/trevor/model/skid_drive/vel_cmd',
                           'gazebo.msgs.Pose'))
