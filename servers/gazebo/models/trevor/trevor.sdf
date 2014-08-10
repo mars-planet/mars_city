@@ -41,13 +41,13 @@
 
         <include>
             <uri>model://ultrasonic</uri>
-            <pose>1.425 0 0.12 0 0 1.5707</pose>
+            <pose>1.425 0 0.12 0 0 3.1416</pose>
             <name>front_sensor</name>
         </include>
 
         <include>
             <uri>model://ultrasonic</uri>
-            <pose>-0.9 0 0.375 0 0 1.5707</pose>
+            <pose>-0.9 0 0.375 0 0 0</pose>
             <name>back_sensor</name>
         </include>
 
