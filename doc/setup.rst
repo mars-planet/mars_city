@@ -114,6 +114,22 @@ If you are still having problem you can try the following things:
     sudo /etc/init.d/tango-db start
     sudo /etc/init.d/tango-starter start
 
+* if it still doesn't work try completely removing the packages::
+
+    sudo apt-get purge tango-db tango-starter
+
+  * Deconfigure database for tango-db with dbconfig-common? [yes]
+  * Do you want to purge the database for tango-db? [yes]
+  * Password of the database's administrative user: [leave empty]
+
+  and then reinstalling them::
+
+    sudo apt-get install tango-db tango-starter
+
+  * Configure database for tango-db with dbconfig-common? [yes]
+  * Password of the database's administrative user: [leave empty]
+  * MySQL application password for tango-db: [leave empty]
+
 Fix for Ubuntu 13.04
 --------------------
 If you are running on Ubuntu 13.04 you have to install this patch in order to avoid a Segmentation fault (core dumped) at every python server run.
