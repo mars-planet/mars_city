@@ -54,30 +54,30 @@
         <include>
             <uri>model://wheel</uri>
             <pose>-0.7 0.6 0.125 0 0 0</pose>
-            <name>left_rear</name>
+            <name>left_rear_wheel</name>
         </include>
 
         <include>
             <uri>model://wheel</uri>
             <pose>0.7 0.6 0.125 0 0 0</pose>
-            <name>left_front</name>
+            <name>left_front_wheel</name>
         </include>
 
         <include>
             <uri>model://wheel</uri>
             <pose>-0.7 -0.6 0.125 0 0 0</pose>
-            <name>right_rear</name>
+            <name>right_rear_wheel</name>
         </include>
 
         <include>
             <uri>model://wheel</uri>
             <pose>0.7 -0.6 0.125 0 0 0</pose>
-            <name>right_front</name>
+            <name>right_front_wheel</name>
         </include>
 
-        <joint name="left_rear_wheel" type="revolute">
+        <joint name="left_rear" type="revolute">
             <pose>0 0 0 0 0 0</pose>
-            <child>left_rear::wheel</child>
+            <child>left_rear_wheel::wheel</child>
             <parent>chassis::platform</parent>
            <axis>
                 <dynamics>
@@ -88,9 +88,9 @@
             </axis>
         </joint>
 
-        <joint name="left_front_wheel" type="revolute">
+        <joint name="left_front" type="revolute">
             <pose>0 0 0 0 0 0</pose>
-            <child>left_front::wheel</child>
+            <child>left_front_wheel::wheel</child>
             <parent>chassis::platform</parent>
            <axis>
                 <dynamics>
@@ -101,9 +101,9 @@
             </axis>
         </joint>
 
-        <joint name="right_rear_wheel" type="revolute">
+        <joint name="right_rear" type="revolute">
             <pose>0 0 0 0 0 0</pose>
-            <child>right_rear::wheel</child>
+            <child>right_rear_wheel::wheel</child>
             <parent>chassis::platform</parent>
            <axis>
                 <dynamics>
@@ -114,9 +114,9 @@
             </axis>
         </joint>
 
-        <joint name="right_front_wheel" type="revolute">
+        <joint name="right_front" type="revolute">
             <pose>0 0 0 0 0 0</pose>
-            <child>right_front::wheel</child>
+            <child>right_front_wheel::wheel</child>
             <parent>chassis::platform</parent>
            <axis>
                 <dynamics>
