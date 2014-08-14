@@ -2,6 +2,8 @@
 
 import trollius
 from trollius import From
+import PyTango
+import sys
 
 import pygazebo
 import pygazebo.msg.pose_pb2
@@ -24,7 +26,7 @@ class PyDevice(PyTango.DeviceClass):
         PyTango.DeviceClass.__init__(self, name)
         self.set_type("ArrowDevice")
 
-class PySkidDrive(PyTango.Device_4Impl):
+class PyGripper(PyTango.Device_4Impl):
     def __init__(self, cl, name):
         self.devices = {}
         self.DELTA_FORCE = 1
@@ -90,7 +92,7 @@ class PySkidDrive(PyTango.Device_4Impl):
 
 if __name__ == '__main__':
     util = PyTango.Util(sys.argv)
-    util.add_class(PyDevice, PySkidDrive)
+    util.add_class(PyDevice, PyGripper)
 
     U = PyTango.Util.instance()
     U.server_init()
