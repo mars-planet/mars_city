@@ -1,5 +1,10 @@
 from __future__ import print_function
 
+# Temporary snippet for debugging
+import sys
+sys.path.remove("/usr/local/lib/python2.7/dist-packages/pyEUROPA-0.1-py2.7.egg")
+sys.path.append("/home/mathew/Desktop/pyEUROPA")
+
 from pyEUROPA.engine import stopPSEngine, makePSEngine
 from pyEUROPA import Actor
 from plan import Plan
@@ -23,7 +28,7 @@ class Planner(object):
         self.europa.executeScript("nddl",
             'initial-state.nddl', True);
 
-        # Execute the rover's goals (right now, to go to location)
+        # Set the rover's goals (right now, to go to sample nearby rocks)
         self.europa.executeScript("nddl",
             'GOALS.nddl', True);
 
@@ -37,7 +42,8 @@ class Planner(object):
 
         ### TEST ###
         cp = self.getCurrentPlan() # Get the current plan
-        self.logger.info(cp.log)
+        self.logger.info("Objects in Enviroment "+str(cp.objects))
+        self.logger.info("Plan Actions "+str(cp.actions))
         
 
         self.executePlan(cp,"myro")
@@ -69,7 +75,7 @@ class Planner(object):
         # Generate plan in current enviroment
         self.generatePlans()
 
-        # The EUROPA Plan Database
+        # Extract the EUROPA Plan directly from the PLASMA Database
         europa_log = self.europa.planDatabaseToString()
         plan = Plan(europa_log) 
 
