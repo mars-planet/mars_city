@@ -13,8 +13,10 @@ def publish_loop():
                           'gazebo.msgs.JointCmd'))
 
     message = pygazebo.msg.joint_cmd_pb2.JointCmd()
+    message.name = 'robot::joint_name'
     message.axis = 0
     message.force = 1.0
+
     while True:
         yield From(publisher.publish(message))
         yield From(trollius.sleep(1.0))
