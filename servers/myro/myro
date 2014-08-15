@@ -52,8 +52,15 @@ class PyMyro(PyTango.Device_4Impl):
     def move(self, speed):
         self.translate_speed = float(speed[0])
         self.rotate_speed = float(speed[1])
+        PyMyro.set_change_event(self,'translate_speed',True)
         print 'move with translate_speed and rotate_speed values:', self.translate_speed, self.rotate_speed
         myro.move(self.translate_speed, self.rotate_speed)
+
+    def read_rotate_speed(self, the_att):
+        the_att.set_value(self.rotate_speed)
+
+    def read_translate_speed(self, the_att):
+        the_att.set_value(self.translate_speed)
 
     def get_battery(self):
         print myro.getBattery()
