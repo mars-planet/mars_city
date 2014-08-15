@@ -1,11 +1,18 @@
-#! /usr/bin/python
 
+#
 import trollius
 from trollius import From
-
 import pygazebo
-import pygazebo.msg.pose_pb2
-import math
+import pygazebo.msg.joint_cmd_pb2
+# import math
+
+import sys
+import PyTango
+import curses
+
+lift_force = 0
+grip_force = 0
+
 
 class PyDevice(PyTango.DeviceClass):
     cmd_list = {}
@@ -22,15 +29,16 @@ class PyDevice(PyTango.DeviceClass):
 
     def __init__(self, name):
         PyTango.DeviceClass.__init__(self, name)
-        self.set_type("ArrowDevice")
+        self.set_type("GripperDevice")
 
-class PySkidDrive(PyTango.Device_4Impl):
+
+class PyTangoGripper(PyTango.Device_4Impl):
     def __init__(self, cl, name):
         self.devices = {}
         self.DELTA_FORCE = 1
         PyTango.Device_4Impl.__init__(self, cl, name)
-        self.info_stream('In Arrow.__init__')
-        PyArrow.init_device(self)
+        self.info_stream('In Gripper.__init__')
+        PyTangoGripper.init_device(self)
 
     def __del__(self):
         print ("destructor")
@@ -48,9 +56,9 @@ class PySkidDrive(PyTango.Device_4Impl):
             self.lift_force += self.DELTA_FORCE
         elif char == curses.KEY_DOWN:
             self.grip_force -= self.DELTA_FORCE
-        else: # char == -1 if timeout on stdscr
-            self.lift_force=0
-            self.grip_force=0
+        else:  # char == -1 if timeout on stdscr
+            self.lift_force = 0
+            self.grip_force = 0
 
         the_att.set_value(self.lift_force)
 
@@ -87,31 +95,59 @@ class PySkidDrive(PyTango.Device_4Impl):
         self.stdscr.keypad(True)
 
 
+@trollius.coroutine
+def publish_loop(U):
+    manager = yield From(pygazebo.connect())
+
+    lift_publisher = yield From(
+        manager.advertise('/gazebo/default/trevor/front_gripper/lift_force',
+                          'gazebo.msgs.JointCmd'))
+    grip_publisher = yield From(
+        manager.advertise('/gazebo/default/trevor/front_gripper/grip_force',
+                          'gazebo.msgs.JointCmd'))
+
+    lift_message = pygazebo.msg.joint_cmd_pb2.JointCmd()
+    lift_message.axis = 0
+    lift_message.force = U.lift_force
+    grip_message = pygazebo.msg.joint_cmd_pb2.JointCmd()
+    grip_message.axis = 0
+    grip_message.force = U.grip_force
+    lift_message.name = "trevor::front_gripper::palm_raiser"
+
+    while True:
+        yield From(lift_publisher.publish(lift_message))
+        yield From(trollius.sleep(0.1))
+        grip_message.name = "trevor::front_gripper::left_finger_tip"
+        yield From(grip_publisher.publish(grip_message))
+        yield From(trollius.sleep(0.1))
+        grip_message.name = "trevor::front_gripper::right_finger_tip"
+        yield From(grip_publisher.publish(grip_message))
+        yield From(trollius.sleep(0.1))
+        grip_message.name = "trevor::front_gripper::palm_left_finger"
+        yield From(grip_publisher.publish(grip_message))
+        yield From(trollius.sleep(0.1))
+        grip_message.name = "trevor::front_gripper::palm_right_finger"
+        yield From(grip_publisher.publish(grip_message))
+        yield From(trollius.sleep(0.1))
+        print("Publishing")
+
+
+@trollius.coroutine
+def server_loop(U):
+    U.server_run()
 
 if __name__ == '__main__':
     util = PyTango.Util(sys.argv)
-    util.add_class(PyDevice, PySkidDrive)
+    util.add_class(PyDevice, PyTangoGripper)
 
     U = PyTango.Util.instance()
     U.server_init()
-    U.server_run()
 
-running = True
+    tasks = [
+        trollius.Task(publish_loop(U)),
+        trollius.Task(server_loop(U)),
+    ]
 
-@trollius.coroutine
-def publish_loop():
-    manager = yield From(pygazebo.connect())
-
-    publisher = yield From(
-        manager.advertise('/gazebo/default/trevor/model/skid_drive/vel_cmd',
-                          'gazebo.msgs.Pose'))
-
-    message = pygazebo.msg.pose_pb2.Pose()
-    message.position.x = self.lift_force
-
-    while running:
-        yield From(publisher.publish(message))
-        yield From(trollius.sleep(0.1))
-
-loop = trollius.get_event_loop()
-loop.run_until_complete(publish_loop())
+    loop = trollius.get_event_loop()
+    loop.run_until_complete(trollius.wait(tasks))
+    loop.close()

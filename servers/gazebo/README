@@ -1,0 +1,19 @@
+Using this simulator
+
+Install TANGO
+Install Gazebo (v 3.1 or more)
+
+$ sudo apt-get install python-pip
+or
+$ sudo aptitude install python-pip
+
+$ sudo pip install trollius
+$ sudo pip install pygazebo
+
+Then from this directory, run
+$ gazebo world.sdf
+To have a terrain, see this http://gazebosim.org/tutorials/?tut=dem
+
+To activate a manipulator, use the relevant plugin
+
+PS: Skid plugin not working as of now
