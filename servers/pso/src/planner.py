@@ -27,11 +27,11 @@ class Planner(object):
 
         # Initial State of Rover
         self.europa.executeScript("nddl",
-            'initial-state.nddl', True);
+            'initial-state.nddl', True)
 
-        # Set the rover's goals (right now, to go to sample nearby rocks)
+        # Set the rover's goals (right now, to go to sample a nearby rock)
         self.europa.executeScript("nddl",
-            'GOALS.nddl', True);
+            'GOALS.nddl', True)
 
         # Create planning logger
         log_file = 'plans.log'
@@ -50,12 +50,12 @@ class Planner(object):
         
 
     def get_objects(self):
-        """Objects considered in current plan"""
+        """Objects considered in current plan in JSON string format"""
 
         return json.dumps(self.objects)
 
     def get_actions(self):
-        """Actions considered in current plan"""
+        """Actions considered in current plan in JSON string format"""
 
         return json.dumps(self.actions)
 

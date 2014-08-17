@@ -27,6 +27,35 @@ class Plan(object):
         europa_log = europa_log.replace("*","")
         environment_objects = re.findall(r'Variables(.*?)End Variables',
             europa_log, re.DOTALL)
+
+        # Function which converts the Data Types from PLASMA to a Python format
+        def convert_europa_type(variable):
+            if "=" in variable:
+                res=re.sub(r'=(.*):CLOSED', '=', variable)    
+            else:
+                res=re.sub(r'.*:CLOSED', '', variable)
+
+            return res
+
+        # Process raw time constrainsts from PLASMA database
+        def process_data_format(t):
+            t=t.replace("+inf","-1")
+            if "{" in t:
+                t = t.replace("{","").replace("}","")
+                try:
+                    t=float(t)
+                except:
+                    t=str(t)
+
+            elif "[" in t:
+                t=t.replace("[","").replace("]","")
+                try:
+                    t=list(map(float, t.split(",")))
+                except:
+                    t=list(map(str, t.split(",")))
+
+            return t
+
         for obj in environment_objects:
             # Build dictionary representation for ease of access
             match = re.search(r'(.*?).name=',obj)
@@ -43,7 +72,8 @@ class Plan(object):
                 for att in attributes:
                     var = att[:att.find("=")]
                     val = att[att.find("=")+1:]
-                    self.objects[object_name][var]=val
+                    self.objects[object_name][var]=process_data_format(
+                        convert_europa_type(val))
 
 
         # Extract the Planned Actions to take place along with time constrainsts
@@ -63,24 +93,19 @@ class Plan(object):
                     line = line.strip()
                     if line.startswith("[") or line.startswith("{"):
 
-                        # Process raw time constrainsts from PLASMA database
-                        def process_time(t):
-                            t=t.replace("+inf","-1")
-                            if "{" in t:
-                                t=float(t.replace("{","").replace("}",""))
-                            elif "[" in t:
-                                t=t.replace("[","").replace("]","")
-                                t=list(map(float, t.split(",")))
-                            return t
 
-                        event["lower"]=process_time(line)
-                        event["upper"]=process_time(last_lower)
+
+                        event["lower"]=process_data_format(line)
+                        event["upper"]=process_data_format(last_lower)
                         last_lower = line
                         # Save and record past event
                         if "".join(event_info):
                             event["events"] = event_info
+
                             self.actions[actor_name].append(event)
                         event_info = []
                         event = {}
-                    else:                
+                    else:
+                        if "CLOSED" in line:
+                            line = convert_europa_type(line)
                         event_info.append(line)
