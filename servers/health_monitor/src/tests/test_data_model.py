@@ -2,7 +2,7 @@
 from __future__ import division
 
 from datetime import datetime, timedelta
-from random import uniform, randint, choice
+from random import uniform, randint
 import sys
 import unittest
 
