@@ -10,6 +10,7 @@ from pyEUROPA import Actor
 from plan import Plan
 
 import os
+import json
 import logging
 from PyTango import DeviceProxy
 
@@ -53,12 +54,12 @@ class Planner(object):
     def get_objects(self):
         """Objects considered in current plan"""
 
-        return self.objects
+        return json.dumps(self.objects)
 
     def get_actions(self):
         """Actions considered in current plan"""
 
-        return self.actions
+        return json.dumps(self.actions)
 
     def executePlan(self, plan, target=None):
         """Sends plan to the specified target for plan execution"""

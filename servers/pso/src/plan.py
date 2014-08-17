@@ -62,8 +62,19 @@ class Plan(object):
                     event = {}
                     line = line.strip()
                     if line.startswith("[") or line.startswith("{"):
-                        event["lower"]=line
-                        event["upper"]=last_lower
+
+                        # Process raw time constrainsts from PLASMA database
+                        def process_time(t):
+                            t=t.replace("+inf","-1")
+                            if "{" in t:
+                                t=float(t.replace("{","").replace("}",""))
+                            elif "[" in t:
+                                t=t.replace("[","").replace("]","")
+                                t=list(map(float, t.split(",")))
+                            return t
+
+                        event["lower"]=process_time(line)
+                        event["upper"]=process_time(last_lower)
                         last_lower = line
                         # Save and record past event
                         if "".join(event_info):
