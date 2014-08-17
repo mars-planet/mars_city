@@ -6,14 +6,20 @@
 from __future__ import division, print_function
 
 import ConfigParser
+from _collections import deque
+from datetime import datetime, timedelta
+import json
 import os
 import sys
 import time
 
 from PyTango import AttrQuality, AttrWriteType, DispLevel, DevState
-from PyTango.server import Device, DeviceMeta, attribute, run
+from PyTango.server import Device, DeviceMeta, attribute, command, run
+
 from aouda import Aouda
 import numpy.linalg as lnp
+sys.path.append("../")
+from utils import datetimehandler
 
 
 class AoudaServer(Device):
@@ -69,6 +75,24 @@ class AoudaServer(Device):
                            air_flow_threshold=AoudaServer.air_flow_threshold,
                            shift_data=AoudaServer.cycle_through_data)
         self.set_state(DevState.ON)
+        acc_magn_depth = ((self.buffer_depth * 1000)
+                          // self.get_attribute_poll_period('acc_magn'))
+        air_flow_depth = ((self.buffer_depth * 1000)
+                          // self.get_attribute_poll_period('air_flow'))
+        ecg_v1_depth = ((self.buffer_depth * 1000)
+                        // self.get_attribute_poll_period('ecg_v1'))
+        heart_rate_depth = ((self.buffer_depth * 1000)
+                            // self.get_attribute_poll_period('heart_rate'))
+        o2_depth = ((self.buffer_depth * 1000)
+                    // self.get_attribute_poll_period('o2'))
+        temperature_depth = ((self.buffer_depth * 1000)
+                             // self.get_attribute_poll_period('temperature'))
+        self.data_buffer = {'acc_magn': deque(maxlen=acc_magn_depth),
+                            'air_flow': deque(maxlen=air_flow_depth),
+                            'ecg_v1': deque(maxlen=ecg_v1_depth),
+                            'heart_rate': deque(maxlen=heart_rate_depth),
+                            'o2': deque(maxlen=o2_depth),
+                            'temperature': deque(maxlen=temperature_depth)}
         self.info_stream('Finished initializing device')
 
 #
@@ -81,32 +105,71 @@ class AoudaServer(Device):
     def read_acc_magn(self):
         self.acc_magn = acc_magn = lnp.norm(self.aouda.read_acceleration())
         self.info_stream('read_acc_magn(%.3f)' % acc_magn)
+        self.data_buffer['acc_magn'].append((datetime.now(), acc_magn))
         return self.acc_magn, time.time(), AttrQuality.ATTR_VALID
 
     def read_air_flow(self):
         self.air_flow = air_flow = self.aouda.read_air_flow()
         self.info_stream('read_air_flow(%.3f)' % air_flow)
+        self.data_buffer['air_flow'].append((datetime.now(), air_flow))
         return self.air_flow, time.time(), AttrQuality.ATTR_VALID
 
     def read_ecg_v1(self):
         self.ecg_v1 = ecg_v1 = self.aouda.read_ecg_v1()
         self.info_stream('read_ecg_v1(%.3f)' % ecg_v1)
+        self.data_buffer['ecg_v1'].append((datetime.now(), ecg_v1))
         return self.ecg_v1, time.time(), AttrQuality.ATTR_VALID
 
     def read_heart_rate(self):
         self.heart_rate = heart_rate = self.aouda.read_heart_rate()
         self.info_stream('read_heart_rate(%.3f)' % heart_rate)
+        self.data_buffer['heart_rate'].append((datetime.now(), heart_rate))
         return self.heart_rate, time.time(), AttrQuality.ATTR_VALID
 
     def read_o2(self):
         self.o2 = o2 = self.aouda.read_o2()
         self.info_stream('read_o2(%.3f)' % o2)
+        self.data_buffer['o2'].append((datetime.now(), o2))
         return o2, time.time(), AttrQuality.ATTR_VALID
 
     def read_temperature(self):
         self.temperature = temperature = self.aouda.read_temperature()
         self.info_stream('read_temperature(%.3f)' % temperature)
+        self.data_buffer['temperature'].append((datetime.now(), temperature))
         return self.temperature, time.time(), AttrQuality.ATTR_VALID
+
+    @command(dtype_in=str, doc_in="JSON encoded dictionary with the form: "
+                                  "{'var_name': str, 'period': int} "
+                                  "where var_name is the name of a attribute "
+                                  "of the device, and period is the amount "
+                                  "of seconds of history to retrieve",
+             dtype_out=str, doc_out="JSON encoded dictionary of the form: "
+                                    "{'var_name1': [(str, float),"
+                                    "               ...,"
+                                    "               (str, float)]}"
+                                    "..."
+                                    "{'var_nameN': [(str, float),"
+                                    "               ...,"
+                                    "               (str, float)]} "
+                                    "where each var_nameI is the name of "
+                                    "an attribute of the device var_nameI, "
+                                    "and each (str, float) pair is a pair of "
+                                    "ISO encoded datetime object and the "
+                                    "instantateous value of the attribute "
+                                    "at that time")
+    def get_data(self, params):
+        params = json.loads(params)
+        ret_val = {}
+        if 'var_name' in params:
+            var_name = params['var_name']
+            ret_val[var_name] = list(self.data_buffer[var_name])
+        else:
+            ret_val = {k: list(v) for k, v in self.data_buffer.iteritems()}
+        if 'period' in params:
+            from_time = datetime.now() - timedelta(seconds=params['period'])
+            ret_val = {k: [i for i in v if i[0] >= from_time]
+                       for k, v in ret_val.iteritems()}
+        return json.dumps(ret_val, default=datetimehandler)
 
 if __name__ == '__main__':
     print('Reading configuration file')
@@ -120,9 +183,11 @@ if __name__ == '__main__':
     else:
         AoudaServer.simulate_data = config.getboolean('Data',
                                                       'simulate_data')
+    AoudaServer.buffer_depth = config.getint('Data', 'buffer_depth')
     AoudaServer.cycle_through_data = config.getboolean('Data',
                                                        'cycle_through_data')
     AoudaServer.air_flow_threshold = config.getint('AirFlow',
                                                    'air_flow_threshold')
+    AoudaServer.buffer_depth = config.getint('Data', 'buffer_depth')
 
     run([AoudaServer])

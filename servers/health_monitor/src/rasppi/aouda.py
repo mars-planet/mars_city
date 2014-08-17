@@ -47,7 +47,8 @@ class Aouda(object):
         """
         import Oger as og
         periods = 1000
-        columns = ['ecg_v1', 'o2', 'temperature', 'air_flow', 'hr', 'acc_magn']
+        columns = ['ecg_v1', 'o2', 'temperature', 'air_flow',
+                   'heart_rate', 'acc_magn']
         data = og.datasets.mackey_glass(sample_len=periods,
                                         n_samples=len(columns),
                                         seed=50)
@@ -155,7 +156,7 @@ class Aouda(object):
         if self.simulate:
             heart_rate = self._get_instantaneous_values()
             if len(heart_rate) > 0:
-                heart_rate = heart_rate['hr']
+                heart_rate = heart_rate['heart_rate']
             else:
                 heart_rate = np.nan
         else:
@@ -192,5 +193,5 @@ class Aouda(object):
 
 
 Aouda.DP = namedtuple('DP', ['timestamp', 'ecg_v1', 'ecg_v2', 'o2',
-                             'temperature', 'air_flow', 'hr',
+                             'temperature', 'air_flow', 'heart_rate',
                              'acc_x', 'acc_y', 'acc_z'])
