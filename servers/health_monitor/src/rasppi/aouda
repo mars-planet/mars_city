@@ -11,8 +11,8 @@ import sys
 import time
 
 from PyTango import AttrQuality, AttrWriteType, DispLevel, DevState
-from PyTango.server import Device, DeviceMeta, attribute, run, device_property
-from aouda import Aouda, NoDataAvailableError
+from PyTango.server import Device, DeviceMeta, attribute, run
+from aouda import Aouda
 import numpy.linalg as lnp
 
 

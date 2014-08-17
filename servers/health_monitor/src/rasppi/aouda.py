@@ -12,13 +12,6 @@ import numpy as np
 import pandas as pd
 
 
-class NoDataAvailableError(Exception):
-    """
-    Exception to be thrown where there's no more data available in the dataset.
-    """
-    pass
-
-
 class Aouda(object):
     """
     Implements the Aouda Server Interface.
