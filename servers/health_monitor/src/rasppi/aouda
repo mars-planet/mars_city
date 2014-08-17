@@ -41,7 +41,7 @@ class AoudaServer(Device):
                        display_level=DispLevel.OPERATOR,
                        access=AttrWriteType.READ,
                        unit='V', format='8.4f',
-                       polling_period=5,
+                       polling_period=10,
                        doc='ECG V1 electrode')
     heart_rate = attribute(label='Heart Rate', dtype=float,
                            display_level=DispLevel.OPERATOR,
@@ -59,7 +59,7 @@ class AoudaServer(Device):
                             display_level=DispLevel.OPERATOR,
                             access=AttrWriteType.READ,
                             unit='°C', format='8.4f',
-                            polling_period=2000,
+                            polling_period=500,
                             doc='Body temperature')
 
     def init_device(self):
