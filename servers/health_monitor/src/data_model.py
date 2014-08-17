@@ -4,12 +4,11 @@ from collections import OrderedDict
 from datetime import datetime, timedelta
 import re
 
+import inflect
 from sqlalchemy import Column, DateTime, Enum, Float, Index, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import reconstructor
-
-import inflect
 
 
 _inflct_engn = inflect.engine()
@@ -249,8 +248,9 @@ class AccelerationDatapoint(DatapointMixin, Base):
     def variable_names(cls, filter_common=True):
         var_names = (super(AccelerationDatapoint, cls)
                           .variable_names(filter_common))
-        var_names.remove('acc_magn')
-        var_names.insert(0, 'acc_magn')
+        if filter_common:
+            var_names.remove('acc_magn')
+            var_names.insert(0, 'acc_magn')
         return var_names
 
 

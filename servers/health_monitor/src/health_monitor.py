@@ -171,13 +171,14 @@ class HealthMonitor(object):
         '''
         data = pd.DataFrame()
         for k in kwargs:
-            try:
-                data = data.append(pd.DataFrame(kwargs[k],
-                                                columns=['timestamp', k])
-                                   .set_index('timestamp'))
-            except:
-                self.log_function(kwargs[k])
-                raise
+            if len(kwargs[k]) > 0:
+                try:
+                    data = data.append(pd.DataFrame(kwargs[k],
+                                                    columns=['timestamp', k])
+                                       .set_index('timestamp'))
+                except:
+                    self.log_function(kwargs[k])
+                    raise
         data = data.sort_index()
         for entity, detector in self.sources[source_id]:
             try:
@@ -202,25 +203,26 @@ class HealthMonitor(object):
             finally:
                 session.close()
 
-    def get_alarms(self, period, source, var_name):
+    def get_alarms(self, period, source=None, var_name=None):
         '''
         Returns the alarm scores generated in the last [period] seconds.
         '''
         current = datetime.now()
         current -= timedelta(microseconds=current.microsecond)
         init = current - timedelta(seconds=int(period))
-        results = []
+        results = None
         try:
             session = self.Session()
-            query = (session.query(dm.Alarm)
-                            .filter((dm.Alarm.timestamp >= init) &
-                                    (dm.Alarm.source_id == source) &
-                                    (dm.Alarm.kind == var_name))
-                            .order_by(dm.Alarm.timestamp))
+            query = session.query(dm.Alarm).filter(dm.Alarm.timestamp >= init)
+            if source is not None:
+                query = query.filter(dm.Alarm.source_id == source)
+            if var_name is not None:
+                query = query.filter(dm.Alarm.kind == var_name)
+
+            query = query.order_by(dm.Alarm.timestamp)
             results = query.all()
         except OperationalError as e:
             self.log_function('OperationalError: %s' % e)
-            results = None
         finally:
             session.close()
 
