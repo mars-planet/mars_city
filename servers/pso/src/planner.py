@@ -42,11 +42,23 @@ class Planner(object):
 
         ### TEST ###
         cp = self.getCurrentPlan() # Get the current plan
+        self.objects = cp.objects
+        self.actions = cp.actions
         self.logger.info("Objects in Enviroment "+str(cp.objects))
         self.logger.info("Plan Actions "+str(cp.actions))
         
 
         self.executePlan(cp,"myro")
+
+    def get_objects(self):
+        """Objects considered in current plan"""
+
+        return self.objects
+
+    def get_actions(self):
+        """Actions considered in current plan"""
+
+        return self.actions
 
     def executePlan(self, plan, target=None):
         """Sends plan to the specified target for plan execution"""

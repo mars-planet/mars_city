@@ -10,12 +10,7 @@ import curses
 from planner import Planner
 
 class PyDevice(PyTango.DeviceClass):
-
-    cmd_list = {'get_actions': [[PyTango.ArgType.DevVoid],
-                          [PyTango.ArgType.DevString]],
-                'get_objects': [[PyTango.ArgType.DevVoid],
-                         [PyTango.ArgType.DevString]],}
-
+    cmd_list = {}
     attr_type = [
         [PyTango.ArgType.DevFloat,
          PyTango.AttrDataFormat.SCALAR,
@@ -48,12 +43,6 @@ class PyPSO(PyTango.Device_4Impl):
         # shut down curses cleanly
         curses.nocbreak(); self.stdscr.keypad(0); curses.echo()
         curses.endwin()
-
-    def get_objects(self):
-        return self.planner.get_objects()
-
-    def get_actions(self):
-        return self.planner.get_actions()
 
     def read_translate_speed(self, the_att):
         char = self.stdscr.getch()
