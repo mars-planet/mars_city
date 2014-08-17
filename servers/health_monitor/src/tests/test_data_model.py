@@ -82,48 +82,6 @@ class EcgV1DatapointTests(unittest.TestCase):
                          (esource_id, etimestamp, eecg_v1))
 
 
-class EcgV2DatapointtTests(unittest.TestCase):
-
-    def test_no_millisec(self):
-        etimestamp = datetime.now()
-        emillisecs = etimestamp.microsecond / 1000
-        esource_id = 1
-        eecg_v2 = uniform(0, 16)
-
-        dp = dm.EcgV2Datapoint(etimestamp, esource_id, eecg_v2)
-
-        self.assertEqual(etimestamp, dp.timestamp)
-        self.assertEqual(emillisecs, dp.millisecond)
-        self.assertAlmostEqual(esource_id, dp.source_id)
-        self.assertAlmostEqual(eecg_v2, dp.ecg_v2)
-
-    def test_millisec(self):
-        etimestamp = datetime.now()
-        emillisecs = etimestamp.microsecond / 1000
-        esource_id = 1
-        eecg_v2 = uniform(0, 16)
-
-        dp = dm.EcgV2Datapoint(etimestamp, esource_id, eecg_v2, emillisecs)
-
-        self.assertEqual(etimestamp, dp.timestamp)
-        self.assertEqual(emillisecs, dp.millisecond)
-        self.assertAlmostEqual(esource_id, dp.source_id)
-        self.assertAlmostEqual(eecg_v2, dp.ecg_v2)
-
-    def test_repr(self):
-        etimestamp = datetime.now()
-        emillisecs = etimestamp.microsecond / 1000
-        esource_id = 1
-        eecg_v2 = uniform(0, 16)
-
-        dp = dm.EcgV2Datapoint(etimestamp, esource_id, eecg_v2, emillisecs)
-
-        self.assertEqual(dp.__repr__(),
-                         "<EcgV2Datapoint"
-                         "(source_id=%s, timestamp=%s, ecg_v2=%s)>" %
-                         (esource_id, etimestamp, eecg_v2))
-
-
 class O2DatapointTests(unittest.TestCase):
 
     def test_no_millisec(self):
@@ -307,8 +265,9 @@ class AccelerationDatapointTests(unittest.TestCase):
         eacc_z = uniform(0, 16)
         eacc_magn = (eacc_x ** 2 + eacc_y ** 2 + eacc_z ** 2) ** 0.5
 
-        dp = dm.AccelerationDatapoint(etimestamp, esource_id,
-                                      eacc_x, eacc_y, eacc_z)
+        dp = dm.AccelerationDatapoint(timestamp=etimestamp,
+                                      source_id=esource_id,
+                                      acc_x=eacc_x, acc_y=eacc_y, acc_z=eacc_z)
 
         self.assertEqual(etimestamp, dp.timestamp)
         self.assertEqual(emillisecs, dp.millisecond)
@@ -327,9 +286,10 @@ class AccelerationDatapointTests(unittest.TestCase):
         eacc_z = uniform(0, 16)
         eacc_magn = (eacc_x ** 2 + eacc_y ** 2 + eacc_z ** 2) ** 0.5
 
-        dp = dm.AccelerationDatapoint(etimestamp, esource_id,
-                                      eacc_x, eacc_y, eacc_z,
-                                      emillisecs)
+        dp = dm.AccelerationDatapoint(timestamp=etimestamp,
+                                      source_id=esource_id,
+                                      acc_x=eacc_x, acc_y=eacc_y, acc_z=eacc_z,
+                                      millisecs=emillisecs)
 
         self.assertEqual(etimestamp, dp.timestamp)
         self.assertEqual(emillisecs, dp.millisecond)
@@ -348,9 +308,10 @@ class AccelerationDatapointTests(unittest.TestCase):
         eacc_z = uniform(0, 16)
         eacc_magn = (eacc_x ** 2 + eacc_y ** 2 + eacc_z ** 2) ** 0.5
 
-        dp = dm.AccelerationDatapoint(etimestamp, esource_id,
-                                      eacc_x, eacc_y, eacc_z,
-                                      emillisecs)
+        dp = dm.AccelerationDatapoint(timestamp=etimestamp,
+                                      source_id=esource_id,
+                                      acc_x=eacc_x, acc_y=eacc_y, acc_z=eacc_z,
+                                      millisecs=emillisecs)
 
         self.assertEqual(dp.__repr__(),
                          "<AccelerationDatapoint"
@@ -403,8 +364,9 @@ class AlarmTests(unittest.TestCase):
         esgmt_begin = uniform(0, 16)
         esgmt_end = uniform(0, 16)
         esource_id = 1
+        ekind = 'heart_rate'
 
-        alarm = dm.Alarm(ealarm_lvl, esgmt_begin, esgmt_end, esource_id,
+        alarm = dm.Alarm(ealarm_lvl, esgmt_begin, esgmt_end, esource_id, ekind,
                          millisecond=emillisecs)
 
         self.assertAlmostEqual(
@@ -416,6 +378,8 @@ class AlarmTests(unittest.TestCase):
         self.assertAlmostEqual(ealarm_lvl, alarm.alarm_lvl)
         self.assertAlmostEqual(esgmt_begin, alarm.sgmt_begin)
         self.assertAlmostEqual(esgmt_end, alarm.sgmt_end)
+        self.assertAlmostEqual(ekind, alarm.kind)
+        self.assertAlmostEqual(esource_id, alarm.source_id)
 
     def test_no_timestamp_no_millisec(self):
         etimestamp = datetime.now()
@@ -424,8 +388,10 @@ class AlarmTests(unittest.TestCase):
         esgmt_begin = uniform(0, 16)
         esgmt_end = uniform(0, 16)
         esource_id = 1
+        ekind = 'heart_rate'
 
-        alarm = dm.Alarm(ealarm_lvl, esgmt_begin, esgmt_end, esource_id)
+        print(ealarm_lvl, esgmt_begin, esgmt_end, esource_id, ekind)
+        alarm = dm.Alarm(ealarm_lvl, esgmt_begin, esgmt_end, esource_id, ekind)
 
         self.assertAlmostEqual(
                 ((etimestamp - timedelta(microseconds=etimestamp.microsecond))
@@ -436,6 +402,8 @@ class AlarmTests(unittest.TestCase):
         self.assertAlmostEqual(ealarm_lvl, alarm.alarm_lvl)
         self.assertAlmostEqual(esgmt_begin, alarm.sgmt_begin)
         self.assertAlmostEqual(esgmt_end, alarm.sgmt_end)
+        self.assertAlmostEqual(ekind, alarm.kind)
+        self.assertAlmostEqual(esource_id, alarm.source_id)
 
     def test_repr(self):
         etimestamp = datetime.now()
@@ -444,15 +412,18 @@ class AlarmTests(unittest.TestCase):
         esgmt_begin = uniform(0, 16)
         esgmt_end = uniform(0, 16)
         esource_id = 1
+        ekind = 'heart_rate'
 
-        alarm = dm.Alarm(ealarm_lvl, esgmt_begin, esgmt_end, esource_id,
-                         etimestamp, emillisecs)
+        alarm = dm.Alarm(alarm_lvl=ealarm_lvl, sgmt_begin=esgmt_begin,
+                         sgmt_end=esgmt_end, source_id=esource_id, kind=ekind,
+                         timestamp=etimestamp, millisecond=emillisecs)
 
         self.assertEqual(alarm.__repr__(),
                          "<Alarm("
                          "source_id=%s, timestamp=%s, alarm_lvl=%s, "
-                         "sgmt_begin=%s, sgmt_end=%s)>"
-                         % (esource_id, etimestamp, ealarm_lvl,
+                         "kind=%s, mixed_kind=None, sgmt_begin=%s, "
+                         "sgmt_end=%s)>"
+                         % (esource_id, etimestamp, ealarm_lvl, ekind,
                             esgmt_begin, esgmt_end))
 
 
