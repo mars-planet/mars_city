@@ -9,6 +9,7 @@ import pygazebo.msg.joint_cmd_pb2
 import sys
 import PyTango
 import curses
+import thread
 
 lift_force = 0
 grip_force = 0
@@ -134,7 +135,7 @@ def publish_loop(U):
 
 @trollius.coroutine
 def server_loop(U):
-    U.server_run()
+    thread.start_new_thread(U.server_run, ())
 
 if __name__ == '__main__':
     util = PyTango.Util(sys.argv)
