@@ -49,8 +49,6 @@ class Planner(object):
         self.logger.info("Plan Actions "+str(cp.actions))
         
 
-        self.executePlan(cp,"myro")
-
     def get_objects(self):
         """Objects considered in current plan"""
 
@@ -60,28 +58,6 @@ class Planner(object):
         """Actions considered in current plan"""
 
         return json.dumps(self.actions)
-
-    def executePlan(self, plan, target=None):
-        """Sends plan to the specified target for plan execution"""
-
-        if target is None:
-            raise ValueError("Must specify target where\
-                plan should be executed!")
-
-        elif target=="gazebo":
-            # TODO: Execute plan on Gazebo Controls
-            pass
-
-        elif target=="myro":
-            # Execute plan on myro
-            myro = DeviceProxy("c3/rovers/myro")
-            
-
-            # TODO: Find way to move on Myro
-
-        else:
-            raise ValueError("%s execution target not-defined!"%target)
-
 
     def getCurrentPlan(self):
         
