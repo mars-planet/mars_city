@@ -2,6 +2,7 @@ import pygame
 import random
 import json
 import os
+import re
 from PyTango import *
 
 
@@ -34,17 +35,15 @@ def load_image(name, colorkey=None):
 
 
 actions = json.loads(get_actions())
-print actions["Rover"]
+print "EUROPA PLAN:",actions["Rover"],"\n"
 
 
 class Object(pygame.sprite.Sprite):
-    """
-    This class represents the ball        
-    It derives from the "Sprite" class in Pygame
-    """
+
+    moving = None
+
     def __init__(self, image, x, y):
-        """ Constructor. Pass in the color of the block, 
-        and its x and y position. """
+
         # Call the parent class (Sprite) constructor
         pygame.sprite.Sprite.__init__(self) 
   
@@ -53,34 +52,34 @@ class Object(pygame.sprite.Sprite):
         self.rect.y = y
 
     def reset_pos(self):
-        """ Reset position to the top of the screen, at a random x location.
-        Called by update() or the main program loop if there is a collision.
-        """
         self.rect.y = random.randrange(-300, -20)
         self.rect.x = random.randrange(0, screen_width)        
  
+    def update(self):
+        if self.moving:
+
+            if self.rect.x>self.moving.rect.x:
+                self.rect.x-=1
+            else:
+                self.rect.x+=1
+            if self.rect.y>self.moving.rect.y:
+                self.rect.y-=1
+            else:
+                self.rect.y+=1
+
+
+    def move_to(self, to):
+        self.moving = to
+
 class Rover(Object):
-    """ The player class derives from Object, but overrides the 'update' 
-    functionality with new a movement function that will move the block 
-    with the mouse. """
 
     def __init__(self, x ,y):
         Object.__init__(self, "rover.png", x, y) 
 
-    def update(self):
-        # Get the current mouse position. This returns the position
-        # as a list of two numbers.
-        pos = pygame.mouse.get_pos()
-          
-        self.rect.x = 0
-        self.rect.y = 0        
- 
 class Rock(Object):
-    """ The player class derives from Object, but overrides the 'update' 
-    functionality with new a movement function that will move the block 
-    with the mouse. """
 
-    def __init__(self, x ,y):
+    def __init__(self, name, x ,y):
+        self.name = name
         Object.__init__(self, "rock.png", x, y) 
  
 
@@ -92,31 +91,38 @@ screen_width = 700
 screen_height = 400
 screen = pygame.display.set_mode([screen_width, screen_height])
   
-# This is a list of 'sprites.' Each block in the program is
+# This is a list of 'sprites.' Each rover in the program is
 # added to this list. The list is managed by a class called 'Group.'
-block_list = pygame.sprite.Group()
+rock_list = pygame.sprite.Group()
   
-# This is a list of every sprite. All blocks and the player block as well.
+# This is a list of every sprite. All rocks and the rover as well.
 all_sprites_list = pygame.sprite.Group()
-  
-for i in range(4):
-  
-    # Set a random location for the block
-    x = random.randrange(screen_width)
-    y = random.randrange(screen_height)
 
-    # Create a new rock on screen      
-    rock = Rock(x, y)
 
-    # Add the rock to the list of objects on screen
-    block_list.add(block)
-    all_sprites_list.add(block)
-      
+# Create a new rock on screen      
+rock1 = Rock("rock1",90*4, 90*4)
+rock_list.add(rock1)
+all_sprites_list.add(rock1)
+  
+# Create a new rock on screen      
+rock2 = Rock("rock2",10*4, 60*4)
+rock_list.add(rock2)
+all_sprites_list.add(rock2)
+
+# Create a new rock on screen      
+rock3 = Rock("rock3",40*4, 80*4)
+rock_list.add(rock3)
+all_sprites_list.add(rock3)
+
+# Create a new rock on screen      
+rock4 = Rock("rock4",30*4, 90*4)
+rock_list.add(rock4)
+all_sprites_list.add(rock4)
       
   
 # Create a rover on screen
-player = Rover(0, 0)
-all_sprites_list.add(player)
+rover = Rover(0, 0)
+all_sprites_list.add(rover)
   
 #Loop until the user clicks the close button.
 done = False
@@ -128,6 +134,23 @@ score = 0
   
 # -------- Main Program Loop -----------
 while not done:
+
+    step = pygame.time.get_ticks()/1000
+    for n, action in enumerate(actions["Rover"]):
+        action_time=action["upper"][0] if type(action["upper"]
+            )==list else action["upper"]
+        if step==action_time:
+            event = action["events"][0]
+            print "PLAN EVENT CALLED:",event
+
+            if ".Go" in event:
+                destination=re.search("dest={(.*)[/(]", event).group(1)
+                for sprite in list(rock_list):
+                    if sprite.name==destination:
+                        rover.move_to(sprite)
+            # Don't need to execute plan event again
+            del actions["Rover"][n]
+
     for event in pygame.event.get(): # User did something
         if event.type == pygame.QUIT: # If user clicked close
             done = True # Flag that we are done so we exit this loop
@@ -139,7 +162,7 @@ while not done:
     all_sprites_list.update()
       
     # See if the rover has collided with anything.
-    blocks_hit_list = pygame.sprite.spritecollide(player, block_list, False)  
+    blocks_hit_list = pygame.sprite.spritecollide(rover, rock_list, False)  
 
     # Draw all the spites
     all_sprites_list.draw(screen)
