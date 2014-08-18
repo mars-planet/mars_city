@@ -1,34 +1,57 @@
 import pygame
 import random
-  
+import json
+import os
+from PyTango import *
+
+
 # Define some colors
 BLACK    = (   0,   0,   0)
 WHITE    = ( 255, 255, 255)
 RED      = ( 255,   0,   0)
-  
- 
-class Block(pygame.sprite.Sprite):
+
+# Connect to planner device via PyTango
+planner= DeviceProxy("c3/waldo/pso")
+
+def get_actions():
+    return planner.get_actions()
+
+def get_objects():
+    return planner.get_objects()
+
+def load_image(name, colorkey=None):
+    try:
+        image = pygame.image.load(name)
+    except pygame.error, message:
+        print 'Cannot load image:', name
+        raise SystemExit, message
+    image = image.convert()
+    if colorkey is not None:
+        if colorkey is -1:
+            colorkey = image.get_at((0,0))
+        image.set_colorkey(colorkey, 255)
+    return image, image.get_rect()
+
+
+actions = json.loads(get_actions())
+print actions["Rover"]
+
+
+class Object(pygame.sprite.Sprite):
     """
     This class represents the ball        
     It derives from the "Sprite" class in Pygame
     """
-    def __init__(self, color, width, height):
+    def __init__(self, image, x, y):
         """ Constructor. Pass in the color of the block, 
         and its x and y position. """
         # Call the parent class (Sprite) constructor
         pygame.sprite.Sprite.__init__(self) 
   
-        # Create an image of the block, and fill it with a color.
-        # This could also be an image loaded from the disk.
-        self.image = pygame.Surface([width, height])
-        self.image.fill(color)
-  
-        # Fetch the rectangle object that has the dimensions of the image
-        # image.
-        # Update the position of this object by setting the values 
-        # of rect.x and rect.y
-        self.rect = self.image.get_rect()
-         
+        self.image, self.rect = load_image(image, -1)
+        self.rect.x = x
+        self.rect.y = y
+
     def reset_pos(self):
         """ Reset position to the top of the screen, at a random x location.
         Called by update() or the main program loop if there is a collision.
@@ -36,31 +59,31 @@ class Block(pygame.sprite.Sprite):
         self.rect.y = random.randrange(-300, -20)
         self.rect.x = random.randrange(0, screen_width)        
  
-    def update(self):
-        """ Called each frame. """
- 
-        # Move block down one pixel
-        self.rect.y += 1
-         
-        # If block is too far down, reset to top of screen.
-        if self.rect.y > 410:
-            self.reset_pos()
- 
-class Player(Block):
-    """ The player class derives from Block, but overrides the 'update' 
+class Rover(Object):
+    """ The player class derives from Object, but overrides the 'update' 
     functionality with new a movement function that will move the block 
     with the mouse. """
+
+    def __init__(self, x ,y):
+        Object.__init__(self, "rover.png", x, y) 
+
     def update(self):
         # Get the current mouse position. This returns the position
         # as a list of two numbers.
         pos = pygame.mouse.get_pos()
           
-        # Fetch the x and y out of the list, 
-        # just like we'd fetch letters out of a string.
-        # Set the player object to the mouse location
-        self.rect.x = pos[0]
-        self.rect.y = pos[1]        
-         
+        self.rect.x = 0
+        self.rect.y = 0        
+ 
+class Rock(Object):
+    """ The player class derives from Object, but overrides the 'update' 
+    functionality with new a movement function that will move the block 
+    with the mouse. """
+
+    def __init__(self, x ,y):
+        Object.__init__(self, "rock.png", x, y) 
+ 
+
 # Initialize Pygame
 pygame.init()
   
@@ -76,22 +99,23 @@ block_list = pygame.sprite.Group()
 # This is a list of every sprite. All blocks and the player block as well.
 all_sprites_list = pygame.sprite.Group()
   
-for i in range(50):
-    # This represents a block
-    block = Block(BLACK, 20, 15)
+for i in range(4):
   
     # Set a random location for the block
-    block.rect.x = random.randrange(screen_width)
-    block.rect.y = random.randrange(screen_height)
-      
-    # Add the block to the list of objects
+    x = random.randrange(screen_width)
+    y = random.randrange(screen_height)
+
+    # Create a new rock on screen      
+    rock = Rock(x, y)
+
+    # Add the rock to the list of objects on screen
     block_list.add(block)
     all_sprites_list.add(block)
       
       
   
-# Create a red player block
-player = Player(RED, 20, 15)
+# Create a rover on screen
+player = Rover(0, 0)
 all_sprites_list.add(player)
   
 #Loop until the user clicks the close button.
@@ -114,17 +138,9 @@ while not done:
     # Calls update() method on every sprite in the list
     all_sprites_list.update()
       
-    # See if the player block has collided with anything.
+    # See if the rover has collided with anything.
     blocks_hit_list = pygame.sprite.spritecollide(player, block_list, False)  
-      
-    # Check the list of collisions.
-    for block in blocks_hit_list:
-        score += 1
-        print(score)
-         
-        # Reset block to the top of the screen to fall again.
-        block.reset_pos() 
-          
+
     # Draw all the spites
     all_sprites_list.draw(screen)
       
