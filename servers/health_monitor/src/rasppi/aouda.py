@@ -12,20 +12,12 @@ import numpy as np
 import pandas as pd
 
 
-class NoDataAvailableError(Exception):
-    """
-    Exception to be thrown where there's no more data available in the dataset.
-    """
-    pass
-
-
 class Aouda(object):
     """
     Implements the Aouda Server Interface.
     """
 
-    def __init__(self, simulate=False, dataframe=None, base_datetime=None,
-                 shift_data=False, log_function=None,
+    def __init__(self, simulate=False, shift_data=False, log_function=None,
                  air_flow_threshold=500):
         if log_function is None:
             log_function = print
@@ -34,10 +26,7 @@ class Aouda(object):
         self.air_flow_threshold = air_flow_threshold
         self.simulate = simulate
         if simulate:
-            self.base_datetime = base_datetime
             self.log_function('Loading Data')
-            if dataframe is not None:
-                self.data = dataframe.copy()
             self.shift_data = shift_data
             self.data = self._load_data()
         else:
@@ -54,7 +43,8 @@ class Aouda(object):
         """
         import Oger as og
         periods = 1000
-        columns = ['ecg_v1', 'o2', 'temperature', 'air_flow', 'hr', 'acc_magn']
+        columns = ['ecg_v1', 'o2', 'temperature', 'air_flow',
+                   'heart_rate', 'acc_magn']
         data = og.datasets.mackey_glass(sample_len=periods,
                                         n_samples=len(columns),
                                         seed=50)
@@ -83,6 +73,67 @@ class Aouda(object):
         if len(current_row) > 0:
             current_row = current_row.ix[-1]
         return current_row
+
+    def read_acceleration(self):
+        """
+        Returns instantaneous acceleration magnitude.
+        """
+        if self.simulate:
+            acc = self._get_instantaneous_values()
+            if len(acc) > 0:
+                acc_x = acc_y = acc_z = acc['acc_magn']
+            else:
+                acc_x = np.nan
+                acc_y = np.nan
+                acc_z = np.nan
+        else:
+            try:
+                import ehealth as eh
+                acc = self.ehealth.getBodyAcceleration()
+                acc = eh.floatArray_frompointer(acc)
+            except:
+                acc = (np.nan, np.nan, np.nan)
+            acc_x = acc[0]
+            acc_y = acc[1]
+            acc_z = acc[2]
+        return (acc_x, acc_y, acc_z)
+
+    def read_air_flow(self):
+        """
+        Returns instantaneous air flow values.
+        """
+        if self.simulate:
+            air_flow = self._get_instantaneous_values()
+            if len(air_flow) > 0:
+                air_flow = air_flow['air_flow']
+            else:
+                air_flow = np.nan
+        else:
+            try:
+                air_flow = self.ehealth.getAirFlow()
+            except:
+                air_flow = np.nan
+            if air_flow > self.air_flow_threshold:
+                air_flow = 0
+        return air_flow
+
+    def read_heart_rate(self):
+        """
+        Returns instantaneous heart rate.
+        """
+        if self.simulate:
+            heart_rate = self._get_instantaneous_values()
+            if len(heart_rate) > 0:
+                heart_rate = heart_rate['heart_rate']
+            else:
+                heart_rate = np.nan
+        else:
+            try:
+                heart_rate = self.ehealth.getBPM()
+                self.ehealth.setupPulsioximeterForNextReading()
+            except:
+                heart_rate = np.nan
+        return heart_rate
 
     def read_ecg_v1(self):
         """
@@ -136,68 +187,7 @@ class Aouda(object):
                 temperature = np.nan
         return temperature
 
-    def read_air_flow(self):
-        """
-        Returns instantaneous air flow values.
-        """
-        if self.simulate:
-            air_flow = self._get_instantaneous_values()
-            if len(air_flow) > 0:
-                air_flow = air_flow['air_flow']
-            else:
-                air_flow = np.nan
-        else:
-            try:
-                air_flow = self.ehealth.getAirFlow()
-            except:
-                air_flow = np.nan
-            if air_flow > self.air_flow_threshold:
-                air_flow = 0
-        return air_flow
-
-    def read_heart_rate(self):
-        """
-        Returns instantaneous heart rate.
-        """
-        if self.simulate:
-            heart_rate = self._get_instantaneous_values()
-            if len(heart_rate) > 0:
-                heart_rate = heart_rate['hr']
-            else:
-                heart_rate = np.nan
-        else:
-            try:
-                heart_rate = self.ehealth.getBPM()
-                self.ehealth.setupPulsioximeterForNextReading()
-            except:
-                heart_rate = np.nan
-        return heart_rate
-
-    def read_acceleration(self):
-        """
-        Returns instantaneous acceleration magnitude.
-        """
-        if self.simulate:
-            acc = self._get_instantaneous_values()
-            if len(acc) > 0:
-                acc_x = acc_y = acc_z = acc['acc_magn']
-            else:
-                acc_x = np.nan
-                acc_y = np.nan
-                acc_z = np.nan
-        else:
-            try:
-                import ehealth as eh
-                acc = self.ehealth.getBodyAcceleration()
-                acc = eh.floatArray_frompointer(acc)
-            except:
-                acc = (np.nan, np.nan, np.nan)
-            acc_x = acc[0]
-            acc_y = acc[1]
-            acc_z = acc[2]
-        return (acc_x, acc_y, acc_z)
-
 
 Aouda.DP = namedtuple('DP', ['timestamp', 'ecg_v1', 'ecg_v2', 'o2',
-                             'temperature', 'air_flow', 'hr',
+                             'temperature', 'air_flow', 'heart_rate',
                              'acc_x', 'acc_y', 'acc_z'])

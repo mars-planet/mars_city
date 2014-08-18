@@ -281,7 +281,7 @@
                 </limit>
                 <xyz>0 0 1</xyz>
             </axis>
-        </joint>-->
+        </joint>
 
     </model>
 </sdf>

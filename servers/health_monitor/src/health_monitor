@@ -3,6 +3,7 @@
 from __future__ import division, print_function
 
 import ConfigParser
+import json
 from multiprocessing import Process, Event
 import os
 import sys
@@ -14,8 +15,10 @@ from PyTango import DevVarDoubleStringArray
 from PyTango import NonSupportedFeature, CommunicationFailed
 from PyTango.server import Device, DeviceMeta, attribute, DispLevel
 from PyTango.server import run, command
+from dateutil.parser import parse as dateutil_parse
 
 from health_monitor import HealthMonitor
+from utils import datetimehandler
 
 
 class HealthMonitorServer(Device):
@@ -63,7 +66,6 @@ class HealthMonitorServer(Device):
         self.log_function('get_alarms(%s, %s, %s)' %
                           (period, source, var_name))
         alarms = self.health_mon.get_alarms(period, source, var_name)
-        print("alarms: %s" % alarms)
         if alarms:
             ret_val = [(a.alarm_lvl,
                         a.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f'))
@@ -72,6 +74,23 @@ class HealthMonitorServer(Device):
         else:
             ret_val = [[], []]
         return ret_val
+
+    @command(dtype_in=int,
+             doc_in="""Get alarms from all sources variables for
+                       the last period seconds""",
+             dtype_out=str)
+    def get_all_alarms(self, period):
+        self.log_function('get_all_alarms(%s)' % period)
+        alarms = self.health_mon.get_alarms(period)
+        alarms = {addr:
+                        {attr:
+                                [(a.timestamp, a.alarm_lvl)
+                                 for a in alarms
+                                 if a.kind == attr and a.source_id == addr]
+                         for attr in self._source_attributes}
+                  for addr in self._source_addresses}
+
+        return json.dumps(alarms, default=datetimehandler)
 
     def __del__(self):
         self.stop_polling.set()
@@ -104,24 +123,17 @@ class HealthMonitorServer(Device):
         self.log_function('Finished initializing device')
 
     def _get_source_data(self, proxy, address):
-        data = {}
-        for attr, poll_freq in self._source_attributes:
-            try:
-                # depth is the amount of datapoints to retrieve,
-                # polling_frequency is in secs, and poll_freq
-                # (of the attribute) is in ms.
-                # so what's below should retrieve all datapoints since
-                # last polling cycle
-                depth = (self.polling_frequency * 1000) // poll_freq
-                # get the things I really need
-                data[attr] = [(d.time.todatetime(), d.value)
-                              for d in proxy.attribute_history(attr, depth)]
-            except (NonSupportedFeature, ConnectionFailed,
-                    CommunicationFailed, DevFailed) as e:
-                self.log_function('Problem when retrieving attribute %s '
-                                  ' from source %s: %s. Setting %s to np.nan' %
-                                  (attr, address, e, attr))
-                data[attr] = []
+        try:
+            params = json.dumps({'period': self.polling_frequency})
+            data = json.loads(proxy.get_data(params))
+            data = {k: [(dateutil_parse(i[0]), i[1]) for i in v]
+                    for k, v in data.iteritems()}
+        except (NonSupportedFeature, ConnectionFailed,
+                CommunicationFailed, DevFailed) as e:
+            self.log_function('Problem when retrieving attribute %s '
+                              ' from source %s: %s. Setting %s to np.nan' %
+                              (attr, address, e, attr))
+            data[attr] = []
         self.health_mon.process_source_data(address, **data)
 
     def _poll_sources(self):
@@ -171,8 +183,7 @@ if __name__ == '__main__':
     src_attr = []
     if src_addrs:
         proxy = DeviceProxy(src_addrs[0])
-        src_attr = [[attr.name, proxy.get_attribute_poll_period(attr.name)]
-                    for attr in proxy.attribute_list_query()
+        src_attr = [attr.name for attr in proxy.attribute_list_query()
                     if attr.name not in ('State', 'Status')]
     print("Source's attributes: %s" % src_attr)
     HealthMonitorServer._source_attributes = src_attr

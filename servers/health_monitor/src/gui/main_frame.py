@@ -4,12 +4,14 @@ from __future__ import division, print_function
 
 import ConfigParser
 from datetime import datetime, timedelta
+import json
 import os
 import sys
 from threading import current_thread
 from time import sleep
 
 from PyTango import DeviceProxy, ConnectionFailed
+from dateutil.parser import parse as dateutil_parse
 import wx
 
 from Timer import Timer
@@ -256,67 +258,80 @@ class MainFrame(wx.Frame):
                         wx.IMAGE_QUALITY_HIGH)
         return wx.BitmapFromImage(img), code
 
-    def update_var_lbl_icon(self, var_name, container,
+    def update_var_lbl_icon(self, var_name, var_values, alarms, container,
                             format_str='{}', has_lbl=True):
-        depth = container['ecg_v1_poll_depth']
-        var_values = [d.value for d in container['proxy']
-                                        .attribute_history(var_name, depth)]
-        alarms = self.proxy.get_alarms([[self.sleep_time],
-                                        [container['address'], var_name]])
-        alarm_lvls = alarms[0]
-        if len(alarm_lvls) == 0:
+        if len(alarms) > 0:
+            alarm_lvls = zip(*alarms)[1]
+        else:
             alarm_lvls = [np.nan]
         image, code = self.select_alrm_img('images/%s-icon-' % var_name,
                                            '.png', np.max(alarm_lvls))
         wx.CallAfter(container['%s_icon' % var_name].SetBitmap, image)
         if has_lbl:
             wx.CallAfter(container['%s_lbl' % var_name].SetLabel,
-                         format_str.format(var_values[-1]))
-        return var_values, code
+                         format_str.format(var_values[-1][1]))
+        return code
 
     def timer_tick(self):
         timer = current_thread()
         while not timer.stopped():
             init = datetime.now()
+            alarms = json.loads(self.proxy.get_all_alarms(self.sleep_time))
             for container in self.src_panels.itervalues():
                 address = container['address']
+                params = json.dumps({'period': 2})
+                vars_values = json.loads(container['proxy'].get_data(params))
+                vars_values = {k: [(dateutil_parse(i[0]), i[1]) for i in v]
+                               for k, v in vars_values.iteritems()}
                 try:
                     codes = [0] * 6
                     # update air flow values
-                    air_flow, codes[0] = self.update_var_lbl_icon(
-                                                        var_name='air_flow',
-                                                        container=container,
-                                                        format_str='{:6.2f}'
+                    codes[0] = self.update_var_lbl_icon(
+                                            var_name='air_flow',
+                                            var_values=vars_values['air_flow'],
+                                            alarms=alarms[address]['air_flow'],
+                                            container=container,
+                                            format_str='{:6.2f}'
                                                                   )
                     # update acceleration values
-                    acc_magn, codes[1] = self.update_var_lbl_icon(
-                                                        var_name='acc_magn',
-                                                        container=container,
-                                                        format_str='{:3.2f}'
+                    codes[1] = self.update_var_lbl_icon(
+                                            var_name='acc_magn',
+                                            var_values=vars_values['acc_magn'],
+                                            alarms=alarms[address]['acc_magn'],
+                                            container=container,
+                                            format_str='{:3.2f}'
                                                                   )
                     # update ecg values
-                    ecg_v1, codes[2] = self.update_var_lbl_icon(
-                                                        var_name='ecg_v1',
-                                                        container=container,
-                                                        has_lbl=False
+                    codes[2] = self.update_var_lbl_icon(
+                                            var_name='ecg_v1',
+                                            var_values=vars_values['ecg_v1'],
+                                            alarms=alarms[address]['ecg_v1'],
+                                            container=container,
+                                            has_lbl=False
                                                                 )
                     # update heart rate values
-                    heart_rate, codes[3] = self.update_var_lbl_icon(
-                                                        var_name='heart_rate',
-                                                        container=container,
-                                                        format_str='{:3.0f}'
+                    codes[3] = self.update_var_lbl_icon(
+                                        var_name='heart_rate',
+                                        var_values=vars_values['heart_rate'],
+                                        alarms=alarms[address]['heart_rate'],
+                                        container=container,
+                                        format_str='{:3.0f}'
                                                                     )
                     # update SPO2 values
-                    o2, codes[4] = self.update_var_lbl_icon(
-                                                        var_name='o2',
-                                                        container=container,
-                                                        format_str='{:4.2f}'
+                    codes[4] = self.update_var_lbl_icon(
+                                                var_name='o2',
+                                                var_values=vars_values['o2'],
+                                                alarms=alarms[address]['o2'],
+                                                container=container,
+                                                format_str='{:4.2f}'
                                                             )
                     # update temperature values
-                    temperature, codes[5] = self.update_var_lbl_icon(
-                                                        var_name='temperature',
-                                                        container=container,
-                                                        format_str='{:4.2f}'
+                    codes[5] = self.update_var_lbl_icon(
+                                        var_name='temperature',
+                                        var_values=vars_values['temperature'],
+                                        alarms=alarms[address]['temperature'],
+                                        container=container,
+                                        format_str='{:4.2f}'
                                                                      )
                     # update sex image
                     alarm_code = sum(codes) / len(codes)
@@ -325,9 +340,10 @@ class MainFrame(wx.Frame):
                                                     '.png', alarm_code)
                     wx.CallAfter(container['sex_icon'].SetBitmap, image)
                     if address in self.active_plots:
+                        # get variable's values without timestamps
+                        vars_values = [zip(*v)[1] for v in vars_values.items()]
                         wx.CallAfter(self.active_plots[address].update_plots,
-                                     air_flow, acc_magn, ecg_v1, heart_rate,
-                                     o2, temperature)
+                                     *vars_values)
                 except ConnectionFailed as e:
                     print('Could not retrieve data from %s. Error: %s' %
                           (address, e))
