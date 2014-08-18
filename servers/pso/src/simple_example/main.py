@@ -67,6 +67,10 @@ class Object(pygame.sprite.Sprite):
             else:
                 self.rect.y+=1
 
+            # Are we on the target object?
+            if (self.rect.x==self.moving.rect.x and self.rect.y==self.moving.rect.y):
+                self.moving=None
+
 
     def move_to(self, to):
         self.moving = to
