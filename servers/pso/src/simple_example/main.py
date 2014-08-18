@@ -98,6 +98,10 @@ rock_list = pygame.sprite.Group()
 # This is a list of every sprite. All rocks and the rover as well.
 all_sprites_list = pygame.sprite.Group()
 
+  
+# Create a rover on screen
+rover = Rover(0, 0)
+all_sprites_list.add(rover)
 
 # Create a new rock on screen      
 rock1 = Rock("rock1",90*4, 90*4)
@@ -119,10 +123,7 @@ rock4 = Rock("rock4",30*4, 90*4)
 rock_list.add(rock4)
 all_sprites_list.add(rock4)
       
-  
-# Create a rover on screen
-rover = Rover(0, 0)
-all_sprites_list.add(rover)
+
   
 #Loop until the user clicks the close button.
 done = False
