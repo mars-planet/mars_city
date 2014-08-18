@@ -34,13 +34,13 @@ Describes the scope of this requirements specification.
 Applicable Documents
 --------------------
 
-- [1] -- 'Oculus Developer Platform'_
-- [2] -- 'Oculus SDK Overview v0.3.2'_
-- [3] -- 'Blender Python API'_
+- [1] -- `Oculus Developer Platform`_
+- [2] -- `Oculus SDK Overview v0.3.2`_
+- [3] -- `Blender Python API`_
 
-.. _'Oculus Developer Platform': https://developer.oculusvr.com
-.. _'Oculus SDK Overview v0.3.2': http://static.oculusvr.com/sdk-downloads/documents/Oculus_SDK_Overview_0.3.2_Preview2.pdf
-.. _'Blender Python API': http://www.blender.org/documentation/blender_python_api_2_70_5/
+.. _`Oculus Developer Platform`: https://developer.oculusvr.com
+.. _`Oculus SDK Overview v0.3.2`: http://static.oculusvr.com/sdk-downloads/documents/Oculus_SDK_Overview_0.3.2_Preview2.pdf
+.. _`Blender Python API`: http://www.blender.org/documentation/blender_python_api_2_70_5/
 
 Reference Documents
 -------------------
