@@ -1,14 +1,10 @@
 from __future__ import print_function
 
-# Temporary snippet for debugging
-import sys
-sys.path.remove("/usr/local/lib/python2.7/dist-packages/pyEUROPA-0.1-py2.7.egg")
-sys.path.append("/home/mathew/Desktop/pyEUROPA")
-
 from pyEUROPA.engine import stopPSEngine, makePSEngine
 from pyEUROPA import Actor
 from plan import Plan
 
+import sys
 import os
 import json
 import logging
