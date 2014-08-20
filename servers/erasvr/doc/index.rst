@@ -6,3 +6,4 @@ ERAS Virtual Reality
    :maxdepth: 1
 
    sad
+   setup
