@@ -181,27 +181,28 @@ class HealthMonitor(object):
                     raise
         data = data.sort_index()
         for entity, detector in self.sources[source_id]:
-            try:
-                session = self.Session()
-                result = _analize_datapoints(data[entity.variable_names()[0]],
-                                             detector)
-                if result:
-                    analysis, sgmt_begin, sgmt_end = result
-                    analysis = analysis[0]
-                    session.add(
-                            dm.Alarm(timestamp=datetime.now(),
-                                     alarm_lvl=analysis.score,
-                                     sgmt_begin=sgmt_begin,
-                                     sgmt_end=sgmt_end,
-                                     source_id=source_id,
-                                     kind=entity.variable_names()[0]))
-                session.commit()
-            except IntegrityError as e:
-                self.log_function('IntegrityError: %s' % e)
-            except OperationalError as e:
-                self.log_function('OperationalError: %s' % e)
-            finally:
-                session.close()
+            var_name = entity.variable_names()[0]
+            if var_name in data:
+                try:
+                    session = self.Session()
+                    result = _analize_datapoints(data[var_name], detector)
+                    if result:
+                        analysis, sgmt_begin, sgmt_end = result
+                        analysis = analysis[0]
+                        session.add(
+                                dm.Alarm(timestamp=datetime.now(),
+                                         alarm_lvl=analysis.score,
+                                         sgmt_begin=sgmt_begin,
+                                         sgmt_end=sgmt_end,
+                                         source_id=source_id,
+                                         kind=entity.variable_names()[0]))
+                    session.commit()
+                except IntegrityError as e:
+                    self.log_function('IntegrityError: %s' % e)
+                except OperationalError as e:
+                    self.log_function('OperationalError: %s' % e)
+                finally:
+                    session.close()
 
     def get_alarms(self, period, source=None, var_name=None):
         '''
