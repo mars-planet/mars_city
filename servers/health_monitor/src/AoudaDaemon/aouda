@@ -7,7 +7,8 @@ from __future__ import division, print_function
 
 import ConfigParser
 from _collections import deque
-from datetime import datetime, timedelta
+from datetime import datetime, date, timedelta
+from datetime import time as dt_time
 import json
 import os
 import sys
@@ -18,8 +19,15 @@ from PyTango.server import Device, DeviceMeta, attribute, command, run
 
 from aouda import Aouda
 import numpy.linalg as lnp
-sys.path.append("../")
-from utils import datetimehandler
+
+
+def datetimehandler(obj):
+    if(isinstance(obj, datetime)
+            or isinstance(obj, date)
+            or isinstance(obj, dt_time)):
+        return obj.isoformat()
+    else:
+        return json.JSONEncoder().default(obj)
 
 
 class AoudaServer(Device):

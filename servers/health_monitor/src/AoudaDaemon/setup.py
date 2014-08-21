@@ -20,5 +20,4 @@ setup(name='ehealth',
       description="""Module to read data from the e-Health shield for Arduino
                      and Raspberry Pi""",
       ext_modules=[eHealth_module],
-
       )
