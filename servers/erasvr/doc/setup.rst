@@ -76,11 +76,16 @@ If successfull, you will see the Oculus Rift identified, and its sensor data put
 
 Blender Integration
 ===================
+Before attempint the Blender integration you have to make a simbolic link to the directory 
+containing pyOVR from the directory containing the character controller blender file.
+In the current status of our software archivse this should be something like this:
+cd <archives root>/v-eras-blender/scenes
+ln -s ../../eras/servers/erasvr/pyOVR pyOVR
 
 The Blender integration is practically a *drop-in* **character controller** for your BGE project.
 To test it out open the included *CharacterControllerOVR.blend* file in Blender v2.71+.
 
-Overview of character controller
+Overview of character controller 
 --------------------------------
 
 First of, that's how the object hierachy ob the character controller looks:
