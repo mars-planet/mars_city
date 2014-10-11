@@ -341,9 +341,9 @@ class MainFrame(wx.Frame):
                     wx.CallAfter(container['sex_icon'].SetBitmap, image)
                     if address in self.active_plots:
                         # get variable's values without timestamps
-                        vars_values = [zip(*v)[1] for v in vars_values.items()]
+                        vars_values = {k: zip(*v)[1] for k, v in vars_values.items()}
                         wx.CallAfter(self.active_plots[address].update_plots,
-                                     *vars_values)
+                                     **vars_values)
                 except ConnectionFailed as e:
                     print('Could not retrieve data from %s. Error: %s' %
                           (address, e))

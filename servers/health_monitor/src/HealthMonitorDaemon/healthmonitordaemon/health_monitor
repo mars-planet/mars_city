@@ -3,6 +3,8 @@
 from __future__ import division, print_function
 
 import ConfigParser
+from datetime import datetime, date
+from datetime import time as dt_time
 import json
 from multiprocessing import Process, Event
 import os
@@ -18,7 +20,15 @@ from PyTango.server import run, command
 from dateutil.parser import parse as dateutil_parse
 
 from health_monitor import HealthMonitor
-from utils import datetimehandler
+
+
+def datetimehandler(obj):
+    if(isinstance(obj, datetime)
+            or isinstance(obj, date)
+            or isinstance(obj, dt_time)):
+        return obj.isoformat()
+    else:
+        return json.JSONEncoder().default(obj)
 
 
 class HealthMonitorServer(Device):

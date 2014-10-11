@@ -14,6 +14,7 @@ Change Record
 =============
 
 2014.05.18 - Document created.
+2014.08.20 - Updated document to reflect implementation.
 
 Introduction
 ============
@@ -127,7 +128,41 @@ Request for biometric data
 ++++++++++++++++++++++++++
 The Client request the Server the biometric data of the last T seconds.
 
-.. image:: images/UCClientRequestBiometricData.png
+.. image:: images/UCClientRequestsBiometricData.png
+
+Actors
+~~~~~~
+Client: a TANGO client that makes the request.
+Server: the Aouda TANGO server.
+
+Priority
+~~~~~~~~
+High
+
+Preconditions
+~~~~~~~~~~~~~
+The Server is running and its DevState is ON.
+
+Basic Course
+~~~~~~~~~~~~
+#. The Client calls the appropriate method on the Server, passing T as
+   argument.
+#. The Server searchs its buffer for the appropriate records.
+#. The Server returns the records found.
+
+Alternate Course
+~~~~~~~~~~~~~~~~
+None
+
+Postconditions
+~~~~~~~~~~~~~~
+The server returns the data requested or an empty array if no data is available.
+
+Request for alarms
+++++++++++++++++++
+The Client request the Server the biometric data of the last T seconds.
+
+.. image:: images/UCClientRequestsAlarms.png
 
 Actors
 ~~~~~~
@@ -153,17 +188,9 @@ Alternate Course
 ~~~~~~~~~~~~~~~~
 None
 
-Exception Course
-~~~~~~~~~~~~~~~~
-#. The Client calls the appropriate method on the Server, passing T as
-   argument.
-#. The Server searchs the database for the appropriate records.
-#. No data is available.
-#. The Server returns an error.
-
 Postconditions
 ~~~~~~~~~~~~~~
-The server returns the data requested or an error if no data is available.
+The server returns the data requested or an empty array if no data is available.
 
 Server requests new data
 ++++++++++++++++++++++++
@@ -353,7 +380,7 @@ Request for biometric data
 
 Sequence diagram
 ~~~~~~~~~~~~~~~~
-.. image:: images/SeqClientRequestBiometricData.png
+.. image:: images/SeqClientRequestsBiometricData.png
 
 Server requests new data
 ++++++++++++++++++++++++
