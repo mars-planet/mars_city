@@ -6,12 +6,13 @@ from collections import deque
 
 import wx
 import wxmplot
-
+import utils
 
 class DetailsFrame(wx.Frame):
     def __init__(self, parent, name, address, plot_width=600, plot_height=150,
                  air_flow_len=1000, acc_magn_len=1000, ecg_v1_len=1000,
                  heart_rate_len=1000, o2_len=1000, temperature_len=1000,
+                 capture_file_name='details_frame.png',
                  *args, **kwds):
         kwds["style"] = wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, parent, *args, **kwds)
@@ -19,6 +20,7 @@ class DetailsFrame(wx.Frame):
         self.parent = parent
         self.name = name
         self.address = address
+        self.capture_file_name = capture_file_name
         self.air_flow = deque([0] * air_flow_len, maxlen=air_flow_len)
         self.air_flow_plt = wxmplot.PlotPanel(
                                     self, output_title='Air Flow',
@@ -106,3 +108,5 @@ class DetailsFrame(wx.Frame):
         self.o2_plt.plot(range(self.o2.maxlen), self.o2, ylabel='%%SPO2')
         self.temperature_plt.plot(range(self.temperature.maxlen),
                                   self.temperature, ylabel='Body Temp.')
+        utils.capture_window(self, self.capture_file_name)
+

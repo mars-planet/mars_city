@@ -10,14 +10,14 @@ import sys
 from threading import current_thread
 from time import sleep
 
-from PyTango import DeviceProxy, ConnectionFailed
 from dateutil.parser import parse as dateutil_parse
+import numpy as np
+from PyTango import DeviceProxy, ConnectionFailed
 import wx
 
-from Timer import Timer
 from details_frame import DetailsFrame
-import numpy as np
-
+from Timer import Timer
+import utils
 
 class MainFrame(wx.Frame):
 
@@ -220,8 +220,10 @@ class MainFrame(wx.Frame):
                      'o2_len': container['o2_poll_depth'] * 4,
                      'temperature_len': container['temperature_poll_depth'] * 4
                          }
-            details_frame = DetailsFrame(self, name=container['name'],
-                                         address=address, **plot_lens)
+            details_frame = DetailsFrame(
+                            self, name=container['name'], address=address, 
+                            capture_file_name=self.details_capture_file_name,
+                            **plot_lens)
             self.Bind(event=wx.EVT_CLOSE, handler=self.on_details_close,
                       source=details_frame)
             details_frame.Show()
@@ -347,6 +349,9 @@ class MainFrame(wx.Frame):
                 except ConnectionFailed as e:
                     print('Could not retrieve data from %s. Error: %s' %
                           (address, e))
+
+            wx.CallAfter(utils.capture_window, self,
+                         self.main_capture_file_name)
             sleep_time = timedelta(seconds=MainFrame.sleep_time)
             sleep_time -= (datetime.now() - init)
             sleep_time = max(sleep_time, timedelta(0)).total_seconds()
@@ -362,3 +367,8 @@ MainFrame.yellow_alrm_thrsh = config.getfloat('Monitor_GUI',
                                               'yellow_alrm_thrsh')
 MainFrame.red_alrm_thrsh = config.getfloat('Monitor_GUI', 'red_alrm_thrsh')
 MainFrame.sleep_time = config.getint('Monitor_GUI', 'sleep_time')
+MainFrame.main_capture_file_name = config.get('Monitor_GUI',
+                                              'main_capture_file_name')
+MainFrame.details_capture_file_name = config.get('Monitor_GUI',
+                                                 'details_capture_file_name')
+
