@@ -13,9 +13,9 @@ import time
 
 from PyTango import ConnectionFailed, DevFailed, AttrWriteType, AttrQuality
 from PyTango import DevState, DevVarLongStringArray, DeviceProxy
-from PyTango import DevVarDoubleStringArray
+from PyTango import DevVarDoubleStringArray, DispLevel
 from PyTango import NonSupportedFeature, CommunicationFailed
-from PyTango.server import Device, DeviceMeta, attribute, DispLevel
+from PyTango.server import Device, DeviceMeta, attribute
 from PyTango.server import run, command
 from dateutil.parser import parse as dateutil_parse
 
