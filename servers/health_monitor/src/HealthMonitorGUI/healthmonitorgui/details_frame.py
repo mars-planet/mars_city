@@ -12,7 +12,7 @@ class DetailsFrame(wx.Frame):
     def __init__(self, parent, name, address, plot_width=600, plot_height=150,
                  air_flow_len=1000, acc_magn_len=1000, ecg_v1_len=1000,
                  heart_rate_len=1000, o2_len=1000, temperature_len=1000,
-                 capture_file_name='details_frame.png',
+                 capture_file_name='details_frame.png', sleep_time=5000,
                  *args, **kwds):
         kwds["style"] = wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, parent, *args, **kwds)
@@ -54,14 +54,25 @@ class DetailsFrame(wx.Frame):
         # draw the plots once so they set up the labels
         self.update_plots(self.air_flow, self.acc_magn, self.ecg_v1,
                           self.heart_rate, self.o2, self.temperature)
+
+        self.sleep_time = sleep_time
+        TIMER_ID = 101  # pick a number
+        self.screenshot_timer = wx.Timer(self, TIMER_ID)  # message will be sent to the panel
+        self.screenshot_timer.Start(self.sleep_time*1000)  # x100 milliseconds
+        wx.EVT_TIMER(self, TIMER_ID, self.on_screenshot_timer)  # call the on_timer function
         self.Bind(wx.EVT_CLOSE, self.on_close)
         self.__set_properties()
         self.setup_layout()
+
+    def on_screenshot_timer(self, event):
+        wx.CallAfter(utils.capture_window, self,
+                     self.capture_file_name)
 
     def __set_properties(self):
         self.SetTitle(self.name)
 
     def on_close(self, evt):
+        self.screenshot_timer.Stop()
         wx.PostEvent(self.parent, evt)
 
     def setup_layout(self):
@@ -108,5 +119,4 @@ class DetailsFrame(wx.Frame):
         self.o2_plt.plot(range(self.o2.maxlen), self.o2, ylabel='%%SPO2')
         self.temperature_plt.plot(range(self.temperature.maxlen),
                                   self.temperature, ylabel='Body Temp.')
-        utils.capture_window(self, self.capture_file_name)
 
