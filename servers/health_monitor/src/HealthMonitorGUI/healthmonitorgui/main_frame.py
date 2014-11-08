@@ -153,7 +153,15 @@ class MainFrame(wx.Frame):
         self.timer_thread = Timer(target=self.timer_tick)
         self.alarms = set()
         self.timer_thread.start()
+        TIMER_ID = 100  # pick a number
+        self.screenshot_timer = wx.Timer(self, TIMER_ID)  # message will be sent to the panel
+        self.screenshot_timer.Start(MainFrame.sleep_time*1000)  # x100 milliseconds
+        wx.EVT_TIMER(self, TIMER_ID, self.on_screenshot_timer)  # call the on_timer function
         self.Bind(event=wx.EVT_CLOSE, handler=self.on_close, source=self)
+
+    def on_screenshot_timer(self, event):
+        wx.CallAfter(utils.capture_window, self,
+                     self.main_capture_file_name)
 
     def __set_properties(self):
         self.SetTitle("Health Monitor GUI")
@@ -223,6 +231,7 @@ class MainFrame(wx.Frame):
             details_frame = DetailsFrame(
                             self, name=container['name'], address=address, 
                             capture_file_name=self.details_capture_file_name,
+                            sleep_time=MainFrame.sleep_time,
                             **plot_lens)
             self.Bind(event=wx.EVT_CLOSE, handler=self.on_details_close,
                       source=details_frame)
@@ -237,6 +246,7 @@ class MainFrame(wx.Frame):
         details_frame.Destroy()
 
     def on_close(self, evt):
+        self.screenshot_timer.Stop()
         self.timer_thread.stop()
         while not self.timer_thread.stopped():
             sleep(0.1)
@@ -350,8 +360,6 @@ class MainFrame(wx.Frame):
                     print('Could not retrieve data from %s. Error: %s' %
                           (address, e))
 
-            wx.CallAfter(utils.capture_window, self,
-                         self.main_capture_file_name)
             sleep_time = timedelta(seconds=MainFrame.sleep_time)
             sleep_time -= (datetime.now() - init)
             sleep_time = max(sleep_time, timedelta(0)).total_seconds()
