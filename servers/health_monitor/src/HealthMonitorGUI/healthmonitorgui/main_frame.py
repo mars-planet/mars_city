@@ -7,8 +7,6 @@ from datetime import datetime, timedelta
 import json
 import os
 import sys
-from threading import current_thread
-from time import sleep
 
 from dateutil.parser import parse as dateutil_parse
 import numpy as np
@@ -150,18 +148,11 @@ class MainFrame(wx.Frame):
         self.__set_properties()
         self.setup_layout()
 
-        self.timer_thread = Timer(target=self.timer_tick)
         self.alarms = set()
-        self.timer_thread.start()
-        TIMER_ID = 100  # pick a number
-        self.screenshot_timer = wx.Timer(self, TIMER_ID)  # message will be sent to the panel
-        self.screenshot_timer.Start(MainFrame.sleep_time*1000)  # x100 milliseconds
-        wx.EVT_TIMER(self, TIMER_ID, self.on_screenshot_timer)  # call the on_timer function
+        self.timer = wx.Timer(self)  # message will be sent to the panel
+        self.Bind(wx.EVT_TIMER, self.timer_tick, self.timer)
+        self.timer.Start(MainFrame.sleep_time*1000)  # x100 milliseconds
         self.Bind(event=wx.EVT_CLOSE, handler=self.on_close, source=self)
-
-    def on_screenshot_timer(self, event):
-        wx.CallAfter(utils.capture_window, self,
-                     self.main_capture_file_name)
 
     def __set_properties(self):
         self.SetTitle("Health Monitor GUI")
@@ -246,10 +237,7 @@ class MainFrame(wx.Frame):
         details_frame.Destroy()
 
     def on_close(self, evt):
-        self.screenshot_timer.Stop()
-        self.timer_thread.stop()
-        while not self.timer_thread.stopped():
-            sleep(0.1)
+        self.timer.Stop()
         self.Destroy()
 
     def select_alrm_img(self, name_prefix, name_sufix, value):
@@ -284,86 +272,88 @@ class MainFrame(wx.Frame):
                          format_str.format(var_values[-1][1]))
         return code
 
-    def timer_tick(self):
-        timer = current_thread()
-        while not timer.stopped():
-            init = datetime.now()
-            alarms = json.loads(self.proxy.get_all_alarms(self.sleep_time))
-            for container in self.src_panels.itervalues():
-                address = container['address']
-                params = json.dumps({'period': 2})
-                vars_values = json.loads(container['proxy'].get_data(params))
-                vars_values = {k: [(dateutil_parse(i[0]), i[1]) for i in v]
-                               for k, v in vars_values.iteritems()}
-                try:
-                    codes = [0] * 6
-                    # update air flow values
-                    codes[0] = self.update_var_lbl_icon(
-                                            var_name='air_flow',
-                                            var_values=vars_values['air_flow'],
-                                            alarms=alarms[address]['air_flow'],
-                                            container=container,
-                                            format_str='{:6.2f}'
-                                                                  )
-                    # update acceleration values
-                    codes[1] = self.update_var_lbl_icon(
-                                            var_name='acc_magn',
-                                            var_values=vars_values['acc_magn'],
-                                            alarms=alarms[address]['acc_magn'],
-                                            container=container,
-                                            format_str='{:3.2f}'
-                                                                  )
-                    # update ecg values
-                    codes[2] = self.update_var_lbl_icon(
-                                            var_name='ecg_v1',
-                                            var_values=vars_values['ecg_v1'],
-                                            alarms=alarms[address]['ecg_v1'],
-                                            container=container,
-                                            has_lbl=False
-                                                                )
-                    # update heart rate values
-                    codes[3] = self.update_var_lbl_icon(
-                                        var_name='heart_rate',
-                                        var_values=vars_values['heart_rate'],
-                                        alarms=alarms[address]['heart_rate'],
+    def timer_tick(self, evt):
+        init = datetime.now()
+        alarms = json.loads(self.proxy.get_all_alarms(self.sleep_time))
+        for container in self.src_panels.itervalues():
+            address = container['address']
+            params = json.dumps({'period': 2})
+            vars_values = json.loads(container['proxy'].get_data(params))
+            vars_values = {k: [(dateutil_parse(i[0]), i[1]) for i in v]
+                           for k, v in vars_values.iteritems()}
+            try:
+                codes = [0] * 6
+                # update air flow values
+                codes[0] = self.update_var_lbl_icon(
+                                        var_name='air_flow',
+                                        var_values=vars_values['air_flow'],
+                                        alarms=alarms[address]['air_flow'],
                                         container=container,
-                                        format_str='{:3.0f}'
-                                                                    )
-                    # update SPO2 values
-                    codes[4] = self.update_var_lbl_icon(
-                                                var_name='o2',
-                                                var_values=vars_values['o2'],
-                                                alarms=alarms[address]['o2'],
-                                                container=container,
-                                                format_str='{:4.2f}'
+                                        format_str='{:6.2f}'
+                                                              )
+                # update acceleration values
+                codes[1] = self.update_var_lbl_icon(
+                                        var_name='acc_magn',
+                                        var_values=vars_values['acc_magn'],
+                                        alarms=alarms[address]['acc_magn'],
+                                        container=container,
+                                        format_str='{:3.2f}'
+                                                              )
+                # update ecg values
+                codes[2] = self.update_var_lbl_icon(
+                                        var_name='ecg_v1',
+                                        var_values=vars_values['ecg_v1'],
+                                        alarms=alarms[address]['ecg_v1'],
+                                        container=container,
+                                        has_lbl=False
                                                             )
-                    # update temperature values
-                    codes[5] = self.update_var_lbl_icon(
-                                        var_name='temperature',
-                                        var_values=vars_values['temperature'],
-                                        alarms=alarms[address]['temperature'],
-                                        container=container,
-                                        format_str='{:4.2f}'
-                                                                     )
-                    # update sex image
-                    alarm_code = sum(codes) / len(codes)
-                    image, _ = self.select_alrm_img('images/%s-icon-' %
-                                                        container['sex'],
-                                                    '.png', alarm_code)
-                    wx.CallAfter(container['sex_icon'].SetBitmap, image)
-                    if address in self.active_plots:
-                        # get variable's values without timestamps
-                        vars_values = {k: zip(*v)[1] for k, v in vars_values.items()}
-                        wx.CallAfter(self.active_plots[address].update_plots,
-                                     **vars_values)
-                except ConnectionFailed as e:
-                    print('Could not retrieve data from %s. Error: %s' %
-                          (address, e))
-
-            sleep_time = timedelta(seconds=MainFrame.sleep_time)
-            sleep_time -= (datetime.now() - init)
-            sleep_time = max(sleep_time, timedelta(0)).total_seconds()
-            sleep(sleep_time)
+                # update heart rate values
+                codes[3] = self.update_var_lbl_icon(
+                                    var_name='heart_rate',
+                                    var_values=vars_values['heart_rate'],
+                                    alarms=alarms[address]['heart_rate'],
+                                    container=container,
+                                    format_str='{:3.0f}'
+                                                                )
+                # update SPO2 values
+                codes[4] = self.update_var_lbl_icon(
+                                            var_name='o2',
+                                            var_values=vars_values['o2'],
+                                            alarms=alarms[address]['o2'],
+                                            container=container,
+                                            format_str='{:4.2f}'
+                                                        )
+                # update temperature values
+                codes[5] = self.update_var_lbl_icon(
+                                    var_name='temperature',
+                                    var_values=vars_values['temperature'],
+                                    alarms=alarms[address]['temperature'],
+                                    container=container,
+                                    format_str='{:4.2f}'
+                                                                 )
+                # update sex image
+                alarm_code = sum(codes) / len(codes)
+                image, _ = self.select_alrm_img('images/%s-icon-' %
+                                                    container['sex'],
+                                                '.png', alarm_code)
+                wx.CallAfter(container['sex_icon'].SetBitmap, image)
+                if address in self.active_plots:
+                    # get variable's values without timestamps
+                    vars_values = {k: zip(*v)[1]
+                                   for k, v in vars_values.items()
+                                   if v}
+                    frame = self.active_plots[address]
+                    filename = frame.capture_file_name
+                    wx.CallAfter(self.active_plots[address].update_plots,
+                                 **vars_values)
+                    utils.capture_window(frame, filename)
+            except ConnectionFailed as e:
+                print('Could not retrieve data from {}. Error: {}'.
+                      format(address, e))
+            except Exception as e:
+                print('An exception occurred. Error: {}. vars_values: {}'.
+                      format(e, vars_values))
+        utils.capture_window(self, self.main_capture_file_name)
 
 
 config = ConfigParser.RawConfigParser()
