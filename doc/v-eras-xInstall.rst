@@ -33,8 +33,4 @@ Blender
 -------
 sudo apt-get install blender 
 
-Morse
------
-sudo apt-get install 
-
 
