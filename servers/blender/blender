@@ -1,0 +1,44 @@
+#!/usr/bin/python3
+"""Test Tango server used by test_tango.py."""
+
+import sys
+import itertools
+
+from PyTango import AttrWriteType, DevState
+from PyTango.server import Device, DeviceMeta, attribute, server_run
+
+
+class PyBlender(Device, metaclass=DeviceMeta):
+    # the avatar position attribute
+    avatar_pos = attribute(label="avatar_pos", dtype=[float],
+                           max_dim_x=3,
+                           access=AttrWriteType.READ_WRITE)
+    # the avatar rotation attribute
+    avatar_rot = attribute(label="avatar_rot", dtype=[[float]],
+                           max_dim_x=3, max_dim_y=3,
+                           access=AttrWriteType.READ_WRITE)
+
+    def init_device(self):
+        Device.init_device(self)
+        self.__avatar_pos = [0, 0, 0]
+        self.__avatar_rot = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+        self.set_state(DevState.ON)
+
+    def read_avatar_pos(self):
+        self.info_stream("read_avatar_pos called")
+        return self.__avatar_pos
+
+    def read_avatar_rot(self):
+        self.info_stream("read_avatar_rot called")
+        return self.__avatar_rot
+
+    def write_avatar_pos(self, pos):
+        self.info_stream("write_avatar_pos called ({})".format(pos))
+        self.__avatar_pos = pos
+
+    def write_avatar_rot(self, rot):
+        self.info_stream("write_avatar_rot called ({})".format(rot))
+        self.__avatar_rot = rot
+
+if __name__ == "__main__":
+    server_run([PyBlender])
