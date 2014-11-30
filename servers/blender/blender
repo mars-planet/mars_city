@@ -20,6 +20,23 @@ class PyBlender(Device, metaclass=DeviceMeta):
     # the generic synchronization attribute
     objsync = attribute(label="objsync", dtype=str,
                         access=AttrWriteType.READ_WRITE)
+    # the atv position attribute
+    atv_pos = attribute(label="atv_pos", dtype=[float],
+                           max_dim_x=3,
+                           access=AttrWriteType.READ_WRITE)
+    # the atv rotation attribute
+    atv_rot = attribute(label="atv_rot", dtype=[[float]],
+                           max_dim_x=3, max_dim_y=3,
+                           access=AttrWriteType.READ_WRITE)
+    # the atv angular velocity attribute
+    atv_lin_vel = attribute(label="atv_lin_vel", dtype=[float],
+                           max_dim_x=3,
+                           access=AttrWriteType.READ_WRITE)
+    # the atv angular velocity attribute
+    atv_ang_vel = attribute(label="atv_ang_vel", dtype=[float],
+                           max_dim_x=3,
+                           access=AttrWriteType.READ_WRITE)
+
 
 
     def init_device(self):
@@ -27,6 +44,10 @@ class PyBlender(Device, metaclass=DeviceMeta):
         Device.init_device(self)
         self.__avatar_pos = [0, 0, 0]
         self.__avatar_rot = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+        self.__atv_pos = [0, 0, 0]
+        self.__atv_rot = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+        self.__atv_lin_vel= [0, 0, 0]
+        self.__atv_ang_vel = [0, 0, 0]
         self.__objsync = ''
         self.set_state(DevState.ON)
 
@@ -45,6 +66,38 @@ class PyBlender(Device, metaclass=DeviceMeta):
     def write_avatar_rot(self, rot):
         self.info_stream("write_avatar_rot called ({})".format(rot))
         self.__avatar_rot = rot
+
+    def read_atv_pos(self):
+        self.info_stream("read_atv_pos called")
+        return self.__atv_pos
+
+    def read_atv_rot(self):
+        self.info_stream("read_atv_rot called")
+        return self.__atv_rot
+
+    def write_atv_pos(self, pos):
+        self.info_stream("write_atv_pos called ({})".format(pos))
+        self.__atv_pos = pos
+
+    def write_atv_rot(self, rot):
+        self.info_stream("write_atv_rot called ({})".format(rot))
+        self.__atv_rot = rot
+
+    def read_atv_lin_vel(self):
+        self.info_stream("read_atv_lin_vel called")
+        return self.__atv_lin_vel
+
+    def read_atv_ang_vel(self):
+        self.info_stream("read_atv_ang_vel called")
+        return self.__atv_ang_vel
+
+    def write_atv_lin_vel(self, lin_vel):
+        self.info_stream("write_atv_lin_vel called ({})".format(lin_vel))
+        self.__atv_lin_vel = lin_vel
+
+    def write_atv_ang_vel(self, ang_vel):
+        self.info_stream("write_atv_ang_vel called ({})".format(ang_vel))
+        self.__atv_ang_vel = ang_vel
 
     def read_objsync(self):
         self.info_stream("read_objsync called")
