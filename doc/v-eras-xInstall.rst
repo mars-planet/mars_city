@@ -34,6 +34,12 @@ Blender
 sudo apt-get install blender 
 
 
+boot time processes
+-------------------
+To add an already available init.d process to boot time use
+update-rc.d tango-starter defaults
+
+
 nfs area setup
 --------------
 on v-eras-0
@@ -47,13 +53,12 @@ sudo mkdir /nfshome
 sudo mount v-eras-0:/home /nfshome
 
 then make a link to the virtual user remote home by:
-cd /home
-sudo mv virtual virtual_local
-sudo ln -s /nfshome/virtual virtual
+cd /home/virtual
+mv swarchive/ swarchive_local
+sudo ln -s /nfshome/virtual/swarchive swarchive
 
 then edit /etc/fstab file to make it permanent by adding:
 v-eras-0:/home /nfshome nfs rsize=8192,wsize=8192,timeo=14,intr
-
 
 
 
