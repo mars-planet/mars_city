@@ -25,6 +25,17 @@ Oculus
 
 Follow install procedure
 
+xrandr
+------
+
+You can use ``xrandr`` to check and change the screen resolution::
+
+  # check current setup (-d :0 is only necessary from remote)
+  xrandr -d :0
+  # + = preferred mode; * = selected mode
+  # set 1920x1080 on HDMI2
+  xrandr -d :0 --output HDMI2 --mode 1920x1080
+
 Kinect
 ------
 
