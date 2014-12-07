@@ -113,9 +113,33 @@ Client::
   # check that the module is loaded:
   lsmod | grep vhci_hcd
   # check the usb devices exported by the remote host
-  sudo usbip list -r v-eras-0
+  usbip list -r v-eras-0
   # connect to the remote usbip
-  sudo usbip attach -r serverip -b 8-4
+  sudo usbip attach -r v-eras-0 -b 8-2
+  # check if the remote usb device has been added
+  lsusb
 
-# maybe some modprob is needed too?
-# see also http://www.howtoforge.com/how-to-set-up-a-usb-over-ip-server-and-client-with-ubuntu-10.04-p2
+Troubleshooting
+~~~~~~~~~~~~~~~
+
+On the client, if you get::
+
+  $ sudo usbip attach -r v-eras-0 -b 8-2
+  libusbip: error: udev_device_new_from_subsystem_sysname failed
+  usbip: error: open vhci_driver
+  usbip: error: query
+
+do::
+
+  sudo modprobe vhci-hcd
+
+If you get::
+
+  $ usbip list -r v-eras-0
+  usbip: info: no exportable devices found on v-eras-0
+
+check that the server is up and running and that you bound the usb device.
+
+See also http://www.howtoforge.com/how-to-set-up-a-usb-over-ip-server-and-client-with-ubuntu-10.04-p2
+(instructions are outdated, but you can get an idea of the steps --
+ the instructions on this page work for 14.10).
