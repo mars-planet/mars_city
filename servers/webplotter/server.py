@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import sys
 import json
 import PyTango
@@ -12,5 +14,5 @@ def get_json_data(device):
 if __name__ == '__main__':
     dev = sys.argv[1]
 
-    print 'data:', get_data(dev)
-    print 'json:', get_json_data(dev)
+    print('data:', get_data(dev))
+    print('json:', get_json_data(dev))
