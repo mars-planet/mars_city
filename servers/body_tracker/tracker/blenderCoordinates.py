@@ -57,6 +57,7 @@ class RelativeJointInfo:
         #it should be in Vector form
         torsoX, torsoZ, torsoY = self.dev['skeleton_torso'].value
         #torsoY = -torsoY
+        torsoX = -torsoX
         return Vector((torsoX, torsoY, torsoZ))
 
     @property
@@ -65,6 +66,7 @@ class RelativeJointInfo:
         '''
         headX, headZ, headY = self.dev['skeleton_head'].value
 #        headY = -headY
+        headX = -headX
         head = Vector((headX, headY, headZ))
         return head - self.stablepoint
 
@@ -74,6 +76,7 @@ class RelativeJointInfo:
         '''
         neckX, neckZ, neckY = self.dev['skeleton_neck'].value
 #        neckY = -neckY
+        neckX = -neckX
         neck = Vector((neckX, neckY, neckZ))
         return neck - self.stablepoint
 
@@ -83,6 +86,7 @@ class RelativeJointInfo:
         '''
         l_shX, l_shZ, l_shY = self.dev['skeleton_left_shoulder'].value
 #        l_shY = -l_shY
+        l_shX = -l_shX
         left_shoulder = Vector((l_shX, l_shY, l_shZ))
         return left_shoulder - self.stablepoint
 
@@ -92,6 +96,7 @@ class RelativeJointInfo:
         '''
         r_shX, r_shZ, r_shY = self.dev['skeleton_right_shoulder'].value
 #        r_shY = -r_shY
+        r_shX = -r_shX
         right_shoulder = Vector((r_shX, r_shY, r_shZ))
         return right_shoulder - self.stablepoint
 
@@ -101,6 +106,7 @@ class RelativeJointInfo:
         '''
         l_elX, l_elZ, l_elY = self.dev['skeleton_left_elbow'].value
 #        l_elY = -l_elY
+        l_elX = -l_elX
         left_elbow = Vector((l_elX, l_elY, l_elZ))
         return left_elbow - self.stablepoint
 
@@ -110,6 +116,7 @@ class RelativeJointInfo:
         '''
         r_elX, r_elZ, r_elY = self.dev['skeleton_right_elbow'].value
 #        r_elY = -r_elY
+        r_elX = -r_elX
         right_elbow = Vector((r_elX, r_elY, r_elZ))
         return right_elbow - self.stablepoint
 
@@ -119,6 +126,7 @@ class RelativeJointInfo:
         '''
         left_handX, left_handZ, left_handY = self.dev['skeleton_left_hand'].value
 #        left_handY = -left_handY
+        left_handX = -left_handX
         left_hand = Vector((left_handX, left_handY, left_handZ))
         return left_hand - self.stablepoint
 
@@ -128,6 +136,7 @@ class RelativeJointInfo:
         '''
         right_handX, right_handZ, right_handY = self.dev['skeleton_right_hand'].value
 #        right_handY = -right_handY
+        right_handX = -right_handX
         right_hand = Vector((right_handX, right_handY, right_handZ))
         return right_hand - self.stablepoint
 
@@ -137,6 +146,7 @@ class RelativeJointInfo:
         '''
         torsoX, torsoZ, torsoY = self.dev['skeleton_torso'].value
 #        torsoY = -torsoY
+        torsoX = -torsoX
         torso = Vector((torsoX, torsoY, torsoZ))
         return torso - self.stablepoint
 
@@ -146,6 +156,7 @@ class RelativeJointInfo:
         '''
         left_hipX, left_hipZ, left_hipY = self.dev['skeleton_left_hip'].value
 #        left_hipY = -left_hipY
+        left_hipX = -left_hipX
         left_hip = Vector((left_hipX, left_hipY, left_hipZ))
         return left_hip - self.stablepoint
 
@@ -155,6 +166,7 @@ class RelativeJointInfo:
         '''
         right_hipX, right_hipZ, right_hipY = self.dev['skeleton_right_hip'].value
 #        right_hipY = -right_hipY
+        right_hipX = -right_hipX
         right_hip = Vector((right_hipX, right_hipY, right_hipZ))
         return right_hip - self.stablepoint
 
@@ -164,6 +176,7 @@ class RelativeJointInfo:
         '''
         l_kneeX, l_kneeZ, l_kneeY = self.dev['skeleton_left_knee'].value
 #        l_kneeY = -l_kneeY
+        l_kneeX = -l_kneeX
         left_knee = Vector((l_kneeX, l_kneeY, l_kneeZ))
         return left_knee - self.stablepoint
 
@@ -173,6 +186,7 @@ class RelativeJointInfo:
         '''
         r_kneeX, r_kneeZ, r_kneeY = self.dev['skeleton_right_knee'].value
 #        r_kneeY = -r_kneeY
+        r_kneeX = -r_kneeX
         right_knee = Vector((r_kneeX, r_kneeY, r_kneeZ))
         return right_knee - self.stablepoint
 
@@ -182,6 +196,7 @@ class RelativeJointInfo:
         '''
         l_footX, l_footZ, l_footY = self.dev['skeleton_left_foot'].value
 #        l_footY = -l_footY
+        l_footX = -l_footX
         left_foot = Vector((l_footX, l_footY, l_footZ))
         return left_foot - self.stablepoint
 
@@ -191,6 +206,7 @@ class RelativeJointInfo:
         '''
         r_footX, r_footZ, r_footY = self.dev['skeleton_right_foot'].value
 #        r_footY = -r_footY
+        r_footX = -r_footX
         right_foot = Vector((r_footX, r_footY, r_footZ))
         return right_foot - self.stablepoint
 
