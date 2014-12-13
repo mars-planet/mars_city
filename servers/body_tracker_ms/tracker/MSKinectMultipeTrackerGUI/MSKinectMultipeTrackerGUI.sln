@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSKinectMultipeTrackerGUI", "MSKinectMultipeTrackerGUI\MSKinectMultipeTrackerGUI.csproj", "{27D6048C-0323-474A-9BFF-F854390137F0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{27D6048C-0323-474A-9BFF-F854390137F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27D6048C-0323-474A-9BFF-F854390137F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27D6048C-0323-474A-9BFF-F854390137F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27D6048C-0323-474A-9BFF-F854390137F0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
