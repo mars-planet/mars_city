@@ -6,6 +6,7 @@ Tango Servers
    :maxdepth: 2
 
    body_tracker/doc/index.rst
+   body_tracker_ms/doc/index.rst
    erasvr/doc/index.rst
    gazebo/doc/index.rst
    health_monitor/doc/index.rst
