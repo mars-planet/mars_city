@@ -26,6 +26,8 @@ import pyaudio
 import wave
 import os
 import audioop
+from espeak import espeak
+
 
 #import PyTango
 
@@ -93,6 +95,9 @@ def fetchThreshold():
 	# this will be the benchmark to cause a disturbance over!
 	THRESHOLD = average * THRESHOLD_MULTIPLIER
 	return THRESHOLD
+
+def say(string):
+	espeak.synth(string)
 
 
 def record(listen_time):
@@ -165,11 +170,13 @@ while True:
 	print keyword
 	if "TREVOR" in keyword:
 		print "recognised"
+		say("recognised")
 	        os.system("aplay beep_hi.wav")
 		command=record(3)
                 if command == "":
                     continue
 		print command
+		say(command)
 		decide(command)
 
 
