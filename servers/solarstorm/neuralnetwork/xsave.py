@@ -10,6 +10,7 @@ for line in page:
         continue
     data.append(line.split())
 
+
 def bkgdflux(bkgd):
     flux = dict(A=1, B=2, C=3, M=4)
     if bkgd in flux:
@@ -26,9 +27,9 @@ sunspotarea = values[5]
 newregs = values[6]
 bkgdflux_alpha = bkgdflux(values[8][0])
 
-if (values[8] not in ("*","Unk")) :
+if (values[8] not in ("*", "Unk")):
     bkgdflux_float = float(values[8][1:])
-else :
+else:
     bkgdflux_float = 0.0
 
 cflare = values[9]
@@ -57,5 +58,5 @@ rowdata = []
 print "Writing tommorow's forecast..."
 
 forecast = csv.writer(open("xforecast.csv", 'a'))
-rowdata.extend((tomorrow,xforecast))
+rowdata.extend((tomorrow, xforecast))
 forecast.writerow(rowdata)

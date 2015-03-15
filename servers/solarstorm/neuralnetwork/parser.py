@@ -3,7 +3,9 @@
 import csv
 from sys import argv
 
+
 class Parser(object):
+
     def __init__(self):
         # The directory of the database needs to be provided.
         # Provide source directory in such format:
@@ -37,16 +39,16 @@ class Parser(object):
                         self.psunspotarea = values[5]
                         self.pnewregs = values[6]
                         self.pbkgdflux_alpha = self._bkgdflux(values[8][0])
-                        if (values[8] not in ("*","Unk")) :
+                        if (values[8] not in ("*", "Unk")):
                             self.pbkgdflux_float = float(values[8][1:])
-                        else :
+                        else:
                             self.pbkgdflux_float = 0.0
 
                         self.pcflare = values[9]
                         self.pmflare = values[10]
                         self.pxflare = values[11]
 
-                    else :
+                    else:
                         row_data.extend((self.pdate, self.pradioflux,
                                          self.psunspotnum, self.psunspotarea,
                                          self.pnewregs, self.pbkgdflux_alpha,
@@ -68,9 +70,9 @@ class Parser(object):
                         self.psunspotarea = values[5]
                         self.pnewregs = values[6]
                         self.pbkgdflux_alpha = self._bkgdflux(values[8][0])
-                        if (values[8] not in ("*","Unk")) :
+                        if (values[8] not in ("*", "Unk")):
                             self.pbkgdflux_float = float(values[8][1:])
-                        else :
+                        else:
                             self.pbkgdflux_float = 0.0
 
                         self.pcflare = values[9]

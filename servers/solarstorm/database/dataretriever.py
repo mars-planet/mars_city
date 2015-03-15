@@ -7,9 +7,11 @@
 
 import urllib2
 from time import sleep
-from sys import argv 
+from sys import argv
+
 
 class DataRetriever:
+
     def __init__(self):
         # Download data to a user specified local directory
         # Provide destination in such formats:
@@ -29,7 +31,8 @@ class DataRetriever:
         count = 0
         while True:
             chunk = response.read(blocksize)
-            if not chunk: break
+            if not chunk:
+                break
             file_open.write(chunk)
             count += 1
             if totalsize > 0:
@@ -45,13 +48,14 @@ class DataRetriever:
 
     def dsd_retriever(self):
         for n in range(1996, 2013):
-            url = "http://www.swpc.noaa.gov/ftpdir/warehouse/{0}/{0}_DSD.txt".format(n)
+            url = "http://www.swpc.noaa.gov/ftpdir/warehouse/{0}/{0}_DSD.txt"
+            url = url.format(n)
 
             # Constructing output as example : destination/dsd_2011.txt
             dest = "{0}/dsd_{1}.txt".format(self.dest, n)
             print "\nDownloading DSD {0} data :".format(n)
             self.retriever(url, dest)
-            #Providing sleep time to prevent forced session termination
+            # Providing sleep time to prevent forced session termination
             sleep(3)
 
 
