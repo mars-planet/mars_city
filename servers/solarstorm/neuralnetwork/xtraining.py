@@ -24,6 +24,7 @@ class XTraining(object):
                 for i in range(1, 4):
                     data[i] = str(float(data[i]) / 100)
                 dataset.appendLinked(data[1:10], data[12])
+        tf.close()
         return dataset
 
     def xtrain(self):
@@ -33,9 +34,8 @@ class XTraining(object):
         net = buildNetwork(9, 15, 5, 1, recurrent=True)
 
         # Training using Back Propagation
-        trainer = BackpropTrainer(
-            net, learningrate=0.01, momentum=0.75,
-            weightdecay=0.02, verbose=True)
+        trainer = BackpropTrainer(net, learningrate=0.01, momentum=0.75,
+                                  weightdecay=0.02, verbose=True)
         trainer.trainOnDataset(dataset, 10)
         trainer.testOnData(verbose=False)
 

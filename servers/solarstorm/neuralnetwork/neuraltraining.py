@@ -16,12 +16,13 @@ class NeuralNetworkTraining(object):
         # of other dataset types like Classification datasets will also
         # be investigated where it is relevant.
         ds = SupervisedDataSet(9, 3)
-        tf = open('traindata.csv', 'r')
+        tf = open('traindata.csv')
         for line in tf.readlines():
             data = [x for x in line.strip().split(',') if x != '']
             indata = tuple(data[1:10])
             outdata = tuple(data[10:])
             ds.addSample(indata, outdata)
+        tf.close()
         return ds
 
     def neuralnetworktrain(self):
