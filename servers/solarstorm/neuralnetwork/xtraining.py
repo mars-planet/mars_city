@@ -24,7 +24,6 @@ class XTraining(object):
                 for i in range(1, 4):
                     data[i] = str(float(data[i]) / 100)
                 dataset.appendLinked(data[1:10], data[12])
-        tf.close()
         return dataset
 
     def xtrain(self):
