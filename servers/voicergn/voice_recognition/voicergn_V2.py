@@ -1,3 +1,24 @@
+"""
+works with bleading edge sphinxbase and pocketsphinx only
+
+setup instructions
+
+mkdir voicergn;cd voicergn
+
+git clone git://github.com/cmusphinx/sphinxbase.git
+cd sphinxbase
+bash autogen.sh
+make
+sudo make install
+
+git clone git://github.com/cmusphinx/pocketsphinx.git
+cd ..
+cd pocketsphinx
+bash autogen.sh
+make
+sudo make install
+"""
+
 from PyTango import *
 import sys
 from pocketsphinx import Decoder
@@ -6,6 +27,8 @@ import wave
 import os
 import audioop
 from espeak import espeak
+
+
 #import PyTango
 
 RATE = 16000
@@ -18,7 +41,7 @@ dictd = "a.dic"
 sysdir = os.getcwd
 commands=["LEFT","RIGHT","FORWARD","BACKWARD","NOT"]
 myro= DeviceProxy("c3/rovers/myro")
-myro.move([1.0,-1.0])
+#myro.move([1.0,-1.0])
 def decide(string):
 	for item in commands:
 		if item in string:
@@ -76,6 +99,7 @@ def fetchThreshold():
 def say(string):
 	espeak.synth(string)
 
+
 def record(listen_time):
 
     THRESHOLD=None
@@ -122,19 +146,25 @@ def record(listen_time):
     wf.close()
     sysdir = os.getcwd()
     wavfile = sysdir+"/livewav.wav"
+    config = Decoder.default_config()
+    config.set_string('-hmm', hmdir)
+    config.set_string('-lm', lmdir)
+    config.set_string('-dict', dictd)
+    config.set_string('-logfn', '/dev/null')
+
+    speechRec = Decoder(config)
 
 
-    speechRec = Decoder(hmm=hmdir, lm=lmdir, dict=dictd)
     with open(wavfile, 'rb') as wavFile:
         speechRec.decode_raw(wavFile)
-        result = speechRec.get_hyp()
+        #result = speechRec.get_hyp()
 
 
-    return(result[0])
+    return(speechRec.hyp().hypstr)
 
 while True:
 	os.system("aplay beep_lo.wav")
-	keyword = record(2)
+	keyword = record(3)
         if keyword == "":
             continue
 	print keyword

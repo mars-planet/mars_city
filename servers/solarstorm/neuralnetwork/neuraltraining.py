@@ -8,18 +8,21 @@ from pybrain.tools.customxml.networkwriter import NetworkWriter
 import csv
 #import pickle
 
+
 class NeuralNetworkTraining(object):
+
     def getdata(self):
         # Currently, the Supervised dataset is being generated. The use
         # of other dataset types like Classification datasets will also
         # be investigated where it is relevant.
-        ds = SupervisedDataSet(9,3)
-        tf = open('traindata.csv','r')
+        ds = SupervisedDataSet(9, 3)
+        tf = open('traindata.csv')
         for line in tf.readlines():
             data = [x for x in line.strip().split(',') if x != '']
-            indata =  tuple(data[1:10])
+            indata = tuple(data[1:10])
             outdata = tuple(data[10:])
-            ds.addSample(indata,outdata)
+            ds.addSample(indata, outdata)
+        tf.close()
         return ds
 
     def neuralnetworktrain(self):

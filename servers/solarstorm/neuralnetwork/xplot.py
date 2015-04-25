@@ -2,7 +2,9 @@ from pybrain.tools.customxml.networkreader import NetworkReader
 import pylab as pl
 import numpy as np
 
+
 class XPlot(object):
+
     def xactual(self):
         with open('xtraindata.csv') as tf:
             xactual = []
@@ -18,7 +20,7 @@ class XPlot(object):
             xforecast = []
             for line in tf:
                 data = [x for x in line.strip().split(',') if x]
-                for i in range(1,10):
+                for i in range(1, 10):
                     activate_in.append(float(data[i]))
                 # print activate_in
                 if float(net.activate((activate_in))) > 4.84e-06:
@@ -36,9 +38,9 @@ class XPlot(object):
         days = np.linspace(1, 3264, 3264)
 
         print "Plotting..."
-        pl.plot(days,xactual, 'ob')
-        pl.plot(days,xforecast, '-r')
-        pl.plot(days,xforecast, '.r')
+        pl.plot(days, xactual, 'ob')
+        pl.plot(days, xforecast, '-r')
+        pl.plot(days, xforecast, '.r')
         pl.savefig('historicalplot.png')
         pl.show()
 
