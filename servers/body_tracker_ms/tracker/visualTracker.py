@@ -1,11 +1,13 @@
+import sys
 import PyTango
 from visual import *
 from collections import namedtuple
 
 
-# get the tango device
-# TODO: make the server name configurable, by passing it as argument
-dev = PyTango.DeviceProxy('c3/MAC/eras-3')
+
+# get the tango device name
+dev_name = sys.argv[1]
+dev = PyTango.DeviceProxy(dev_name)
 print('dev Proxy obtained')
 
 # Coordinate structure
