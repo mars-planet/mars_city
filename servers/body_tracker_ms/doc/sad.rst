@@ -7,7 +7,7 @@ Software Architecture Document for the Body Tracker application
 Change Record
 =============
 
-XX\ :sup:`XX`\  XXXXX, 2015 - Document created.
+10\ :sup:`th` May, 2015 - Document created.
 
 
 Introduction
@@ -16,13 +16,14 @@ Introduction
 Purpose
 -------
 
-The main goal of this module is to provide the full body tracking of
+The main goal of this module is to provide full body tracking of the
 astronauts, in order to interact with the ERAS virtual station. Using data
-provided by this module, an astronaut's avatar can move inside virtual
+provided by this module, the avatar of an astronaut can move inside the virtual
 ERAS station environment, by reproducing body movements of a real user
 inside a Motivity treadmill.
 
-This module is based on the 3D skeleton tracking technique described in [1].
+This module is based on the 3D skeleton tracking technique described at `this
+link`: <http://research.microsoft.com/apps/pubs/default.aspx?id=145347>.
 The Microsoft Kinect device generates a depth map in real time, where each
 pixel represents the distance between the Kinect sensor and the closest object
 in the scene at that pixel location. Based on this map, the Microsoft API
@@ -38,21 +39,21 @@ engine to properly animate a 3D avatar model.
 This module supports up to four Kinects simultaneously connected to a single
 machine.
 
-An algorithm to estimate user's step using skeletal joint data is included
+An algorithm to estimate user steps using skeletal joint data is included
 in this module, in order to estimate and reproduce navigation paths that
 an astronaut defines by walking inside a Motivity treadmill.
 
 Previous versions of the skeletal tracking module were implemented in C++
 using OpenNI/NITE framework, and then C# using the Microsoft Kinect SDK.
-The new version of this module is based on PyKinect [2], which uses the
-Microsoft API but make possible to use Python.
+The new version of this module is based on PyKinect [2], which allows to
+use the Microsoft API with Python.
 
-The following flow chart gives a pictorial view of the working steps of body
-tracker application.
+The following flow chart gives a pictorial view of the working steps of the
+body tracker application.
 
 .. figure:: images/SkeletalTrackerArchitecture.png
 
-   Figure 1. System architecture. One main server with MS Windows is used for
+   Figure 1. System architecture. One main server with MS Windows is used to
    manage up to 4 Kinects. Data from these devices are sent to the Tango bus,
    that makes them available for any other ERAS software module. 
 
@@ -94,9 +95,13 @@ Glossary
       ``TBC``
           To be confirmed
 
+      ``GUI``
+          Graphical User Interface
+
 For better understanding this document, a clear distinction between different kinds
 of users that interact with the system is needed.
-      ``Astronaut`` or ``Virtual Astronaut``
+
+      ``Astronaut``
           An user that interacts with the system using different devices and
           tools, such as Kinect, Oculus Rift, Motivity and so on, in order
           to explore the virtual Martian environment
@@ -127,15 +132,16 @@ Non-functional requirements
 ---------------------------
 
 Previous version of skeletal tracking module have been based on open source
-solutions. However, using the Microsoft API provided with the `Kinect SDK v1.8`: <https://www.microsoft.com/en-us/download/details.aspx?id=40278>
+solutions. However, using the Microsoft API provided with the
+`Kinect SDK v1.8`: <https://www.microsoft.com/en-us/download/details.aspx?id=40278>
 has shown better performance, so it has been decided to use this software
 solution.
 
 In order to exploit Microsoft API power, a server with Microsoft Windows
-7 is needed. It means that a licence for using this operating system is mandatory.
+7 is needed. It means that a license for using this operating system is mandatory.
 
-Furthermore, the development process is based on the use of Microsoft Visual
-Studio 2012 IDE, and it also requires a licence.
+The development process is based on the use of Microsoft Visual Studio 2012 IDE.
+The Express edition can be used, and it is free (so there is no need for a license).
 
 The application should be written in Python, using PyKinect for interfacing
 with Microsoft API. It requires CPython 2.7 installed.
@@ -147,9 +153,9 @@ Use Case View (functional requirements)
 ---------------------------------------
 
 This module should track skeletal joints from a virtual astronaut, and make
-these data available for any other ERAS module.
+these data available on the Tango bus.
 
-An algorithm to estimate user's step using skeletal joint data should be
+An algorithm to estimate user step using skeletal joint data should be
 developed and included in this module, in order to estimate and reproduce
 navigation paths that an astronaut defines by walking inside a Motivity treadmill.
 
@@ -243,7 +249,7 @@ Communication Interfaces
 The skelatal joints and other data tracked by this module are sent to a Tango
 bus. The Tango server does not necessarily have to be installed in the same
 machine that manages all the Kinects. However this machine must be able to
-sent data to the Tango bus.
+send data to the Tango bus.
 
 Every other module can read skeletal data from the Tango bus. For instance,
 the Blender Game Engine can use position of skeletal joints to update the
@@ -318,9 +324,14 @@ Development and Test Factors
 Hardware Limitations
 --------------------
 
- * Depth camera included in Microsoft Kinect works at no more than 30 frame per second. This limits the speed of an astronaut's movements: too fast gestures can result in tracking and/or recognition errors
- * Microsoft Kinect may not work well outdoor, due to the IR-based technology used by this device: sunlight can interfere with IR rays used by Kinect, and invalidate depth and skeletal data
- * Fields of view (see [3]) of multiple Kinect should never intersect, because it can invalidate depth and skeletal data
+* Depth camera included in Microsoft Kinect works at no more than 30 frame per
+  second. This limits the speed of an astronaut's movements: too fast gestures
+  can result in tracking and/or recognition errors
+* Microsoft Kinect may not work well outdoor, due to the IR-based technology used
+  by this device: sunlight can interfere with IR rays used by Kinect, and invalidate
+  depth and skeletal data
+* Fields of view (see [3]) of multiple Kinect should never intersect, because
+  this can invalidate depth and skeletal data
 
 Software validation and verification
 ------------------------------------
