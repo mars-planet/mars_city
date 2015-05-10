@@ -7,9 +7,9 @@ Instructions for setting up a MS Windows machine for running body tracking
 Change Record
 =============
 
-13\ :sup:`th`\  December, 2014 - Document created.
+13\ :sup:`th`  December, 2014 - Document created.
 
-3\ :sup:`rd`\  May, 2015 - Improved formatting (minor fix).
+3\ :sup:`rd`  May, 2015 - Improved formatting (minor fix).
 
 
 Version of Microsoft Windows
@@ -22,18 +22,19 @@ the machine in the right way.
 Before starting with all mandatory software to run body tracking, may be useful to
 install all the following software:
 
-* Mozilla Firefox (or another browser, as long as it is better then MS IE)
+* A modern browser (e.g. Firefox or Chrome)
 * Adobe Flash Player
 * Adobe Reader (or another PDF reader)
 * 7zip
 * Geany (or a better programming-oriented text editor)
 * Daemon Tools Lite
 * VMWare or VirtualBox (or any other good virtual machine manager)
-* TurtoiseHG
+* TortoiseHG
 
 .. note::
 
-      All the installers needed for setting up the machine are available in the ERAS-0 server, under the folder *windows-installers*.
+      All the installers needed for setting up the machine are available in the ERAS-0
+      server, under the folder `windows-installers`.
 
 Installing Python
 =================
@@ -52,7 +53,8 @@ After installing it, you need also the following libraries:
 
 .. note::
 
-      A lot of python libraries, packed as Windows installers, are available at http://www.lfd.uci.edu/~gohlke/pythonlibs/
+      A lot of python libraries, packed as Windows installers, are available
+      at http://www.lfd.uci.edu/~gohlke/pythonlibs/
 
 To be able to excute Python from a command line, you must add the installation folder path to the
 ``Path`` variabe in Windows. To this end do the following:
