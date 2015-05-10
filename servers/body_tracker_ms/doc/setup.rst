@@ -22,14 +22,17 @@ the machine in the right way.
 Before starting with all mandatory software to run body tracking, may be useful to
 install all the following software:
 
-* A modern browser (e.g. Firefox or Chrome)
-* Adobe Flash Player
-* Adobe Reader (or another PDF reader)
-* 7zip
-* Geany (or a better programming-oriented text editor)
-* Daemon Tools Lite
-* VMWare or VirtualBox (or any other good virtual machine manager)
-* TortoiseHG
+* Recommended:
+   * A modern browser (e.g. Firefox or Chrome)
+   * 7zip
+   * Geany (or any other programming-oriented text editor)
+   * Daemon Tools Lite (useful for mounting .iso images, during some installation phases)
+   * VirtualBox
+   * TortoiseHG
+
+* Suggested:
+   * Adobe Flash Player
+   * Adobe Reader (or another PDF reader)
 
 .. note::
 
@@ -64,7 +67,6 @@ To be able to excute Python from a command line, you must add the installation f
 * The System Properties window will open. Here click on the *Advanced* tab, then click the *Environment Variables* button near the bottom of that tab
 * In the *Environment Variables* window, highlight the ``Path`` variable in the *System variables* section and click the *Edit* button
 * Append the following at the end of the value: ``C:\Python26\``
-
 
 Installing Visual Studio and Kinect SDK
 =======================================
