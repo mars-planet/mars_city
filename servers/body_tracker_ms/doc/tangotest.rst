@@ -7,18 +7,25 @@ Testing Tango integration on a Windows host
 Change Record
 =============
 
-3\ :sup:`rd`\  May, 2015 - Document created.
+3\ :sup:`rd`  May, 2015 - Document created.
 
 Purpose
 =======
-This document is intended to explain the procedure to test Tango-based software
+This document explains the procedure to test Tango-based software
 on Windows. The basic idea is to provide clear instructions to setup all the necessary
 components to test, on a single machine, if data sent on Tango bus can be 
 read from other clients.
 
 In order to test Tango integration, VirtualBox needs to be installed on
-the Windows machine. Then a virtual machine will be created, with an installation
-of Ubuntu.
+the Windows machine. This allows to create a virtual machine with an installation
+of Ubuntu. In this way, a Tango server can be installed in the virtual machine,
+and will be possible to emulate Tango communications between Windows and other
+clients, by testing if data from Windows can be read also on Ubuntu.
+
+Reference Documents
+===================
+
+- [1] -- `Instructions for setting up a MS Windows machine for running body tracking`: <https://eras.readthedocs.org/en/latest/servers/body_tracker_ms/doc/setup.html>
 
 Version of Microsoft Windows
 ============================
@@ -27,9 +34,7 @@ The following instructions are based and were tested on Microsoft Windows 7 64-b
 After having installed the operating system, setup all drivers needed to use
 the machine in the right way.
 
-Furthmore, it is assumed the the `Instructions for setting up a MS Windows
-machine for running body tracking <https://eras.readthedocs.org/en/latest/servers/body_tracker_ms/doc/setup.html>`
-have been read and used before of all.
+Furthermore, it is assumed that [1] has been read and used before of all.
 
 Version of Ubuntu
 =================
@@ -38,7 +43,7 @@ The following instruction are based and were tested on Ubuntu 14.10 and
 Ubuntu MATE 14.10.
 
 If you would like to use any other Linux distribution, consider the possibility
-to unexpected installation errors.
+of unexpected installation errors.
 
 Setup of an Ubuntu virtual machine on VirtualBox
 ================================================
@@ -46,14 +51,14 @@ Setup of an Ubuntu virtual machine on VirtualBox
 Setting up a virtual machine on VirtualBox is quite easy, and doesn't need
 further explanation.
 
-After the Ubuntu installation, install the Guest Addiction as follows:
+After the Ubuntu installation, install the Guest Additions as follows:
  * Start the Ubuntu virtual machine
  * Click on the *Devices* menu and choose *Install Guest Additions...*
  * This mounts the VBox Guest Additions ISO image. Run this as root:
 
-    # ./media/cdrom0/VBoxLinuxAdditions.run
+    ``# ./media/cdrom0/VBoxLinuxAdditions.run``
 
- * Reboot the virtual machine.
+ * Shut down the virtual machine.
 
 Then, after shutting down the virtual machine, go to *Settings -> Network*
 and select *Bridged networking*. This allows to assign an IP to the
@@ -71,7 +76,7 @@ To do this with Ubuntu in a semi-graphical way (preferred, due to automatic
 management of the Network Manager plugin), see:
 http://www.sudo-juice.com/how-to-a-set-static-ip-in-ubuntu/
 
-There is also the possibility to configure a static IP manually.
+It is also possible to configure a static IP manually.
 For more details, see: https://www.howtoforge.com/debian-static-ip-address
 
 Installation of Tango on Ubuntu (guest)
@@ -98,6 +103,6 @@ a terminal on Windows and execute the following command:
 Perform tests
 =============
 
-Now everything is ready for tests. You can publish your data on the Tango
+Now everything is ready for testing. You can publish your data on the Tango
 bus (from Windows), and then use **jive** from the virtual machine to see
 if your data have been correctly published.
