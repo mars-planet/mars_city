@@ -113,7 +113,7 @@ of users that interact with the system is needed.
 
       ``System manager``
           An user that interacts with the system in order to install and
-          configure it, or to assist and/or monitor a Virtual Astronaut 
+          configure it, or to assist and/or monitor an astronaut 
           during his/her interactions with the system
 
 Overview
@@ -152,7 +152,7 @@ a Tango bus.
 Use Case View (functional requirements)
 ---------------------------------------
 
-This module should track skeletal joints from a virtual astronaut, and make
+This module should track skeletal joints from an astronaut, and make
 these data available on the Tango bus.
 
 An algorithm to estimate user step using skeletal joint data should be
@@ -259,8 +259,8 @@ Performance Requirements
 ========================
 
 The system must track astronaut's skeletal joints in real-time. This allows
-the virtual astronaut to synchronize its body movements and gestures to
-what he/she sees and feels.
+the user to synchronize its body movements and gestures to what he/she
+sees and feels.
 
 Logical View
 ============
