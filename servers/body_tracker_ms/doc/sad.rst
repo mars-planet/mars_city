@@ -161,8 +161,8 @@ navigation paths that an astronaut defines by walking inside a Motivity treadmil
 
 This module shouble be able to track hand gestures too.
 
-An usable GUI (Graphical User Interfaces) should be provided, to allow system
-managers and maintainers to manage multiple Kinects.
+An usable :term:`GUI` should be provided, to allow system managers and
+maintainers to manage multiple Kinects.
 
 Interface Requirements
 ======================
