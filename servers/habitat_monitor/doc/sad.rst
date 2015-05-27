@@ -20,15 +20,22 @@ Introduction
 
 Purpose
 -------
-The Alrming and Monitoring interface will be able to manage all the relevant information. The GUI will give the user a complete overview of the entire habitat and how all the instruments are functioning.
+The Alarming and Monitoring interface will be able to manage all the relevant
+information. The GUI will give the user a complete overview of the entire
+habitat and how all the instruments are functioning.
 
-The GUI will be higly customizable and will leverage the functionality of the Tango Alarm Systems to raise proper alarms as and when neccessary. The GUI will only show the relevant information according to the user needs. The GUI will also enable the user to add more data channels if and when required.
+The Habitat Monitoring GUI will fit inside the Habitat Monitoring Client which
+is directly interfaced with the Tango System Bus. The GUI will be able to
+directly coordinate with the various servers interfaced with the Tango System
+Bus using the :term:`PANIC` :term:`API` to collect alarm details and device
+servers for other data. 
 
-The Habitat Monitoring GUI will fit inside the Habitat Monitoring Client which is directly interfaced with the Tango System Bus. The GUI will be able to directly coordinate with the various servers interfaced with the Tango System Bus using the PANIC API. Panic API will serve as the main point of control and coordination among various components of Tango Alarm Systems.
+The Health Monitor :term:`GUI` will be made as a popup or a sub-gui inside the
+top level monitoring system. It will be dedicated to provide information about
+health of the astronauts performing EVA through biosensors (ECG, air flow sensor
+, etc.).
 
-The Health Monitor GUI will be made as a popup or a sub-gui inside the top level monitoring system. It will be dedicated to provide information about health of the astronauts performing EVA through biosensors (ECG, air flow sensor, etc.).
-
-.. image:: habitat_monitoring.png
+.. image:: images/habitat_monitoring.png
 
 Scope
 -----
@@ -76,6 +83,12 @@ Glossary
       ``GUI``
           Graphic User Interface
 
+      ``API``
+          Application Programming Interface
+
+      ``PANIC``
+          Package for Alarms and Notification of Incidences from Controls
+
       ``TBD``
           To be defined
 
@@ -85,13 +98,15 @@ Glossary
 Overview
 --------
 
-Make an overview in which you describe the rest of this document the and which chapter is primarily of interest for which reader.
+Make an overview in which you describe the rest of this document the and which
+chapter is primarily of interest for which reader.
 
 
 Architectural Requirements 
 ==========================
 
-This section describes the requirements which are important for developing the software architecture.
+This section describes the requirements which are important for developing the
+software architecture.
 
 Non-functional requirements
 ---------------------------
@@ -116,19 +131,21 @@ Non-functional requirements
 Use Case View (functional requirements)
 ---------------------------------------
 
-The goal of this project is to build a service that allows the central monitoring of the entire habitat. A GUI will request the data from the databaseusing the PANIC API, summarize it and present it to an overseer in a way that allows him/her to detect problems at a glance. The iterface will also monitor the data on a timely basis and set and raise alarms if and when required.
+The goal of this project is to build a service that allows the central
+monitoring of the entire habitat. A GUI will request the data from the database
+using the :term:`PANIC` :term:`API`, summarize it and present it to an overseer
+in a way that allows him/her to detect problems at a glance.
 
-Additionally, it will be investigated what biometrics devices could be used in VR-simulations to monitor the crew participating in it. For selected devices a Tango server will be developed, from which then the collector will also gather data.
-
-Request for biometric data
+Request for sensor data
 ++++++++++++++++++++++++++
-The Client requests a Network Device Server for the sensor data of the last T seconds.
+The Client requests a Network Device Server for the sensor data of the last T
+seconds.
 
 .. image:: images/snesordata.jpg
 
 Actors
 ~~~~~~
-Client: a TANGO client that makes the request.
+Client: Habitat Monitoring :term:`GUI`.
 Server: the Device TANGO server.
 
 Priority
@@ -138,7 +155,7 @@ High
 Preconditions
 ~~~~~~~~~~~~~
 The Server is running and its DevState is ON.
-
+0
 Basic Course
 ~~~~~~~~~~~~
 #. The Client calls the appropriate method on the Server, passing T as
@@ -162,8 +179,8 @@ The Client request the Device Server the alarm data of the last T seconds.
 
 Actors
 ~~~~~~
-Client: a TANGO client that makes the request.
-Server: the Health Monitor TANGO server.
+Client: Habitat Monitoring GUI.
+Server: The network device TANGO server.
 
 Priority
 ~~~~~~~~
@@ -190,7 +207,8 @@ The server returns the data requested or an empty array if no data is available.
 
 User requests to add new device
 +++++++++++++++++++++++++++++++
-The user asks :term:`GUI` to add a new device. The :term:`GUI` asks the user for the device address on the network. The GUI then queries the device server for all the device attributes. The device server returns the required attributes to the GUI.
+The user wants to add a new Tango Device on the network to monitor using the
+:term:`GUI`.
 
 .. image:: images/add_device.jpg
 
@@ -212,7 +230,7 @@ The :term:`GUI` is running.
 Basic Course
 ~~~~~~~~~~~~
 #. The user requests the GUI to add a new Device.
-#. The :term:`GUI` asks the user for the device address on the network.
+#. The :term:`GUI` asks the user for the internal Tango Device address.
 #. The user responds with the device address.
 #. The :term:`GUI` queries the device for attributes.
 #. The device returns the required attributes.
@@ -228,7 +246,8 @@ None
 
 Postconditions
 ~~~~~~~~~~~~~~
-The Device data is shown on the screen or :term:`GUI` shows an error message if the device is not found on the given address.
+The Device data is shown on the screen or :term:`GUI` shows an error message if
+the device is not found on the given address.
 
 A User requests a device's detailed data
 +++++++++++++++++++++++++++++++++++++++++
@@ -289,94 +308,23 @@ Detailed View
 ~~~~~~~~~~~~~
 .. image:: images/MockupDetail.png
 
-
-CLI (Command Line Interface)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Describes the command-line interface if present. For each command, a
-description of all arguments and example values and invocations should be
-provided.
-
-API (Application Programming Interface)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Describes the application programming interface, if present. Foreach public
-interface function, the name, arguments, return values, examples of invocation,
-and interactions with other functions should be provided. If this package is a
-library, the functions that the library provides should be described here
-together with the parameters.
-
-Hardware Interfaces
--------------------
-
-A high level description (from a software point of view) of the hardware
-interface if one exists. This section can refer to an ICD (Interface Control
-Document) that will contain the detail description of this interface.
-
-Software Interfaces
--------------------
-
-A high level description (from a software point of view) of the software
-interface if one exists. This section can refer to an ICD (Interface Control
-Document) that will contain the detail description of this interface.
-
-Communication Interfaces
-------------------------
-
-Describe any communication interfaces that will be required.
-
-
-Performance Requirements
-========================
-
-Specifies speed and memory requirements.
-
-Logical View 
-============
-Describe the architecturally significant logical structure of the system. Think of decomposition in terms of layers and subsystems. Also describe the way in which, in view of the decomposition, Use Cases are technically translated into Use Case Realizations
-
-Layers
-------
-
-Subsystems
-----------
-Describe the decomposition of the system in subsystems and show their relation.
-
-Use Case Realizations
----------------------
-Give examples of the way in which the Use Case Specifications are technically translated into Use Case Realizations, for example, by providing a sequence-diagram.
-
-Implementation View
-===================
-This section describes the technical implementation of the logical view.
-
-Deployment View
-===============
-
-:term:`TBD`
-
-Development and Test Factors
-============================
-
-Hardware Limitations
---------------------
-
-Here should be referenced the hardware interfaces of the various network devices.
-Specifics are :term:`TBD`.
-
 Software validation and verification
 ------------------------------------
 
-The :term:`GUI` will be implemented as a Tango Client that will fetch data from the varios device servers and 
+The :term:`GUI` will be implemented as a Tango Client that will fetch data from
+the varios device servers and 
 
 Planning
 --------
 
 The development of the GUI will be done in primarily the following phases.
  
- * Building the skeleton for the GUI. This is the primary portion of the project and will require the work on the following areas.
+ * Building the skeleton for the GUI. This is the primary portion of the project
+ and will require the work on the following areas.
    * Allowing the GUI to add additional data channels.
    * Integration with the Tango Alarms System
-   * Integrating the monitoring system with the plottings coming in from the various biometric devices using a generic mechanism.
- * Development of the Health Monitoring module as a sub-GUI of the habitat monitoring interface.
+   * Integrating the monitoring system with the plottings coming in from the
+   various biometric devices using a generic mechanism.
+ * Development of the Health Monitoring module as a sub-GUI of the habitat
+ monitoring interface.
 
