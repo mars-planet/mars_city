@@ -1,6 +1,6 @@
-*********************
-Habitat Monitor Server
-*********************
+***********************
+ERAS Habitat Monitoring
+***********************
 
 .. toctree::
    :maxdepth: 1
