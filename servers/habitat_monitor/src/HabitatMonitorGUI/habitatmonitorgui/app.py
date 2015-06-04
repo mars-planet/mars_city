@@ -25,15 +25,15 @@ class HabitatMonitor(QtGui.QMainWindow):
                 print self.proxy.ping()
                 msgBox = QtGui.QMessageBox()
                 msgBox.setText('Device added successfully')
-                msgBox.addButton(QtGui.QPushButton('Ok'), QtGui.QMessageBox.YesRole)
+                msgBox.addButton(QtGui.QPushButton('Ok'), 
+                    QtGui.QMessageBox.YesRole)
                 ret = msgBox.exec_()
                 dev_attrs = self.proxy.get_attribute_list()
             except:
                 print "Exceptions"
-                QtGui.QErrorMessage(self).showMessage("Incorrect Device Adderess")
-                # QtGui.QMessageBox.warning(self, "Error",
-                #             "Incorrect Device Adderess")
-
+                QtGui.QErrorMessage(self).showMessage("Incorrect Device " + 
+                    "Adderess")
+                
 
         else:
             QtGui.QMessageBox.critical(self, "Warning",

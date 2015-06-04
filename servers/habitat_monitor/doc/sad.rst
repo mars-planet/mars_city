@@ -141,7 +141,7 @@ Request for sensor data
 The Client requests a Network Device Server for the sensor data of the last T
 seconds.
 
-.. image:: images/snesordata.jpg
+.. image:: images/sensordata.jpg
 
 Actors
 ~~~~~~

@@ -48,7 +48,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow", None))
+        MainWindow.setWindowTitle(_translate("Habitat Monitor", "Habitat Monitor", None))
         self.menuFile.setTitle(_translate("MainWindow", "File", None))
         self.addDeviceAction.setText(_translate("MainWindow", "Add Device", None))
 
