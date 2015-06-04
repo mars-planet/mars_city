@@ -9,29 +9,17 @@ Change Record
 =============
 
 25th May, 2015 - Document Created
-.. If the changelog is saved on an external file (e.g. in servers/sname/NEWS),
-   it can be included here by using (dedent to make it work):
-
-   .. literalinclude:: ../../servers/servername/NEWS
-
 
 Introduction
 ============
 
 Purpose
 -------
-The Alarming and Monitoring interface will be able to manage all the relevant
+The purpose of Alarming and Monitoring interface is to manage all the relevant
 information. The GUI will give the user a complete overview of the entire
 habitat and how all the instruments are functioning.
 
-The Habitat Monitoring GUI will fit inside the Habitat Monitoring Client which
-is directly interfaced with the Tango System Bus. The GUI will be able to
-directly coordinate with the various servers interfaced with the Tango System
-Bus using the :term:`PANIC` :term:`API` to collect alarm details and device
-servers for other data. 
-
-The Health Monitor :term:`GUI` will be made as a popup or a sub-gui inside the
-top level monitoring system. It will be dedicated to provide information about
+The Health Monitor :term:`GUI` will be dedicated to provide information about
 health of the astronauts performing EVA through biosensors (ECG, air flow sensor
 , etc.).
 
@@ -145,8 +133,8 @@ seconds.
 
 Actors
 ~~~~~~
-Client: Habitat Monitoring :term:`GUI`.
-Server: the Device TANGO server.
+- Client: Habitat Monitoring :term:`GUI`.
+- Server: the Device TANGO server.
 
 Priority
 ~~~~~~~~
@@ -155,7 +143,7 @@ High
 Preconditions
 ~~~~~~~~~~~~~
 The Server is running and its DevState is ON.
-0
+
 Basic Course
 ~~~~~~~~~~~~
 #. The Client calls the appropriate method on the Server, passing T as
@@ -179,8 +167,8 @@ The Client request the Device Server the alarm data of the last T seconds.
 
 Actors
 ~~~~~~
-Client: Habitat Monitoring GUI.
-Server: The network device TANGO server.
+- Client: Habitat Monitoring GUI.
+- Server: The network device TANGO server.
 
 Priority
 ~~~~~~~~
@@ -210,13 +198,13 @@ User requests to add new device
 The user wants to add a new Tango Device on the network to monitor using the
 :term:`GUI`.
 
-.. image:: images/add_device.jpg
+.. image:: images/add_device.png
 
 Actors
 ~~~~~~
-User: The user who wants to add a new Device.
-Client: the Habitat Monitor TANGO client.
-Device Server: Tango server running on the network.
+- User: The user who wants to add a new Device.
+- Client: the Habitat Monitor TANGO client.
+- Device Server: Tango server running on the network.
 
 Priority
 ~~~~~~~~
@@ -254,11 +242,12 @@ A User requests a device's detailed data
 A user requests the detailed data for a given device and the GUI
 complies.
 
+.. image:: images/detailed_view.png
 
 Actors
 ~~~~~~
-User: a user of the GUI.
-GUI: a GUI with an embedded TANGO client.
+- User: a user of the GUI.
+- GUI: a GUI with an embedded TANGO client.
 
 Priority
 ~~~~~~~~
@@ -312,7 +301,7 @@ Software validation and verification
 ------------------------------------
 
 The :term:`GUI` will be implemented as a Tango Client that will fetch data from
-the varios device servers and 
+the varios device servers and show it in a concise manner. 
 
 Planning
 --------
