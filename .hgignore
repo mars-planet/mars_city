@@ -26,3 +26,6 @@ Makefile
 .project
 .pydevproject
 .settings\org.eclipse.core.resources.prefs
+
+# C# binary files
+servers/body_tracker/old/MSKinectMultipeTrackerGUI/MSKinectMultipeTrackerGUI/obj/**

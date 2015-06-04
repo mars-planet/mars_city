@@ -1,6 +1,6 @@
-***************
-Body Tracker MS
-***************
+************
+Body Tracker
+************
 
 .. toctree::
    :maxdepth: 1
