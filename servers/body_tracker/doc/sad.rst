@@ -246,14 +246,15 @@ Document) that will contain the detail description of this interface.
 Communication Interfaces
 ------------------------
 
-The skelatal joints and other data tracked by this module are sent to a Tango
-bus. The Tango server does not necessarily have to be installed in the same
-machine that manages all the Kinects. However this machine must be able to
-send data to the Tango bus.
+The skeletal joints and other data tracked by this module are sent to a
+Tango bus, so the machine that manages all the Kinects must include these
+capabilities.
 
 Every other module can read skeletal data from the Tango bus. For instance,
 the Blender Game Engine can use position of skeletal joints to update the
-pose of a 3D astronaut model.
+pose of a 3D astronaut model. In addition to this, walking speed and and
+body orientation  are provided by this module via the Tango bus, to be used
+for user/rover navigation in Blender.
 
 Performance Requirements
 ========================

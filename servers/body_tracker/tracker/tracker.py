@@ -6,6 +6,7 @@ import time
 import json
 import PyTango
 import pygame
+import math
 
 from pykinect import nui
 from pykinect.nui import JointId
@@ -15,29 +16,37 @@ from urllib import urlopen
 
 
 class PyDevice(PyTango.DeviceClass):
+    POLLING = 30
     cmd_list = {}
-    attr_type = [
+    attr_type_3dpoint = [
         [PyTango.ArgType.DevFloat,
             PyTango.AttrDataFormat.SPECTRUM,
             PyTango.AttrWriteType.READ, 3],
-        {'polling period': 30}
+        {'polling period': POLLING}
+    ]
+    attr_type_scalar = [
+        [PyTango.ArgType.DevFloat,
+         PyTango.AttrDataFormat.SCALAR,
+         PyTango.AttrWriteType.READ],
+        {'polling period': POLLING}
     ]
     attr_list = {
-        'skeleton_head': attr_type,
-        'skeleton_neck': attr_type,
-        'skeleton_left_shoulder': attr_type,
-        'skeleton_right_shoulder': attr_type,
-        'skeleton_left_elbow': attr_type,
-        'skeleton_right_elbow': attr_type,
-        'skeleton_left_hand': attr_type,
-        'skeleton_right_hand': attr_type,
-        'skeleton_torso': attr_type,
-        'skeleton_left_hip': attr_type,
-        'skeleton_right_hip': attr_type,
-        'skeleton_left_knee': attr_type,
-        'skeleton_right_knee': attr_type,
-        'skeleton_left_foot': attr_type,
-        'skeleton_right_foot': attr_type
+        'skeleton_head': attr_type_3dpoint,
+        'skeleton_neck': attr_type_3dpoint,
+        'skeleton_left_shoulder': attr_type_3dpoint,
+        'skeleton_right_shoulder': attr_type_3dpoint,
+        'skeleton_left_elbow': attr_type_3dpoint,
+        'skeleton_right_elbow': attr_type_3dpoint,
+        'skeleton_left_hand': attr_type_3dpoint,
+        'skeleton_right_hand': attr_type_3dpoint,
+        'skeleton_torso': attr_type_3dpoint,
+        'skeleton_left_hip': attr_type_3dpoint,
+        'skeleton_right_hip': attr_type_3dpoint,
+        'skeleton_left_knee': attr_type_3dpoint,
+        'skeleton_right_knee': attr_type_3dpoint,
+        'skeleton_left_foot': attr_type_3dpoint,
+        'skeleton_right_foot': attr_type_3dpoint,
+        'astronaut_height': attr_type_scalar
     }
 
     def __init__(self, name):
@@ -52,9 +61,9 @@ class PyTracker(PyTango.Device_4Impl):
         self.__tracker = tracker
 
     def acquire_skeleton_lock(self):
-        skel_is_none = self.__tracker.get_skeleton() is None
-        lock_acquired = self.__tracker.get_skeleton_lock().acquire(False)
-        if skel_is_none or not lock_acquired:
+        if self.__tracker.get_skeleton() is None:
+            return False
+        elif not self.__tracker.get_skeleton_lock().acquire(False):
             return False
         else:
             return True
@@ -67,6 +76,120 @@ class PyTracker(PyTango.Device_4Impl):
         PyTango.Device_4Impl.__init__(self, cls, name)
         self.info_stream('In 1Tracker.__init__')
         PyTracker.init_device(self)
+
+    def estimate_height(self):
+        skeleton = self.__tracker.get_skeleton()
+
+        if skeleton is None:
+            return -1
+
+        self.__tracker.get_skeleton_lock().acquire()
+
+        upper_body_height = 0
+
+        # head | shoulder_center
+        d1 = skeleton[JointId.Head].x - skeleton[JointId.ShoulderCenter].x
+        d1 *= d1
+        d2 = skeleton[JointId.Head].y - skeleton[JointId.ShoulderCenter].y
+        d2 *= d2
+        d3 = skeleton[JointId.Head].z - skeleton[JointId.ShoulderCenter].z
+        d3 *= d3
+        upper_body_height += math.sqrt(d1 + d2 + d3)
+
+        # shoulder_center | spine
+        d1 = skeleton[JointId.Spine].x - skeleton[JointId.ShoulderCenter].x
+        d1 *= d1
+        d2 = skeleton[JointId.Spine].y - skeleton[JointId.ShoulderCenter].y
+        d2 *= d2
+        d3 = skeleton[JointId.Spine].z - skeleton[JointId.ShoulderCenter].z
+        d3 *= d3
+        upper_body_height += math.sqrt(d1 + d2 + d3)
+
+        # spine | hip_center
+        d1 = skeleton[JointId.Spine].x - skeleton[JointId.HipCenter].x
+        d1 *= d1
+        d2 = skeleton[JointId.Spine].y - skeleton[JointId.HipCenter].y
+        d2 *= d2
+        d3 = skeleton[JointId.Spine].z - skeleton[JointId.HipCenter].z
+        d3 *= d3
+        upper_body_height += math.sqrt(d1 + d2 + d3)
+
+        # hip_center | avg(hip_left, hip_right)
+        d1 = skeleton[JointId.HipCenter].x - (
+             (skeleton[JointId.HipLeft].x + skeleton[JointId.HipRight].x) / 2.0
+             )
+        d1 *= d1
+        d2 = skeleton[JointId.HipCenter].y - (
+             (skeleton[JointId.HipLeft].y + skeleton[JointId.HipRight].y) / 2.0
+             )
+        d2 *= d2
+        d3 = skeleton[JointId.HipCenter].z - (
+             (skeleton[JointId.HipLeft].z + skeleton[JointId.HipRight].z) / 2.0
+             )
+        d3 *= d3
+        upper_body_height += math.sqrt(d1 + d2 + d3)
+
+        # left leg
+        left_leg = 0
+        # hip_left | knee_left
+        d1 = skeleton[JointId.HipLeft].x - skeleton[JointId.KneeLeft].x
+        d1 *= d1
+        d2 = skeleton[JointId.HipLeft].y - skeleton[JointId.KneeLeft].y
+        d2 *= d2
+        d3 = skeleton[JointId.HipLeft].z - skeleton[JointId.KneeLeft].z
+        d3 *= d3
+        left_leg += math.sqrt(d1 + d2 + d3)
+
+        # knee_left | ankle_left
+        d1 = skeleton[JointId.AnkleLeft].x - skeleton[JointId.KneeLeft].x
+        d1 *= d1
+        d2 = skeleton[JointId.AnkleLeft].y - skeleton[JointId.KneeLeft].y
+        d2 *= d2
+        d3 = skeleton[JointId.AnkleLeft].z - skeleton[JointId.KneeLeft].z
+        d3 *= d3
+        left_leg += math.sqrt(d1 + d2 + d3)
+
+        # ankle_left | foot_left
+        d1 = skeleton[JointId.AnkleLeft].x - skeleton[JointId.FootLeft].x
+        d1 *= d1
+        d2 = skeleton[JointId.AnkleLeft].y - skeleton[JointId.FootLeft].y
+        d2 *= d2
+        d3 = skeleton[JointId.AnkleLeft].z - skeleton[JointId.FootLeft].z
+        d3 *= d3
+        left_leg += math.sqrt(d1 + d2 + d3)
+
+        # right leg
+        right_leg = 0
+        # hip_right | knee_right
+        d1 = skeleton[JointId.HipRight].x - skeleton[JointId.KneeRight].x
+        d1 *= d1
+        d2 = skeleton[JointId.HipRight].y - skeleton[JointId.KneeRight].y
+        d2 *= d2
+        d3 = skeleton[JointId.HipRight].z - skeleton[JointId.KneeRight].z
+        d3 *= d3
+        right_leg += math.sqrt(d1 + d2 + d3)
+
+        # knee_right | ankle_right
+        d1 = skeleton[JointId.AnkleRight].x - skeleton[JointId.KneeRight].x
+        d1 *= d1
+        d2 = skeleton[JointId.AnkleRight].y - skeleton[JointId.KneeRight].y
+        d2 *= d2
+        d3 = skeleton[JointId.AnkleRight].z - skeleton[JointId.KneeRight].z
+        d3 *= d3
+        right_leg += math.sqrt(d1 + d2 + d3)
+
+        # ankle_right | foot_right
+        d1 = skeleton[JointId.AnkleRight].x - skeleton[JointId.FootRight].x
+        d1 *= d1
+        d2 = skeleton[JointId.AnkleRight].y - skeleton[JointId.FootRight].y
+        d2 *= d2
+        d3 = skeleton[JointId.AnkleRight].z - skeleton[JointId.FootRight].z
+        d3 *= d3
+        right_leg += math.sqrt(d1 + d2 + d3)
+
+        self.__tracker.get_skeleton_lock().release()
+
+        return upper_body_height + ((left_leg + right_leg) / 2.0)
 
     def read_skeleton_head(self, the_att):
         # sync access to skeleton
@@ -127,7 +250,6 @@ class PyTracker(PyTango.Device_4Impl):
                                         skeleton[JointId.FootRight].y,
                                         skeleton[JointId.FootRight].z)
 
-            # TODO: add skeleton height
             # TODO: user step estimation (and add command)
         finally:
             self.release_skeleton_lock()
@@ -176,6 +298,10 @@ class PyTracker(PyTango.Device_4Impl):
     def read_skeleton_right_foot(self, the_att):
         the_att.set_value(self.skeleton_right_foot)
 
+    def read_astronaut_height(self, the_att):
+        self.astronaut_height = self.estimate_height()
+        the_att.set_value(self.astronaut_height)
+
     def init_device(self):
         self.info_stream('In Python init_device method')
         self.set_state(PyTango.DevState.ON)
@@ -194,6 +320,7 @@ class PyTracker(PyTango.Device_4Impl):
         self.skeleton_right_knee = (0, 0, 0)
         self.skeleton_left_foot = (0, 0, 0)
         self.skeleton_right_foot = (0, 0, 0)
+        self.astronaut_height = -1
 
 
 class Tracker:
