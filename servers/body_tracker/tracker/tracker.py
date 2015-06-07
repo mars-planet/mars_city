@@ -55,21 +55,20 @@ class PyDevice(PyTango.DeviceClass):
 
 
 class PyTracker(PyTango.Device_4Impl):
-    __tracker = None
+    tracker = None
 
     def set_tracker(self, tracker):
-        self.__tracker = tracker
+        self.tracker = tracker
 
     def acquire_skeleton_lock(self):
-        if self.__tracker.get_skeleton() is None:
-            return False
-        elif not self.__tracker.get_skeleton_lock().acquire(False):
+        if (self.tracker.get_skeleton() is None or
+                not self.tracker.get_skeleton_lock().acquire(False)):
             return False
         else:
             return True
 
     def release_skeleton_lock(self):
-        self.__tracker.get_skeleton_lock().release()
+        self.tracker.get_skeleton_lock().release()
 
     def __init__(self, cls, name):
         self.devices = {}
@@ -77,119 +76,75 @@ class PyTracker(PyTango.Device_4Impl):
         self.info_stream('In 1Tracker.__init__')
         PyTracker.init_device(self)
 
-    def estimate_height(self):
-        skeleton = self.__tracker.get_skeleton()
+    def joint_distance(joint_1, joint_2):
+        dx = joint_1.x - joint_2.x
+        dy = joint_1.y - joint_2.y
+        dz = joint_1.z - joint_2.z
+        return math.sqrt(dx**2 + dy**2 + dz**2)
 
-        if skeleton is None:
+    def estimate_height(self):
+        sk = self.tracker.get_skeleton()
+
+        if sk is None:
             return -1
 
-        self.__tracker.get_skeleton_lock().acquire()
+        done = False
 
-        upper_body_height = 0
+        self.tracker.get_skeleton_lock().acquire()
 
-        # head | shoulder_center
-        d1 = skeleton[JointId.Head].x - skeleton[JointId.ShoulderCenter].x
-        d1 *= d1
-        d2 = skeleton[JointId.Head].y - skeleton[JointId.ShoulderCenter].y
-        d2 *= d2
-        d3 = skeleton[JointId.Head].z - skeleton[JointId.ShoulderCenter].z
-        d3 *= d3
-        upper_body_height += math.sqrt(d1 + d2 + d3)
+        try:
+            upper_body_height = 0
 
-        # shoulder_center | spine
-        d1 = skeleton[JointId.Spine].x - skeleton[JointId.ShoulderCenter].x
-        d1 *= d1
-        d2 = skeleton[JointId.Spine].y - skeleton[JointId.ShoulderCenter].y
-        d2 *= d2
-        d3 = skeleton[JointId.Spine].z - skeleton[JointId.ShoulderCenter].z
-        d3 *= d3
-        upper_body_height += math.sqrt(d1 + d2 + d3)
+            upper_body_height += joint_distance(sk[JointId.Head],
+                                                sk[JointId.ShoulderCenter])
+            upper_body_height += joint_distance(sk[JointId.Spine],
+                                                sk[JointId.ShoulderCenter])
+            upper_body_height += joint_distance(sk[JointId.Spine],
+                                                sk[JointId.HipCenter])
 
-        # spine | hip_center
-        d1 = skeleton[JointId.Spine].x - skeleton[JointId.HipCenter].x
-        d1 *= d1
-        d2 = skeleton[JointId.Spine].y - skeleton[JointId.HipCenter].y
-        d2 *= d2
-        d3 = skeleton[JointId.Spine].z - skeleton[JointId.HipCenter].z
-        d3 *= d3
-        upper_body_height += math.sqrt(d1 + d2 + d3)
+            # hip_center | avg(hip_left, hip_right)
+            avg_hip = sk[JointId.HipLeft]
+            avg_hip.x = (sk[JointId.HipLeft].x + sk[JointId.HipRight].x) / 2.0
+            avg_hip.y = (sk[JointId.HipLeft].y + sk[JointId.HipRight].y) / 2.0
+            avg_hip.z = (sk[JointId.HipLeft].z + sk[JointId.HipRight].z) / 2.0
+            upper_body_height += joint_distance(sk[JointId.HipCenter],
+                                                avg_hip)
 
-        # hip_center | avg(hip_left, hip_right)
-        d1 = skeleton[JointId.HipCenter].x - (
-             (skeleton[JointId.HipLeft].x + skeleton[JointId.HipRight].x) / 2.0
-             )
-        d1 *= d1
-        d2 = skeleton[JointId.HipCenter].y - (
-             (skeleton[JointId.HipLeft].y + skeleton[JointId.HipRight].y) / 2.0
-             )
-        d2 *= d2
-        d3 = skeleton[JointId.HipCenter].z - (
-             (skeleton[JointId.HipLeft].z + skeleton[JointId.HipRight].z) / 2.0
-             )
-        d3 *= d3
-        upper_body_height += math.sqrt(d1 + d2 + d3)
+            # left leg
+            left_leg = 0
 
-        # left leg
-        left_leg = 0
-        # hip_left | knee_left
-        d1 = skeleton[JointId.HipLeft].x - skeleton[JointId.KneeLeft].x
-        d1 *= d1
-        d2 = skeleton[JointId.HipLeft].y - skeleton[JointId.KneeLeft].y
-        d2 *= d2
-        d3 = skeleton[JointId.HipLeft].z - skeleton[JointId.KneeLeft].z
-        d3 *= d3
-        left_leg += math.sqrt(d1 + d2 + d3)
+            left_leg += joint_distance(sk,
+                                       JointId.HipLeft,
+                                       JointId.KneeLeft)
+            left_leg += joint_distance(sk,
+                                       JointId.AnkleLeft,
+                                       JointId.KneeLeft)
+            left_leg += joint_distance(sk,
+                                       JointId.AnkleLeft,
+                                       JointId.FootLeft)
 
-        # knee_left | ankle_left
-        d1 = skeleton[JointId.AnkleLeft].x - skeleton[JointId.KneeLeft].x
-        d1 *= d1
-        d2 = skeleton[JointId.AnkleLeft].y - skeleton[JointId.KneeLeft].y
-        d2 *= d2
-        d3 = skeleton[JointId.AnkleLeft].z - skeleton[JointId.KneeLeft].z
-        d3 *= d3
-        left_leg += math.sqrt(d1 + d2 + d3)
+            # right leg
+            right_leg = 0
 
-        # ankle_left | foot_left
-        d1 = skeleton[JointId.AnkleLeft].x - skeleton[JointId.FootLeft].x
-        d1 *= d1
-        d2 = skeleton[JointId.AnkleLeft].y - skeleton[JointId.FootLeft].y
-        d2 *= d2
-        d3 = skeleton[JointId.AnkleLeft].z - skeleton[JointId.FootLeft].z
-        d3 *= d3
-        left_leg += math.sqrt(d1 + d2 + d3)
+            right_leg += joint_distance(sk,
+                                        JointId.HipRight,
+                                        JointId.KneeRight)
+            right_leg += joint_distance(sk,
+                                        JointId.AnkleRight,
+                                        JointId.KneeRight)
+            right_leg += joint_distance(sk,
+                                        JointId.AnkleRight,
+                                        JointId.FootRight)
 
-        # right leg
-        right_leg = 0
-        # hip_right | knee_right
-        d1 = skeleton[JointId.HipRight].x - skeleton[JointId.KneeRight].x
-        d1 *= d1
-        d2 = skeleton[JointId.HipRight].y - skeleton[JointId.KneeRight].y
-        d2 *= d2
-        d3 = skeleton[JointId.HipRight].z - skeleton[JointId.KneeRight].z
-        d3 *= d3
-        right_leg += math.sqrt(d1 + d2 + d3)
+            done = False
 
-        # knee_right | ankle_right
-        d1 = skeleton[JointId.AnkleRight].x - skeleton[JointId.KneeRight].x
-        d1 *= d1
-        d2 = skeleton[JointId.AnkleRight].y - skeleton[JointId.KneeRight].y
-        d2 *= d2
-        d3 = skeleton[JointId.AnkleRight].z - skeleton[JointId.KneeRight].z
-        d3 *= d3
-        right_leg += math.sqrt(d1 + d2 + d3)
+        finally:
+            self.tracker.get_skeleton_lock().release()
 
-        # ankle_right | foot_right
-        d1 = skeleton[JointId.AnkleRight].x - skeleton[JointId.FootRight].x
-        d1 *= d1
-        d2 = skeleton[JointId.AnkleRight].y - skeleton[JointId.FootRight].y
-        d2 *= d2
-        d3 = skeleton[JointId.AnkleRight].z - skeleton[JointId.FootRight].z
-        d3 *= d3
-        right_leg += math.sqrt(d1 + d2 + d3)
-
-        self.__tracker.get_skeleton_lock().release()
-
-        return upper_body_height + ((left_leg + right_leg) / 2.0)
+        if done:
+            return upper_body_height + ((left_leg + right_leg) / 2.0)
+        else:
+            return -1
 
     def read_skeleton_head(self, the_att):
         # sync access to skeleton
@@ -198,7 +153,7 @@ class PyTracker(PyTango.Device_4Impl):
             return
 
         try:
-            skeleton = self.__tracker.get_skeleton()
+            skeleton = self.tracker.get_skeleton()
 
             self.skeleton_head = (skeleton[JointId.Head].x,
                                   skeleton[JointId.Head].y,
@@ -324,42 +279,42 @@ class PyTracker(PyTango.Device_4Impl):
 
 
 class Tracker:
-    __KINECTEVENT = pygame.USEREVENT
+    KINECTEVENT = pygame.USEREVENT
 
-    __SMOOTH_PARAMS_SMOOTHING = 0.7
-    __SMOOTH_PARAMS_CORRECTION = 0.4
-    __SMOOTH_PARAMS_PREDICTION = 0.7
-    __SMOOTH_PARAMS_JITTER_RADIUS = 0.1
-    __SMOOTH_PARAMS_MAX_DEV_RADIUS = 0.1
-    __SMOOTH_PARAMS = TransformSmoothParameters(__SMOOTH_PARAMS_SMOOTHING,
-                                                __SMOOTH_PARAMS_CORRECTION,
-                                                __SMOOTH_PARAMS_PREDICTION,
-                                                __SMOOTH_PARAMS_JITTER_RADIUS,
-                                                __SMOOTH_PARAMS_MAX_DEV_RADIUS)
+    SMOOTH_PARAMS_SMOOTHING = 0.7
+    SMOOTH_PARAMS_CORRECTION = 0.4
+    SMOOTH_PARAMS_PREDICTION = 0.7
+    SMOOTH_PARAMS_JITTER_RADIUS = 0.1
+    SMOOTH_PARAMS_MAX_DEV_RADIUS = 0.1
+    SMOOTH_PARAMS = TransformSmoothParameters(SMOOTH_PARAMS_SMOOTHING,
+                                              SMOOTH_PARAMS_CORRECTION,
+                                              SMOOTH_PARAMS_PREDICTION,
+                                              SMOOTH_PARAMS_JITTER_RADIUS,
+                                              SMOOTH_PARAMS_MAX_DEV_RADIUS)
 
-    __device_name = None
-    __kinect = None
+    device_name = None
+    kinect = None
 
-    __skeleton = None
-    __skeleton_lock = threading.Lock()
+    skeleton = None
+    skeleton_lock = threading.Lock()
 
     def update_skeleton(self, new_skeleton):
-        self.__skeleton_lock.acquire()
-        self.__skeleton = new_skeleton
-        self.__skeleton_lock.release()
+        self.skeleton_lock.acquire()
+        self.skeleton = new_skeleton
+        self.skeleton_lock.release()
 
     def get_skeleton(self):
-        return self.__skeleton
+        return self.skeleton
 
     def get_skeleton_lock(self):
-        return self.__skeleton_lock
+        return self.skeleton_lock
 
     def post_frame(self, frame):
         """Get skeleton events from the Kinect device and post them into the PyGame
         event queue."""
         try:
             pygame.event.post(
-                pygame.event.Event(self.__KINECTEVENT, skeleton_frame=frame)
+                pygame.event.Event(self.KINECTEVENT, skeleton_frame=frame)
             )
         except:
             # event queue full
@@ -382,29 +337,29 @@ class Tracker:
     def start_tracker(self, log_file_name=None):
         pygame.init()
 
-        if self.__kinect is None:
-            self.__kinect = nui.Runtime()
-            self.__kinect.skeleton_engine.enabled = True
+        if self.kinect is None:
+            self.kinect = nui.Runtime()
+            self.kinect.skeleton_engine.enabled = True
 
-        self.__kinect.skeleton_frame_ready += self.post_frame
+        self.kinect.skeleton_frame_ready += self.post_frame
 
         while True:
             event = pygame.event.wait()
 
             if event.type == pygame.QUIT:
                 break
-            elif event.type == self.__KINECTEVENT:
-                self.__kinect._nui.NuiTransformSmooth(event.skeleton_frame,
-                                                      self.__SMOOTH_PARAMS)
+            elif event.type == self.KINECTEVENT:
+                self.kinect._nui.NuiTransformSmooth(event.skeleton_frame,
+                                                    self.SMOOTH_PARAMS)
                 self.save_skeletal_data(event.skeleton_frame)
 
-                if log_file_name is not None and self.__skeleton is not None:
+                if log_file_name is not None and self.skeleton is not None:
                     self.log_skeletal_data(log_file_name)
 
     def skeleton_to_json(self):
         """Convert skeleton to json"""
         tmp = [None] * JointId.count
-        for joint_type, j in enumerate(self.__skeleton):
+        for joint_type, j in enumerate(self.skeleton):
             tmp[joint_type] = {'x': j.x, 'y': j.y, 'z': j.z, 'w': j.w}
         return json.dumps(tmp)
 
@@ -431,19 +386,19 @@ class Tracker:
                     time.sleep(polling)
 
     def start_tango(self):
-        util = PyTango.Util(['tracker', self.__device_name])
+        util = PyTango.Util(['tracker', self.device_name])
         util.add_class(PyDevice, PyTracker)
         U = PyTango.Util.instance()
         U.server_init()
 
-        device = U.get_device_by_name("c3/mac/" + self.__device_name)
+        device = U.get_device_by_name("c3/mac/" + self.device_name)
         device.set_tracker(self)
 
         U.server_run()
 
     def __init__(self, device_name, kinect=None, log=None, sim=None):
-        self.__device_name = device_name
-        self.__kinect = kinect
+        self.device_name = device_name
+        self.kinect = kinect
 
         if log is None:
             if sim is None:
