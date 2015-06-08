@@ -161,14 +161,14 @@ The server returns the data requested or an empty array if no data is available.
 
 Request for alarms
 ++++++++++++++++++
-The Client request the Device Server the alarm data of the last T seconds.
+The Client request the Tango host for the alarm data of the last T seconds.
 
-.. image:: images/alarmdata.jpg
+.. image:: images/alarmdata.png
 
 Actors
 ~~~~~~
 - Client: Habitat Monitoring GUI.
-- Server: The network device TANGO server.
+- Server: The Tango host responsible for collecting alarm data.
 
 Priority
 ~~~~~~~~

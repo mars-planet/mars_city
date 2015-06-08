@@ -31,8 +31,8 @@ class HabitatMonitor(QtGui.QMainWindow):
                 dev_attrs = self.proxy.get_attribute_list()
             except:
                 print "Exceptions"
-                QtGui.QErrorMessage(self).showMessage("Incorrect Device " + 
-                    "Adderess")
+                QtGui.QErrorMessage(self).showMessage(
+                    "Incorrect Device Address")
                 
 
         else:
