@@ -76,7 +76,7 @@ class PyTracker(PyTango.Device_4Impl):
         self.info_stream('In 1Tracker.__init__')
         PyTracker.init_device(self)
 
-    def joint_distance(joint_1, joint_2):
+    def joint_distance(self, joint_1, joint_2):
         dx = joint_1.x - joint_2.x
         dy = joint_1.y - joint_2.y
         dz = joint_1.z - joint_2.z
@@ -92,51 +92,42 @@ class PyTracker(PyTango.Device_4Impl):
 
         self.tracker.get_skeleton_lock().acquire()
 
+        upper_body_height = 0
+        right_leg = 0
+        left_leg = 0
         try:
-            upper_body_height = 0
-
-            upper_body_height += joint_distance(sk[JointId.Head],
-                                                sk[JointId.ShoulderCenter])
-            upper_body_height += joint_distance(sk[JointId.Spine],
-                                                sk[JointId.ShoulderCenter])
-            upper_body_height += joint_distance(sk[JointId.Spine],
-                                                sk[JointId.HipCenter])
+            upper_body_height += self.joint_distance(sk[JointId.Head],
+                                                     sk[JointId.ShoulderCenter])
+            upper_body_height += self.joint_distance(sk[JointId.Spine],
+                                                     sk[JointId.ShoulderCenter])
+            upper_body_height += self.joint_distance(sk[JointId.Spine],
+                                                     sk[JointId.HipCenter])
 
             # hip_center | avg(hip_left, hip_right)
             avg_hip = sk[JointId.HipLeft]
             avg_hip.x = (sk[JointId.HipLeft].x + sk[JointId.HipRight].x) / 2.0
             avg_hip.y = (sk[JointId.HipLeft].y + sk[JointId.HipRight].y) / 2.0
             avg_hip.z = (sk[JointId.HipLeft].z + sk[JointId.HipRight].z) / 2.0
-            upper_body_height += joint_distance(sk[JointId.HipCenter],
-                                                avg_hip)
+            upper_body_height += self.joint_distance(avg_hip,
+                                                     sk[JointId.HipCenter])
 
             # left leg
-            left_leg = 0
-
-            left_leg += joint_distance(sk,
-                                       JointId.HipLeft,
-                                       JointId.KneeLeft)
-            left_leg += joint_distance(sk,
-                                       JointId.AnkleLeft,
-                                       JointId.KneeLeft)
-            left_leg += joint_distance(sk,
-                                       JointId.AnkleLeft,
-                                       JointId.FootLeft)
+            left_leg += self.joint_distance(sk[JointId.HipLeft],
+                                            sk[JointId.KneeLeft])
+            left_leg += self.joint_distance(sk[JointId.AnkleLeft],
+                                            sk[JointId.KneeLeft])
+            left_leg += self.joint_distance(sk[JointId.AnkleLeft],
+                                            sk[JointId.FootLeft])
 
             # right leg
-            right_leg = 0
+            right_leg += self.joint_distance(sk[JointId.HipRight],
+                                             sk[JointId.KneeRight])
+            right_leg += self.joint_distance(sk[JointId.AnkleRight],
+                                             sk[JointId.KneeRight])
+            right_leg += self.joint_distance(sk[JointId.AnkleRight],
+                                             sk[JointId.FootRight])
 
-            right_leg += joint_distance(sk,
-                                        JointId.HipRight,
-                                        JointId.KneeRight)
-            right_leg += joint_distance(sk,
-                                        JointId.AnkleRight,
-                                        JointId.KneeRight)
-            right_leg += joint_distance(sk,
-                                        JointId.AnkleRight,
-                                        JointId.FootRight)
-
-            done = False
+            done = True
 
         finally:
             self.tracker.get_skeleton_lock().release()
