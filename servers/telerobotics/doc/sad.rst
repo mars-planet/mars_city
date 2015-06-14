@@ -18,6 +18,8 @@ Change Record
 
 26\ :sup:`th`\  May, 2015 - First Draft open for review.
 
+14\ :sup:`th`\  June, 2015 - Added overall architecture diagrams and fixed links in the `Documents`_  section
+
 	.. literalinclude:: ../../servers/servername/NEWS
 
 
@@ -36,7 +38,7 @@ The purpose of this package is to provide a high-level Telerobotics interface fo
 - Allowing real-time streaming of the rover's stereo camera-feed to the ERAS application
 - Augmented reality interface obtained from the processing the rover sensor data
 
-The following diagram describes the logical architecture of the Telerobotics system - 
+The following diagram describes the logical architecture of the Telerobotics system -
 
 .. image:: arch1.png
 
@@ -44,6 +46,8 @@ Scope
 -----
 
 It is aimed that this requirement specification presents a **correct, understandable, efficient, and maintanable** Telerobotics interface for ERAS. The **scope** of this *requirements specification* spans all the robots that may be used in the future for **Telerobotics applications** *i.e.* **"all applications involving remote control, command and communication** (*C3*) **with a robot and a human"**
+
+.. _`Documents`:
 
 Applicable Documents
 --------------------
@@ -63,29 +67,29 @@ Reference Documents
 - [6] -- `Robot Operating System`_
 - [7] -- `Husky Unmanned Ground Vehicle`_
 
-.. _`C3 Prototype document`: <http://erasproject.org/download/eras-command-control-and-communication-c3-prototype/>
-.. _`Software Engineering Practices Guidelines for the ERAS Project`:
-   <https://eras.readthedocs.org/en/latest/doc/guidelines.html>
+..  _`C3 Prototype document`: http://erasproject.org/download/eras-command-control-and-communication-c3-prototype/
+..  _`Software Engineering Practices Guidelines for the ERAS Project`:
+   https://eras.readthedocs.org/en/latest/doc/guidelines.html
 .. _`ERAS 2015 GSoC Telerobotics Proposal`:
-   <http://erasproject.org/2015-gsoc/#2>
-.. _`TANGO distributed control system`: <http://www.tango-controls.org/>
+   http://erasproject.org/2015-gsoc/#2
+.. _`TANGO distributed control system`: http://www.tango-controls.org/
 .. _`PyTANGO - Python bindings for TANGO`:
-   <http://www.tango-controls.org/static/PyTango/latest/doc/html/index.html>
-.. _`Tango Setup`: <https://eras.readthedocs.org/en/latest/doc/setup.html>
+   http://www.tango-controls.org/static/PyTango/latest/doc/html/index.html
+.. _`Tango Setup`: https://eras.readthedocs.org/en/latest/doc/setup.html
 .. _`Adding a new Server in Tango`:
-   <https://eras.readthedocs.org/en/latest/doc/setup.html#adding-a-new-server-in-tango>
+   https://eras.readthedocs.org/en/latest/doc/setup.html#adding-a-new-server-in-tango
 .. _`Robot Operating System`:
-	<http://www.ros.org/>
+	http://www.ros.org/
 .. _`Networking Subsystem of V-ERAS`:
-  <http://erasproject.org/download/the-networking-sub-system-of-t-he-virtual-european-mar-s-analog-station-e-melotti-bachelors-thesis/>
+  http://erasproject.org/download/the-networking-sub-system-of-t-he-virtual-european-mar-s-analog-station-e-melotti-bachelors-thesis/
 .. _`Husky Unmanned Ground Vehicle`:
-  <http://wiki.ros.org/Robots/Husky>
+  http://wiki.ros.org/Robots/Husky
 
 Glossary
 --------
 
 .. To create a glossary use the following code (dedent it to make it work):
-    	 
+
 .. glossary::
 
 ``AR``
@@ -149,7 +153,7 @@ Make an overview in which you describe the rest of this document the and which c
 
 
 
-Architectural Requirements 
+Architectural Requirements
 ==========================
 
 This section describes the requirements which are important for developing the software architecture.
@@ -163,7 +167,7 @@ The **Telerobotics application** has the following requirements and use-cases -
 
 - **Low-latency** transfer of information from the **Body-Tracking application** to the **Telerobotics application**
 - **Fast and collision-free mapping** of bodytracking information to **rover's motion commands**
-- **Account for variability and unreliability** in astronaut's body movements. 
+- **Account for variability and unreliability** in astronaut's body movements.
 - **Outlier** body movements in a real-time stream of movements must be neglected.
 - **Feedback** from the robot rover
 - **Real-time** Streaming of rover information
@@ -176,7 +180,7 @@ The **Telerobotics application** has the following requirements and use-cases -
 Non-functional requirements
 ---------------------------
 
-The following are the non-functional requirements - 
+The following are the non-functional requirements -
 
 - **Wireless Communication via WiFi**
 - **Real-time Video Streaming protocols**
@@ -184,7 +188,7 @@ The following are the non-functional requirements -
 - **Tango distributed controls system**
 - Blender Game Engine
 - Clearpath Husky UGV
-- Microsoft Kinect 
+- Microsoft Kinect
 
 
 These non-functional requirements are already in place.
@@ -201,7 +205,7 @@ User Interfaces
 GUI (Graphical User Interface)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The real-time video streams are displayed in the Blender Game Engine application. The GUI therefore is inherited from the V-ERAS Application. There is no separate GUI for telerobotic control. The interface with the Oculus Rift device is minimal and displayed on the twin Oculus screens. This augmented reality interface is essential for blending in the rover's world with the astronaut's world. 
+The real-time video streams are displayed in the Blender Game Engine application. The GUI therefore is inherited from the V-ERAS Application. There is no separate GUI for telerobotic control. The interface with the Oculus Rift device is minimal and displayed on the twin Oculus screens. This augmented reality interface is essential for blending in the rover's world with the astronaut's world.
 
 CLI (Command Line Interface)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -254,12 +258,12 @@ Communication Interfaces
 
 Communication forms a major part of this **command-control-and-communication** application.
 
-- The **Telerobotics** application communicates with the body-tracking application over a shared Tango data bus. 
+- The **Telerobotics** application communicates with the body-tracking application over a shared Tango data bus.
 - The communication with the robot is **wireless communication** from the ERAS station.
 - Real-time stereo video stream is wireless communication over a **dedicated physical channel**
 - The communication with the Oculus VR device is *wired communication* from the ERAS station.
 - The software structures communicate via the Tango bus.
-- Flow control among different software interfaces is realized by *buffer control structures* 
+- Flow control among different software interfaces is realized by *buffer control structures*
 
 Performance Requirements
 ========================
@@ -268,7 +272,7 @@ Performance Requirements
 
 Real-time requirements need **at least soft-realtime guarantees* with **jitter** of the order of 100 microseconds. The 3D video streaming and AR applications are expected to be **hard-realtime** applications.
 
-Logical View 
+Logical View
 ============
 
 
