@@ -1,5 +1,4 @@
-#!/usr/bin/env python2.7
-
+"""Command Line Interface to setup or delete a Device from the Tango database."""
 from __future__ import print_function
 import PyTango
 import sys
