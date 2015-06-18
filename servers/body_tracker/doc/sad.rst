@@ -9,6 +9,8 @@ Change Record
 
 10\ :sup:`th` May, 2015 - Document created.
 
+18\ :sup:`th` Jun, 2015 - Update GUI and added CLI.
+
 
 Introduction
 ============
@@ -183,33 +185,55 @@ skeletal data (the "main server" in Figure 1).
 
 The interface is similar to the one shown in the following pictures:
 
-.. figure:: images/multiplekinectmanagerGUIallactive.jpg
+.. figure:: images/gui.jpg
 
-   Figure 2. GUI with a single Kinect available, but not yet connected to Tango
+   Figure 2. GUI with a single Kinect available, and not yet connected to Tango
 
-.. figure:: images/multiplekinectmanagerGUIoneactive.png
-
-   Figure 3. GUI with 4 Kinects in use
-
-Available Kinects are those with name highlighted in green. When a Kinect is
+Available Kinects are those with labels colored in black, while gray labels
+are used to visually identify the unactive (or unplugged) devices. When a Kinect is
 available, a system manager can decide to assign it to a Tango server, by
-selecting the server name from the drop down menu.
+selecting the radio button next to the server name.
 
-When multiple Kinects are available, there is the need to bind Kinect names
-to each actual physical device. By clicking on *Identify*, the motorized tilt
-of the corresponding Kinect is activate. By observing which Kinect is moving,
-it is possible to associate the device with the letter assigned by the software.
+When multiple Kinects are available, it is possible to figure out "which Kinect is
+which", in the sense that by observing depth images and comparing them with
+the scenes in front of each Kinects, you can mentally bind the letters
+used in the GUI to the physical device.
 
-A sliding cursor is also available to adjust the tilt angle.
+A sliding cursor is also available on the left of each images, to adjust the tilt angle.
 
 CLI (Command Line Interface)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TBD
+The GUI can be opened by executing:
 
-Describes the command-line interface if present. For each command, a
-description of all arguments and example values and invocations should be
-provided.
+    ``python gui.py``
+
+This will allow a system manager to manage multiple Kinect from a single
+interface.
+
+For testing purporses it is also possible to start the tracking process
+by using a single Kinect device. In this case, the command to execute is:
+
+    ``python tracker.py eras-X``
+
+where ``eras-X`` is the Tango device name (so X can be a value between and
+including 1 and 4).
+
+The ``tracker.py`` script can also be used for simulation. The following
+command allows to record skeletal tracking data, and store them in a JSON
+file called ``test.json``:
+
+    ``python tracker.py eras-X --log test.json``
+
+The outputted JSON file can be also used to simulate the tracking,
+without the need to use an actual device. To do this, just execute the following:
+
+    ``python tracker.py eras-X --sim test.json``
+    
+To sum up how the ``tracker.py`` script works, here is the command line usage
+for it:
+
+    ``tracker.py {eras-1,eras-2,eras-3,eras-4} [-h] [--log FILENAME | --sim FILENAME]``
 
 API (Application Programming Interface)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

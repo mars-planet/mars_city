@@ -5,6 +5,7 @@ syntax: glob
 *.orig
 *.rej
 *.blend1
+*.suo
 
 # project-related files
 doc/_build/*
@@ -29,3 +30,4 @@ Makefile
 
 # C# binary files
 servers/body_tracker/old/MSKinectMultipeTrackerGUI/MSKinectMultipeTrackerGUI/obj/**
+servers/body_tracker/old/MSKinectMultipeTrackerGUI/MSKinectMultipeTrackerGUI/bin/**

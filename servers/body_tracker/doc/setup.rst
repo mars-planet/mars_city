@@ -13,6 +13,8 @@ Change Record
 
 4\ :sup:`th`  Jun, 2015 - Updated setup instructions for Python, Tango and PyKinect.
 
+18\ :sup:`th`  Jun, 2015 - Fix typos.
+
 
 Version of Microsoft Windows
 ============================
@@ -183,7 +185,7 @@ Configure Tango Host
 To be able to get all Tango informations, you need to specify the address of the Tango host.
 Assuming that it is 198.168.1.100:10000, open the command line and type:
 
-    set TANGO_HOST=192.168.1.100:10000
+    ``set TANGO_HOST=192.168.1.100:10000``
 
 Using a virtual machine manager
 ===============================

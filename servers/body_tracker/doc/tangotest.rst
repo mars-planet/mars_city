@@ -9,6 +9,8 @@ Change Record
 
 3\ :sup:`rd`  May, 2015 - Document created.
 
+18\ :sup:`rd`  Jun, 2015 - Fix typos.
+
 Purpose
 =======
 This document explains the procedure to test Tango-based software
@@ -98,7 +100,7 @@ machine.
 Assuming the the IP address of the virtual machine is 192.168.0.111, open
 a terminal on Windows and execute the following command:
 
-    set TANGO_HOST=192.168.0.111:10000
+    ``set TANGO_HOST=192.168.0.111:10000``
 
 Perform tests
 =============
