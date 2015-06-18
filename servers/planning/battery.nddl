@@ -1,5 +1,8 @@
 class Location;
 class Rover;
+class battery;
+class Path;
+class Navigator;
 
 class Rover extends Timeline
 {
@@ -13,7 +16,6 @@ class Rover extends Timeline
 
 }
 
-// A point on the planet's surface. We assume a Euclidean Plane.
 class Location {
    string name;
    int x;
@@ -30,10 +32,60 @@ class Battery extends Reservoir {
         string profileType;
         string detectorType;
 
-        Battery()
-        {
-                super(0.0 ,0.0, 10.0); // initial, lower_limit, upper_limit
-                profileType = "GroundedProfile";
-                detectorType = "GroundedFVDetector";
-        }
+        Battery(float ic, float ll_min, float ll_max)
+    {
+        super(ic, ll_min, ll_max);
+        profileType="IncrementalFlowProfile";
+    }
+}
+
+class Path {
+  string name;
+  Location from;
+  Location to;
+  float cost;
+
+  Path(string _name, Location _from, Location _to, float _cost){
+    name = _name;
+    from = _from;
+    to = _to;
+    cost = _cost;
+   }
+}
+class Navigator extends Timeline
+{
+    predicate At { Location location; }
+
+    // Rover may be going between two locations.
+    predicate Going{
+        Path path;
+        Location from;
+        Location to;
+        neq(from, to); // prevents rover from going from a location
+                       //straight back to that location.
+    }
+}
+
+Rover::Go
+{
+
+    //met_by(condition object.navigator.At _from);
+    meets(effect object.navigator.At _to);
+    eq(_to.location, dest);
+
+    // Find a path
+    Path path;
+
+    // The path used must be between the 2 points
+    eq(path.from, _from.location);
+    eq(path.to, dest);
+
+    equals(effect object.navigator.Going going);
+    eq(going.path,path);
+    eq(going.from,_from.location);
+    eq(going.to,dest);
+
+    // Pull power from the battery equal to the path cost.
+    starts(effect Battery.consume tx);
+    eq(tx.quantity, path.cost);
 }
