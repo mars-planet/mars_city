@@ -190,9 +190,11 @@ The following are the non-functional requirements -
 - Clearpath Husky UGV
 - Microsoft Kinect
 
-
 These non-functional requirements are already in place.
 
+The underlying architecture is realized using these requirements:
+
+.. image:: rostango.png
 
 Interface Requirements
 ======================
