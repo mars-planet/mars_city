@@ -20,6 +20,8 @@ Change Record
 
 14\ :sup:`th`\  June, 2015 - Added overall architecture diagrams and fixed links in the `Documents`_  section
 
+18\ :sup:`th`\  June, 2015 - Added ROS-Tango Distributed System interaction diagram to the SAD.
+
 	.. literalinclude:: ../../servers/servername/NEWS
 
 
