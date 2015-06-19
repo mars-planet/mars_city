@@ -7,14 +7,184 @@ import json
 import PyTango
 import pygame
 import math
-
+from PyTango.server import Device, DeviceMeta, attribute, command
+from PyTango.server import class_property, device_property
 from pykinect import nui
-from pykinect.nui import JointId
 from pykinect.nui.structs import TransformSmoothParameters
-from pykinect.nui import SkeletonTrackingState
+from pykinect.nui import SkeletonTrackingState, JointId
 from urllib import urlopen
 
-from tango_tracker import PyTracker
+
+class PyTracker(Device):
+    __metaclass__ = DeviceMeta
+
+    POLLING = 30
+
+    # the Tracker object, from which get skeletal data
+    tracker = None
+
+    def set_tracker(self, tracker):
+        self.tracker = tracker
+
+    def acquire_skeleton_lock(self):
+        if (self.tracker is None or
+                self.tracker.get_skeleton() is None or
+                not self.tracker.get_skeleton_lock().acquire(False)):
+            return False
+        else:
+            return True
+
+    def release_skeleton_lock(self):
+        self.tracker.get_skeleton_lock().release()
+
+    joints = [
+        'skeleton_head',
+        'skeleton_neck',
+        'skeleton_left_shoulder',
+        'skeleton_right_shoulder',
+        'skeleton_left_elbow',
+        'skeleton_right_elbow',
+        'skeleton_left_hand',
+        'skeleton_right_hand',
+        'skeleton_torso',
+        'skeleton_left_hip',
+        'skeleton_right_hip',
+        'skeleton_left_knee',
+        'skeleton_right_knee',
+        'skeleton_left_foot',
+        'skeleton_right_foot'
+    ]
+
+    attr_init_params = dict(
+        dtype=('float32',),
+        unit='m',
+        max_dim_x=3,
+        polling_period=POLLING
+    )
+
+    for joint in joints:
+        # Attribute definition
+        exec "%s = attribute(**attr_init_params)" % joint
+        if joint == 'skeleton_head':
+            continue
+        # Read method definition (except for skeleton_head)
+        exec "def read_%s(self):\n\treturn self._%s" % (joint, joint)
+
+    def joint_distance(self, joint_1, joint_2):
+        dx = joint_1.x - joint_2.x
+        dy = joint_1.y - joint_2.y
+        dz = joint_1.z - joint_2.z
+        return math.sqrt(dx**2 + dy**2 + dz**2)
+
+    def estimate_height(self):
+        sk = self.tracker.get_skeleton()
+
+        if sk is None:
+            return -1
+
+        done = False
+
+        self.tracker.get_skeleton_lock().acquire()
+
+        upper_body_height = 0
+        right_leg = 0
+        left_leg = 0
+        try:
+            upper_body_height += self.joint_distance(sk[JointId.Head],
+                                                     sk[JointId.ShoulderCenter])
+            upper_body_height += self.joint_distance(sk[JointId.Spine],
+                                                     sk[JointId.ShoulderCenter])
+            upper_body_height += self.joint_distance(sk[JointId.Spine],
+                                                     sk[JointId.HipCenter])
+
+            # hip_center | avg(hip_left, hip_right)
+            avg_hip = sk[JointId.HipLeft]
+            avg_hip.x = (sk[JointId.HipLeft].x + sk[JointId.HipRight].x) / 2.0
+            avg_hip.y = (sk[JointId.HipLeft].y + sk[JointId.HipRight].y) / 2.0
+            avg_hip.z = (sk[JointId.HipLeft].z + sk[JointId.HipRight].z) / 2.0
+            upper_body_height += self.joint_distance(avg_hip,
+                                                     sk[JointId.HipCenter])
+
+            # left leg
+            left_leg += self.joint_distance(sk[JointId.HipLeft],
+                                            sk[JointId.KneeLeft])
+            left_leg += self.joint_distance(sk[JointId.AnkleLeft],
+                                            sk[JointId.KneeLeft])
+            left_leg += self.joint_distance(sk[JointId.AnkleLeft],
+                                            sk[JointId.FootLeft])
+
+            # right leg
+            right_leg += self.joint_distance(sk[JointId.HipRight],
+                                             sk[JointId.KneeRight])
+            right_leg += self.joint_distance(sk[JointId.AnkleRight],
+                                             sk[JointId.KneeRight])
+            right_leg += self.joint_distance(sk[JointId.AnkleRight],
+                                             sk[JointId.FootRight])
+
+            done = True
+
+        finally:
+            self.tracker.get_skeleton_lock().release()
+
+        if done:
+            return upper_body_height + ((left_leg + right_leg) / 2.0)
+        else:
+            return -1
+
+    def joint_to_tuple(self, joint):
+        return (joint.x, joint.y, joint.z)
+
+    def get_neck_joint_tuple(self, skeleton):
+        # TBD how to convert MS ShoulderCenter/Left/Right in OpenNI Neck
+        return (skeleton[JointId.ShoulderCenter].x,
+                (skeleton[JointId.ShoulderLeft].y * 0.3 +
+                 skeleton[JointId.ShoulderRight].y * 0.3 +
+                 skeleton[JointId.ShoulderCenter].y * 0.4),
+                skeleton[JointId.ShoulderCenter].z)
+
+    def read_skeleton_head(self):
+        # sync access to skeleton
+        if not self.acquire_skeleton_lock():
+            return self._skeleton_head
+
+        try:
+            sk = self.tracker.get_skeleton()
+
+            self._skeleton_neck = self.get_neck_joint_tuple(sk)
+            self._skeleton_head = self.joint_to_tuple(sk[JointId.Head])
+            self._skeleton_left_shoulder = self.joint_to_tuple(sk[JointId.ShoulderLeft])
+            self._skeleton_right_shoulder = self.joint_to_tuple(sk[JointId.ShoulderRight])
+            self._skeleton_left_elbow = self.joint_to_tuple(sk[JointId.ElbowLeft])
+            self._skeleton_right_elbow = self.joint_to_tuple(sk[JointId.ElbowRight])
+            self._skeleton_left_hand = self.joint_to_tuple(sk[JointId.HandLeft])
+            self._skeleton_right_hand = self.joint_to_tuple(sk[JointId.HandRight])
+            self._skeleton_torso = self.joint_to_tuple(sk[JointId.Spine])
+            self._skeleton_left_hip = self.joint_to_tuple(sk[JointId.HipLeft])
+            self._skeleton_right_hip = self.joint_to_tuple(sk[JointId.HipRight])
+            self._skeleton_left_knee = self.joint_to_tuple(sk[JointId.KneeLeft])
+            self._skeleton_right_knee = self.joint_to_tuple(sk[JointId.KneeRight])
+            self._skeleton_left_foot = self.joint_to_tuple(sk[JointId.FootLeft])
+            self._skeleton_right_foot = self.joint_to_tuple(sk[JointId.FootRight])
+
+            # TODO: user step estimation (and add command)
+        finally:
+            self.release_skeleton_lock()
+
+        return self._skeleton_head
+
+    @command(dtype_out=float)
+    def get_height(self):
+        return self.estimate_height()
+
+    def init_device(self):
+        Device.init_device(self)
+        self.info_stream('In Python init_device method')
+        self.set_state(PyTango.DevState.ON)
+
+        # Attribute initialization
+        for joint in self.joints:
+            setattr(self, '_' + joint, (0, 0, 0))
+
 
 class Tracker:
     KINECTEVENT = pygame.USEREVENT
