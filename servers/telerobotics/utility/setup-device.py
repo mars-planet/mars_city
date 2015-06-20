@@ -22,7 +22,7 @@ def register(tango_database, device_info):
         # Add the device to the database
         tango_database.add_device(device_info)
         print("\nDevice Successfully added and registered!\n")
-    except PyTango.DevFailed, err:
+    except PyTango.DevFailed as err:
         PyTango.Except.print_exception(err)
         sys.exit()
 
@@ -34,7 +34,7 @@ def unregister(tango_database, device_info):
         tango_database.delete_device(device_info.name)
         print("\nDevice Successfully unregistered and removed!\n")
 
-    except PyTango.DevFailed, err:
+    except PyTango.DevFailed as err:
         PyTango.Except.print_exception(err)
         sys.exit()
 
@@ -43,7 +43,7 @@ def init():
     # check for validity of arguments
     if len(sys.argv) != 2:
         print(
-            "This interactive script takes one arguments\n"
+            "This interactive script takes one argument\n"
             "Register format: python setup-device.py <add,setup,register>\n"
             "Unregister format: python setup-device.py <del,delete,unregister>\n")
         sys.exit(255)
@@ -67,10 +67,10 @@ def init():
     # Get an Instance of the Tango Database (device server)
     tango_database = PyTango.Database()
 
-    if(sys.argv[1] in ('add', 'setup' , 'register')):
+    if sys.argv[1] in ('add', 'setup', 'register'):
         register(tango_database, device_info)
 
-    elif(sys.argv[1] in ('del' , 'delete' , 'unregister')):
+    elif sys.argv[1] in ('del', 'delete', 'unregister'):
         unregister(tango_database, device_info)
 
     else:
