@@ -47,7 +47,7 @@ if __name__ == '__main__':
         # Create and Initialize a ROS node!
         rospy.init_node('commander')
     except rospy.ROSInitException as init_exception:
-        print("roscore is not initiated yet. Message: %s") % init_exception
+        print("roscore is not initiated yet. Message", init_exception)
         roscore = subprocess.Popen(['roscore'])
 
     try:
