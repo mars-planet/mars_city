@@ -45,7 +45,7 @@ def command():
 if __name__ == '__main__':
     try:
         # Create and Initialize a ROS node!
-        rospy.init_node('commander')
+        rospy.init_node('testCommandNode')
     except rospy.ROSInitException as init_exception:
         print("roscore is not initiated yet. Message", init_exception)
         roscore = subprocess.Popen(['roscore'])
