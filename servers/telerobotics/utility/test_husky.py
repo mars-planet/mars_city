@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+
+__author__ = "Siddhant Shrivastava"
+__email__ = "sidhu94@gmail.com"
+__status__ = "Development"
+__copyright__ = "Italian Mars Society"
+
 """A test script to run a Husky UGV for MOVE_TIME * SLEEP_RATE seconds"""
 
 import roslib

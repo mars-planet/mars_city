@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+
+__author__ = "Siddhant Shrivastava"
+__email__ = "sidhu94@gmail.com"
+__status__ = "Development"
+__copyright__ = "Italian Mars Society"
+
 """
 A ROS node which collects all the information from the robot and applies the appropriate message filters. The node is responsible for sending the information to the Tango aggregator, which would be worried about sending information on the bus.
 """
@@ -85,9 +91,7 @@ if __name__ == '__main__':
 
     # Subscribing to all these topics
     rospy.Subscriber(POSE_TOPIC, Pose, positionCallback)
-    rospy.Subscriber(ODOM_TOPIC, PoseWithCovarianceStamped, odometryCallback)
-    rospy.Subscriber(, Coil, receiveCoilSignal)
-    rospy.Subscriber(IMU_TOPIC, Imu, imuCallback)
+    rospy.Subscriber(ODOM_TOPIC, PoseWithCovarianceStamped, odometryCallback)    rospy.Subscriber(IMU_TOPIC, Imu, imuCallback)
     rospy.Subscriber(LASER_SCAN_TOPIC, LaserScan, laserCallback)
     rospy.Subscriber(RIGHT_CAM_INFO_TOPIC, CameraInfo, rightCameraInfoCallback)
     rospy.Subscriber(LEFT_CAM_INFO_TOPIC, CameraInfo, leftCameraInfoCallback)
