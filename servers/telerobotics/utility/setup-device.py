@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 
 __author__ = "Siddhant Shrivastava"
 __email__ = "sidhu94@gmail.com"
@@ -7,7 +8,6 @@ __copyright__ = "Italian Mars Society"
 
 """Command Line Interface to setup or delete a Device from the Tango database."""
 
-from __future__ import print_function
 import PyTango
 import sys
 

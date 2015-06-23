@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 
 __author__ = "Siddhant Shrivastava"
 __email__ = "sidhu94@gmail.com"
@@ -9,7 +10,6 @@ __copyright__ = "Italian Mars Society"
 A ROS node which collects all the information from the robot and applies the appropriate message filters. The node is responsible for sending the information to the Tango aggregator, which would be worried about sending information on the bus.
 """
 
-from __future__ import print_function
 from collections import namedtuple
 import rospy, cv2
 from nav_msgs.msg import Odometry
