@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 
 __author__ = "Siddhant Shrivastava"
 __email__ = "sidhu94@gmail.com"
@@ -12,8 +13,6 @@ The server subscribes to the ROS topics which publishes all robot diagnostic
 sent to the Tango Bus.
 """
 
-import rospy
-from husky_msgs.msg import HuskyStatus
 import PyTango
 from PyTango import AttrQuality, AttrWriteType, DispLevel, DevState, AttrDataFormat, ArgType
 from PyTango.server import Device, DeviceMeta, attribute, command, server_run
@@ -22,6 +21,14 @@ import time
 
 # Toggle between Simulation mode and Real Mode
 SIMULATION_MODE = True
+
+if SIMULATION_MODE is False:
+    try:
+      import rospy
+      from husky_msgs import HuskyStatus
+    except ImportError:
+      print("ROS is not installed on the system")
+
 
 # Configuration Variable for Diagnostics Topic
 DIAGNOSTICS_TOPIC = "/status"
