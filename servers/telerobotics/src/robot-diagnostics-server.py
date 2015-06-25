@@ -41,104 +41,104 @@ class PyRobotDiagnostics(Device):
     POLLING_LONG = 100  # polling period for parameters which change slowly over time
 
     # Attribute definitions for various diagnostic messages
-    battery = attribute(label = "Battery Level", dtype = float,
-                        display_level = DispLevel.EXPERT,
-                        access = AttrWriteType.READ,
-                        unit = "%", format = "8.4f",
-                        min_value=0.0, max_value=100,
-                        min_alarm=10, max_alarm=100,
-                        min_warning=20, max_warning=90,
-                        fget="getBattery", polling_period = POLLING_LONG,
-                        doc="Battery charge estimate in percentage")
+    battery = attribute(label="Battery Level", dtype=float,
+                                  display_level=DispLevel.EXPERT,
+                                  access=AttrWriteType.READ,
+                                  unit="%", format = "8.4f",
+                                  min_value=0.0, max_value=100,
+                                  min_alarm=10, max_alarm=100,
+                                  min_warning=20, max_warning=90,
+                                  fget="get_battery", polling_period=POLLING_LONG,
+                                  doc="Battery charge estimate in percentage")
 
-    batteryCapacity = attribute(label = "Battery Capacity", dtype = 'uint16',
-                        display_level = DispLevel.EXPERT,
-                        access = AttrWriteType.READ,
-                        unit = "Wh", polling_period = POLLING_LONG,
-                        fget="getBatteryCapacity",
-                        doc="Robot Battery Capacity estimate in Watt hours")
+    batteryCapacity = attribute(label = "Battery Capacity", dtype='uint16',
+                                              display_level=DispLevel.EXPERT,
+                                              access=AttrWriteType.READ,
+                                              unit="Wh", polling_period=POLLING_LONG,
+                                              fget="get_battery_capacity",
+                                              doc="Robot Battery Capacity estimate in Watt hours")
 
-    uptime = attribute(label= "Robot Uptime", dtype = int,
-                       display_level = DispLevel.OPERATOR,
-                       access = AttrWriteType.READ,
-                       polling_period = POLLING_LONG,
-                       unit = "ms", fget = "getUptime",
-                       doc = "Robot MCU Uptime in milliseconds")
+    uptime = attribute(label= "Robot Uptime", dtype=int,
+                                 display_level=DispLevel.OPERATOR,
+                                 access=AttrWriteType.READ,
+                                 polling_period=POLLING_LONG,
+                                 unit="ms", fget="get_uptime",
+                                 doc="Robot MCU Uptime in milliseconds")
 
-    currentDraw = attribute(label="Current Draw", dtype = ('float',),
-                            display_level = DispLevel.OPERATOR,
-                            access = AttrWriteType.READ,
-                            polling_period = POLLING_LONG,
-                            unit = "A", fget = "getCurrentDraw",
-                            doc = "Husky Robot Current Draw in MCU,"
-                            "Left driver, and Right Driver")
+    currentDraw = attribute(label="Current Draw", dtype=('float',),
+                                          display_level=DispLevel.OPERATOR,
+                                          access=AttrWriteType.READ,
+                                          polling_period=POLLING_LONG,
+                                          unit="A", fget="get_current_draw",
+                                          doc="Husky Robot Current Draw in MCU,"
+                                          "Left driver, and Right Driver")
 
-    voltageComponents = attribute(label = "Voltage", dtype = ('float',),
-                                  display_level = DispLevel.OPERATOR,
-                                  access = AttrWriteType.READ,
-                                  polling_period = POLLING_LONG,
-                                  unit = "V", fget = "getVoltage",
-                                  doc = "Husky Robot Component Voltage ")
+    voltageComponents = attribute(label = "Voltage", dtype=('float',),
+                                                      display_level=DispLevel.OPERATOR,
+                                                      access=AttrWriteType.READ,
+                                                      polling_period=POLLING_LONG,
+                                                      unit="V", fget="get_voltage",
+                                                      doc="Husky Robot Component Voltage ")
 
     temperatures = attribute(label = "Component Temperatures",
-                             dtype = ('float',), display_level = DispLevel.OPERATOR,
-                             access = AttrWriteType.READ,
-                             polling_period = POLLING_LONG,
-                             unit = "Celsius", fget = "getComponentTemperatures",
-                             doc = "Component temperatures - Left/Right Driver/Motor")
+                                           dtype=('float',), display_level=DispLevel.OPERATOR,
+                                           access=AttrWriteType.READ,
+                                           polling_period=POLLING_LONG,
+                                           unit="Celsius", fget="get_temperatures",
+                                           doc="Component temperatures - Left/Right Driver/Motor")
 
-    errors = attribute(label = "ERR_STOP_Conditions", dtype = ('bool',),
-                       access = AttrWriteType.READ,
-                       polling_period = POLLING_SHORT,
-                       fget = "getErrorStopConditions",
-                       doc = " Husky Error/Stop conditions")
+    errors = attribute(label = "ERR_STOP_Conditions", dtype=('bool',),
+                               access=AttrWriteType.READ,
+                               polling_period=POLLING_SHORT,
+                               fget="get_error_stop_conditions",
+                               doc=" Husky Error/Stop conditions")
 
 
     # Attribute getter functions
 
     # Get Battery Levels in percentage
-    def getBattery(self):
+    def get_battery(self):
 
       if SIMULATION_MODE is True:
         CURR_TIME = time.time()
         ELAPSED_TIME = CURR_TIME - START_TIME
         BATTERY_PERCENT = BatterySim - (ELAPSED_TIME * Speedup)
-      self.info_stream(" Battery Levels : %f" % BATTERY_PERCENT)
+      self.info_stream(" Battery Levels : {0}".format(BATTERY_PERCENT))
       return BATTERY_PERCENT
 
     # Get Battery Capacity in Wh
-    def getBatteryCapacity(self):
-      self.info_stream(" Battery Levels : %d" % BATTERY_CAPACITY)
+    def get_battery_capacity(self):
+      self.info_stream(" Battery Levels : {0}".format(BATTERY_CAPACITY))
       return BATTERY_CAPACITY
 
       # Get Robot Uptime in milliseconds
-    def getUptime(self):
-      self.info_stream(" Uptime : %d" % UPTIME)
+    def get_uptime(self):
+      self.info_stream(" Uptime : {0}".format(UPTIME))
       return UPTIME
 
       # Get Voltage levels of battery and drivers
-    def getVoltage(self):
-      self.info_stream(" Voltage Levels  : %f V, %f V, %f V" % (VOLTAGE_BATTERY,
+    def get_voltage(self):
+      self.info_stream(" Voltage Levels  : {0} V, {1} V, {2} V".format(VOLTAGE_BATTERY,
                        VOLTATE_LEFT_DRIVER, VOLTAGE_RIGHT_DRIVER))
       return (VOLTAGE_BATTERY, VOLTATE_LEFT_DRIVER, VOLTAGE_RIGHT_DRIVER)
 
     # Get Current drawn by the Microcontroller Unit, and Drivers
-    def getCurrentDraw(self):
-      self.info_stream(" Current Draw : %f A, %f A, %f A" %  (CURRENT_MCU,
+    def get_current_draw(self):
+      self.info_stream(" Current Draw : {0} A, {1} A, {2} A".format(CURRENT_MCU,
        CURRENT_LEFT_DRIVER, CURRENT_RIGHT_DRIVER))
       return (CURRENT_MCU, CURRENT_LEFT_DRIVER, CURRENT_RIGHT_DRIVER)
 
     # Get Temperatures of Drivers and Motors
-    def getComponentTemperatures(self):
-      self.info_stream(" Temperature of Components : %f" % (TEMP_LEFT_DRIVER,
+    def get_temperatures(self):
+      self.info_stream(" Temperature of Components : {0}".format(TEMP_LEFT_DRIVER,
        TEMP_RIGHT_DRIVER, TEMP_LEFT_MOTOR, TEMP_RIGHT_MOTOR))
       return (TEMP_LEFT_DRIVER, TEMP_RIGHT_DRIVER,
        TEMP_LEFT_MOTOR, TEMP_RIGHT_MOTOR)
 
     # Get Error and Stop conditions for the Husky robot
-    def getErrorStopConditions(self):
-      self.info_stream("Error/Stop Conditions : %b, %b, %b, %b, %b, %b" %
-      (TIMEOUT, LOCKOUT, E_STOP, ROS_PAUSE, NO_BATTERY, CURRENT_LIMIT))
+    def get_error_stop_conditions(self):
+      self.info_stream("Error/Stop Conditions : %b, %b, %b, %b, %b, %b".format(
+                       TIMEOUT, LOCKOUT, E_STOP, ROS_PAUSE, NO_BATTERY, CURRENT_LIMIT))
       return (TIMEOUT, LOCKOUT, E_STOP, ROS_PAUSE, NO_BATTERY, CURRENT_LIMIT)
 
 
@@ -160,7 +160,7 @@ def callback(self,msg):
   NO_BATTERY, CURRENT_LIMIT] = msg
 
 #intiates all Robot communication and subscribes to Diagnostics Messages
-def  initROS():
+def  init_ros():
     try:
         rospy.init_node('DiagnosticMessageCollector', anonymous = False, log_level =rospy.INFO)
         rospy.Subscriber(DIAGNOSTICS_TOPIC, HuskyStatus, callback)
@@ -182,6 +182,6 @@ if __name__ == "__main__":
       START_TIME = time.time()
 
     else:
-      initROS()
+      init_ros()
     # Setup the Device server in the Tango Database
     server_run((PyRobotDiagnostics,))
