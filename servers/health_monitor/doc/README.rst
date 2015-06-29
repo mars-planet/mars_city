@@ -29,7 +29,7 @@ Applicable Documents
 
 - [1] -- `C3 Prototype document v.4`_
 - [3] -- `Software Engineering Practices Guidelines for the ERAS Project`_
-- [4] -- `ERAS 2014 GSoC Strategic Plan`_
+- [4] -- `PAMAP2 Physical Activity Monitoring`_
 - [5] -- `Software Architecture Document for the Health Monitor`_
 - [6] -- `TANGO distributed control system`_
 - [7] -- `PyTANGO - Python bindings for TANGO`_
@@ -38,8 +38,8 @@ Applicable Documents
 - [10] -- `Adding a new Server in Tango`_
 
 .. _`C3 Prototype document v.4`: <http://www.erasproject.org/index.php?option=com_joomdoc&view=documents&path=C3+Subsystem/ERAS-C3Prototype_v4.pdf&Itemid=148>
-.. _`PAMAP2 Physical Activity Monitoring`: <http://archive.ics.uci.edu/ml/datasets/PAMAP2+Physical+Activity+Monitoring>
 .. _`Software Engineering Practices Guidelines for the ERAS Project`: <https://eras.readthedocs.org/en/latest/doc/guidelines.html>
+.. _`PAMAP2 Physical Activity Monitoring`: <http://archive.ics.uci.edu/ml/datasets/PAMAP2+Physical+Activity+Monitoring>
 .. _`ERAS 2013 GSoC Strategic Plan`: <https://bitbucket.org/italianmarssociety/eras/wiki/Google%20Summer%20of%20Code%202014>
 .. _`Software Architecture Document for the Health Monitor`: <https://eras.readthedocs.org/en/latest/servers/health_monitor/doc/sad.html>
 .. _`TANGO distributed control system`: <http://www.tango-controls.org/>
@@ -102,6 +102,7 @@ Software Architecture
 ---------------------
 
 The components involved can be divided in five categories:
+
 #. The Central Tango Daemon: It keeps track of the existing Tango Device
    Servers. For details refer to [7] and [8].
    In the context of deployment, the computer that runs the Central Tango
@@ -189,15 +190,15 @@ Registering the Health Monitor Daemon
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 On a Python or IPython console write:
 
-::code
+::
 
-import PyTango
-dev_info = PyTango.DbDevInfo()
-dev_info.server = "health_monitor/1"
-dev_info._class = "HealthMonitorServer"
-dev_info.name = "C3/health_monitor/1"
-db = PyTango.Database()
-db.add_device(dev_info)
+   import PyTango
+   dev_info = PyTango.DbDevInfo()
+   dev_info.server = "health_monitor/1"
+   dev_info._class = "HealthMonitorServer"
+   dev_info.name = "C3/health_monitor/1"
+   db = PyTango.Database()
+   db.add_device(dev_info)
 
 Installing the Aouda Daemon
 ---------------------------
@@ -265,8 +266,9 @@ Then decompress the file and:
 
 ::
 
-cd Oger-1.1.3
-sudo python setup.py install
+   cd Oger-1.1.3
+   sudo python setup.py install
+
 
 .. _`Oger-1.1.3`: http://organic.elis.ugent.be/sites/organic.elis.ugent.be/files/Oger-1.1.3.tar.gz
 
@@ -338,11 +340,12 @@ PyTango, however, needs an additional parameter:
 
    sudo pip install PyTango --egg
 
+
 User Manual
 ===========
 
 Configuration
-~~~~~~~~~~~~~
+-------------
 
 First you need to download the latest version of the software from :term:`TBD`.
 The file contains, bar the prerequisites, all needed to run the :term:`HM`,
@@ -362,5 +365,5 @@ Once decompressed you need to (all paths are relative to the archive's root):
    *monitor_address*.
 
 Running the programs
-~~~~~~~~~~~~~~~~~~~~
-
+--------------------
+:term:`TBD`
