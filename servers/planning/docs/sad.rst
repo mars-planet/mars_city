@@ -143,43 +143,44 @@ accusation for processing of the data and coming up with a plan.
 Layers
 ------
 - The Utils module provides common C++ utility classes for error
-checking, smart pointers etc. It also includes a very useful
-debugging  utility.Many common programming practices in EUROPA
-development are built on assets in this module.
+  checking, smart pointers etc. It also includes a very useful
+  debugging  utility.Many common programming practices in EUROPA
+  development are built on assets in this module.
 - The Constraint Engine is the nexus for consistency management. It
-provides a general-purpose component-based architecture for handling
-dynamic constraint networks. It deals in variables and constraints.
-It includes an open propagation architecture making it straightforward
-to integrate specialized forms of local and global constraint
-propagation.
+  provides a general-purpose component-based architecture for handling
+  dynamic constraint networks. It deals in variables and constraints.
+  It includes an open propagation architecture making it straightforward
+  to integrate specialized forms of local and global constraint
+  propagation.
 - The Plan Database adds higher levels of abstractions for tokens and
-objects and the interactions between them. This is the code embodiment
-of the EUROPA planning paradigm. It supports all services for creation,
- deletion, modification and inspection of partial plans. It maintains
- the dynamic constraint network underlying a partial–plan by delegation
- to the Constraint Engine and leverages that propagation infrastructure
- to maintain relationships between tokens and objects.
+  objects and the interactions between them. This is the code embodiment
+  of the EUROPA planning paradigm. It supports all services for creation,
+  deletion, modification and inspection of partial plans. It maintains
+  the dynamic constraint network underlying a partial–plan by delegation
+  to the Constraint Engine and leverages that propagation infrastructure
+  to maintain relationships between tokens and objects.
 - The Solvers module provides abstractions to support search in line
-with the EUROPA planning approach. It includes a component-based
-architecture for Flaw Identification, Resolution and heuristics as well
-as an algorithm for chronological backtracking search. As additional
-search algorithms are implemented they will be added to this module.
+  with the EUROPA planning approach. It includes a component-based
+  architecture for Flaw Identification, Resolution and heuristics as
+  well as an algorithm for chronological backtracking search. As
+  additional search algorithms are implemented they will be added
+  to this module.
 - The Rules Engine module provides the inference capabilities based on
-domain rules described in the model. It is almost exclusively used to
-execute NDDL rules but can be extended for custom rule formats.
+  domain rules described in the model. It is almost exclusively used to
+  execute NDDL rules but can be extended for custom rule formats.
 - The Resources module provides specialized algorithms and data
-structures to support metric resources (e.g. battery, power bus,
-disk drive).
+  structures to support metric resources (e.g. battery, power bus,
+  disk drive).
 - The Temporal Network module provides specialized algorithms and data
-structures to support efficient propagation of temporal constraints.
+  structures to support efficient propagation of temporal constraints.
 - The NDDL module provides a parser and compiler for NDDL (pronounced
-noodle) which is a very high-level, object-oriented, declarative domain
-and problem description language. This module defines the mapping from
-the language to the code and consequently interfaces to a number of key
-modules in the system.
+  noodle) which is a very high-level, object-oriented, declarative
+  domain and problem description language. This module defines the
+  mapping from the language to the code and consequently interfaces to
+  a number of key modules in the system.
 - PlanWorks is a java application for visualization and debugging of
-plans and planning. It is loosely coupled to the other EUROPA modules
-through a JNI interface.
+  plans and planning. It is loosely coupled to the other EUROPA modules
+  through a JNI interface.
 
 
 .. image:: europa_layers.gif
