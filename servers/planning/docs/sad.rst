@@ -125,6 +125,14 @@ Software Interfaces
 - Europa
 - PyEuropa.
 - Pytango.
+- JDK-- sudo apt-get install openjdk-7-jdk
+- ANT-- sudo apt-get install ant
+- Python -- sudo apt-get install python
+- subversion-- sudo apt-get install subversion
+- wget -- sudo apt-get install wget
+- SWIG sudo apt-get install swig
+- `libantlr3c
+   <https://code.google.com/p/europa-pso/wiki/BuildingEuropa#Install>`_
 
 Communication Interfaces
 ------------------------
@@ -142,6 +150,9 @@ accusation for processing of the data and coming up with a plan.
 
 Layers
 ------
+
+.. image:: europa_layers.gif
+
 - The Utils module provides common C++ utility classes for error
   checking, smart pointers etc. It also includes a very useful
   debugging  utility.Many common programming practices in EUROPA
@@ -182,8 +193,6 @@ Layers
   plans and planning. It is loosely coupled to the other EUROPA modules
   through a JNI interface.
 
-
-.. image:: europa_layers.gif
 
 Subsystems
 ----------
