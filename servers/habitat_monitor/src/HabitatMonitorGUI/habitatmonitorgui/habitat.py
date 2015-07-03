@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'habitat.ui'
 #
-# Created: Mon Jun 29 02:27:40 2015
+# Created: Fri Jul  3 20:15:43 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -142,6 +142,8 @@ class Ui_MainWindow(object):
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menuFile = QtGui.QMenu(self.menubar)
         self.menuFile.setObjectName(_fromUtf8("menuFile"))
+        self.menuEdit = QtGui.QMenu(self.menubar)
+        self.menuEdit.setObjectName(_fromUtf8("menuEdit"))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
@@ -150,9 +152,13 @@ class Ui_MainWindow(object):
         self.actionAddDevice.setObjectName(_fromUtf8("actionAddDevice"))
         self.actionCreate_Branch = QtGui.QAction(MainWindow)
         self.actionCreate_Branch.setObjectName(_fromUtf8("actionCreate_Branch"))
+        self.actionModify_Summary = QtGui.QAction(MainWindow)
+        self.actionModify_Summary.setObjectName(_fromUtf8("actionModify_Summary"))
         self.menuFile.addAction(self.actionAddDevice)
         self.menuFile.addAction(self.actionCreate_Branch)
+        self.menuEdit.addAction(self.actionModify_Summary)
         self.menubar.addAction(self.menuFile.menuAction())
+        self.menubar.addAction(self.menuEdit.menuAction())
 
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(1)
@@ -176,6 +182,8 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.summaryTab), _translate("MainWindow", "Summary", None))
         self.graphButton.setText(_translate("MainWindow", "Show Graph", None))
         self.menuFile.setTitle(_translate("MainWindow", "File", None))
+        self.menuEdit.setTitle(_translate("MainWindow", "Edit", None))
         self.actionAddDevice.setText(_translate("MainWindow", "Add Device", None))
         self.actionCreate_Branch.setText(_translate("MainWindow", "Create Branch", None))
+        self.actionModify_Summary.setText(_translate("MainWindow", "Modify Summary", None))
 

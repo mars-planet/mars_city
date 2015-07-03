@@ -14,12 +14,14 @@ class HabitatMonitor(QtGui.QMainWindow):
         client = MongoClient('localhost', 27017)
         self.db = client.habitatdb
         self.threads = []
-        self.timers = []
+        self.nodeTimers = []
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.ui.tabWidget.currentChanged.connect(self.tab_changed)
         self.ui.actionAddDevice.triggered.connect(self.add_device)
         self.ui.actionCreate_Branch.triggered.connect(self.create_branch)
+        self.ui.actionModify_Summary.triggered.connect(self.modify_summary)
+        self.ui.actionModify_Summary.setEnabled(False)
         self.dataSourcesTreeItem = QtGui.QTreeWidgetItem(self.ui.treeWidget)
         self.dataSourcesTreeItem.setText(0, "Data Sources")
         nodes = self.db.nodes
@@ -53,6 +55,24 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.ui.listWidget_2.hide()
 
 
+    def modify_summary(self):
+        nodes = self.db.nodes
+        node = nodes.find_one({'name': self.modifiedNode})
+        if node['type'] == 'branch':
+            self.ui.timeLabel.hide()
+            self.ui.timeLineEdit.hide()
+            self.ui.minutesLabel.hide()
+        elif node['type'] == 'leaf':
+            self.ui.timeLabel.show()
+            self.ui.timeLineEdit.show()
+            self.ui.minutesLabel.show()
+        self.ui.functionButton.setText('Modify Summary')
+        self.isModified = True
+        self.ui.tabWidget.hide()
+        self.ui.graphButton.hide()
+        self.ui.groupBox.show()
+
+
     def show_graph(self):
         import pyqtgraph as pg
         self.win = pg.GraphicsWindow(title="Basic plotting examples")
@@ -77,8 +97,6 @@ class HabitatMonitor(QtGui.QMainWindow):
         nodes = db.nodes
         node = nodes.find_one({'name': devName})
         max_len = node['max_len']
-        # data = nodes['data']
-        # print type(data)
         if len(list(node['data'])) >= max_len:
             nodes.update({'name': devName}, {'$pop': {'data': -1}})
         nodes.update({'name': devName}, {'$push': {'data': temp}})
@@ -117,11 +135,27 @@ class HabitatMonitor(QtGui.QMainWindow):
         summaryTime = ""
         max_len = 0
         children = ""
-        sourceType = self.sourceType
+        nodes = self.db.nodes
         for radioButton in self.ui.verticalLayoutWidget_3.findChildren(QtGui.QRadioButton):
             if radioButton.isChecked():
                 summary = str(radioButton.text())
                 break
+
+        if self.isModified == True:
+            modNode = nodes.find_one({'name': self.modifiedNode})
+            if modNode['type'] == "leaf":
+                summaryTime = int(self.ui.timeLineEdit.text())
+                max_len = (summaryTime * 60) / 2
+                nodes.update({'name': self.modifiedNode}, 
+                    {'$set': {'max_len': max_len, 'function': summary}})
+            elif modNode['type'] == "branch":
+                nodes.update({'name': self.modifiedNode}, 
+                    {'$set': {'function': summary}})
+            self.isModified = False
+            self.ui.groupBox.hide()
+            return
+
+        sourceType = self.sourceType
         self.ui.minButton.setChecked(True)
         if sourceType == "leaf":
             summaryTime = int(self.ui.timeLineEdit.text())
@@ -130,8 +164,6 @@ class HabitatMonitor(QtGui.QMainWindow):
         elif sourceType == "branch":
             children = self.branchChildren
             nodeName = self.branchName
-        db = self.db
-        nodes = db.nodes
         node = {'name': nodeName,
                 'type': sourceType,
                 'function': summary,
@@ -172,6 +204,7 @@ class HabitatMonitor(QtGui.QMainWindow):
     def create_branch(self):
         self.ui.tabWidget.hide()
         self.ui.graphButton.hide()
+        self.ui.functionButton.setText("Add Summary")
         self.sourceType = "branch"
         text, ok = QtGui.QInputDialog.getText(self, 'Input Dialog', 
             'Enter Branch Name:')
@@ -220,13 +253,10 @@ class HabitatMonitor(QtGui.QMainWindow):
 
 
     def update_nodedata(self):
-        try:
-            node = self.db.nodes.find_one({'name': self.currentNode})
-            value = node['data'][-1]
-            self.ui.attributeValue.setText(str(value))
-            self.ui.summaryValue.setText(str(node['summary_data']))
-        finally:
-            QtCore.QTimer.singleShot(500, self.update_nodedata)
+        node = self.db.nodes.find_one({'name': self.currentNode})
+        value = node['data'][-1]
+        self.ui.attributeValue.setText(str(value))
+        self.ui.summaryValue.setText(str(node['summary_data']))
 
 
     def update_branchdata(self):
@@ -245,15 +275,19 @@ class HabitatMonitor(QtGui.QMainWindow):
             self.ui.summaryValue.setText(str(node['summary_data']))
         except AttributeError:
             pass
-        finally:
-            QtCore.QTimer.singleShot(500, self.update_branchdata)
 
 
     def onClick(self, item, column):
+        for i in self.nodeTimers:
+            i.stop()
         self.ui.graphButton.show()
         currentNode = str(item.text(column))
         if currentNode == "Data Sources":
+            self.ui.actionModify_Summary.setEnabled(False)
             return
+        self.ui.actionModify_Summary.setEnabled(True)
+        self.modifiedNode = currentNode
+        self.isModified = False
         nodes = self.db.nodes
         node = nodes.find_one({'name': currentNode})
         if node['type'] == "leaf":
@@ -264,18 +298,25 @@ class HabitatMonitor(QtGui.QMainWindow):
             self.ui.attributeName.setText("Temperature: ")
             self.ui.summaryLabel.setText(node['function'] + "Temperature:")
             self.ui.tabWidget.show()
-            self.update_nodedata()
+            timer = QtCore.QTimer()
+            self.nodeTimers.append(timer)
+            timer.timeout.connect(self.update_nodedata)
+            timer.start(5000)
 
         else:
             self.branchNode = node['name']
             self.ui.tabWidget.show()
             self.ui.listWidget.show()
             self.ui.listWidget_2.show()
-            self.update_branchdata()
+            timer = QtCore.QTimer()
+            self.nodeTimers.append(timer)
+            timer.timeout.connect(self.update_branchdata)
+            timer.start(5000)
 
     def add_device(self):
         self.ui.tabWidget.hide()
         self.ui.graphButton.hide()
+        self.ui.functionButton.setText("Add Summary")
         print "Add new device"
         devName, ok = QtGui.QInputDialog.getText(self, 'Input Dialog', 
             'Enter Device Address:')

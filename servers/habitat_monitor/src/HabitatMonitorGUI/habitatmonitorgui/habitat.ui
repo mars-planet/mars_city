@@ -277,7 +277,14 @@
     <addaction name="actionAddDevice"/>
     <addaction name="actionCreate_Branch"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionModify_Summary"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionAddDevice">
@@ -288,6 +295,11 @@
   <action name="actionCreate_Branch">
    <property name="text">
     <string>Create Branch</string>
+   </property>
+  </action>
+  <action name="actionModify_Summary">
+   <property name="text">
+    <string>Modify Summary</string>
    </property>
   </action>
  </widget>
