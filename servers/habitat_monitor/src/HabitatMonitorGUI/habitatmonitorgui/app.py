@@ -15,6 +15,7 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.db = client.habitatdb
         self.threads = []
         self.nodeTimers = []
+        self.isModified = False
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.ui.tabWidget.currentChanged.connect(self.tab_changed)
@@ -144,7 +145,11 @@ class HabitatMonitor(QtGui.QMainWindow):
         if self.isModified == True:
             modNode = nodes.find_one({'name': self.modifiedNode})
             if modNode['type'] == "leaf":
-                summaryTime = int(self.ui.timeLineEdit.text())
+                timeField = str(self.ui.timeLineEdit.text())
+                if len(timeField) == 0:
+                    QtGui.QErrorMessage(self).showMessage("Time Field is required")
+                    return
+                summaryTime = int(timeField)
                 max_len = (summaryTime * 60) / 2
                 nodes.update({'name': self.modifiedNode}, 
                     {'$set': {'max_len': max_len, 'function': summary}})
@@ -158,7 +163,11 @@ class HabitatMonitor(QtGui.QMainWindow):
         sourceType = self.sourceType
         self.ui.minButton.setChecked(True)
         if sourceType == "leaf":
-            summaryTime = int(self.ui.timeLineEdit.text())
+            timeField = str(self.ui.timeLineEdit.text())
+            if len(timeField) == 0:
+                QtGui.QErrorMessage(self).showMessage("Time Field is required")
+                return
+            summaryTime = int(timeField)
             max_len = (summaryTime * 60) / 2
             nodeName = self.devName
         elif sourceType == "branch":
