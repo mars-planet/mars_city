@@ -37,6 +37,15 @@ class PyTracker(Device):
     def release_skeleton_lock(self):
         self.tracker.get_skeleton_lock().release()
 
+    # attribute to represent users' movements
+    moves = attribute(label = "Linear and angular displacement",
+                      dtype = (float,),
+                      unit = "(meters, radians)",
+                      polling_period = POLLING,
+                      max_dim_x = 2,
+                      abs_change = sys.float_info.min,
+                      doc="An attribute for Linear and angular displacements")
+
     joints = [
         'skeleton_head',
         'skeleton_neck',
@@ -69,6 +78,13 @@ class PyTracker(Device):
             continue
         # Read method definition (except for skeleton_head)
         exec "def read_%s(self):\n\treturn self._%s" % (joint, joint)
+
+    old_skeleton = {}
+    old_skeleton_init = False
+
+    def save_old_skeletal_data(self):
+        for joint in self.joints:
+            self.old_skeleton[joint] = getattr(self, '_' + joint)
 
     def joint_distance(self, joint_1, joint_2):
         dx = joint_1.x - joint_2.x
@@ -150,6 +166,8 @@ class PyTracker(Device):
         try:
             sk = self.tracker.get_skeleton()
 
+            self.save_old_skeletal_data()
+
             self._skeleton_neck = self.get_neck_joint_tuple(sk)
             self._skeleton_head = self.joint_to_tuple(sk[JointId.Head])
             self._skeleton_left_shoulder = self.joint_to_tuple(sk[JointId.ShoulderLeft])
@@ -166,7 +184,13 @@ class PyTracker(Device):
             self._skeleton_left_foot = self.joint_to_tuple(sk[JointId.FootLeft])
             self._skeleton_right_foot = self.joint_to_tuple(sk[JointId.FootRight])
 
-            # TODO: user step estimation (and add command)
+            if not self.old_skeleton_init:
+                self.save_old_skeletal_data()
+                self.old_skeleton_init = True
+            else:
+                # TODO: user step estimation
+
+                self.push_change_event('moves', self._moves, 2)
         finally:
             self.release_skeleton_lock()
 
@@ -176,6 +200,9 @@ class PyTracker(Device):
     def get_height(self):
         return self.estimate_height()
 
+    def read_moves(self):
+        return self._moves
+
     def init_device(self):
         Device.init_device(self)
         self.info_stream('In Python init_device method')
@@ -184,6 +211,7 @@ class PyTracker(Device):
         # Attribute initialization
         for joint in self.joints:
             setattr(self, '_' + joint, (0, 0, 0))
+        self._moves = (0, 0)
 
 
 class Tracker:
