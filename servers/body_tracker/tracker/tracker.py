@@ -15,6 +15,16 @@ from pykinect.nui import SkeletonTrackingState, JointId
 from urllib import urlopen
 
 
+def distance(p0, p1):
+    """calculate distance between two joint/3D-tuple in the XZ plane (2D)"""
+    return math.sqrt((p0[0] - p1[0])**2 + (p0[2] - p1[2])**2)
+
+def joint_distance(joint_1, joint_2):
+    dx = joint_1.x - joint_2.x
+    dy = joint_1.y - joint_2.y
+    dz = joint_1.z - joint_2.z
+    return math.sqrt(dx**2 + dy**2 + dz**2)
+
 class PyTracker(Device):
     __metaclass__ = DeviceMeta
 
@@ -86,12 +96,6 @@ class PyTracker(Device):
         for joint in self.joints:
             self.old_skeleton[joint] = getattr(self, '_' + joint)
 
-    def joint_distance(self, joint_1, joint_2):
-        dx = joint_1.x - joint_2.x
-        dy = joint_1.y - joint_2.y
-        dz = joint_1.z - joint_2.z
-        return math.sqrt(dx**2 + dy**2 + dz**2)
-
     def estimate_height(self):
         sk = self.tracker.get_skeleton()
 
@@ -106,36 +110,36 @@ class PyTracker(Device):
         right_leg = 0
         left_leg = 0
         try:
-            upper_body_height += self.joint_distance(sk[JointId.Head],
-                                                     sk[JointId.ShoulderCenter])
-            upper_body_height += self.joint_distance(sk[JointId.Spine],
-                                                     sk[JointId.ShoulderCenter])
-            upper_body_height += self.joint_distance(sk[JointId.Spine],
-                                                     sk[JointId.HipCenter])
+            upper_body_height += joint_distance(sk[JointId.Head],
+                                                sk[JointId.ShoulderCenter])
+            upper_body_height += joint_distance(sk[JointId.Spine],
+                                                sk[JointId.ShoulderCenter])
+            upper_body_height += joint_distance(sk[JointId.Spine],
+                                                sk[JointId.HipCenter])
 
             # hip_center | avg(hip_left, hip_right)
             avg_hip = sk[JointId.HipLeft]
             avg_hip.x = (sk[JointId.HipLeft].x + sk[JointId.HipRight].x) / 2.0
             avg_hip.y = (sk[JointId.HipLeft].y + sk[JointId.HipRight].y) / 2.0
             avg_hip.z = (sk[JointId.HipLeft].z + sk[JointId.HipRight].z) / 2.0
-            upper_body_height += self.joint_distance(avg_hip,
-                                                     sk[JointId.HipCenter])
+            upper_body_height += joint_distance(avg_hip,
+                                                sk[JointId.HipCenter])
 
             # left leg
-            left_leg += self.joint_distance(sk[JointId.HipLeft],
-                                            sk[JointId.KneeLeft])
-            left_leg += self.joint_distance(sk[JointId.AnkleLeft],
-                                            sk[JointId.KneeLeft])
-            left_leg += self.joint_distance(sk[JointId.AnkleLeft],
-                                            sk[JointId.FootLeft])
+            left_leg += joint_distance(sk[JointId.HipLeft],
+                                       sk[JointId.KneeLeft])
+            left_leg += joint_distance(sk[JointId.AnkleLeft],
+                                       sk[JointId.KneeLeft])
+            left_leg += joint_distance(sk[JointId.AnkleLeft],
+                                       sk[JointId.FootLeft])
 
             # right leg
-            right_leg += self.joint_distance(sk[JointId.HipRight],
-                                             sk[JointId.KneeRight])
-            right_leg += self.joint_distance(sk[JointId.AnkleRight],
-                                             sk[JointId.KneeRight])
-            right_leg += self.joint_distance(sk[JointId.AnkleRight],
-                                             sk[JointId.FootRight])
+            right_leg += joint_distance(sk[JointId.HipRight],
+                                        sk[JointId.KneeRight])
+            right_leg += joint_distance(sk[JointId.AnkleRight],
+                                        sk[JointId.KneeRight])
+            right_leg += joint_distance(sk[JointId.AnkleRight],
+                                        sk[JointId.FootRight])
 
             done = True
 
@@ -157,6 +161,31 @@ class PyTracker(Device):
                  skeleton[JointId.ShoulderRight].y * 0.3 +
                  skeleton[JointId.ShoulderCenter].y * 0.4),
                 skeleton[JointId.ShoulderCenter].z)
+
+    def estimate_user_movements(self):
+        # body orientation
+        d_z = self.old_skeleton["skeleton_left_hip"][2] - self.old_skeleton["skeleton_right_hip"][2];
+        d_x = self.old_skeleton["skeleton_left_hip"][0] - self.old_skeleton["skeleton_right_hip"][0];
+        old_angle = math.atan2(d_z,d_x)
+        d_z = self._skeleton_left_hip[2] - self._skeleton_right_hip[2]
+        d_x = self._skeleton_left_hip[0] - self._skeleton_right_hip[0]
+        new_angle = math.atan2(d_z,d_x)
+        body_orientation = new_angle - old_angle
+
+        # distance estimation
+        # TODO improve!
+        distance_left = distance(self._skeleton_left_foot, self.old_skeleton["skeleton_left_foot"])
+        distance_right = distance(self._skeleton_right_foot, self.old_skeleton["skeleton_right_foot"])
+
+        step_dist = 0
+        if distance_left >= 0 and distance_right < 0:
+            step_dist = distance_left
+        elif distance_left < 0 and distance_right >= 0:
+            step_dist = distance_right
+        elif distance_left >= 0 and distance_right >= 0:
+            step_dist = max(distance_left, distance_right)
+
+        self._moves = (step_dist, body_orientation)
 
     def read_skeleton_head(self):
         # sync access to skeleton
@@ -188,8 +217,7 @@ class PyTracker(Device):
                 self.save_old_skeletal_data()
                 self.old_skeleton_init = True
             else:
-                # TODO: user step estimation
-
+                self.estimate_user_movements()
                 self.push_change_event('moves', self._moves, 2)
         finally:
             self.release_skeleton_lock()
