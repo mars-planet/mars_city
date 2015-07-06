@@ -7,6 +7,7 @@ import json
 import PyTango
 import pygame
 import math
+import copy
 from PyTango.server import Device, DeviceMeta, attribute, command
 from PyTango.server import class_property, device_property
 from pykinect import nui
@@ -83,11 +84,17 @@ class PyTracker(Device):
 
     for joint in joints:
         # Attribute definition
+        # Filtered
         exec "%s = attribute(**attr_init_params)" % joint
+        # Unfiltered
+        exec "%s = attribute(**attr_init_params)" % (joint + "_raw")
         if joint == 'skeleton_head':
             continue
         # Read method definition (except for skeleton_head)
+        # Filtered
         exec "def read_%s(self):\n\treturn self._%s" % (joint, joint)
+        # Unfiltered
+        exec "def read_%s(self):\n\treturn self._%s" % (joint + "_raw", joint + "_raw")
 
     old_skeleton = {}
     old_skeleton_init = False
@@ -224,6 +231,35 @@ class PyTracker(Device):
 
         return self._skeleton_head
 
+    def read_skeleton_head_raw(self):
+        # sync access to skeleton
+        if not self.acquire_skeleton_lock():
+            return self._skeleton_head_raw
+
+        try:
+            sk = self.tracker.get_unfiltered_skeleton()
+
+            self._skeleton_neck_raw = self.get_neck_joint_tuple(sk)
+            self._skeleton_head_raw = self.joint_to_tuple(sk[JointId.Head])
+            self._skeleton_left_shoulder_raw = self.joint_to_tuple(sk[JointId.ShoulderLeft])
+            self._skeleton_right_shoulder_raw = self.joint_to_tuple(sk[JointId.ShoulderRight])
+            self._skeleton_left_elbow_raw = self.joint_to_tuple(sk[JointId.ElbowLeft])
+            self._skeleton_right_elbow_raw = self.joint_to_tuple(sk[JointId.ElbowRight])
+            self._skeleton_left_hand_raw = self.joint_to_tuple(sk[JointId.HandLeft])
+            self._skeleton_right_hand_raw = self.joint_to_tuple(sk[JointId.HandRight])
+            self._skeleton_torso_raw = self.joint_to_tuple(sk[JointId.Spine])
+            self._skeleton_left_hip_raw = self.joint_to_tuple(sk[JointId.HipLeft])
+            self._skeleton_right_hip_raw = self.joint_to_tuple(sk[JointId.HipRight])
+            self._skeleton_left_knee_raw = self.joint_to_tuple(sk[JointId.KneeLeft])
+            self._skeleton_right_knee_raw = self.joint_to_tuple(sk[JointId.KneeRight])
+            self._skeleton_left_foot_raw = self.joint_to_tuple(sk[JointId.FootLeft])
+            self._skeleton_right_foot_raw = self.joint_to_tuple(sk[JointId.FootRight])
+
+        finally:
+            self.release_skeleton_lock()
+
+        return self._skeleton_head_raw
+
     @command(dtype_out=float)
     def get_height(self):
         return self.estimate_height()
@@ -238,7 +274,10 @@ class PyTracker(Device):
 
         # Attribute initialization
         for joint in self.joints:
+            # Filtered
             setattr(self, '_' + joint, (0, 0, 0))
+            # Unfiltered
+            setattr(self, '_' + joint + "_raw", (0, 0, 0))
         self._moves = (0, 0)
 
 
@@ -260,15 +299,22 @@ class Tracker:
     kinect = None
 
     skeleton = None
+    skeleton_raw = None
     skeleton_lock = threading.Lock()
 
-    def update_skeleton(self, new_skeleton):
+    def update_skeleton(self, new_skeleton, raw=False):
         self.skeleton_lock.acquire()
-        self.skeleton = new_skeleton
+        if raw:
+            self.skeleton_raw = copy.deepcopy(new_skeleton)
+        else:
+            self.skeleton = new_skeleton
         self.skeleton_lock.release()
 
     def get_skeleton(self):
         return self.skeleton
+
+    def get_unfiltered_skeleton(self):
+        return self.skeleton_raw
 
     def get_skeleton_lock(self):
         return self.skeleton_lock
@@ -284,11 +330,11 @@ class Tracker:
             # event queue full
             pass
 
-    def save_skeletal_data(self, skeleton_frame):
+    def save_skeletal_data(self, skeleton_frame, raw=False):
         """Save skeletal data got from Kinect"""
         for index, skeleton_info in enumerate(skeleton_frame.SkeletonData):
             if skeleton_info.eTrackingState == SkeletonTrackingState.TRACKED:
-                self.update_skeleton(skeleton_info.SkeletonPositions)
+                self.update_skeleton(skeleton_info.SkeletonPositions, raw)
                 # manage only the first tracked skeleton
                 return
 
@@ -313,8 +359,12 @@ class Tracker:
             if event.type == pygame.QUIT:
                 break
             elif event.type == self.KINECTEVENT:
+                # save unfiltered skeletal data
+                self.save_skeletal_data(event.skeleton_frame, True)
+                # apply filter
                 self.kinect._nui.NuiTransformSmooth(event.skeleton_frame,
                                                     self.SMOOTH_PARAMS)
+                # save filtered skeletal data
                 self.save_skeletal_data(event.skeleton_frame)
 
                 if log_file_name is not None and self.skeleton is not None:
