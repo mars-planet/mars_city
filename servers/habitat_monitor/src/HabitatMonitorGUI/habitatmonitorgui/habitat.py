@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'habitat.ui'
 #
-# Created: Fri Jul  3 20:15:43 2015
+# Created: Mon Jul  6 08:44:31 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -57,7 +57,7 @@ class Ui_MainWindow(object):
         self.groupBox.setGeometry(QtCore.QRect(180, 50, 191, 221))
         self.groupBox.setObjectName(_fromUtf8("groupBox"))
         self.verticalLayoutWidget_3 = QtGui.QWidget(self.groupBox)
-        self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(10, 10, 171, 196))
+        self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(10, 10, 183, 196))
         self.verticalLayoutWidget_3.setObjectName(_fromUtf8("verticalLayoutWidget_3"))
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.verticalLayoutWidget_3)
         self.verticalLayout_3.setMargin(0)
@@ -154,9 +154,12 @@ class Ui_MainWindow(object):
         self.actionCreate_Branch.setObjectName(_fromUtf8("actionCreate_Branch"))
         self.actionModify_Summary = QtGui.QAction(MainWindow)
         self.actionModify_Summary.setObjectName(_fromUtf8("actionModify_Summary"))
+        self.actionDelete_Node = QtGui.QAction(MainWindow)
+        self.actionDelete_Node.setObjectName(_fromUtf8("actionDelete_Node"))
         self.menuFile.addAction(self.actionAddDevice)
         self.menuFile.addAction(self.actionCreate_Branch)
         self.menuEdit.addAction(self.actionModify_Summary)
+        self.menuEdit.addAction(self.actionDelete_Node)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
 
@@ -173,7 +176,7 @@ class Ui_MainWindow(object):
         self.maxButton.setText(_translate("MainWindow", "Maximum", None))
         self.avgButton.setText(_translate("MainWindow", "Average", None))
         self.timeLabel.setText(_translate("MainWindow", "Time: ", None))
-        self.minutesLabel.setText(_translate("MainWindow", "min", None))
+        self.minutesLabel.setText(_translate("MainWindow", "(format -- hh:mm:ss)", None))
         self.functionButton.setText(_translate("MainWindow", "Add Summary", None))
         self.attributeName.setText(_translate("MainWindow", "Attribute: ", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.dataTab), _translate("MainWindow", "Raw Data", None))
@@ -186,4 +189,5 @@ class Ui_MainWindow(object):
         self.actionAddDevice.setText(_translate("MainWindow", "Add Device", None))
         self.actionCreate_Branch.setText(_translate("MainWindow", "Create Branch", None))
         self.actionModify_Summary.setText(_translate("MainWindow", "Modify Summary", None))
+        self.actionDelete_Node.setText(_translate("MainWindow", "Delete Node", None))
 

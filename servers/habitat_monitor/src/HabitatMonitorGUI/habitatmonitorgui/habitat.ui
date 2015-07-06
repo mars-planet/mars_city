@@ -84,7 +84,7 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>171</width>
+       <width>183</width>
        <height>196</height>
       </rect>
      </property>
@@ -128,7 +128,7 @@
         <item>
          <widget class="QLabel" name="minutesLabel">
           <property name="text">
-           <string>min</string>
+           <string>(format -- hh:mm:ss)</string>
           </property>
          </widget>
         </item>
@@ -282,6 +282,7 @@
      <string>Edit</string>
     </property>
     <addaction name="actionModify_Summary"/>
+    <addaction name="actionDelete_Node"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -300,6 +301,11 @@
   <action name="actionModify_Summary">
    <property name="text">
     <string>Modify Summary</string>
+   </property>
+  </action>
+  <action name="actionDelete_Node">
+   <property name="text">
+    <string>Delete Node</string>
    </property>
   </action>
  </widget>

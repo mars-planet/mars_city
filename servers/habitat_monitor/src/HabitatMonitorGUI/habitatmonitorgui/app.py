@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 import threading
+import re
 from pymongo import MongoClient
 from PyQt4 import QtCore, QtGui
 from habitat import Ui_MainWindow
@@ -23,15 +24,27 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.ui.actionCreate_Branch.triggered.connect(self.create_branch)
         self.ui.actionModify_Summary.triggered.connect(self.modify_summary)
         self.ui.actionModify_Summary.setEnabled(False)
+        self.ui.actionDelete_Node.triggered.connect(self.delete_node)
+        self.ui.actionDelete_Node.setEnabled(False)
         self.dataSourcesTreeItem = QtGui.QTreeWidgetItem(self.ui.treeWidget)
         self.dataSourcesTreeItem.setText(0, "Data Sources")
         nodes = self.db.nodes
         node = nodes[0]
         for i in nodes.find({'type': 'leaf'}):
             device = i['name']
-            t = threading.Thread(target=self.aggregate_data,args=([device]))
-            t.start()
-            self.update_tree(self.dataSourcesTreeItem, device)
+            proxy = DeviceProxy(device)
+            deviceFlag = 1
+            while deviceFlag:
+                try:
+                    proxy.ping()
+                    deviceFlag = 0
+                    t = threading.Thread(target=self.aggregate_data,args=([device]))
+                    t.start()
+                    self.update_tree(self.dataSourcesTreeItem, device)
+                except Exception as ex:
+                    QtGui.QMessageBox.critical(self, "Warning",
+                            "Start the device server " + device)
+
         for i in nodes.find({'type': 'branch'}):
             device = i['name']
             treeBranch = QtGui.QTreeWidgetItem(self.ui.treeWidget)
@@ -54,6 +67,14 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.ui.tabWidget.hide()
         self.ui.listWidget.hide()
         self.ui.listWidget_2.hide()
+
+
+    def delete_node(self):
+        nodes = self.db.nodes
+        nodes.remove({'name': self.modifiedNode})
+        nodes.update({'children': self.modifiedNode},
+            {'$pull': {'children': self.modifiedNode}},
+            upsert=False, multi=True)
 
 
     def modify_summary(self):
@@ -142,6 +163,8 @@ class HabitatMonitor(QtGui.QMainWindow):
                 summary = str(radioButton.text())
                 break
 
+        pattern = re.compile("^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]$")
+
         if self.isModified == True:
             modNode = nodes.find_one({'name': self.modifiedNode})
             if modNode['type'] == "leaf":
@@ -149,7 +172,12 @@ class HabitatMonitor(QtGui.QMainWindow):
                 if len(timeField) == 0:
                     QtGui.QErrorMessage(self).showMessage("Time Field is required")
                     return
-                summaryTime = int(timeField)
+                if not pattern.match(timeField):
+                    QtGui.QErrorMessage(self).showMessage(
+                        "Please enter time in the correct format -- hh:mm:ss")
+                    return
+                l = timeField.split(":")
+                summaryTime = int(l[0]) * 3600 + int(l[1]) * 60 + int(l[2])
                 max_len = (summaryTime * 60) / 2
                 nodes.update({'name': self.modifiedNode}, 
                     {'$set': {'max_len': max_len, 'function': summary}})
@@ -167,7 +195,12 @@ class HabitatMonitor(QtGui.QMainWindow):
             if len(timeField) == 0:
                 QtGui.QErrorMessage(self).showMessage("Time Field is required")
                 return
-            summaryTime = int(timeField)
+            if not pattern.match(timeField):
+                QtGui.QErrorMessage(self).showMessage(
+                    "Please enter time in the correct format -- hh:mm:ss")
+                return
+            l = timeField.split(":")
+            summaryTime = int(l[0]) * 3600 + int(l[1]) * 60 + int(l[2])
             max_len = (summaryTime * 60) / 2
             nodeName = self.devName
         elif sourceType == "branch":
@@ -293,8 +326,10 @@ class HabitatMonitor(QtGui.QMainWindow):
         currentNode = str(item.text(column))
         if currentNode == "Data Sources":
             self.ui.actionModify_Summary.setEnabled(False)
+            self.ui.actionDelete_Node.setEnabled(False)
             return
         self.ui.actionModify_Summary.setEnabled(True)
+        self.ui.actionDelete_Node.setEnabled(True)
         self.modifiedNode = currentNode
         self.isModified = False
         nodes = self.db.nodes
