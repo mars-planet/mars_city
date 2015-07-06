@@ -70,11 +70,16 @@ class HabitatMonitor(QtGui.QMainWindow):
 
 
     def delete_node(self):
-        nodes = self.db.nodes
-        nodes.remove({'name': self.modifiedNode})
-        nodes.update({'children': self.modifiedNode},
-            {'$pull': {'children': self.modifiedNode}},
-            upsert=False, multi=True)
+        message = "Are you sure you want to delete the node?"
+        reply = QtGui.QMessageBox.question(self, 'Message',message,
+            QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        if reply == QtGui.QMessageBox.Yes:
+            nodes = self.db.nodes
+            nodes.remove({'name': self.modifiedNode})
+            nodes.update({'children': self.modifiedNode},
+                {'$pull': {'children': self.modifiedNode}},
+                upsert=False, multi=True)
+            self.ui.treeWidget.setCurrentItem(self.ui.treeWidget.topLevelItem(0))
 
 
     def modify_summary(self):
@@ -118,29 +123,35 @@ class HabitatMonitor(QtGui.QMainWindow):
         db = self.db
         nodes = db.nodes
         node = nodes.find_one({'name': devName})
-        max_len = node['max_len']
-        if len(list(node['data'])) >= max_len:
-            nodes.update({'name': devName}, {'$pop': {'data': -1}})
-        nodes.update({'name': devName}, {'$push': {'data': temp}})
-        node = nodes.find_one({'name': devName})
-        summary_data = self.find_summary(list(node['data']), node['function'])
-        nodes.update({'name': devName}, {'$set': {'summary_data': summary_data}})
-        threading.Timer(3, self.fetch_data, [devName]).start()
+        if node != None:
+            max_len = node['max_len']
+            if len(list(node['data'])) >= max_len:
+                nodes.update({'name': devName}, {'$pop': {'data': -1}})
+            nodes.update({'name': devName}, {'$push': {'data': temp}})
+            node = nodes.find_one({'name': devName})
+            summary_data = self.find_summary(list(node['data']), node['function'])
+            nodes.update({'name': devName}, {'$set': {'summary_data': summary_data}})
+            threading.Timer(3, self.fetch_data, [devName]).start()
+        else:
+            print devName, "deleted"
 
 
     def fetch_branch_data(self, branchName):
         nodes = self.db.nodes
         node = nodes.find_one({'name': branchName})
-        childNodes = node['children']
-        raw_data = {}
-        for i in childNodes:
-            child = nodes.find_one({'name': i})
-            childSummary = child['summary_data']
-            raw_data[i] = childSummary
-        summary_data = self.find_summary(raw_data.values(), node['function'])
-        updated = nodes.update({'name': branchName}, 
-            {'$set': {'data': raw_data, 'summary_data': summary_data}})
-        threading.Timer(3, self.fetch_branch_data, [branchName]).start()
+        if node != None:
+            childNodes = node['children']
+            raw_data = {}
+            for i in childNodes:
+                child = nodes.find_one({'name': i})
+                childSummary = child['summary_data']
+                raw_data[i] = childSummary
+            summary_data = self.find_summary(raw_data.values(), node['function'])
+            updated = nodes.update({'name': branchName}, 
+                {'$set': {'data': raw_data, 'summary_data': summary_data}})
+            threading.Timer(3, self.fetch_branch_data, [branchName]).start()
+        else:
+            print branchName, "deleted"
 
 
     def aggregate_data(self, devName):
@@ -296,25 +307,27 @@ class HabitatMonitor(QtGui.QMainWindow):
 
     def update_nodedata(self):
         node = self.db.nodes.find_one({'name': self.currentNode})
-        value = node['data'][-1]
-        self.ui.attributeValue.setText(str(value))
-        self.ui.summaryValue.setText(str(node['summary_data']))
+        if node != None:
+            value = node['data'][-1]
+            self.ui.attributeValue.setText(str(value))
+            self.ui.summaryValue.setText(str(node['summary_data']))
 
 
     def update_branchdata(self):
         try:
             nodes = self.db.nodes
             node = nodes.find_one({'name': self.branchNode})
-            c = 0
-            data = node['data']
-            self.ui.listWidget.clear()
-            self.ui.listWidget_2.clear()
-            keys = data.keys()
-            values = map(str, data.values())
-            self.ui.listWidget.addItems(keys)
-            self.ui.listWidget_2.addItems(values)
-            self.ui.summaryLabel.setText(node["function"] + " Value: ")
-            self.ui.summaryValue.setText(str(node['summary_data']))
+            if node != None:
+                c = 0
+                data = node['data']
+                self.ui.listWidget.clear()
+                self.ui.listWidget_2.clear()
+                keys = data.keys()
+                values = map(str, data.values())
+                self.ui.listWidget.addItems(keys)
+                self.ui.listWidget_2.addItems(values)
+                self.ui.summaryLabel.setText(node["function"] + " Value: ")
+                self.ui.summaryValue.setText(str(node['summary_data']))
         except AttributeError:
             pass
 
