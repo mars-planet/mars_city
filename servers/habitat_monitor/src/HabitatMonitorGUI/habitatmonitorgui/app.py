@@ -69,17 +69,44 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.ui.listWidget_2.hide()
 
 
+    def build_tree(self):
+        nodes = self.db.nodes
+        for i in nodes.find({'type': 'leaf'}):
+            device = i['name']
+            self.update_tree(self.dataSourcesTreeItem, device)
+
+        for i in nodes.find({'type': 'branch'}):
+            device = i['name']
+            treeBranch = QtGui.QTreeWidgetItem(self.ui.treeWidget)
+            treeBranch.setText(0, device)
+            for j in i['children']:
+                self.update_tree(treeBranch, j)
+
     def delete_node(self):
         message = "Are you sure you want to delete the node?"
         reply = QtGui.QMessageBox.question(self, 'Message',message,
             QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         if reply == QtGui.QMessageBox.Yes:
             nodes = self.db.nodes
-            nodes.remove({'name': self.modifiedNode})
-            nodes.update({'children': self.modifiedNode},
-                {'$pull': {'children': self.modifiedNode}},
-                upsert=False, multi=True)
-            self.ui.treeWidget.setCurrentItem(self.ui.treeWidget.topLevelItem(0))
+            if self.parentNode == "Data Sources":
+                nodes.remove({'name': self.modifiedNode})
+                nodes.update({'children': self.modifiedNode},
+                    {'$pull': {'children': self.modifiedNode}},
+                    upsert=False, multi=True)
+            else:
+                nodes.update({'name': self.parentNode}, {'$pull': {'children': self.modifiedNode}})
+            self.ui.treeWidget.clear()
+            self.dataSourcesTreeItem = QtGui.QTreeWidgetItem(self.ui.treeWidget)
+            self.dataSourcesTreeItem.setText(0, "Data Sources")
+            self.build_tree()
+            root = self.ui.treeWidget.invisibleRootItem()
+            try:
+                item = root.child(0)
+                item = item.child(0)
+            except Exception as ex:
+                print ex
+                item = root.child(0)
+            self.ui.treeWidget.setCurrentItem(item)
 
 
     def modify_summary(self):
@@ -336,6 +363,7 @@ class HabitatMonitor(QtGui.QMainWindow):
         for i in self.nodeTimers:
             i.stop()
         self.ui.graphButton.show()
+        self.parentNode = str(item.parent().text(column))
         currentNode = str(item.text(column))
         if currentNode == "Data Sources":
             self.ui.actionModify_Summary.setEnabled(False)
