@@ -2,6 +2,7 @@ import sys
 import numpy as np
 import threading
 import re
+import pyqtgraph as pg
 from pymongo import MongoClient
 from PyQt4 import QtCore, QtGui
 from habitat import Ui_MainWindow
@@ -17,9 +18,9 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.threads = []
         self.nodeTimers = []
         self.isModified = False
+        self.graphTimer = QtCore.QTimer()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.ui.tabWidget.currentChanged.connect(self.tab_changed)
         self.ui.actionAddDevice.triggered.connect(self.add_device)
         self.ui.actionCreate_Branch.triggered.connect(self.create_branch)
         self.ui.actionModify_Summary.triggered.connect(self.modify_summary)
@@ -53,12 +54,11 @@ class HabitatMonitor(QtGui.QMainWindow):
                 self.update_tree(treeBranch, j)
             t = threading.Thread(target=self.aggregate_branch_data,args=([device]))
             t.start()
-        self.ui.treeWidget.connect(self.ui.treeWidget, 
+        self.ui.treeWidget.connect(self.ui.treeWidget,
             QtCore.SIGNAL('itemClicked(QTreeWidgetItem*, int)'),
             self.onClick)
         self.ui.addBranchDevices.clicked.connect(self.finalize_branch)
         self.ui.functionButton.clicked.connect(self.add_summary)
-        self.ui.graphButton.clicked.connect(self.show_graph)
         self.ui.graphButton.hide()
         self.ui.devicesListView.hide()
         self.ui.mainGraphicsView.hide()
@@ -81,6 +81,7 @@ class HabitatMonitor(QtGui.QMainWindow):
             treeBranch.setText(0, device)
             for j in i['children']:
                 self.update_tree(treeBranch, j)
+
 
     def delete_node(self):
         message = "Are you sure you want to delete the node?"
@@ -127,21 +128,27 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.ui.groupBox.show()
 
 
-    def show_graph(self):
-        import pyqtgraph as pg
-        self.win = pg.GraphicsWindow(title="Basic plotting examples")
-        self.win.resize(1000,600)
-        self.win.setWindowTitle('pyqtgraph example: Plotting')
+    def update_plot(self):
+        try:
+            temp = self.proxy.temperature
+            if len(self.data) >= 60:
+                self.data.pop(0)
+            self.data.append(temp)
+            self.curve.setData(self.data[:])
+        except Exception as ex:
+            print ex
+
+
+    def init_graph(self):
         pg.setConfigOptions(antialias=True)
-        self.p6 = self.win.addPlot(title="Updating plot")
-        self.curve = self.p6.plot(pen='y')
+        self.ui.graphicsView.clear()
+        self.curve = self.ui.graphicsView.plot(pen='y')
         self.data = []
         self.ptr = 0
         self.proxy = DeviceProxy(str(self.itemText))
-        self.update_plot()
-
-    def tab_changed(self):
-        pass
+        self.graphTimer.stop()
+        self.graphTimer.timeout.connect(self.update_plot)
+        self.graphTimer.start(5000)
 
 
     def fetch_data(self, devName):
@@ -273,6 +280,7 @@ class HabitatMonitor(QtGui.QMainWindow):
             if item.checkState() == QtCore.Qt.Checked:
                 self.branchChildren.append(str(item.text()))
                 self.update_tree(self.treeBranch, item.text())
+        self.ui.setCurrentItem(self.treeBranch)
         self.ui.timeLabel.hide()
         self.ui.timeLineEdit.hide()
         self.ui.minutesLabel.hide()
@@ -310,17 +318,7 @@ class HabitatMonitor(QtGui.QMainWindow):
     def update_tree(self, source, value):
         tempDataSource = QtGui.QTreeWidgetItem(source)
         tempDataSource.setText(0, value)
-
-
-    def update_plot(self):
-        try:
-            temp = self.proxy.temperature
-            if len(self.data) >= 60:
-                self.data.pop(0)
-            self.data.append(temp)
-            self.curve.setData(self.data[:])
-        finally:
-            QtCore.QTimer.singleShot(300, self.update_plot)
+        self.ui.treeWidget.setCurrentItem(tempDataSource)
 
 
     def find_summary(self, data, function):
@@ -332,7 +330,7 @@ class HabitatMonitor(QtGui.QMainWindow):
             return float(sum(data)) / len(data)
 
 
-    def update_nodedata(self):
+    def update_leafdata(self):
         node = self.db.nodes.find_one({'name': self.currentNode})
         if node != None:
             value = node['data'][-1]
@@ -363,7 +361,10 @@ class HabitatMonitor(QtGui.QMainWindow):
         for i in self.nodeTimers:
             i.stop()
         self.ui.graphButton.show()
-        self.parentNode = str(item.parent().text(column))
+        try:
+            self.parentNode = str(item.parent().text(column))
+        except:
+            pass
         currentNode = str(item.text(column))
         if currentNode == "Data Sources":
             self.ui.actionModify_Summary.setEnabled(False)
@@ -380,14 +381,15 @@ class HabitatMonitor(QtGui.QMainWindow):
             self.ui.listWidget_2.hide()
             self.currentNode = currentNode
             self.itemText = currentNode
+            self.init_graph()
             self.ui.attributeName.setText("Temperature: ")
             self.ui.summaryLabel.setText(node['function'] + "Temperature:")
             self.ui.tabWidget.show()
             timer = QtCore.QTimer()
             self.nodeTimers.append(timer)
-            timer.timeout.connect(self.update_nodedata)
+            timer.timeout.connect(self.update_leafdata)
             timer.start(5000)
-
+            self.update_leafdata()
         else:
             self.branchNode = node['name']
             self.ui.tabWidget.show()
@@ -397,6 +399,7 @@ class HabitatMonitor(QtGui.QMainWindow):
             self.nodeTimers.append(timer)
             timer.timeout.connect(self.update_branchdata)
             timer.start(5000)
+            self.update_branchdata()
 
     def add_device(self):
         self.ui.tabWidget.hide()
@@ -425,7 +428,6 @@ class HabitatMonitor(QtGui.QMainWindow):
                 self.ui.timeLabel.show()
                 self.ui.timeLineEdit.show()
                 self.ui.minutesLabel.show()
-
             except Exception as ex:
                 print ex
                 QtGui.QErrorMessage(self).showMessage(

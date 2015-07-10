@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'habitat.ui'
 #
-# Created: Mon Jul  6 08:44:31 2015
+# Created: Thu Jul  9 20:00:28 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -126,13 +126,21 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5 = QtGui.QHBoxLayout()
         self.horizontalLayout_5.setObjectName(_fromUtf8("horizontalLayout_5"))
         self.summaryLabel = QtGui.QLabel(self.verticalLayoutWidget_5)
+        self.summaryLabel.setText(_fromUtf8(""))
         self.summaryLabel.setObjectName(_fromUtf8("summaryLabel"))
         self.horizontalLayout_5.addWidget(self.summaryLabel)
         self.summaryValue = QtGui.QLabel(self.verticalLayoutWidget_5)
+        self.summaryValue.setText(_fromUtf8(""))
         self.summaryValue.setObjectName(_fromUtf8("summaryValue"))
         self.horizontalLayout_5.addWidget(self.summaryValue)
         self.verticalLayout_5.addLayout(self.horizontalLayout_5)
         self.tabWidget.addTab(self.summaryTab, _fromUtf8(""))
+        self.graphTab = QtGui.QWidget()
+        self.graphTab.setObjectName(_fromUtf8("graphTab"))
+        self.graphicsView = PlotWidget(self.graphTab)
+        self.graphicsView.setGeometry(QtCore.QRect(20, 20, 571, 361))
+        self.graphicsView.setObjectName(_fromUtf8("graphicsView"))
+        self.tabWidget.addTab(self.graphTab, _fromUtf8(""))
         self.graphButton = QtGui.QPushButton(self.centralwidget)
         self.graphButton.setGeometry(QtCore.QRect(420, 460, 131, 31))
         self.graphButton.setObjectName(_fromUtf8("graphButton"))
@@ -164,7 +172,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuEdit.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -176,13 +184,12 @@ class Ui_MainWindow(object):
         self.maxButton.setText(_translate("MainWindow", "Maximum", None))
         self.avgButton.setText(_translate("MainWindow", "Average", None))
         self.timeLabel.setText(_translate("MainWindow", "Time: ", None))
-        self.minutesLabel.setText(_translate("MainWindow", "(format -- hh:mm:ss)", None))
+        self.minutesLabel.setText(_translate("MainWindow", "(hh:mm:ss)", None))
         self.functionButton.setText(_translate("MainWindow", "Add Summary", None))
         self.attributeName.setText(_translate("MainWindow", "Attribute: ", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.dataTab), _translate("MainWindow", "Raw Data", None))
-        self.summaryLabel.setText(_translate("MainWindow", "TextLabel", None))
-        self.summaryValue.setText(_translate("MainWindow", "TextLabel", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.summaryTab), _translate("MainWindow", "Summary", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.graphTab), _translate("MainWindow", "Graph", None))
         self.graphButton.setText(_translate("MainWindow", "Show Graph", None))
         self.menuFile.setTitle(_translate("MainWindow", "File", None))
         self.menuEdit.setTitle(_translate("MainWindow", "Edit", None))
@@ -191,3 +198,4 @@ class Ui_MainWindow(object):
         self.actionModify_Summary.setText(_translate("MainWindow", "Modify Summary", None))
         self.actionDelete_Node.setText(_translate("MainWindow", "Delete Node", None))
 
+from pyqtgraph import PlotWidget

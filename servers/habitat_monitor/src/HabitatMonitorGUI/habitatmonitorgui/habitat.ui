@@ -128,7 +128,7 @@
         <item>
          <widget class="QLabel" name="minutesLabel">
           <property name="text">
-           <string>(format -- hh:mm:ss)</string>
+           <string>(hh:mm:ss)</string>
           </property>
          </widget>
         </item>
@@ -154,7 +154,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="dataTab">
      <attribute name="title">
@@ -230,20 +230,35 @@
          <item>
           <widget class="QLabel" name="summaryLabel">
            <property name="text">
-            <string>TextLabel</string>
+            <string/>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QLabel" name="summaryValue">
            <property name="text">
-            <string>TextLabel</string>
+            <string/>
            </property>
           </widget>
          </item>
         </layout>
        </item>
       </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="graphTab">
+     <attribute name="title">
+      <string>Graph</string>
+     </attribute>
+     <widget class="PlotWidget" name="graphicsView">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>20</y>
+        <width>571</width>
+        <height>361</height>
+       </rect>
+      </property>
      </widget>
     </widget>
    </widget>
@@ -309,6 +324,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PlotWidget</class>
+   <extends>QGraphicsView</extends>
+   <header>pyqtgraph.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
