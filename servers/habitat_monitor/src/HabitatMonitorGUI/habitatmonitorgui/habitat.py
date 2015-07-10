@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'habitat.ui'
 #
-# Created: Thu Jul  9 20:00:28 2015
+# Created: Fri Jul 10 15:45:19 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -141,9 +141,6 @@ class Ui_MainWindow(object):
         self.graphicsView.setGeometry(QtCore.QRect(20, 20, 571, 361))
         self.graphicsView.setObjectName(_fromUtf8("graphicsView"))
         self.tabWidget.addTab(self.graphTab, _fromUtf8(""))
-        self.graphButton = QtGui.QPushButton(self.centralwidget)
-        self.graphButton.setGeometry(QtCore.QRect(420, 460, 131, 31))
-        self.graphButton.setObjectName(_fromUtf8("graphButton"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 797, 23))
@@ -172,7 +169,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuEdit.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -190,7 +187,6 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.dataTab), _translate("MainWindow", "Raw Data", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.summaryTab), _translate("MainWindow", "Summary", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.graphTab), _translate("MainWindow", "Graph", None))
-        self.graphButton.setText(_translate("MainWindow", "Show Graph", None))
         self.menuFile.setTitle(_translate("MainWindow", "File", None))
         self.menuEdit.setTitle(_translate("MainWindow", "Edit", None))
         self.actionAddDevice.setText(_translate("MainWindow", "Add Device", None))

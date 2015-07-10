@@ -59,7 +59,7 @@ class HabitatMonitor(QtGui.QMainWindow):
             self.onClick)
         self.ui.addBranchDevices.clicked.connect(self.finalize_branch)
         self.ui.functionButton.clicked.connect(self.add_summary)
-        self.ui.graphButton.hide()
+        # self.ui.graphButton.hide()
         self.ui.devicesListView.hide()
         self.ui.mainGraphicsView.hide()
         self.ui.addBranchDevices.hide()
@@ -124,7 +124,7 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.ui.functionButton.setText('Modify Summary')
         self.isModified = True
         self.ui.tabWidget.hide()
-        self.ui.graphButton.hide()
+        # self.ui.graphButton.hide()
         self.ui.groupBox.show()
 
 
@@ -143,12 +143,17 @@ class HabitatMonitor(QtGui.QMainWindow):
         pg.setConfigOptions(antialias=True)
         self.ui.graphicsView.clear()
         self.curve = self.ui.graphicsView.plot(pen='y')
+        # self.ui.graphicsView.addLegend()
+        l = pg.LegendItem((100,60), offset=(70,30))
+        l.setParentItem(self.ui.graphicsView.graphicsItem())
+        l.addItem(self.curve, 'temperature')
+        # l.addItem(c2, 'green plot')
         self.data = []
         self.ptr = 0
         self.proxy = DeviceProxy(str(self.itemText))
         self.graphTimer.stop()
         self.graphTimer.timeout.connect(self.update_plot)
-        self.graphTimer.start(5000)
+        self.graphTimer.start(3000)
 
 
     def fetch_data(self, devName):
@@ -291,7 +296,7 @@ class HabitatMonitor(QtGui.QMainWindow):
 
     def create_branch(self):
         self.ui.tabWidget.hide()
-        self.ui.graphButton.hide()
+        # self.ui.graphButton.hide()
         self.ui.functionButton.setText("Add Summary")
         self.sourceType = "branch"
         text, ok = QtGui.QInputDialog.getText(self, 'Input Dialog', 
@@ -360,7 +365,7 @@ class HabitatMonitor(QtGui.QMainWindow):
     def onClick(self, item, column):
         for i in self.nodeTimers:
             i.stop()
-        self.ui.graphButton.show()
+        # self.ui.graphButton.show()
         try:
             self.parentNode = str(item.parent().text(column))
         except:
@@ -401,9 +406,10 @@ class HabitatMonitor(QtGui.QMainWindow):
             timer.start(5000)
             self.update_branchdata()
 
+
     def add_device(self):
         self.ui.tabWidget.hide()
-        self.ui.graphButton.hide()
+        # self.ui.graphButton.hide()
         self.ui.functionButton.setText("Add Summary")
         print "Add new device"
         devName, ok = QtGui.QInputDialog.getText(self, 'Input Dialog', 
