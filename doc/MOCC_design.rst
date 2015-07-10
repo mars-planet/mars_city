@@ -101,18 +101,19 @@ Glossary
 Overview
 ++++++++
 
-The first section of this document describes at the highest level the
-organization of the :term:`MOCC`, its communication channels, subsystems and
+The :ref:`first section <sec_1>` of this document describes at the highest level
+the organization of the :term:`MOCC`, its communication channels, subsystems and
 their general responsibilities, as well as the assumptions made during the
-design process. The second section describes the documents associated with the
-present one. Section 3. handles the MOCC's management structure. Section 4. is
-concerned with the MOCC's infrastructure. Finally, Section 5. deals with
+design process. The :ref:`second section <sec_2>` describes the documents
+associated with the present one. Finally, :ref:`Section 3. <sec_3>` deals with
 miscellaneous factors that need to be addressed or acknowledged when
 implementing or operating the :term:`MOCC`.
 
 
-1. The :term:`MOCC` System and its Subsystems
----------------------------------------------
+.. _sec_1:
+
+1. The MOCC System and its Subsystems
+-------------------------------------
 
 High level architecture
 +++++++++++++++++++++++
@@ -222,10 +223,14 @@ components are **plan templates**, i.e., pre-built plans with free parameters
 
 
 `Figure 2`_ shows the internal structure of this subsystem. In few words, the
-person in charge of building :term:`ERAS`'s plans will build plan templates
+person in charge of building :term:`ERAS` 's plans will build plan templates
 using the user interfaces, with the help of :term:`AI` assistants. When a
 plan is needed, this person will then create a plan instantiation, using the
 same :term:`UI` and assistants, by filling in the template's missing parameters.
+In order to build the templates, the user shall use the information provided by
+the Configurations Subsystem about the device's and crew member's capabilities,
+as well as the macros. To allow this, the planning :term:`UI` s must pull this
+information from the Configurations Subsystem.
 
 
 .. figure:: images/MOCC_Planning.png
@@ -291,13 +296,21 @@ The **Execution** component is in charge of executing the mission plans. This
 involves sending all automated commands to devices and crew members at the
 correct time. For commands that cannot be automatically sent, the Execution
 component should send a cue to one of the :term:`UI` in order for a user to
-manually send the command.
+manually send the command. Part of the Execution component's task is to pull
+from the Planning Subsystem information about the next plans to execute.
+Moreover the Execution component needs to pull from the Configurations Subsystem
+information about the TANGO device addresses and other interface requirements.
+Finally, the automated commands are sent though the Commands Subsystem.
 
 The **Control** component's task is to check during the plan whether the
 expected outcomes from the plan in execution match the telemetry readings
 obtained. If a deviation occurs, the Control component should send an alarm to
 one of the :term:`UI`, in order to allow the users to perform the necessary
-corrections.
+corrections. To carry its tasks, the Control component needs to pull from the
+Configurations Subsystem information about the TANGO device addresses and other
+interface requirements. The Control component must obtain the device's
+telemetry readings from the Telemetry Subsystem, whereas the plan steps'
+expected outcomes come from the Planning Subsystem.
 
 The Operations Subsystem's **user interfaces** have four tasks:
 
@@ -309,6 +322,12 @@ The Operations Subsystem's **user interfaces** have four tasks:
 * Allow the user to build, review and execute corrective measures, in case of a
   plan deviation.
 
+These :term:`UI` s get the information about the devices from the Configurations
+Subsystem. They also interface with the Telemetry Subsystem to obtain telemetry
+readings, as well as with the Commands Subsystem allow manually sending
+commands. Finally, the :term:`UI` s have to interface with the Planning Subsystem
+to show the plans and the plans' execution.
+
 
 The :term:`AI` **assistants** in the Operations Subsystem are of two types:
 
@@ -319,6 +338,9 @@ The :term:`AI` **assistants** in the Operations Subsystem are of two types:
 * **Corrective Assistants** help the users build and execute corrective
   measures, in case of a plan deviation.
 
+The assistants need to interface with the Configurations Subsystem, to obtain
+devices' addresses and other interface requirements, and with the Telemetry
+Subsystem, to obtain the devices' readings.
 
 The building of corrective measures mentioned previously can be done by using a
 plans from a previously built repository of **corrective plans**. This
@@ -336,6 +358,8 @@ scenario would be as follows:
 #. To correct the deviation, the user selects a corrective plan for overheating
    drill bits from the repository, fills the needed parameters, and executes it.
 
+These corrective plans should be built based on both the devices' and crew
+members' properties, as well as on the original plan.
 
 The Configurations Subsystem
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -429,6 +453,8 @@ are other subsystem in the :term:`MOCC`, whereas **external** clients are those
 outside the :term:`MOCC`.
 
 
+.. _sec_2:
+
 2. Documents
 ------------
 
@@ -459,6 +485,8 @@ These last five documents expand on each aspect of the general documents,
 explaining vague points and refining the granularity of the system-level design.
 Subsystem-specific restrictions on software, infrastructure or human resources
 should go in their corresponding subsystem document.
+
+.. _sec_3:
 
 3. Special Considerations
 -------------------------
