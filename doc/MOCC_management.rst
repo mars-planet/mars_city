@@ -36,8 +36,8 @@ Reference Documents
 .. _`C3 Prototype document v.4`: http://www.erasproject.org/index.php?option=com_joomdoc&view=documents&path=C3+Subsystem/ERAS-C3Prototype_v4.pdf&Itemid=148
 .. _`Software Engineering Practices Guidelines for the ERAS Project`: http://erasproject.org/?wpdmdl=353
 .. _`V-ERAS-14 Mission Report`: http://erasproject.org/?wpdmdl=353
-.. _`Morocco MARS2013 Mission Report`: http://erasproject.org/?wpdmdl=339
-.. _`Dachstein 2012 Mission Report`: http://erasproject.org/?wpdmdl=340
+.. _`Dachstein 2012 Mission Report`: http://www.oewf.org/dl/Dachstein2012_MissionReport_PUBLICv2.pdf
+.. _`Morocco MARS2013 Mission Report`: http://www.oewf.org/dl/724b15d5b031dbd23fff2b5063903635.pdf
 .. _`V-ERAS Project Description (2014 Release)`: http://erasproject.org/?wpdmdl=341
 
 Glossary
@@ -72,8 +72,8 @@ Glossary
 Overview
 ++++++++
 
-1. The :term:`MOCC` System and its Subsystems
----------------------------------------------
+1. The MOCC System and its Subsystems
+-------------------------------------
 
 High level architecture
 +++++++++++++++++++++++
