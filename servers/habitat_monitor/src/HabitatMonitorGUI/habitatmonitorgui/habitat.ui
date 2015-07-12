@@ -19,7 +19,7 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>161</width>
+      <width>191</width>
       <height>561</height>
      </rect>
     </property>
@@ -38,9 +38,9 @@
    <widget class="QGraphicsView" name="mainGraphicsView">
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>190</x>
       <y>0</y>
-      <width>641</width>
+      <width>611</width>
       <height>551</height>
      </rect>
     </property>
@@ -48,31 +48,20 @@
    <widget class="QWidget" name="verticalLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>179</x>
+      <x>220</x>
       <y>60</y>
       <width>281</width>
       <height>281</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
-      <widget class="QListView" name="devicesListView"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="addBranchDevices">
-       <property name="text">
-        <string>Add Devices</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <layout class="QVBoxLayout" name="verticalLayout_2"/>
    </widget>
    <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>50</y>
-      <width>191</width>
+      <x>530</x>
+      <y>40</y>
+      <width>211</width>
       <height>221</height>
      </rect>
     </property>
@@ -147,9 +136,9 @@
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>190</x>
       <y>0</y>
-      <width>621</width>
+      <width>601</width>
       <height>431</height>
      </rect>
     </property>
@@ -210,6 +199,14 @@
        </rect>
       </property>
      </widget>
+     <zorder>verticalLayoutWidget_4</zorder>
+     <zorder>listWidget</zorder>
+     <zorder>listWidget_2</zorder>
+     <zorder>addBranchDevices</zorder>
+     <zorder>devicesListView</zorder>
+     <zorder>verticalLayoutWidget_6</zorder>
+     <zorder>verticalLayoutWidget_2</zorder>
+     <zorder>groupBox</zorder>
     </widget>
     <widget class="QWidget" name="summaryTab">
      <attribute name="title">
@@ -262,6 +259,59 @@
      </widget>
     </widget>
    </widget>
+   <widget class="QWidget" name="verticalLayoutWidget_6">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>60</y>
+      <width>181</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_6">
+     <item>
+      <widget class="QLabel" name="attrLabel">
+       <property name="text">
+        <string>Select an attribute</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBox"/>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QListView" name="devicesListView">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>40</y>
+      <width>279</width>
+      <height>246</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="addBranchDevices">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>290</y>
+      <width>279</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Add Devices</string>
+    </property>
+   </widget>
+   <zorder>verticalLayoutWidget</zorder>
+   <zorder>mainGraphicsView</zorder>
+   <zorder>verticalLayoutWidget_2</zorder>
+   <zorder>groupBox</zorder>
+   <zorder>verticalLayoutWidget_6</zorder>
+   <zorder>devicesListView</zorder>
+   <zorder>addBranchDevices</zorder>
+   <zorder>tabWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
