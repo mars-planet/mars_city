@@ -246,9 +246,6 @@ class HabitatMonitor(QtGui.QMainWindow):
                         "Please enter time in the correct format -- hh:mm:ss")
                     return
                 self.ui.treeWidget.setEnabled(True)
-                # for i in range(self.ui.treeWidget.topLevelItemCount()):
-                #     item = self.ui.treeWidget.topLevelItem(i)
-                #     item.setDisabled(False)
                 l = timeField.split(":")
                 summaryTime = int(l[0]) * 3600 + int(l[1]) * 60 + int(l[2])
                 max_len = (summaryTime * 60) / 2
@@ -274,7 +271,6 @@ class HabitatMonitor(QtGui.QMainWindow):
                 QtGui.QErrorMessage(self).showMessage(
                     "Please enter time in the correct format -- hh:mm:ss")
                 return
-            self.ui.treeWidget.setEnabled(True)
             l = timeField.split(":")
             attr = self.summaryAttr
             summaryTime = int(l[0]) * 3600 + int(l[1]) * 60 + int(l[2])
@@ -283,6 +279,7 @@ class HabitatMonitor(QtGui.QMainWindow):
         elif sourceType == "branch":
             children = self.branchChildren
             nodeName = self.branchName
+        self.ui.treeWidget.setEnabled(True)
         node = {'name': nodeName,
                 'type': sourceType,
                 'attr': attr,
