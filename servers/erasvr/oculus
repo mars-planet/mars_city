@@ -1,0 +1,73 @@
+#!/usr/bin/python3
+
+import sys
+import PyTango
+import pyOVR 
+
+
+
+class PyDevice(PyTango.DeviceClass):
+    cmd_list = {}
+    attr_type = [
+        [PyTango.ArgType.DevFloat,
+         PyTango.AttrDataFormat.SCALAR,
+         PyTango.AttrWriteType.READ],
+        {'polling period': 100}
+    ]
+    attr_list = {
+        'rot_w': attr_type,
+        'rot_x': attr_type,
+        'rot_y': attr_type,
+        'rot_z': attr_type
+    }
+
+    def __init__(self, name):
+        PyTango.DeviceClass.__init__(self, name)
+        self.set_type("OculusDevice")
+
+
+class PyOculus(PyTango.Device_4Impl):
+    def __init__(self, cl, name):
+        self.devices = {}
+        PyTango.Device_4Impl.__init__(self, cl, name)
+        self.info_stream('In Oculus.__init__')
+        PyOculus.init_device(self)
+
+    def __del__(self):
+        print ("destructor")
+
+    def read_rot_w(self, the_att):
+        #print ("read_rot_w")
+        self.rots=self.rift.getorientation()
+        self.rot_w=self.rots[0]
+        the_att.set_value(self.rot_w)
+
+    def read_rot_x(self, the_att):
+        self.rot_x=self.rots[1]
+        the_att.set_value(self.rot_x)
+
+    def read_rot_y(self, the_att):
+        self.rot_y=self.rots[2]
+        the_att.set_value(self.rot_y)
+
+    def read_rot_z(self, the_att):
+        self.rot_z=self.rots[3]
+        the_att.set_value(self.rot_z)
+
+    def init_device(self):
+        self.info_stream('In Python init_device method')
+        self.set_state(PyTango.DevState.ON)
+        self.rot_w = 0
+        self.rot_x = 0
+        self.rot_y = 0
+        self.rot_z = 0
+        self.rift = pyOVR.RiftDevice()
+
+
+if __name__ == '__main__':
+    util = PyTango.Util(sys.argv)
+    util.add_class(PyDevice, PyOculus)
+
+    U = PyTango.Util.instance()
+    U.server_init()
+    U.server_run()
