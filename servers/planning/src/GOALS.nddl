@@ -12,6 +12,13 @@ eq(free.start, 0);
 // Establish the goal - to take a sample at a position
 goal(spirit.TakeSample sample);
 sample.start.specify(50);
-sample.rock.specify(rock4);  // Want to get to rock4
+sample.rock.specify(loc1);  // Want to get to rock4
+
+fact(spirit.navigator.At Position);
+eq(initialPosition.location, loc1);
+
+goal(sprit.Go location)
+location.dest.specify(loc2);
+location.path.specify(p4);
 
 // The planner should take it form here!

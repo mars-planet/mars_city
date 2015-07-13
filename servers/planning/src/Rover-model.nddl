@@ -150,12 +150,12 @@ Rover::Go
     eq(going.path,path);
     eq(going.from,_from.location);
     eq(going.to,dest);
-    if(battery.ic>=path.cost)
-    {
+    //if(battery.ic>=path.cost)
+    //{
     // Pull power from the battery equal to the path cost.
-    starts(effect Battery.consume tx);
-    eq(tx.quantity, path.cost);
-    }
+    //starts(effect Battery.consume tx);
+    //eq(tx.quantity, path.cost);
+    //}
 }
 
 Rover::TakeSample
