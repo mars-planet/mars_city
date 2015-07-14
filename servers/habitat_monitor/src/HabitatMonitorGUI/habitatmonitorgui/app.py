@@ -55,8 +55,12 @@ class HabitatMonitor(QtGui.QMainWindow):
             treeBranch = QtGui.QTreeWidgetItem(self.ui.treeWidget)
             treeBranch.setText(0, device)
             for j in i['children']:
-                ch = nodes.find_one({'name': j})
-                self.update_tree(treeBranch, j, ch['attr'])
+                if '-' in j:
+                    temp = j.split(' - ')
+                # ch = nodes.find_one({'name': temp[0], 'attr': temp[1]})
+                    self.update_tree(treeBranch, temp[0], temp[1])
+                else:
+                    self.update_tree(treeBranch, j, "")
             t = threading.Thread(target=self.aggregate_branch_data,args=([device]))
             t.start()
         self.ui.treeWidget.connect(self.ui.treeWidget,
@@ -92,8 +96,11 @@ class HabitatMonitor(QtGui.QMainWindow):
             treeBranch = QtGui.QTreeWidgetItem(self.ui.treeWidget)
             treeBranch.setText(0, device)
             for j in i['children']:
-                ch = nodes.find_one({'name': j})
-                self.update_tree(treeBranch, j, ch['attr'])
+                if '-' in j:
+                    temp = j.split(' - ')
+                    self.update_tree(treeBranch, temp[0], temp[1])
+                else:
+                    self.update_tree(treeBranch, j, "")
 
 
     def delete_node(self):
@@ -103,7 +110,11 @@ class HabitatMonitor(QtGui.QMainWindow):
         if reply == QtGui.QMessageBox.Yes:
             nodes = self.db.nodes
             if self.parentNode == "Data Sources":
-                nodes.remove({'name': self.modifiedNode})
+                mdAttr = ""
+                if '-' in self.modifiedNode:
+                    mdNode = self.modifiedNode.split(' - ')[0]
+                    mdAttr = self.modifiedNode.split(' - ')[1]
+                nodes.remove({'name': mdNode, 'attr': mdAttr})
                 nodes.update({'children': self.modifiedNode},
                     {'$pull': {'children': self.modifiedNode}},
                     upsert=False, multi=True)
@@ -206,7 +217,15 @@ class HabitatMonitor(QtGui.QMainWindow):
             childNodes = node['children']
             raw_data = {}
             for i in childNodes:
-                child = nodes.find_one({'name': i})
+                if '-' in i:
+                    temp = i.split(' - ')
+                    chName = temp[0]
+                    chAttr = temp[1]
+                else:
+                    chName = i
+                    chAttr = ""
+                child = nodes.find_one({'name': chName, 'attr': chAttr})
+                # print 
                 childSummary = child['summary_data']
                 raw_data[i] = childSummary
             summary_data = self.find_summary(raw_data.values(), node['function'])
@@ -246,7 +265,6 @@ class HabitatMonitor(QtGui.QMainWindow):
                 nodeType = 'leaf'
             else:
                 nodeType = 'branch'
-            # modNode = nodes.find_one({'name': self.modifiedNode})
             if nodeType == "leaf":
                 timeField = str(self.ui.timeLineEdit.text())
                 if len(timeField) == 0:
@@ -324,11 +342,16 @@ class HabitatMonitor(QtGui.QMainWindow):
         nodes = self.db.nodes
         for i in range(model.rowCount()):
             item = model.item(i)
-            ch = nodes.find_one({'name': str(item.text())})
-            attr = ch['attr']
+            itemText = str(item.text())
+            if '-' in itemText:
+                attr = itemText.split(" - ")[1]
+                devName = itemText.split(" - ")[0]
+            else:
+                devName = itemText
+                attr = ""
             if item.checkState() == QtCore.Qt.Checked:
-                self.branchChildren.append(ch['name'])
-                self.update_tree(self.treeBranch, ch['name'], attr)
+                self.branchChildren.append(itemText)
+                self.update_tree(self.treeBranch, devName, attr)
         self.ui.treeWidget.setCurrentItem(self.treeBranch)
         self.ui.timeLabel.hide()
         self.ui.timeLineEdit.hide()
@@ -352,7 +375,12 @@ class HabitatMonitor(QtGui.QMainWindow):
             nodes = self.db.nodes
             model = QtGui.QStandardItemModel()
             for i in nodes.find():
-                device = i['name']
+                if i['type'] == 'leaf':
+                    # print i['attr']    
+                    device = i['name'] + " - " + i['attr']
+                elif i['type'] == 'branch':
+                    device = i['name']
+                # print device
                 item = QtGui.QStandardItem(device)
                 check = QtCore.Qt.Unchecked
                 item.setCheckState(check)
@@ -381,7 +409,12 @@ class HabitatMonitor(QtGui.QMainWindow):
         elif function == "Maximum":
             return max(data)
         elif function == "Average":
-            return float(sum(data)) / len(data)
+            try:
+                value = float(sum(data)) / len(data)
+            except ZeroDivisionError:
+                value = 0
+            return value
+
 
 
     def update_leafdata(self):
@@ -417,8 +450,10 @@ class HabitatMonitor(QtGui.QMainWindow):
         for i in self.nodeTimers:
             i.stop()
         try:
+            print item.parent()
             self.parentNode = str(item.parent().text(column))
-        except:
+        except Exception as ex:
+            print ex
             pass
         currentNode = str(item.text(column))
         # if '-' in currentNode:
