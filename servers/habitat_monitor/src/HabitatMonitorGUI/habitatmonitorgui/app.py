@@ -125,19 +125,24 @@ class HabitatMonitor(QtGui.QMainWindow):
 
     def modify_summary(self):
         nodes = self.db.nodes
-        node = nodes.find_one({'name': self.modifiedNode})
-        if node['type'] == 'branch':
+        flag = 1
+        if '-' in self.modifiedNode:
+            nodeType = 'leaf'
+        else:
+            nodeType = 'branch'
+            # temp = self.modifiedNode.split()
+        if nodeType == 'branch':
+            # node = nodes.find_one({'name': self.modifiedNode})
             self.ui.timeLabel.hide()
             self.ui.timeLineEdit.hide()
             self.ui.minutesLabel.hide()
-        elif node['type'] == 'leaf':
+        elif nodeType == 'leaf':
             self.ui.timeLabel.show()
             self.ui.timeLineEdit.show()
             self.ui.minutesLabel.show()
         self.ui.functionButton.setText('Modify Summary')
         self.isModified = True
         self.ui.tabWidget.hide()
-        # self.ui.graphButton.hide()
         self.ui.groupBox.show()
 
 
@@ -154,7 +159,6 @@ class HabitatMonitor(QtGui.QMainWindow):
 
     def init_graph(self):
         temp = str(self.itemText).split(' - ')
-        print self.itemText
         self.attr = temp[1]
         pg.setConfigOptions(antialias=True)
         self.ui.graphicsView.clear()
@@ -176,7 +180,6 @@ class HabitatMonitor(QtGui.QMainWindow):
 
     def fetch_data(self, devName):
         temp = devName.split(" - ")
-        print temp
         dName = temp[0]
         dAttr = temp[1]
         proxy = DeviceProxy(dName)
@@ -239,9 +242,12 @@ class HabitatMonitor(QtGui.QMainWindow):
         pattern = re.compile("^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]$")
 
         if self.isModified == True:
-
-            modNode = nodes.find_one({'name': self.modifiedNode})
-            if modNode['type'] == "leaf":
+            if '-' in self.modifiedNode:
+                nodeType = 'leaf'
+            else:
+                nodeType = 'branch'
+            # modNode = nodes.find_one({'name': self.modifiedNode})
+            if nodeType == "leaf":
                 timeField = str(self.ui.timeLineEdit.text())
                 if len(timeField) == 0:
                     QtGui.QErrorMessage(self).showMessage("Time Field is required")
@@ -254,9 +260,10 @@ class HabitatMonitor(QtGui.QMainWindow):
                 l = timeField.split(":")
                 summaryTime = int(l[0]) * 3600 + int(l[1]) * 60 + int(l[2])
                 max_len = (summaryTime * 60) / 2
-                nodes.update({'name': self.modifiedNode}, 
+                temp = self.modifiedNode.split(' - ')
+                nodes.update({'name': temp[0], 'attr': temp[1]}, 
                     {'$set': {'max_len': max_len, 'function': summary}})
-            elif modNode['type'] == "branch":
+            elif nodeType == "branch":
                 nodes.update({'name': self.modifiedNode}, 
                     {'$set': {'function': summary}})
             self.isModified = False
