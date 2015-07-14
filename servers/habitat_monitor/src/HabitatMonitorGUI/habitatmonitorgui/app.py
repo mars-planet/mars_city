@@ -30,13 +30,12 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.dataSourcesTreeItem = QtGui.QTreeWidgetItem(self.ui.treeWidget)
         self.dataSourcesTreeItem.setText(0, "Data Sources")
         nodes = self.db.nodes
-        # node = nodes[0]
         checkedLeaves = []
         for i in nodes.find({'type': 'leaf'}):
-            device = i['name']
+            device = i['name'] + " - " + i['attr']
             if device in checkedLeaves:
                 continue
-            proxy = DeviceProxy(device)
+            proxy = DeviceProxy(i['name'])
             deviceFlag = 1
             while deviceFlag:
                 try:
@@ -44,7 +43,7 @@ class HabitatMonitor(QtGui.QMainWindow):
                     deviceFlag = 0
                     t = threading.Thread(target=self.aggregate_data,args=([device]))
                     t.start()
-                    self.update_tree(self.dataSourcesTreeItem, device, 
+                    self.update_tree(self.dataSourcesTreeItem, i['name'], 
                         i['attr'])
                     checkedLeaves.append(device)
                 except Exception as ex:
@@ -154,38 +153,44 @@ class HabitatMonitor(QtGui.QMainWindow):
 
 
     def init_graph(self):
-        self.attr = self.db.nodes.find_one({'name': str(self.itemText)})['attr']
+        temp = str(self.itemText).split(' - ')
+        print self.itemText
+        self.attr = temp[1]
         pg.setConfigOptions(antialias=True)
         self.ui.graphicsView.clear()
         self.curve = self.ui.graphicsView.plot(pen='y')
-        # self.ui.graphicsView.addLegend()
-        l = pg.LegendItem((100,60), offset=(70,30))
-        l.setParentItem(self.ui.graphicsView.graphicsItem())
-        l.addItem(self.curve, self.attr)
-        # l.addItem(c2, 'green plot')
+        try:
+            self.l.scene().removeItem(self.l)
+        except AttributeError:
+            pass
+        self.l = pg.LegendItem((100,60), offset=(70,30))
+        self.l.setParentItem(self.ui.graphicsView.graphicsItem())
+        self.l.addItem(self.curve, self.attr)
         self.data = []
         self.ptr = 0
-        self.proxy = DeviceProxy(str(self.itemText))
+        self.proxy = DeviceProxy(temp[0])
         self.graphTimer.stop()
         self.graphTimer.timeout.connect(self.update_plot)
         self.graphTimer.start(3000)
 
 
     def fetch_data(self, devName):
-        proxy = DeviceProxy(devName)
-        db = self.db
-        nodes = db.nodes
-        node = nodes.find_one({'name': devName})
-        temp = proxy[node['attr']].value
-        # print type(temp)
+        temp = devName.split(" - ")
+        print temp
+        dName = temp[0]
+        dAttr = temp[1]
+        proxy = DeviceProxy(dName)
+        nodes = self.db.nodes
+        node = nodes.find_one({'name': dName, 'attr': dAttr})
+        temp = proxy[dAttr].value
         if node != None:
             max_len = node['max_len']
             if len(list(node['data'])) >= max_len:
-                nodes.update({'name': devName}, {'$pop': {'data': -1}})
-            nodes.update({'name': devName}, {'$push': {'data': temp}})
-            node = nodes.find_one({'name': devName})
+                nodes.update({'name': dName, 'attr': dAttr}, {'$pop': {'data': -1}})
+            nodes.update({'name': dName, 'attr': dAttr}, {'$push': {'data': temp}})
+            node = nodes.find_one({'name': dName, 'attr': dAttr})
             summary_data = self.find_summary(list(node['data']), node['function'])
-            nodes.update({'name': devName}, {'$set': {'summary_data': summary_data}})
+            nodes.update({'name': dName, 'attr': dAttr}, {'$set': {'summary_data': summary_data}})
             threading.Timer(3, self.fetch_data, [devName]).start()
         else:
             print devName, "deleted"
@@ -293,7 +298,8 @@ class HabitatMonitor(QtGui.QMainWindow):
         node_id = nodes.insert_one(node).inserted_id
         if sourceType == "leaf":
             self.update_tree(self.dataSourcesTreeItem, self.devName, attr)
-            t = threading.Thread(target=self.aggregate_data,args=([self.devName]))
+            # fullName = self.devName + 
+            t = threading.Thread(target=self.aggregate_data,args=([self.devName + " - " + attr]))
             t.start()
 
         if sourceType == "branch":
@@ -372,7 +378,8 @@ class HabitatMonitor(QtGui.QMainWindow):
 
 
     def update_leafdata(self):
-        node = self.db.nodes.find_one({'name': self.currentNode})
+        temp = self.currentNode.split(' - ')
+        node = self.db.nodes.find_one({'name': temp[0], 'attr': temp[1]})
         if node != None:
             if len(node['data']) != 0:
                 value = node['data'][-1]
@@ -407,7 +414,8 @@ class HabitatMonitor(QtGui.QMainWindow):
         except:
             pass
         currentNode = str(item.text(column))
-        currentNode = currentNode.split(" - ")[0]
+        # if '-' in currentNode:
+        #     currentNode = currentNode.split(" - ")[0]
         if currentNode == "Data Sources":
             self.ui.actionModify_Summary.setEnabled(False)
             self.ui.actionDelete_Node.setEnabled(False)
@@ -417,7 +425,11 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.modifiedNode = currentNode
         self.isModified = False
         nodes = self.db.nodes
-        node = nodes.find_one({'name': currentNode})
+        if '-' in currentNode:
+            temp = currentNode.split(' - ')
+            node = nodes.find_one({'name': temp[0], 'attr': temp[1]})
+        else:
+            node = nodes.find_one({'name': currentNode})
         if node['type'] == "leaf":
             self.ui.listWidget.hide()
             self.ui.listWidget_2.hide()
