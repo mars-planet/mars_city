@@ -199,14 +199,6 @@
        </rect>
       </property>
      </widget>
-     <zorder>verticalLayoutWidget_4</zorder>
-     <zorder>listWidget</zorder>
-     <zorder>listWidget_2</zorder>
-     <zorder>addBranchDevices</zorder>
-     <zorder>devicesListView</zorder>
-     <zorder>verticalLayoutWidget_6</zorder>
-     <zorder>verticalLayoutWidget_2</zorder>
-     <zorder>groupBox</zorder>
     </widget>
     <widget class="QWidget" name="summaryTab">
      <attribute name="title">
@@ -251,11 +243,33 @@
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>20</y>
+        <y>50</y>
         <width>571</width>
-        <height>361</height>
+        <height>331</height>
        </rect>
       </property>
+     </widget>
+     <widget class="QWidget" name="verticalLayoutWidget_7">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>0</y>
+        <width>181</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <item>
+        <widget class="QLabel" name="selectChildLabel">
+         <property name="text">
+          <string>Select Child</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="childrenBox"/>
+       </item>
+      </layout>
      </widget>
     </widget>
    </widget>

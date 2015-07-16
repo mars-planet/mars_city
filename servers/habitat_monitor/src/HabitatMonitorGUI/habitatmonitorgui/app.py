@@ -141,9 +141,7 @@ class HabitatMonitor(QtGui.QMainWindow):
             nodeType = 'leaf'
         else:
             nodeType = 'branch'
-            # temp = self.modifiedNode.split()
         if nodeType == 'branch':
-            # node = nodes.find_one({'name': self.modifiedNode})
             self.ui.timeLabel.hide()
             self.ui.timeLineEdit.hide()
             self.ui.minutesLabel.hide()
@@ -251,6 +249,7 @@ class HabitatMonitor(QtGui.QMainWindow):
         max_len = 0
         children = ""
         attr = ""
+        summary_children = ""
         nodes = self.db.nodes
         for radioButton in self.ui.verticalLayoutWidget_3.findChildren(
             QtGui.QRadioButton):
@@ -318,12 +317,12 @@ class HabitatMonitor(QtGui.QMainWindow):
                 'children': children,
                 'max_len': max_len,
                 'data': [],
-                'summary_data': 0.0
+                'summary_data': 0.0,
+                'summary_children': summary_children
                 }
         node_id = nodes.insert_one(node).inserted_id
         if sourceType == "leaf":
             self.update_tree(self.dataSourcesTreeItem, self.devName, attr)
-            # fullName = self.devName + 
             t = threading.Thread(target=self.aggregate_data,args=([self.devName + " - " + attr]))
             t.start()
 
@@ -356,7 +355,16 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.ui.timeLabel.hide()
         self.ui.timeLineEdit.hide()
         self.ui.minutesLabel.hide()
-        self.ui.devicesListView.hide()
+
+        model = QtGui.QStandardItemModel()
+        for i in self.branchChildren:
+            item = QtGui.QStandardItem(i)
+            check = QtCore.Qt.Unchecked
+            item.setCheckState(check)
+            item.setCheckable(True)
+            model.appendRow(item)
+        self.ui.devicesListView.setModel(model)
+        # self.ui.devicesListView.hide()
         self.ui.addBranchDevices.hide()
         self.ui.groupBox.show()
 
