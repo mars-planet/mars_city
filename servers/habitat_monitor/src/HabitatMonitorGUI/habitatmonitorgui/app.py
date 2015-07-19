@@ -25,7 +25,9 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.ui.actionCreate_Branch.triggered.connect(self.create_branch)
         self.ui.actionModify_Summary.triggered.connect(self.modify_summary)
         self.ui.actionModify_Summary.setEnabled(False)
+        self.ui.actionAdd_Summary.setEnabled(False)
         self.ui.actionDelete_Node.triggered.connect(self.delete_node)
+        self.ui.actionAdd_Summary.triggered.connect(self.add_another_summary)
         self.ui.actionDelete_Node.setEnabled(False)
         self.dataSourcesTreeItem = QtGui.QTreeWidgetItem(self.ui.treeWidget)
         self.dataSourcesTreeItem.setText(0, "Data Sources")
@@ -41,7 +43,8 @@ class HabitatMonitor(QtGui.QMainWindow):
                 try:
                     proxy.ping()
                     deviceFlag = 0
-                    t = threading.Thread(target=self.aggregate_data,args=([device]))
+                    t = threading.Thread(target=self.aggregate_data,
+                        args=([device]))
                     t.start()
                     self.update_tree(self.dataSourcesTreeItem, i['name'], 
                         i['attr'])
@@ -57,7 +60,6 @@ class HabitatMonitor(QtGui.QMainWindow):
             for j in i['children']:
                 if '-' in j:
                     temp = j.split(' - ')
-                # ch = nodes.find_one({'name': temp[0], 'attr': temp[1]})
                     self.update_tree(treeBranch, temp[0], temp[1])
                 else:
                     self.update_tree(treeBranch, j, "")
@@ -70,6 +72,7 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.ui.functionButton.clicked.connect(self.add_summary)
         self.ui.comboBox.currentIndexChanged[str].connect(
             self.combo_index_changed)
+        self.ui.tabWidget.currentChanged.connect(self.current_tab_changed)
         self.ui.devicesListView.hide()
         self.ui.mainGraphicsView.hide()
         self.ui.addBranchDevices.hide()
@@ -79,6 +82,17 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.ui.tabWidget.hide()
         self.ui.listWidget.hide()
         self.ui.listWidget_2.hide()
+        self.ui.summaryNameLE.hide()
+        self.ui.summaryCB.hide()
+        self.ui.summaryLW1.hide()
+        self.ui.summaryLW2.hide()
+
+
+    def current_tab_changed(self):
+        if self.ui.tabWidget.currentIndex() == 1and self.parentNode == None:
+            self.ui.actionAdd_Summary.setEnabled(True)
+        else:
+            self.ui.actionAdd_Summary.setEnabled(False)
 
 
     def combo_index_changed(self, text):
@@ -109,8 +123,9 @@ class HabitatMonitor(QtGui.QMainWindow):
             QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         if reply == QtGui.QMessageBox.Yes:
             nodes = self.db.nodes
-            if self.parentNode == "Data Sources":
+            if self.parentNode == "Data Sources" or self.parentNode == None:
                 mdAttr = ""
+                mdNode = self.modifiedNode
                 if '-' in self.modifiedNode:
                     mdNode = self.modifiedNode.split(' - ')[0]
                     mdAttr = self.modifiedNode.split(' - ')[1]
@@ -132,6 +147,10 @@ class HabitatMonitor(QtGui.QMainWindow):
                 print ex
                 item = root.child(0)
             self.ui.treeWidget.setCurrentItem(item)
+
+
+    def add_another_summary(self):
+        pass
 
 
     def modify_summary(self):
@@ -223,7 +242,6 @@ class HabitatMonitor(QtGui.QMainWindow):
                     chName = i
                     chAttr = ""
                 child = nodes.find_one({'name': chName, 'attr': chAttr})
-                # print 
                 childSummary = child['summary_data']
                 raw_data[i] = childSummary
             summary_data = self.find_summary(raw_data.values(), node['function'])
@@ -249,7 +267,7 @@ class HabitatMonitor(QtGui.QMainWindow):
         max_len = 0
         children = ""
         attr = ""
-        summary_children = ""
+        summary_children = {}
         nodes = self.db.nodes
         for radioButton in self.ui.verticalLayoutWidget_3.findChildren(
             QtGui.QRadioButton):
@@ -305,7 +323,36 @@ class HabitatMonitor(QtGui.QMainWindow):
             summaryTime = int(l[0]) * 3600 + int(l[1]) * 60 + int(l[2])
             max_len = (summaryTime * 60) / 2
             nodeName = self.devName
+            summary_data = 0.0
         elif sourceType == "branch":
+            # summaryChildren = []
+            summaryName = str(self.ui.summaryNameLE.text())
+            if summaryName == "":
+                QtGui.QErrorMessage(self).showMessage(
+                    "Summary name cannot be empty. Please enter summary name")
+                return
+            children = []
+            model = self.ui.devicesListView.model()
+            # self.branchChildren = []
+            # nodes = self.db.nodes
+            for i in range(model.rowCount()):
+                item = model.item(i)
+                itemText = str(item.text())
+                # if '-' in itemText:
+                #     attr = itemText.split(" - ")[1]
+                #     devName = itemText.split(" - ")[0]
+                # else:
+                #     devName = itemText
+                #     attr = ""
+                if item.checkState() == QtCore.Qt.Checked:
+                    children.append(itemText)
+            if len(children) == 0:
+                QtGui.QErrorMessage(self).showMessage(
+                    "Select at least one child for summary!")
+                return
+                    # self.update_tree(self.treeBranch, devName, attr)
+            summary_data = {}
+            summary_children[summaryName] = [children, summary]
             children = self.branchChildren
             nodeName = self.branchName
         self.ui.treeWidget.setEnabled(True)
@@ -317,7 +364,7 @@ class HabitatMonitor(QtGui.QMainWindow):
                 'children': children,
                 'max_len': max_len,
                 'data': [],
-                'summary_data': 0.0,
+                'summary_data': summary_data,
                 'summary_children': summary_children
                 }
         node_id = nodes.insert_one(node).inserted_id
@@ -332,6 +379,9 @@ class HabitatMonitor(QtGui.QMainWindow):
             t.start()
         self.ui.groupBox.hide()
         self.ui.comboBox.hide()
+        self.ui.summaryCB.hide()
+        self.ui.summaryLW1.hide()
+        self.ui.summaryLW2.hide()
         self.ui.attrLabel.hide()
 
 
@@ -364,7 +414,7 @@ class HabitatMonitor(QtGui.QMainWindow):
             item.setCheckable(True)
             model.appendRow(item)
         self.ui.devicesListView.setModel(model)
-        # self.ui.devicesListView.hide()
+        self.ui.summaryNameLE.show()
         self.ui.addBranchDevices.hide()
         self.ui.groupBox.show()
 
@@ -384,11 +434,9 @@ class HabitatMonitor(QtGui.QMainWindow):
             model = QtGui.QStandardItemModel()
             for i in nodes.find():
                 if i['type'] == 'leaf':
-                    # print i['attr']    
                     device = i['name'] + " - " + i['attr']
                 elif i['type'] == 'branch':
                     device = i['name']
-                # print device
                 item = QtGui.QStandardItem(device)
                 check = QtCore.Qt.Unchecked
                 item.setCheckState(check)
@@ -424,7 +472,6 @@ class HabitatMonitor(QtGui.QMainWindow):
             return value
 
 
-
     def update_leafdata(self):
         temp = self.currentNode.split(' - ')
         node = self.db.nodes.find_one({'name': temp[0], 'attr': temp[1]})
@@ -439,13 +486,29 @@ class HabitatMonitor(QtGui.QMainWindow):
         try:
             nodes = self.db.nodes
             node = nodes.find_one({'name': self.branchNode})
+            summary_name = str(self.ui.summaryCB.currentText())
             if node != None:
                 c = 0
                 data = node['data']
+                summary_children = node['summary_children'][summary_name][0]
+                try:
+                    summ_data = [data[i] for i in summary_children]
+                except KeyError as e:
+                    summary_children = node['summary_children']
+                    summary_children[summary_name][0].remove(e.args[0])
+                    nodes.update({'name': self.branchNode}, 
+                        {'$set': {'summary_children': summary_children}})
+                    summary_children = summary_children[summary_name][0]
+                    summ_data = [data[i] for i in summary_children]
+                summ_data = self.find_summary(summ_data, node['summary_children'][summary_name][1])
                 self.ui.listWidget.clear()
                 self.ui.listWidget_2.clear()
+                self.ui.summaryLW1.clear()
+                self.ui.summaryLW2.clear()
                 keys = data.keys()
                 values = map(str, data.values())
+                self.ui.summaryLW1.addItems(summary_children)
+                self.ui.summaryLW2.addItem(str(summ_data))
                 self.ui.listWidget.addItems(keys)
                 self.ui.listWidget_2.addItems(values)
                 self.ui.summaryLabel.setText(node["function"] + " Value: ")
@@ -458,14 +521,14 @@ class HabitatMonitor(QtGui.QMainWindow):
         for i in self.nodeTimers:
             i.stop()
         try:
-            print item.parent()
+            print item.text(0)
+            print item.parent().text(0)
             self.parentNode = str(item.parent().text(column))
         except Exception as ex:
-            print ex
-            pass
+            self.parentNode = None
+            # print "L503", ex
+            # pass
         currentNode = str(item.text(column))
-        # if '-' in currentNode:
-        #     currentNode = currentNode.split(" - ")[0]
         if currentNode == "Data Sources":
             self.ui.actionModify_Summary.setEnabled(False)
             self.ui.actionDelete_Node.setEnabled(False)
@@ -483,6 +546,9 @@ class HabitatMonitor(QtGui.QMainWindow):
         if node['type'] == "leaf":
             self.ui.listWidget.hide()
             self.ui.listWidget_2.hide()
+            self.ui.summaryCB.hide()
+            self.ui.summaryLW1.hide()
+            self.ui.summaryLW2.hide()
             self.currentNode = currentNode
             self.itemText = currentNode
             self.init_graph()
@@ -496,10 +562,20 @@ class HabitatMonitor(QtGui.QMainWindow):
             timer.start(5000)
             self.update_leafdata()
         else:
+            summaryCB = self.ui.summaryCB
+            summaryLW1 = self.ui.summaryLW1
+            summaryLW2 = self.ui.summaryLW2
             self.branchNode = node['name']
             self.ui.tabWidget.show()
             self.ui.listWidget.show()
             self.ui.listWidget_2.show()
+            summaryCB.clear()
+            summaryCB.addItems(node['summary_children'].keys())
+            summaryLW1.clear()
+            summaryLW2.clear()
+            summaryCB.show()
+            summaryLW1.show()
+            summaryLW2.show()
             timer = QtCore.QTimer()
             self.nodeTimers.append(timer)
             timer.timeout.connect(self.update_branchdata)
@@ -516,8 +592,6 @@ class HabitatMonitor(QtGui.QMainWindow):
         devName = str(devName)
         self.devName = devName
         nodes = self.db.nodes
-        # if nodes.find_one({'name': devName}) != None:
-        #     return
         if ok:
             try:
                 self.sourceType = "leaf"
