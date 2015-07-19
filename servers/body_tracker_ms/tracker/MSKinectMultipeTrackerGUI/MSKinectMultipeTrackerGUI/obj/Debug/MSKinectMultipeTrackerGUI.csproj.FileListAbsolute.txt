@@ -1,9 +1,0 @@
-c:\users\v-eras\documents\visual studio 2012\Projects\MSKinectMultipeTrackerGUI\MSKinectMultipeTrackerGUI\bin\Debug\MSKinectMultipeTrackerGUI.exe.config
-c:\users\v-eras\documents\visual studio 2012\Projects\MSKinectMultipeTrackerGUI\MSKinectMultipeTrackerGUI\bin\Debug\MSKinectMultipeTrackerGUI.exe
-c:\users\v-eras\documents\visual studio 2012\Projects\MSKinectMultipeTrackerGUI\MSKinectMultipeTrackerGUI\bin\Debug\MSKinectMultipeTrackerGUI.pdb
-c:\users\v-eras\documents\visual studio 2012\Projects\MSKinectMultipeTrackerGUI\MSKinectMultipeTrackerGUI\obj\Debug\MSKinectMultipeTrackerGUI.csprojResolveAssemblyReference.cache
-c:\users\v-eras\documents\visual studio 2012\Projects\MSKinectMultipeTrackerGUI\MSKinectMultipeTrackerGUI\obj\Debug\MSKinectMultipeTrackerGUI.Form1.resources
-c:\users\v-eras\documents\visual studio 2012\Projects\MSKinectMultipeTrackerGUI\MSKinectMultipeTrackerGUI\obj\Debug\MSKinectMultipeTrackerGUI.Properties.Resources.resources
-c:\users\v-eras\documents\visual studio 2012\Projects\MSKinectMultipeTrackerGUI\MSKinectMultipeTrackerGUI\obj\Debug\MSKinectMultipeTrackerGUI.csproj.GenerateResource.Cache
-c:\users\v-eras\documents\visual studio 2012\Projects\MSKinectMultipeTrackerGUI\MSKinectMultipeTrackerGUI\obj\Debug\MSKinectMultipeTrackerGUI.exe
-c:\users\v-eras\documents\visual studio 2012\Projects\MSKinectMultipeTrackerGUI\MSKinectMultipeTrackerGUI\obj\Debug\MSKinectMultipeTrackerGUI.pdb

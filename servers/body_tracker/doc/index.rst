@@ -7,3 +7,4 @@ Body Tracker
 
    sad
    setup
+   tangotest

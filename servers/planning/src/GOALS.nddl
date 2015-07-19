@@ -1,0 +1,24 @@
+// Establish the initial position for spirit
+fact(spirit.navigator.At initialPosition);
+eq(initialPosition.start, 0);  // What time - the start of this planning horizon
+eq(initialPosition.location, lander); // What position - the lander
+
+// Establish the initial instrument state & location
+fact(spirit.instrument.location.Stowed stowed);
+eq(stowed.start, 0);
+fact(spirit.instrument.state.Free free);
+eq(free.start, 0);
+
+// Establish the goal - to take a sample at a position
+goal(spirit.TakeSample sample);
+sample.start.specify(50);
+sample.rock.specify(loc1);  // Want to get to rock4
+
+fact(spirit.navigator.At Position);
+eq(initialPosition.location, loc1);
+
+goal(sprit.Go location)
+location.dest.specify(loc2);
+location.path.specify(p4);
+
+// The planner should take it form here!

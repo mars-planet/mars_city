@@ -1,11 +1,17 @@
 Welcome to ERAS's software documentation!
 =========================================
 
+High level design docs:
+
+.. toctree::
+   :maxdepth: 1
+
+   doc/MOCC
+
 .. toctree::
    :maxdepth: 3
 
    servers/servers
-
 
 Developers' docs:
 
@@ -23,4 +29,3 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`search`
-

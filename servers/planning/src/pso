@@ -1,0 +1,106 @@
+__author__ = "Mathew Kallada"
+__organization__ = "Italian Mars Society"
+
+#!/usr/bin/python
+
+import sys
+import PyTango
+import curses
+
+from planner import Planner
+
+class PyDevice(PyTango.DeviceClass):
+
+    cmd_list = {'get_actions': [[PyTango.ArgType.DevVoid],
+                          [PyTango.ArgType.DevString]],
+                'get_objects': [[PyTango.ArgType.DevVoid],
+                         [PyTango.ArgType.DevString]],}
+
+    attr_type = [
+        [PyTango.ArgType.DevFloat,
+         PyTango.AttrDataFormat.SCALAR,
+         PyTango.AttrWriteType.READ],
+        {'polling period': 100}
+    ]
+    attr_list = {
+        'translate_speed': attr_type,
+        'rotate_speed': attr_type,
+    }
+
+    def __init__(self, name):
+        PyTango.DeviceClass.__init__(self, name)
+        self.set_type("PSODevice")
+
+
+class PyPSO(PyTango.Device_4Impl):
+    def __init__(self, cl, name):
+        self.devices = {}
+        
+        # Connect to the EUROPA platform
+        self.planner = Planner(self)
+
+        PyTango.Device_4Impl.__init__(self, cl, name)
+        self.info_stream('In PyPSO.__init__')
+        PyPSO.init_device(self)
+
+    def __del__(self):
+        print ("destructor")
+        # shut down curses cleanly
+        curses.nocbreak(); self.stdscr.keypad(0); curses.echo()
+        curses.endwin()
+
+    def get_objects(self):
+        return self.planner.get_objects()
+
+    def get_actions(self):
+        return self.planner.get_actions()
+
+    def read_translate_speed(self, the_att):
+        char = self.stdscr.getch()
+        if char == curses.KEY_RIGHT:
+            self.translate_speed=1
+            self.rotate_speed=-1
+        elif char == curses.KEY_LEFT:
+            self.translate_speed=1
+            self.rotate_speed=1
+        elif char == curses.KEY_UP:
+            self.translate_speed=1
+            self.rotate_speed=0
+        elif char == curses.KEY_DOWN:
+            self.translate_speed=-1
+            self.rotate_speed=0
+        else: # char == -1 if timeout on stdscr
+            self.translate_speed=0
+            self.rotate_speed=0
+
+        the_att.set_value(self.translate_speed)
+
+    def read_rotate_speed(self, the_att):
+        the_att.set_value(self.rotate_speed)
+
+    def init_device(self):
+        self.info_stream('In Python init_device method')
+        self.set_state(PyTango.DevState.ON)
+        self.translate_speed = 0
+        self.rotate_speed = 0
+        # get the curses stdscr window
+        self.stdscr = curses.initscr()
+
+        # turn off input echoing
+        curses.noecho()
+        # respond to keys immediately (don't wait for enter)
+        curses.cbreak()
+        # avoid blocking
+        self.stdscr.nodelay(1)
+        # map arrow keys to special values
+        self.stdscr.keypad(True)
+
+
+
+if __name__ == '__main__':
+    util = PyTango.Util(sys.argv)
+    util.add_class(PyDevice, PyPSO)
+
+    U = PyTango.Util.instance()
+    U.server_init()
+    U.server_run()
