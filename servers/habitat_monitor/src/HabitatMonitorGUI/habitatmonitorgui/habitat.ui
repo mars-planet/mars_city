@@ -192,8 +192,8 @@
      <widget class="QListWidget" name="listWidget_2">
       <property name="geometry">
        <rect>
-        <x>235</x>
-        <y>11</y>
+        <x>230</x>
+        <y>10</y>
         <width>211</width>
         <height>291</height>
        </rect>
@@ -233,6 +233,36 @@
         </layout>
        </item>
       </layout>
+     </widget>
+     <widget class="QComboBox" name="summaryCB">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>10</y>
+        <width>191</width>
+        <height>25</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QListWidget" name="summaryLW1">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>40</y>
+        <width>211</width>
+        <height>271</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QListWidget" name="summaryLW2">
+      <property name="geometry">
+       <rect>
+        <x>240</x>
+        <y>40</y>
+        <width>211</width>
+        <height>271</height>
+       </rect>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="graphTab">
@@ -318,6 +348,19 @@
      <string>Add Devices</string>
     </property>
    </widget>
+   <widget class="QLineEdit" name="summaryNameLE">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>16</y>
+      <width>251</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Summary Name</string>
+    </property>
+   </widget>
    <zorder>verticalLayoutWidget</zorder>
    <zorder>mainGraphicsView</zorder>
    <zorder>verticalLayoutWidget_2</zorder>
@@ -326,6 +369,7 @@
    <zorder>devicesListView</zorder>
    <zorder>addBranchDevices</zorder>
    <zorder>tabWidget</zorder>
+   <zorder>summaryNameLE</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -347,6 +391,7 @@
     <property name="title">
      <string>Edit</string>
     </property>
+    <addaction name="actionAdd_Summary"/>
     <addaction name="actionModify_Summary"/>
     <addaction name="actionDelete_Node"/>
    </widget>
@@ -372,6 +417,11 @@
   <action name="actionDelete_Node">
    <property name="text">
     <string>Delete Node</string>
+   </property>
+  </action>
+  <action name="actionAdd_Summary">
+   <property name="text">
+    <string>Add Summary</string>
    </property>
   </action>
  </widget>
