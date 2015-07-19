@@ -18,6 +18,8 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.threads = []
         self.nodeTimers = []
         self.isModified = False
+        self.addingSummary = False
+        self.summaryNode = None
         self.graphTimer = QtCore.QTimer()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -97,6 +99,7 @@ class HabitatMonitor(QtGui.QMainWindow):
 
     def combo_index_changed(self, text):
         self.summaryAttr = str(text)
+        self.update_branchdata()
 
 
     def build_tree(self):
@@ -150,7 +153,28 @@ class HabitatMonitor(QtGui.QMainWindow):
 
 
     def add_another_summary(self):
-        pass
+        currentNode = self.modifiedNode
+        self.summaryNode = currentNode
+        self.addingSummary = True
+        branchChildren = self.db.nodes.find_one({'name': currentNode,
+            'attr': ""})['data'].keys()
+        self.ui.tabWidget.hide()
+        self.ui.functionButton.setText("Add Summary")
+        model = QtGui.QStandardItemModel()
+        for i in branchChildren:
+            item = QtGui.QStandardItem(i)
+            check = QtCore.Qt.Unchecked
+            item.setCheckState(check)
+            item.setCheckable(True)
+            model.appendRow(item)
+        self.ui.devicesListView.setModel(model)
+        self.ui.devicesListView.show()
+        self.ui.summaryNameLE.show()
+        self.ui.groupBox.show()
+        self.ui.addBranchDevices.hide()
+        self.ui.timeLabel.hide()
+        self.ui.timeLineEdit.hide()
+        self.ui.minutesLabel.hide()
 
 
     def modify_summary(self):
@@ -307,6 +331,38 @@ class HabitatMonitor(QtGui.QMainWindow):
             self.ui.attrLabel.hide()
             return
 
+        if self.addingSummary == True:
+            print "Adding summary"
+            node = nodes.find_one({'name': self.summaryNode, 'attr': ""})
+            summaryName = str(self.ui.summaryNameLE.text())
+            if summaryName == "":
+                QtGui.QErrorMessage(self).showMessage(
+                    "Summary name cannot be empty. Please enter summary name")
+                return
+            children = []
+            model = self.ui.devicesListView.model()
+            for i in range(model.rowCount()):
+                item = model.item(i)
+                itemText = str(item.text())
+                if item.checkState() == QtCore.Qt.Checked:
+                    children.append(itemText)
+            if len(children) == 0:
+                QtGui.QErrorMessage(self).showMessage(
+                    "Select at least one child for summary!")
+                return
+            summary_children = node['summary_children']
+            summary_children[summaryName] = [children, summary]
+            print summary_children
+            nodes.update({'name': self.summaryNode, 'attr': ""}, 
+                {'$set': {'summary_children': summary_children}})
+            self.addingSummary = False
+            self.ui.groupBox.hide()
+            self.ui.comboBox.hide()
+            self.ui.attrLabel.hide()
+            self.ui.devicesListView.hide()
+            self.ui.summaryNameLE.hide()
+            return
+
         sourceType = self.sourceType
         self.ui.minButton.setChecked(True)
         if sourceType == "leaf":
@@ -325,7 +381,6 @@ class HabitatMonitor(QtGui.QMainWindow):
             nodeName = self.devName
             summary_data = 0.0
         elif sourceType == "branch":
-            # summaryChildren = []
             summaryName = str(self.ui.summaryNameLE.text())
             if summaryName == "":
                 QtGui.QErrorMessage(self).showMessage(
@@ -333,24 +388,15 @@ class HabitatMonitor(QtGui.QMainWindow):
                 return
             children = []
             model = self.ui.devicesListView.model()
-            # self.branchChildren = []
-            # nodes = self.db.nodes
             for i in range(model.rowCount()):
                 item = model.item(i)
                 itemText = str(item.text())
-                # if '-' in itemText:
-                #     attr = itemText.split(" - ")[1]
-                #     devName = itemText.split(" - ")[0]
-                # else:
-                #     devName = itemText
-                #     attr = ""
                 if item.checkState() == QtCore.Qt.Checked:
                     children.append(itemText)
             if len(children) == 0:
                 QtGui.QErrorMessage(self).showMessage(
                     "Select at least one child for summary!")
                 return
-                    # self.update_tree(self.treeBranch, devName, attr)
             summary_data = {}
             summary_children[summaryName] = [children, summary]
             children = self.branchChildren
