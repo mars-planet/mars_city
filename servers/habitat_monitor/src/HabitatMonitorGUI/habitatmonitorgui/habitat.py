@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'habitat.ui'
 #
-# Created: Sun Jul 19 12:16:30 2015
+# Created: Sun Jul 19 14:53:30 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -199,10 +199,15 @@ class Ui_MainWindow(object):
         self.actionDelete_Node.setObjectName(_fromUtf8("actionDelete_Node"))
         self.actionAdd_Summary = QtGui.QAction(MainWindow)
         self.actionAdd_Summary.setObjectName(_fromUtf8("actionAdd_Summary"))
+        self.actionDelete_Summary = QtGui.QAction(MainWindow)
+        self.actionDelete_Summary.setObjectName(_fromUtf8("actionDelete_Summary"))
         self.menuFile.addAction(self.actionAddDevice)
         self.menuFile.addAction(self.actionCreate_Branch)
         self.menuEdit.addAction(self.actionAdd_Summary)
+        self.menuEdit.addAction(self.actionDelete_Summary)
+        self.menuEdit.addSeparator()
         self.menuEdit.addAction(self.actionModify_Summary)
+        self.menuEdit.addSeparator()
         self.menuEdit.addAction(self.actionDelete_Node)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
@@ -236,5 +241,6 @@ class Ui_MainWindow(object):
         self.actionModify_Summary.setText(_translate("MainWindow", "Modify Summary", None))
         self.actionDelete_Node.setText(_translate("MainWindow", "Delete Node", None))
         self.actionAdd_Summary.setText(_translate("MainWindow", "Add Summary", None))
+        self.actionDelete_Summary.setText(_translate("MainWindow", "Delete Summary", None))
 
 from pyqtgraph import PlotWidget

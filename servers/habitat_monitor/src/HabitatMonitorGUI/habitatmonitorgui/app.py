@@ -28,7 +28,9 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.ui.actionModify_Summary.triggered.connect(self.modify_summary)
         self.ui.actionModify_Summary.setEnabled(False)
         self.ui.actionAdd_Summary.setEnabled(False)
+        self.ui.actionDelete_Summary.setEnabled(False)
         self.ui.actionDelete_Node.triggered.connect(self.delete_node)
+        self.ui.actionDelete_Summary.triggered.connect(self.delete_summary)
         self.ui.actionAdd_Summary.triggered.connect(self.add_another_summary)
         self.ui.actionDelete_Node.setEnabled(False)
         self.dataSourcesTreeItem = QtGui.QTreeWidgetItem(self.ui.treeWidget)
@@ -90,11 +92,17 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.ui.summaryLW2.hide()
 
 
+    def delete_summary(self):
+        pass
+
+
     def current_tab_changed(self):
-        if self.ui.tabWidget.currentIndex() == 1and self.parentNode == None:
+        if self.ui.tabWidget.currentIndex() == 1 and self.parentNode == None:
             self.ui.actionAdd_Summary.setEnabled(True)
         else:
             self.ui.actionAdd_Summary.setEnabled(False)
+        nodes = self.db.nodes
+        # node = nodes.find_one({'name'}: self.modifiedNode)
 
 
     def combo_index_changed(self, text):
@@ -428,6 +436,8 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.ui.summaryCB.hide()
         self.ui.summaryLW1.hide()
         self.ui.summaryLW2.hide()
+        self.ui.devicesListView.hide()
+        self.ui.summaryNameLE.hide()
         self.ui.attrLabel.hide()
 
 
@@ -546,6 +556,8 @@ class HabitatMonitor(QtGui.QMainWindow):
                         {'$set': {'summary_children': summary_children}})
                     summary_children = summary_children[summary_name][0]
                     summ_data = [data[i] for i in summary_children]
+                except TypeError as e:
+                    return
                 summ_data = self.find_summary(summ_data, node['summary_children'][summary_name][1])
                 self.ui.listWidget.clear()
                 self.ui.listWidget_2.clear()
@@ -572,8 +584,6 @@ class HabitatMonitor(QtGui.QMainWindow):
             self.parentNode = str(item.parent().text(column))
         except Exception as ex:
             self.parentNode = None
-            # print "L503", ex
-            # pass
         currentNode = str(item.text(column))
         if currentNode == "Data Sources":
             self.ui.actionModify_Summary.setEnabled(False)

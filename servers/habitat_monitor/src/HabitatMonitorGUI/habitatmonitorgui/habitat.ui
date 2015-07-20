@@ -392,7 +392,10 @@
      <string>Edit</string>
     </property>
     <addaction name="actionAdd_Summary"/>
+    <addaction name="actionDelete_Summary"/>
+    <addaction name="separator"/>
     <addaction name="actionModify_Summary"/>
+    <addaction name="separator"/>
     <addaction name="actionDelete_Node"/>
    </widget>
    <addaction name="menuFile"/>
@@ -422,6 +425,11 @@
   <action name="actionAdd_Summary">
    <property name="text">
     <string>Add Summary</string>
+   </property>
+  </action>
+  <action name="actionDelete_Summary">
+   <property name="text">
+    <string>Delete Summary</string>
    </property>
   </action>
  </widget>
