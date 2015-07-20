@@ -1,0 +1,1 @@
+ffserver -f ffserver.conf & ffmpeg -s 320x240 -r 24 -f video4linux2 -i /dev/video1 -s 320x240 -r 24 -f video4linux2 -i /dev/video2 -filter_complex "[0:v]setpts=PTS-STARTPTS, pad=iw*2:ih[bg];[1:v]setpts=PTS-STARTPTS[fg]; [bg][fg]overlay=w" -c:v libx264 -crf 23 -preset medium -movflags faststart stream.mjpeg

@@ -71,7 +71,7 @@ class PyRobotDiagnostics(Device):
                             polling_period=POLLING_LONG,
                             unit="A", fget="get_current_draw",
                             doc="Husky Robot Current Draw in MCU,"
-                            "Left driver, and Right Driver")
+                                "Left driver, and Right Driver")
 
     voltageComponents = attribute(label="Voltage", dtype=('float',),
                                   display_level=DispLevel.OPERATOR,
