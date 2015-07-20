@@ -22,6 +22,8 @@ Change Record
 
 18\ :sup:`th`\  June, 2015 - Added ROS-Tango Distributed System interaction diagram to the SAD.
 
+21\ :sup:`st`\  July, 2015  - Updated with high-level diagrams, Limitations, and Interface descriptions.
+
 	.. literalinclude:: ../../servers/servername/NEWS
 
 
@@ -214,7 +216,19 @@ The real-time video streams are displayed in the Blender Game Engine application
 CLI (Command Line Interface)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The command line interface is for accessing the ROS routines and override default application behaviour when needed.
+- Telerobotics entails deployment of multiple servers from the command-line. The CLI for interactively creating and deleting servers looks like
+
+    ``Register format: python setup-device.py <add,setup,register>``
+
+    ``Unregister format: python setup-device.py <del,delete,unregister>``
+
+- The command line interface is for accessing the ROS routines and override default application behaviour when needed.
+- Command line interfaces are used to access the values of the individual Tango attributes of the Telerobotics server.
+
+    ``clk = DeviceProxy("C3/Robot/Diagnostics")``
+
+    ``clk.read_attribute("battery").value``
+
 
 API (Application Programming Interface)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -252,6 +266,7 @@ The Software Interface comprises of -
 
 - Dictionary structures for mapping bodytracking information to robot motion
 - Buffer structures for video streaming
+- **FFmpeg** for high performance streaming and transcoding of data
 - Basic Video Processing algorithms for the 3D stream
 - Control structures for managing Tango and ROS messages
 - Navigation structures for semi-autonomy for the rover
@@ -268,6 +283,9 @@ Communication forms a major part of this **command-control-and-communication** a
 - The communication with the Oculus VR device is *wired communication* from the ERAS station.
 - The software structures communicate via the Tango bus.
 - Flow control among different software interfaces is realized by *buffer control structures*
+- Being a collaborative effort from all over the world, it is necessary to create a **Virtual Private Network (VPN)**. The requirement can be summarized in the following diagram -
+.. image:: remote-eras.png
+
 
 Performance Requirements
 ========================
@@ -279,6 +297,11 @@ Real-time requirements need **at least soft-realtime guarantees* with **jitter**
 Logical View
 ============
 
+Diagram
+------
+The entire ERAS project currently under development can be summarized logically in the following diagram  -
+
+.. image:: telerobotics-diagram.png
 
 Layers
 ------
@@ -296,17 +319,20 @@ Development and Test Factors
 Hardware Limitations
 --------------------
 
-TBD
+- The hardware of desktop machines are unsuitable for Stereoscopic Streaming applications.
+- The Kernel is not configured to use multiple webcams. This results in memory-related errors.
+- Currently, the Minoru 3D stereo camera is able to provide the feed at 24 frames per second at a scale of 320x240
+
 
 Software validation and verification
 ------------------------------------
 
-The *unittest* library for **Python** will be used for all software testing.
-Unit testing for each individual module ensures correctness at the base level.
-
-Python's inbuilt *Profiler* will be used for estimating the areas which need optimization.
-
-Thorough Integration testing is planned since *Telerobotics* is a multi-component application.
+- The *unittest* library for **Python** will be used for all software testing.
+- Unit testing for each individual module ensures correctness at the base level.
+- Python's inbuilt *Profiler* will be used for estimating the areas which need optimization.
+- Thorough Integration testing is planned since *Telerobotics* is a multi-component application.
+- ffprobe is used to analyze the encoding and streaming performance of the Stereoscopic camera feed.
+- roswtf is used to verify proper ROS behaviour
 
 Planning
 --------

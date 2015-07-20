@@ -6,3 +6,5 @@ ERAS Telerobotics
    :maxdepth: 1
 
    sad
+   setup-ffmpeg
+   setup-minoru
