@@ -93,16 +93,34 @@ class HabitatMonitor(QtGui.QMainWindow):
 
 
     def delete_summary(self):
-        pass
+        message = "Are you sure you want to delete this summary?"
+        reply = QtGui.QMessageBox.question(self, 'Message',message,
+            QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        if reply == QtGui.QMessageBox.Yes:
+            summary_name = str(self.ui.summaryCB.currentText())
+            self.ui.summaryCB.removeItem(self.ui.summaryCB.currentIndex())
+            nodes = self.db.nodes
+            node = nodes.find_one({'name': self.modifiedNode, 'attr': ''})
+            summary_children = node['summary_children']
+            del summary_children[summary_name]
+            nodes.update({'name': self.modifiedNode, 'attr': ''}, {'$set': {'summary_children': summary_children}})
+            self.ui.summaryCB.setCurrentIndex(0)
+            self.update_branchdata()
 
 
     def current_tab_changed(self):
         if self.ui.tabWidget.currentIndex() == 1 and self.parentNode == None:
             self.ui.actionAdd_Summary.setEnabled(True)
+            nodes = self.db.nodes
+            node = nodes.find_one({'name': self.modifiedNode, 'attr': ''})
+            children_no = len(node['summary_children'].keys())
+            if children_no == 1:
+                self.ui.actionDelete_Summary.setEnabled(False)
+            else:
+                self.ui.actionDelete_Summary.setEnabled(True)
         else:
             self.ui.actionAdd_Summary.setEnabled(False)
-        nodes = self.db.nodes
-        # node = nodes.find_one({'name'}: self.modifiedNode)
+            self.ui.actionDelete_Summary.setEnabled(False)
 
 
     def combo_index_changed(self, text):
