@@ -6,10 +6,10 @@ class Enviroment(object):
     _objects = []
     _locations = {}
 
-    def set_rover():
+    def set_rover(self):
+        pass
 
-
-    def set_rover_goal():
+    def set_rover_goal(self):
         pass
 
     def add_location(self, name, position):
@@ -22,7 +22,7 @@ class Enviroment(object):
     def remove_location(self, name):
         del self._locations[name]
 
-    def get_plan():
+    def get_plan(self):
         pass
 
     def go(self):
