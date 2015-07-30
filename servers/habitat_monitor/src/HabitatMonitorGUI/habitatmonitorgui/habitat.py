@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'habitat.ui'
 #
-# Created: Sun Jul 19 14:53:30 2015
+# Created: Thu Jul 30 15:19:34 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -143,18 +143,9 @@ class Ui_MainWindow(object):
         self.graphicsView = PlotWidget(self.graphTab)
         self.graphicsView.setGeometry(QtCore.QRect(20, 50, 571, 331))
         self.graphicsView.setObjectName(_fromUtf8("graphicsView"))
-        self.verticalLayoutWidget_7 = QtGui.QWidget(self.graphTab)
-        self.verticalLayoutWidget_7.setGeometry(QtCore.QRect(20, 0, 181, 51))
-        self.verticalLayoutWidget_7.setObjectName(_fromUtf8("verticalLayoutWidget_7"))
-        self.verticalLayout_7 = QtGui.QVBoxLayout(self.verticalLayoutWidget_7)
-        self.verticalLayout_7.setMargin(0)
-        self.verticalLayout_7.setObjectName(_fromUtf8("verticalLayout_7"))
-        self.selectChildLabel = QtGui.QLabel(self.verticalLayoutWidget_7)
-        self.selectChildLabel.setObjectName(_fromUtf8("selectChildLabel"))
-        self.verticalLayout_7.addWidget(self.selectChildLabel)
-        self.childrenBox = QtGui.QComboBox(self.verticalLayoutWidget_7)
+        self.childrenBox = QtGui.QComboBox(self.graphTab)
+        self.childrenBox.setGeometry(QtCore.QRect(20, 10, 179, 25))
         self.childrenBox.setObjectName(_fromUtf8("childrenBox"))
-        self.verticalLayout_7.addWidget(self.childrenBox)
         self.tabWidget.addTab(self.graphTab, _fromUtf8(""))
         self.verticalLayoutWidget_6 = QtGui.QWidget(self.centralwidget)
         self.verticalLayoutWidget_6.setGeometry(QtCore.QRect(220, 60, 181, 51))
@@ -229,7 +220,6 @@ class Ui_MainWindow(object):
         self.attributeName.setText(_translate("MainWindow", "Attribute: ", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.dataTab), _translate("MainWindow", "Raw Data", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.summaryTab), _translate("MainWindow", "Summary", None))
-        self.selectChildLabel.setText(_translate("MainWindow", "Select Child", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.graphTab), _translate("MainWindow", "Graph", None))
         self.attrLabel.setText(_translate("MainWindow", "Select an attribute", None))
         self.addBranchDevices.setText(_translate("MainWindow", "Add Devices", None))

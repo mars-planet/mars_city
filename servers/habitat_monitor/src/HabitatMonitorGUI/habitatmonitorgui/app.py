@@ -7,7 +7,7 @@ from pymongo import MongoClient
 from PyQt4 import QtCore, QtGui
 from habitat import Ui_MainWindow
 from PyTango import DeviceProxy
-
+from datetime import datetime as dt
 
 class HabitatMonitor(QtGui.QMainWindow):
 
@@ -37,6 +37,8 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.dataSourcesTreeItem.setText(0, "Data Sources")
         nodes = self.db.nodes
         checkedLeaves = []
+
+        print dt.now(), ":", 'populating leaves'
         for i in nodes.find({'type': 'leaf'}):
             device = i['name'] + " - " + i['attr']
             if device in checkedLeaves:
@@ -57,6 +59,7 @@ class HabitatMonitor(QtGui.QMainWindow):
                     QtGui.QMessageBox.critical(self, "Warning",
                             "Start the device server " + device)
 
+        print dt.now(), ":", 'populating branches'
         for i in nodes.find({'type': 'branch'}):
             device = i['name']
             treeBranch = QtGui.QTreeWidgetItem(self.ui.treeWidget)
@@ -76,6 +79,10 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.ui.functionButton.clicked.connect(self.add_summary)
         self.ui.comboBox.currentIndexChanged[str].connect(
             self.combo_index_changed)
+        self.ui.childrenBox.currentIndexChanged[str].connect(
+            self.branch_children_changed)
+        self.ui.summaryCB.currentIndexChanged[str].connect(
+            self.summarycb_index_changed)
         self.ui.tabWidget.currentChanged.connect(self.current_tab_changed)
         self.ui.devicesListView.hide()
         self.ui.mainGraphicsView.hide()
@@ -97,10 +104,12 @@ class HabitatMonitor(QtGui.QMainWindow):
         reply = QtGui.QMessageBox.question(self, 'Message',message,
             QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         if reply == QtGui.QMessageBox.Yes:
+            print dt.now(), ":", 'User aggrees to deleting summary'
             summary_name = str(self.ui.summaryCB.currentText())
             self.ui.summaryCB.removeItem(self.ui.summaryCB.currentIndex())
             nodes = self.db.nodes
             node = nodes.find_one({'name': self.modifiedNode, 'attr': ''})
+            print dt.now()
             summary_children = node['summary_children']
             del summary_children[summary_name]
             nodes.update({'name': self.modifiedNode, 'attr': ''}, {'$set': {'summary_children': summary_children}})
@@ -125,6 +134,14 @@ class HabitatMonitor(QtGui.QMainWindow):
 
     def combo_index_changed(self, text):
         self.summaryAttr = str(text)
+
+
+    def branch_children_changed(self, text):
+        print text
+        self.init_graph()
+
+
+    def summarycb_index_changed(self, text):
         self.update_branchdata()
 
 
@@ -225,8 +242,14 @@ class HabitatMonitor(QtGui.QMainWindow):
 
 
     def update_plot(self):
-        try:
+        print "updating_plot:  current node --", self.currentNode
+        if '-' in self.currentNode:
+            print "updating_plot:  proxy---", self.proxy
             temp = self.proxy[self.attr].value
+        else:
+            node = self.db.nodes.find_one({'name': self.currentNode, 'attr': ""})
+            temp = node['data'][str(self.ui.childrenBox.currentText())]
+        try:
             if len(self.data) >= 60:
                 self.data.pop(0)
             self.data.append(temp)
@@ -237,25 +260,29 @@ class HabitatMonitor(QtGui.QMainWindow):
 
     def init_graph(self):
         temp = str(self.itemText).split(' - ')
-        # print temp
         if len(temp) > 1:
             self.attr = temp[1]
-            pg.setConfigOptions(antialias=True)
-            self.ui.graphicsView.clear()
-            self.curve = self.ui.graphicsView.plot(pen='y')
-            try:
-                self.l.scene().removeItem(self.l)
-            except AttributeError:
-                pass
-            self.l = pg.LegendItem((100,60), offset=(70,30))
-            self.l.setParentItem(self.ui.graphicsView.graphicsItem())
-            self.l.addItem(self.curve, self.attr)
-            self.data = []
-            self.ptr = 0
+        elif len(temp) == 1:
+            self.attr = str(self.ui.childrenBox.currentText())
+        pg.setConfigOptions(antialias=True)
+        self.ui.graphicsView.clear()
+        self.curve = self.ui.graphicsView.plot(pen='y')
+        try:
+            self.l.scene().removeItem(self.l)
+        except AttributeError:
+            pass
+        self.l = pg.LegendItem((100,60), offset=(70,30))
+        self.l.setParentItem(self.ui.graphicsView.graphicsItem())
+        self.l.addItem(self.curve, self.attr)
+        self.data = []
+        self.ptr = 0
+        if len(temp) > 1:
             self.proxy = DeviceProxy(temp[0])
-            self.graphTimer.stop()
-            self.graphTimer.timeout.connect(self.update_plot)
-            self.graphTimer.start(3000)
+        else:
+            self.proxy = ''
+        self.graphTimer.stop()
+        self.graphTimer.timeout.connect(self.update_plot)
+        self.graphTimer.start(3000)
 
 
     def fetch_data(self, devName):
@@ -629,14 +656,17 @@ class HabitatMonitor(QtGui.QMainWindow):
             node = nodes.find_one({'name': temp[0], 'attr': temp[1]})
         else:
             node = nodes.find_one({'name': currentNode, 'attr': ''})
+
+        self.currentNode = currentNode
+        self.itemText = currentNode
         if node['type'] == "leaf":
+            self.ui.childrenBox.hide()
+            # self.ui.selectChildLabel.hide()
             self.ui.listWidget.hide()
             self.ui.listWidget_2.hide()
             self.ui.summaryCB.hide()
             self.ui.summaryLW1.hide()
             self.ui.summaryLW2.hide()
-            self.currentNode = currentNode
-            self.itemText = currentNode
             self.init_graph()
             self.ui.attributeName.setText(node['attr'].capitalize())
             self.ui.summaryLabel.setText(node['function'] + 
@@ -652,6 +682,11 @@ class HabitatMonitor(QtGui.QMainWindow):
             summaryLW1 = self.ui.summaryLW1
             summaryLW2 = self.ui.summaryLW2
             self.branchNode = node['name']
+            self.ui.childrenBox.show()
+            # self.ui.selectChildLabel.show()
+            self.ui.childrenBox.clear()
+            print node['data'].keys()
+            self.ui.childrenBox.addItems(node['data'].keys())
             self.ui.tabWidget.show()
             self.ui.listWidget.show()
             self.ui.listWidget_2.show()

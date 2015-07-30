@@ -279,27 +279,15 @@
        </rect>
       </property>
      </widget>
-     <widget class="QWidget" name="verticalLayoutWidget_7">
+     <widget class="QComboBox" name="childrenBox">
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>0</y>
-        <width>181</width>
-        <height>51</height>
+        <y>10</y>
+        <width>179</width>
+        <height>25</height>
        </rect>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_7">
-       <item>
-        <widget class="QLabel" name="selectChildLabel">
-         <property name="text">
-          <string>Select Child</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="childrenBox"/>
-       </item>
-      </layout>
      </widget>
     </widget>
    </widget>
