@@ -100,15 +100,20 @@ class HabitatMonitor(QtGui.QMainWindow):
 
 
     def delete_summary(self):
-        message = "Are you sure you want to delete this summary?"
+        nodes = self.db.nodes
+        node = nodes.find_one({'name': self.modifiedNode, 'attr': ''})
+        children_no = len(node['summary_children'].keys())
+        if children_no <= 1:
+            QtGui.QMessageBox.critical(self, "Warning",
+                            "Number of summaries cannot be zero")
+            return
+        message = "Are you sure you want to delete summary %s?" % str(self.ui.summaryCB.currentText())
         reply = QtGui.QMessageBox.question(self, 'Message',message,
             QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         if reply == QtGui.QMessageBox.Yes:
             print dt.now(), ":", 'User aggrees to deleting summary'
             summary_name = str(self.ui.summaryCB.currentText())
             self.ui.summaryCB.removeItem(self.ui.summaryCB.currentIndex())
-            nodes = self.db.nodes
-            node = nodes.find_one({'name': self.modifiedNode, 'attr': ''})
             print dt.now()
             summary_children = node['summary_children']
             del summary_children[summary_name]
@@ -117,19 +122,14 @@ class HabitatMonitor(QtGui.QMainWindow):
             self.update_branchdata()
 
 
+
     def current_tab_changed(self):
-        if self.ui.tabWidget.currentIndex() == 1 and self.parentNode == None:
+        if self.parentNode == None:
             self.ui.actionAdd_Summary.setEnabled(True)
             nodes = self.db.nodes
             node = nodes.find_one({'name': self.modifiedNode, 'attr': ''})
-            children_no = len(node['summary_children'].keys())
-            if children_no == 1:
-                self.ui.actionDelete_Summary.setEnabled(False)
-            else:
-                self.ui.actionDelete_Summary.setEnabled(True)
         else:
             self.ui.actionAdd_Summary.setEnabled(False)
-            self.ui.actionDelete_Summary.setEnabled(False)
 
 
     def combo_index_changed(self, text):
@@ -660,6 +660,7 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.currentNode = currentNode
         self.itemText = currentNode
         if node['type'] == "leaf":
+            self.ui.actionDelete_Summary.setEnabled(False)
             self.ui.childrenBox.hide()
             # self.ui.selectChildLabel.hide()
             self.ui.listWidget.hide()
@@ -678,6 +679,9 @@ class HabitatMonitor(QtGui.QMainWindow):
             timer.start(5000)
             self.update_leafdata()
         else:
+            self.ui.actionModify_Summary.setEnabled(False)
+            children_no = len(node['summary_children'].keys())
+            self.ui.actionDelete_Summary.setEnabled(True)
             summaryCB = self.ui.summaryCB
             summaryLW1 = self.ui.summaryLW1
             summaryLW2 = self.ui.summaryLW2
