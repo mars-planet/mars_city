@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import PyTango
 import sys
 from visual import *
@@ -7,8 +5,8 @@ from collections import namedtuple
 
 
 # get the tango device
-device_name = sys.argv[1]
-dev = PyTango.DeviceProxy(device_name)
+# TODO: make the server name configurable, by passing it as argument
+dev = PyTango.DeviceProxy('c3/MAC/eras-1')
 print('dev Proxy obtained')
 
 # Coordinate structure
@@ -32,9 +30,11 @@ def getJoints():
     right_hip = vector(dev['skeleton_right_hip'].value)
     right_knee = vector(dev['skeleton_right_knee'].value)
     right_foot = vector(dev['skeleton_right_foot'].value)
-    return (head, neck, left_shoulder, left_elbow, left_hand, right_shoulder,
+    hand_left_status = dev['hand_left_status'].value
+    hand_right_status = dev['hand_right_status'].value
+    return [head, neck, left_shoulder, left_elbow, left_hand, right_shoulder,
             right_elbow, right_hand, torso, left_hip, left_knee, left_foot,
-            right_hip, right_knee, right_foot)
+            right_hip, right_knee, right_foot, hand_left_status, hand_right_status]
 
 def getRawJoints():
     '''returns unfiltered joints information read from tango bus
@@ -54,18 +54,19 @@ def getRawJoints():
     right_hip = vector(dev['skeleton_right_hip_raw'].value)
     right_knee = vector(dev['skeleton_right_knee_raw'].value)
     right_foot = vector(dev['skeleton_right_foot_raw'].value)
-    return (head, neck, left_shoulder, left_elbow, left_hand, right_shoulder,
+    return [head, neck, left_shoulder, left_elbow, left_hand, right_shoulder,
             right_elbow, right_hand, torso, left_hip, left_knee, left_foot,
-            right_hip, right_knee, right_foot)
+            right_hip, right_knee, right_foot]
 
 def scaledJoints(raw=False):
     '''returns joints scaled by scale factor sf'''
     sf = 1.5 / 778
     
     if raw:
-		return [Coords(joint.x/sf, joint.y/sf, joint.z/sf) for joint in getRawJoints()]
+        return [Coords(joint.x/sf, joint.y/sf, joint.z/sf) for joint in getRawJoints()]
     else:
-        return [Coords(joint.x/sf, joint.y/sf, joint.z/sf) for joint in getJoints()]
+        joints = getJoints()
+        return [Coords(joint.x/sf, joint.y/sf, joint.z/sf) for joint in joints[:15]] + joints[-2:]
 
 
 class SkeletonFrame(object):
@@ -88,8 +89,22 @@ class SkeletonFrame(object):
            information.
         '''
         updated = False
+
+        scalJoints = scaledJoints(self.raw)
+        if not self.raw:
+            handsStatus = scalJoints[-2:]
+            scalJoints = scalJoints[:15]
+            if handsStatus[0]:
+                self.joints[4].color = color.red
+            else:
+                self.joints[4].color = color.yellow
+            if handsStatus[1]:
+                self.joints[7].color = color.red
+            else:
+                self.joints[7].color = color.yellow
+
         # Update joints
-        for joint, skjoint in zip(self.joints, scaledJoints(self.raw)):
+        for joint, skjoint in zip(self.joints, scalJoints):
             joint.pos = vector(skjoint.x, skjoint.y, skjoint.z)
 
         # Update bones

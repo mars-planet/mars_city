@@ -15,6 +15,8 @@ from pykinect.nui.structs import TransformSmoothParameters
 from pykinect.nui import SkeletonTrackingState, JointId
 from urllib import urlopen
 
+import ctypes
+import kinect_interactions
 
 def distance(p0, p1):
     """calculate distance between two joint/3D-tuple in the XZ plane (2D)"""
@@ -77,13 +79,13 @@ class PyTracker(Device):
 
     attr_init_params = dict(
         dtype=('float32',),
-        unit='m',
+        unit='meters',
         max_dim_x=3,
         polling_period=POLLING
     )
 
     for joint in joints:
-        # Attribute definition
+        # Joint attribute definition
         # Filtered
         exec "%s = attribute(**attr_init_params)" % joint
         # Unfiltered
@@ -95,6 +97,16 @@ class PyTracker(Device):
         exec "def read_%s(self):\n\treturn self._%s" % (joint, joint)
         # Unfiltered
         exec "def read_%s(self):\n\treturn self._%s" % (joint + "_raw", joint + "_raw")
+
+    # Hand status attributes
+    hand_left_status = attribute(label = "Hand Left Status",
+                                 dtype = bool,
+                                 polling_period = POLLING,
+                                 doc="An attribute which represents the left hand status, which can be open (True) or closed (False)")
+    hand_right_status = attribute(label = "Hand Right Status",
+                                 dtype = bool,
+                                 polling_period = POLLING,
+                                 doc="An attribute which represents the right hand status, which can be open (True) or closed (False)")
 
     old_skeleton = {}
     old_skeleton_init = False
@@ -204,6 +216,7 @@ class PyTracker(Device):
 
             self.save_old_skeletal_data()
 
+            # Skeletal joints
             self._skeleton_neck = self.get_neck_joint_tuple(sk)
             self._skeleton_head = self.joint_to_tuple(sk[JointId.Head])
             self._skeleton_left_shoulder = self.joint_to_tuple(sk[JointId.ShoulderLeft])
@@ -220,6 +233,18 @@ class PyTracker(Device):
             self._skeleton_left_foot = self.joint_to_tuple(sk[JointId.FootLeft])
             self._skeleton_right_foot = self.joint_to_tuple(sk[JointId.FootRight])
 
+            # Hands status
+            tmp_hand_status = self.tracker.get_left_hand_status()
+            if tmp_hand_status != self._hand_left_status:
+                self.push_change_event('hand_left_status', tmp_hand_status)
+            self._hand_left_status = tmp_hand_status
+
+            tmp_hand_status = self.tracker.get_right_hand_status()
+            if tmp_hand_status != self._hand_right_status:
+                self.push_change_event('hand_right_status', tmp_hand_status)
+            self._hand_right_status = tmp_hand_status
+
+            # Step estimation
             if not self.old_skeleton_init:
                 self.save_old_skeletal_data()
                 self.old_skeleton_init = True
@@ -267,6 +292,12 @@ class PyTracker(Device):
     def read_moves(self):
         return self._moves
 
+    def read_hand_left_status(self):
+        return self._hand_left_status
+
+    def read_hand_right_status(self):
+        return self._hand_right_status
+
     def init_device(self):
         Device.init_device(self)
         self.info_stream('In Python init_device method')
@@ -279,6 +310,9 @@ class PyTracker(Device):
             # Unfiltered
             setattr(self, '_' + joint + "_raw", (0, 0, 0))
         self._moves = (0, 0)
+        # Hand status is initilized at True (i.e. open hand)
+        self._hand_left_status = True
+        self._hand_right_status = True
 
 
 class Tracker:
@@ -294,6 +328,16 @@ class Tracker:
                                               SMOOTH_PARAMS_PREDICTION,
                                               SMOOTH_PARAMS_JITTER_RADIUS,
                                               SMOOTH_PARAMS_MAX_DEV_RADIUS)
+
+    # Kinect Gesture Recognizer
+    kgr = None
+
+    # The following is True if the tracker is executed in simulation mode
+    is_simulating = None
+
+    # Simulated hands status (read from file is is_simulating is True)
+    sim_left_hand_status = kinect_interactions.HAND_STATUS_OPEN
+    sim_right_hand_status = kinect_interactions.HAND_STATUS_OPEN
 
     device_name = None
     kinect = None
@@ -319,6 +363,18 @@ class Tracker:
     def get_skeleton_lock(self):
         return self.skeleton_lock
 
+    def get_left_hand_status(self):
+        if self.is_simulating:
+            return self.sim_left_hand_status
+        else:
+            return self.kgr.get_left_hand_status()
+
+    def get_right_hand_status(self):
+        if self.is_simulating:
+            return self.sim_right_hand_status
+        else:
+            return self.kgr.get_right_hand_status()
+
     def post_frame(self, frame):
         """Get skeleton events from the Kinect device and post them into the PyGame
         event queue."""
@@ -339,19 +395,41 @@ class Tracker:
                 return
 
     def log_skeletal_data(self, log_file_name):
+        # hands status
+        left_hs = self.get_left_hand_status()
+        right_hs = self.get_right_hand_status()
+        hand_status_data = "|"+str(left_hs)+"|"+str(right_hs)
         # save to json file
         file = open(log_file_name, 'a')
-        file.write(self.skeleton_to_json() + '\n')
+        # odd lines (first line is 0) will contain filtered skeletal data
+        file.write(self.skeleton_to_json() + hand_status_data + "\n")
+        # even lines (first line is 0) will contain unfiltered skeletal data
+        file.write(self.skeleton_to_json(True) + hand_status_data + "\n")
         file.close()
+
+    def process_depth_for_gestures(self, frame):
+        self.kgr.process_depth(frame)
 
     def start_tracker(self, log_file_name=None):
         pygame.init()
 
         if self.kinect is None:
-            self.kinect = nui.Runtime()
+            self.kinect = nui.Runtime(nui.RuntimeOptions.uses_depth_and_player_index |
+                                      nui.RuntimeOptions.uses_skeletal_tracking)
             self.kinect.skeleton_engine.enabled = True
+            self.kinect.depth_stream.open(nui.ImageStreamType.depth, 2,
+                                          nui.ImageResolution.resolution_640x480,
+                                          nui.ImageType.depth_and_player_index)
 
         self.kinect.skeleton_frame_ready += self.post_frame
+
+        # manage gesture recognition (initialization and depth processing)
+        self.kgr = kinect_interactions.KinectGestureRecognizer(self.kinect)
+        self.kinect.depth_frame_ready += self.process_depth_for_gestures
+
+        kgr_thread = threading.Thread(target=self.kgr.start_recognition)
+        kgr_thread.daemon = True
+        kgr_thread.start()
 
         while True:
             event = pygame.event.wait()
@@ -367,13 +445,21 @@ class Tracker:
                 # save filtered skeletal data
                 self.save_skeletal_data(event.skeleton_frame)
 
+                # process skeletal data for gesture recognition
+                self.kgr.process_skeleton(event.skeleton_frame)
+
                 if log_file_name is not None and self.skeleton is not None:
                     self.log_skeletal_data(log_file_name)
 
-    def skeleton_to_json(self):
+    def skeleton_to_json(self, unfiltered=False):
         """Convert skeleton to json"""
         tmp = [None] * JointId.count
-        for joint_type, j in enumerate(self.skeleton):
+        skel = None
+        if unfiltered:
+            skel = self.skeleton_raw
+        else:
+            skel = self.skeleton
+        for joint_type, j in enumerate(skel):
             tmp[joint_type] = {'x': j.x, 'y': j.y, 'z': j.z, 'w': j.w}
         return json.dumps(tmp)
 
@@ -390,14 +476,15 @@ class Tracker:
         joints instead of getting them from an actual Kinect device"""
         # Kinect works at 30fps
         polling = 1.0/30.0
-        with open(sim_file_name) as f:
-            while True:
-                line = f.readline()
-                if not line:
-                    f.seek(0)
-                else:
-                    self.update_skeleton(self.json_to_skeleton(line))
-                    time.sleep(polling)
+        fp = open(sim_file_name)
+        for index, line in enumerate(fp):
+            # unfiltered data are stored in even lines
+            unfiltered = (index % 2) != 0
+            data = line.split("|")
+            self.update_skeleton(self.json_to_skeleton(data[0]), unfiltered)
+            self.sim_left_hand_status = int(data[1])
+            self.sim_right_hand_status = int(data[2])
+            time.sleep(polling)
 
     def set_tracker_in_device(self):
         util = PyTango.Util.instance()
@@ -412,6 +499,7 @@ class Tracker:
     def __init__(self, device_name, kinect=None, log=None, sim=None):
         self.device_name = device_name
         self.kinect = kinect
+        self.is_simulating = sim
 
         if log is None:
             if sim is None:

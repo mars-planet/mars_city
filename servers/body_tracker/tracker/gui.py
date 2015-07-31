@@ -23,7 +23,10 @@ from tracker import Tracker
 SCREEN_SIZE = (860, 506)
 
 # depth resolution used
-DEPTH_RESOLUTION = 320, 240
+DEPTH_RESOLUTION = 640, 480
+
+# resolution used for display depth and skeleton images
+PREVIEW_RESOLUTION = 320, 240
 
 # time to wait after moving tilt:
 TILT_WAITING = 1.35
@@ -65,11 +68,17 @@ kinects = [None, None, None, None]
 # Kinect Cameras (useful to control motorized tilts)
 kinect_cam = [None, None, None, None]
 
-# Temp surface for loading depth data in
+# Temp surface for loading depth data in (16-bit)
 tmp_s = [pygame.Surface(DEPTH_RESOLUTION, 0, 16),
          pygame.Surface(DEPTH_RESOLUTION, 0, 16),
          pygame.Surface(DEPTH_RESOLUTION, 0, 16),
          pygame.Surface(DEPTH_RESOLUTION, 0, 16)]
+
+# Temp surface for loading depth data in (8-bit)
+tmp_s_8 = [pygame.Surface(DEPTH_RESOLUTION, 0, 8),
+           pygame.Surface(DEPTH_RESOLUTION, 0, 8),
+           pygame.Surface(DEPTH_RESOLUTION, 0, 8),
+           pygame.Surface(DEPTH_RESOLUTION, 0, 8)]
 
 # Surfaces to be used for drawing update_depth method
 img_device_srf = [None, None, None, None]
@@ -115,11 +124,11 @@ def draw_skeleton_data(screen, pSkelton, positions, width=4):
         next = pSkelton.SkeletonPositions[position.value]
 
         curstart = skeleton_to_depth_image(start,
-                                           DEPTH_RESOLUTION[0],
-                                           DEPTH_RESOLUTION[1])
+                                           PREVIEW_RESOLUTION[0],
+                                           PREVIEW_RESOLUTION[1])
         curend = skeleton_to_depth_image(next,
-                                         DEPTH_RESOLUTION[0],
-                                         DEPTH_RESOLUTION[1])
+                                         PREVIEW_RESOLUTION[0],
+                                         PREVIEW_RESOLUTION[1])
 
         pygame.draw.line(screen, THECOLORS["red"], curstart, curend, width)
 
@@ -176,7 +185,11 @@ def update_depth(frame, index):
     if display_depth[index]:
         frame.image.copy_bits(tmp_s[index]._pixels_address)
         arr2d = (pygame.surfarray.pixels2d(tmp_s[index]) >> 7) & 255
-        pygame.surfarray.blit_array(img_device_srf[index], arr2d)
+        pygame.surfarray.blit_array(tmp_s_8[index], arr2d)
+
+        pygame.transform.scale(tmp_s_8[index],
+                               PREVIEW_RESOLUTION,
+                               img_device_srf[index])
 
 
 def update_skel(frame, index):
@@ -296,8 +309,8 @@ def main():
 
     # initialization of images and their surfaces
     for index in range(4):
-        img_device_srf[index] = pygame.Surface(DEPTH_RESOLUTION, 0, 8)
-        img_skel_srf[index] = pygame.Surface(DEPTH_RESOLUTION)
+        img_device_srf[index] = pygame.Surface(PREVIEW_RESOLUTION, 0, 8)
+        img_skel_srf[index] = pygame.Surface(PREVIEW_RESOLUTION)
         img_skel_srf[index].set_colorkey(THECOLORS["black"])
         img_device[index] = gui.Image(img_device_srf[index])
         img_device_skeleton[index] = gui.Image(img_skel_srf[index])
@@ -328,15 +341,15 @@ def main():
     for i in range(len(kinects)):
         # init all Kinects
         try:
-            kinects[i] = Runtime(RuntimeOptions.uses_depth |
-                                 RuntimeOptions.uses_depth_and_player_index |
+            kinects[i] = Runtime(RuntimeOptions.uses_depth_and_player_index |
                                  RuntimeOptions.uses_skeletal_tracking,
                                  i)
 
+            kinects[i].depth_stream.open(nui.ImageStreamType.depth, 2,
+                                          nui.ImageResolution.resolution_640x480,
+                                          nui.ImageType.depth_and_player_index)
             kinects[i].depth_frame_ready += lambda f, i=i: update_depth(f, i)
-            kinects[i].depth_stream.open(nui.ImageStreamType.Depth, 2,
-                                         ImageResolution.Resolution320x240,
-                                         nui.ImageType.Depth)
+
 
             kinects[i].skeleton_engine.enabled = True
             kinects[i].skeleton_frame_ready += lambda f, i=i: update_skel(f, i)

@@ -31,3 +31,6 @@ Makefile
 # C# binary files
 servers/body_tracker/old/MSKinectMultipeTrackerGUI/MSKinectMultipeTrackerGUI/obj/**
 servers/body_tracker/old/MSKinectMultipeTrackerGUI/MSKinectMultipeTrackerGUI/bin/**
+
+# VisualStudio/C++ debug files
+servers/body_tracker/tracker/KinectGestureRecognizer/KinectGestureRecognizer/Release/**
