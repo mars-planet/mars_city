@@ -142,7 +142,16 @@ class HabitatMonitor(QtGui.QMainWindow):
 
 
     def summarycb_index_changed(self, text):
-        self.update_branchdata()
+        self.summary_value = str(text)
+        # if self.currentNodeType == 'branch':
+        node = self.db.nodes.find_one({'name': self.currentNode, 'attr': ""})
+        print "summary index changed ---", text
+        print "summary index changed ---", node['summary_children']
+        # if self.summary_value == "":
+        #     return
+        if self.summary_value in node['summary_children'].keys():
+            print "summary index changed --- summary found"
+            self.update_branchdata()
 
 
     def build_tree(self):
@@ -515,6 +524,7 @@ class HabitatMonitor(QtGui.QMainWindow):
                 self.branchChildren.append(itemText)
                 self.update_tree(self.treeBranch, devName, attr)
         self.ui.treeWidget.setCurrentItem(self.treeBranch)
+        self.treeBranch.setSelected(True)
         self.ui.timeLabel.hide()
         self.ui.timeLineEdit.hide()
         self.ui.minutesLabel.hide()
@@ -570,6 +580,7 @@ class HabitatMonitor(QtGui.QMainWindow):
         elif ch['type'] == 'branch':
             tempDataSource.setText(0, value)
         self.ui.treeWidget.setCurrentItem(tempDataSource)
+        tempDataSource.setSelected(True)
 
 
     def find_summary(self, data, function):
@@ -600,10 +611,15 @@ class HabitatMonitor(QtGui.QMainWindow):
             nodes = self.db.nodes
             node = nodes.find_one({'name': self.branchNode, 'attr': ''})
             summary_name = str(self.ui.summaryCB.currentText())
+            print "update_branchdata --- summary name:", summary_name
             if node != None:
                 c = 0
                 data = node['data']
-                summary_children = node['summary_children'][summary_name][0]
+                print "update_branchdata ---", node['summary_children']
+                try:
+                    summary_children = node['summary_children'][summary_name][0]
+                except KeyError:
+                    return
                 try:
                     summ_data = [data[i] for i in summary_children]
                 except KeyError as e:
@@ -659,6 +675,7 @@ class HabitatMonitor(QtGui.QMainWindow):
 
         self.currentNode = currentNode
         self.itemText = currentNode
+        self.currentNodeType = node['type']
         if node['type'] == "leaf":
             self.ui.actionDelete_Summary.setEnabled(False)
             self.ui.childrenBox.hide()
@@ -683,6 +700,9 @@ class HabitatMonitor(QtGui.QMainWindow):
             children_no = len(node['summary_children'].keys())
             self.ui.actionDelete_Summary.setEnabled(True)
             summaryCB = self.ui.summaryCB
+            summaryCB.clear()
+            summaryCB.addItems(node['summary_children'].keys())
+            summaryCB.show()
             summaryLW1 = self.ui.summaryLW1
             summaryLW2 = self.ui.summaryLW2
             self.branchNode = node['name']
@@ -694,11 +714,8 @@ class HabitatMonitor(QtGui.QMainWindow):
             self.ui.tabWidget.show()
             self.ui.listWidget.show()
             self.ui.listWidget_2.show()
-            summaryCB.clear()
-            summaryCB.addItems(node['summary_children'].keys())
             summaryLW1.clear()
             summaryLW2.clear()
-            summaryCB.show()
             summaryLW1.show()
             summaryLW2.show()   
             timer = QtCore.QTimer()
