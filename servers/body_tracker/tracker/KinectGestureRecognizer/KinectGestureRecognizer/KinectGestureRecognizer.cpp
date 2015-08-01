@@ -96,7 +96,7 @@ void KinectGestureRecognizer::ProcessInteraction()
 					switch (hand.HandEventType)
 					{
 					case 0:
-						//cout << hand.HandType << " NUI_HAND_EVENT_TYPE_NONE" << endl;
+						cout << hand.HandType << " NUI_HAND_EVENT_TYPE_NONE" << endl;
 						break;
 					case 1:
 						cout << hand.HandType << " NUI_HAND_EVENT_TYPE_GRIP" << endl;

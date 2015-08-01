@@ -83,9 +83,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="InteractionClientClass.h" />
     <ClInclude Include="KinectGestureRecognizer.h" />
     <ClInclude Include="stdafx.h" />
