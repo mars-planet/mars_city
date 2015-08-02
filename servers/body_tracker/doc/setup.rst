@@ -7,13 +7,15 @@ Instructions for setting up a MS Windows machine for running body tracking
 Change Record
 =============
 
-13\ :sup:`th`  December, 2014 - Document created.
+13\ :sup:`th`  Dec, 2014 - Document created.
 
 3\ :sup:`rd`  May, 2015 - Improved formatting (minor fix).
 
 4\ :sup:`th`  Jun, 2015 - Updated setup instructions for Python, Tango and PyKinect.
 
 18\ :sup:`th`  Jun, 2015 - Fix typos.
+
+2\ :sup:`nd`  Aug, 2015 - Added setup instructions for VPython.
 
 
 Version of Microsoft Windows
@@ -163,6 +165,8 @@ Before continuing, you need also to install the following Python packages:
 * *pgu*: download from https://code.google.com/p/pgu/ and install it with
   ``pip`` (follow the above instructions, as if the package you download
   is a .whl file)
+* *VPython*: download the automatic installer from http://vpython.org/contents/download_windows.html
+  (chose the Win-32 version, not the Win-64 one!)
 
 .. note::
 
