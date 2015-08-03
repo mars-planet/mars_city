@@ -1,0 +1,1 @@
+java -cp .:/usr/share/java/TangORB.jar:/usr/share/java/log4j-1.2.jar:./AoudaOBDHJava:./AoudaOBDHJava/libmarvin-java.jar:./AoudaOBDHJava/protobuf-java-2.6.1.jar:./AoudaOBDHJava/slf4j-api-1.7.6.jar:$CLASSPATH -DTANGO_HOST=localhost:10000 AoudaOBDHJava.AoudaOBDHJava aoudax
