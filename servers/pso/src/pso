@@ -1,7 +1,7 @@
+#!/usr/bin/python
+
 __author__ = "Mathew Kallada"
 __organization__ = "Italian Mars Society"
-
-#!/usr/bin/python
 
 import sys
 import PyTango
