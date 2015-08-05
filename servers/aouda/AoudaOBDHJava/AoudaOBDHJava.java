@@ -32,6 +32,8 @@
 package AoudaOBDHJava;
 
 
+import java.lang.Integer;
+import java.lang.System;
 import java.util.*;
 import org.omg.CORBA.*;
 import fr.esrf.Tango.*;
@@ -62,6 +64,9 @@ public class AoudaOBDHJava extends DeviceImpl implements TangoConst
 	protected	int	state;
 
 	//--------- Start of attributes data members ----------
+    protected static String client_address = "10.123.42.1";
+    protected static int client_control_port = 6668;
+    protected static int client_data_port = 6669;
 
 	protected int[]	attr_Ecg_read = new int[1];
 	protected int[]	attr_Heartrate_read = new int[1];
@@ -70,7 +75,7 @@ public class AoudaOBDHJava extends DeviceImpl implements TangoConst
 	protected int[]	attr_CO2_read = new int[1];
 	protected int[]	attr_O2_read = new int[1];
 	protected int[]	attr_AccelerationBody_read = new int[1];
-	protected MarvinTelemetryClient mdp=null;
+	protected MarvinTelemetryClient mdp = null;
     protected MarvinDataCache mDataCache = null;
 
 //--------- End of attributes data members ----------
@@ -130,7 +135,9 @@ public class AoudaOBDHJava extends DeviceImpl implements TangoConst
 		//main proxy at msc, delayed
     		//mdp = new MarvinTelemetryClient("192.168.0.1", 6668, 6669);
 		//primary backup, delayed
-    		mdp = new MarvinTelemetryClient("10.123.42.1", 6668, 6669);
+            System.out.printf("Bounding MarvinTelemetryClient to: %s, %d, %d\n", this.client_address,
+                    this.client_control_port, this.client_data_port);
+    		mdp = new MarvinTelemetryClient(this.client_address, this.client_control_port, this.client_data_port);
 		// proxy nearest to the field no delay, secondary backup
     		//mdp = new MarvinTelemetryClient("192.168.1.200", 6668, 6669);
     		mDataCache = new MarvinDataCache(5, mdp);
@@ -260,7 +267,31 @@ public class AoudaOBDHJava extends DeviceImpl implements TangoConst
 	{
 		try
 		{
-			Util tg = Util.init(argv,"AoudaOBDHJava_start");
+            int host_str_index = Arrays.asList(argv).indexOf("--host");
+            int control_port_str_index = Arrays.asList(argv).indexOf("--control");
+            int data_port_str_index = Arrays.asList(argv).indexOf("--data");
+            if (host_str_index >= 0){
+                AoudaOBDHJava.client_address = argv[host_str_index + 1];
+            }
+            if (control_port_str_index >= 0){
+                try {
+                    AoudaOBDHJava.client_control_port = Integer.parseInt(argv[control_port_str_index + 1]);
+                }catch (NumberFormatException e){
+                    System.err.println("Control port is not an integer");
+                    System.err.println("Exiting");
+                    System.exit(-1);
+                }
+            }
+            if (data_port_str_index >= 0){
+                try {
+                    AoudaOBDHJava.client_data_port = Integer.parseInt(argv[data_port_str_index + 1]);
+                }catch (NumberFormatException e){
+                    System.err.println("Control port is not an integer");
+                    System.err.println("Exiting");
+                    System.exit(-1);
+                }
+            }
+			Util tg = Util.init(argv, "AoudaOBDHJava_start");
 			tg.server_init();
 
 			System.out.println("Ready to accept request");
