@@ -40,7 +40,6 @@ public class AoudaOBDHJavaClass extends DeviceClass implements TangoConst
 	 *	AoudaOBDHJavaClass class instance (it is a singleton).
 	 */
 	private static AoudaOBDHJavaClass	_instance = null;
-
 	/**
 	 *	Class properties array.
 	 */
