@@ -21,7 +21,7 @@ CMakeFiles/*
 build/*
 CMakeCache.txt
 cmake_install.cmake
-Makefile
+
 
 # others
 .project
