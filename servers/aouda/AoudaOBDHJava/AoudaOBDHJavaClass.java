@@ -165,42 +165,116 @@ public class AoudaOBDHJavaClass extends DeviceClass implements TangoConst
 //=============================================================================
 	public void attribute_factory(Vector att_list) throws DevFailed
 	{
+		//	Attribute : AccelerationBody
+		Attr	accelerationBody =
+				new Attr("AccelerationBody", Tango_DEV_LONG, AttrWriteType.READ);
+		accelerationBody.set_polling_period(5000);
+		att_list.addElement(accelerationBody);
+		//	Attribute : CO2
+		Attr	co2 =
+				new Attr("CO2", Tango_DEV_LONG, AttrWriteType.READ);
+		co2.set_polling_period(5000);
+		att_list.addElement(co2);
+		//	Attribute : CurrentBatteryL
+		Attr	currentBatteryL =
+				new Attr("CurrentBatteryL", Tango_DEV_LONG, AttrWriteType.READ);
+		currentBatteryL.set_polling_period(5000);
+		att_list.addElement(currentBatteryL);
+		//	Attribute : CurrentBatteryPLSS
+		Attr	currentBatteryPLSS =
+				new Attr("CurrentBatteryPLSS", Tango_DEV_LONG, AttrWriteType.READ);
+		currentBatteryPLSS.set_polling_period(5000);
+		att_list.addElement(currentBatteryPLSS);
+		//	Attribute : CurrentBatteryR
+		Attr	currentBatteryR =
+				new Attr("CurrentBatteryR", Tango_DEV_LONG, AttrWriteType.READ);
+		currentBatteryR.set_polling_period(5000);
+		att_list.addElement(currentBatteryR);
 		//	Attribute : Ecg
 		Attr	ecg = 
 			new Attr("Ecg", Tango_DEV_LONG, AttrWriteType.READ);
 		ecg.set_polling_period(5000);
 		att_list.addElement(ecg);
+		//	Attribute : GPSAltitude
+		Attr	gpsAltitude =
+				new Attr("GPSAltitude", Tango_DEV_LONG, AttrWriteType.READ);
+		gpsAltitude.set_polling_period(5000);
+		att_list.addElement(gpsAltitude);
+		//	Attribute : GPSLocation
+		Attr	gpsLocation =
+				new Attr("GPSLocation", Tango_DEV_LONG, AttrWriteType.READ);
+		gpsLocation.set_polling_period(5000);
+		att_list.addElement(gpsLocation);
 		//	Attribute : Heartrate
 		Attr	heartrate = 
 			new Attr("Heartrate", Tango_DEV_LONG, AttrWriteType.READ);
 		heartrate.set_polling_period(5000);
 		att_list.addElement(heartrate);
-		//	Attribute : HelmetTemp
-		Attr	helmet_temp = 
-			new Attr("HelmetTemp", Tango_DEV_LONG, AttrWriteType.READ);
-		helmet_temp.set_polling_period(5000);
-		att_list.addElement(helmet_temp);
 		//	Attribute : HelmetHumidity
-		Attr	helmet_humidity = 
-			new Attr("HelmetHumidity", Tango_DEV_LONG, AttrWriteType.READ);
-		helmet_humidity.set_polling_period(5000);
-		att_list.addElement(helmet_humidity);
-		//	Attribute : CO2
-		Attr	CO2 = 
-			new Attr("CO2", Tango_DEV_LONG, AttrWriteType.READ);
-		helmet_humidity.set_polling_period(5000);
-		att_list.addElement(CO2);
+		Attr	helmetHumidity =
+				new Attr("HelmetHumidity", Tango_DEV_LONG, AttrWriteType.READ);
+		helmetHumidity.set_polling_period(5000);
+		att_list.addElement(helmetHumidity);
+		//	Attribute : HelmetTemp
+		Attr	helmetTemp =
+				new Attr("HelmetTemp", Tango_DEV_LONG, AttrWriteType.READ);
+		helmetTemp.set_polling_period(5000);
+		att_list.addElement(helmetTemp);
 		//	Attribute : O2
-		Attr	O2 = 
+		Attr	o2 =
 			new Attr("O2", Tango_DEV_LONG, AttrWriteType.READ);
-		helmet_humidity.set_polling_period(5000);
-		att_list.addElement(O2);
-		//	Attribute : AccelerationBody
-		Attr	AccelerationBody = 
-			new Attr("AccelerationBody", Tango_DEV_LONG, AttrWriteType.READ);
-		helmet_humidity.set_polling_period(5000);
-		att_list.addElement(AccelerationBody);
-
+		o2.set_polling_period(5000);
+		att_list.addElement(o2);
+		//	Attribute : PressureHelmet
+		Attr	pressureHelmet =
+				new Attr("PressureHelmet", Tango_DEV_LONG, AttrWriteType.READ);
+		pressureHelmet.set_polling_period(5000);
+		att_list.addElement(pressureHelmet);
+		//	Attribute : SpeedFanIn1
+		Attr	speedFanIn1 =
+				new Attr("SpeedFanIn1", Tango_DEV_LONG, AttrWriteType.READ);
+		speedFanIn1.set_polling_period(5000);
+		att_list.addElement(speedFanIn1);
+		//	Attribute : SpeedFanIn2
+		Attr	speedFanIn2 =
+				new Attr("SpeedFanIn2", Tango_DEV_LONG, AttrWriteType.READ);
+		speedFanIn2.set_polling_period(5000);
+		att_list.addElement(speedFanIn2);
+		//	Attribute : SpeedFanOut1
+		Attr	speedFanOut1 =
+				new Attr("SpeedFanOut1", Tango_DEV_LONG, AttrWriteType.READ);
+		speedFanOut1.set_polling_period(5000);
+		att_list.addElement(speedFanOut1);
+		//	Attribute : SpeedFanOut2
+		Attr	speedFanOut2 =
+				new Attr("SpeedFanOut2", Tango_DEV_LONG, AttrWriteType.READ);
+		speedFanOut2.set_polling_period(5000);
+		att_list.addElement(speedFanOut2);
+		//	Attribute : TemperatureCPU
+		Attr	temperatureCPU =
+				new Attr("TemperatureCPU", Tango_DEV_LONG, AttrWriteType.READ);
+		temperatureCPU.set_polling_period(5000);
+		att_list.addElement(temperatureCPU);
+		//	Attribute : TemperatureMainboard
+		Attr	temperatureMainboard =
+				new Attr("TemperatureMainboard", Tango_DEV_LONG, AttrWriteType.READ);
+		temperatureMainboard.set_polling_period(5000);
+		att_list.addElement(temperatureMainboard);
+		//	Attribute : VoltageBatteryL
+		Attr	voltageBatteryL =
+				new Attr("VoltageBatteryL", Tango_DEV_LONG, AttrWriteType.READ);
+		voltageBatteryL.set_polling_period(5000);
+		att_list.addElement(voltageBatteryL);
+		//	Attribute : VoltageBatteryPLSS
+		Attr	voltageBatteryPLSS =
+				new Attr("VoltageBatteryPLSS", Tango_DEV_LONG, AttrWriteType.READ);
+		voltageBatteryPLSS.set_polling_period(5000);
+		att_list.addElement(voltageBatteryPLSS);
+		//	Attribute : VoltageBatteryR
+		Attr	voltageBatteryR =
+				new Attr("VoltageBatteryR", Tango_DEV_LONG, AttrWriteType.READ);
+		voltageBatteryR.set_polling_period(5000);
+		att_list.addElement(voltageBatteryR);
 	}
 //===================================================================
 /**
