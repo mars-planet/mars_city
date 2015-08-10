@@ -68,13 +68,29 @@ public class AoudaOBDHJava extends DeviceImpl implements TangoConst
     protected static int client_control_port = 6668;
     protected static int client_data_port = 6669;
 
-	protected int[]	attr_Ecg_read = new int[1];
-	protected int[]	attr_Heartrate_read = new int[1];
-	protected int[]	attr_HelmetTemp_read = new int[1];
-	protected int[]	attr_HelmetHumidity_read = new int[1];
-	protected int[]	attr_CO2_read = new int[1];
-	protected int[]	attr_O2_read = new int[1];
-	protected int[]	attr_AccelerationBody_read = new int[1];
+    protected int[]	attr_AccelerationBody_read = new int[1];
+    protected int[]	attr_CO2_read = new int[1];
+    protected int[]	attr_CurrentBatteryL_read = new int[1];
+    protected int[]	attr_CurrentBatteryPLSS_read = new int[1];
+    protected int[]	attr_CurrentBatteryR_read = new int[1];
+    protected int[]	attr_Ecg_read = new int[1];
+    protected int[]	attr_GPSAltitude_read = new int[1];
+    protected int[]	attr_GPSLocation_read = new int[1];
+    protected int[]	attr_Heartrate_read = new int[1];
+    protected int[]	attr_HelmetHumidity_read = new int[1];
+    protected int[]	attr_HelmetTemp_read = new int[1];
+    protected int[]	attr_O2_read = new int[1];
+    protected int[]	attr_PressureHelmet_read = new int[1];
+    protected int[]	attr_SpeedFanIn1_read = new int[1];
+    protected int[]	attr_SpeedFanIn2_read = new int[1];
+    protected int[]	attr_SpeedFanOut1_read = new int[1];
+    protected int[]	attr_SpeedFanOut2_read = new int[1];
+    protected int[]	attr_TemperatureCPU_read = new int[1];
+    protected int[]	attr_TemperatureMainboard_read = new int[1];
+    protected int[]	attr_VoltageBatteryL_read = new int[1];
+    protected int[]	attr_VoltageBatteryPLSS_read = new int[1];
+    protected int[]	attr_VoltageBatteryR_read = new int[1];
+
 	protected MarvinTelemetryClient mdp = null;
     protected MarvinDataCache mDataCache = null;
 
@@ -200,61 +216,80 @@ public class AoudaOBDHJava extends DeviceImpl implements TangoConst
 
 		//	Switch on attribute name
 		//---------------------------------
-		if (attr_name == "Ecg")
+        SensorData data = null;
+        switch(attr_name)
 		{
-			//	Add your own code here
-			SensorData data = mDataCache.getNewestData(SensorName.ECG);
-			if( data != null ) {
-				attr.set_value(data.getDataAsIntegers()[0]);
-			} else {
-				// no data has been received from the server yet
-			}
-				
+            case "AccelerationBody":
+                data = mDataCache.getNewestData(SensorName.AccelerationBody);
+                break;
+            case "CO2":
+                data = mDataCache.getNewestData(SensorName.CO2Helmet);
+                break;
+            case "CurrentBatteryL":
+                data = mDataCache.getNewestData(SensorName.CurrentBatteryL);
+                break;
+            case "CurrentBatteryPLSS":
+                data = mDataCache.getNewestData(SensorName.CurrentBatteryPLSS);
+                break;
+            case "CurrentBatteryR":
+                data = mDataCache.getNewestData(SensorName.CurrentBatteryR);
+                break;
+			case "Ecg":
+				data = mDataCache.getNewestData(SensorName.ECG);
+				break;
+            case "GPSAltitude":
+                data = mDataCache.getNewestData(SensorName.GPSAltitude);
+                break;
+            case "GPSLocation":
+                data = mDataCache.getNewestData(SensorName.GPSLocation);
+                break;
+			case "Heartrate":
+				data = mDataCache.getNewestData(SensorName.Heartrate);
+				break;
+			case "HelmetHumidity":
+				data = mDataCache.getNewestData(SensorName.HumidityHelmet);
+				break;
+			case "HelmetTemp":
+				data = mDataCache.getNewestData(SensorName.TemperatureHelmet);
+				break;
+			case "O2":
+				data = mDataCache.getNewestData(SensorName.O2Helmet);
+				break;
+            case "PressureHelmet":
+                data = mDataCache.getNewestData(SensorName.PressureHelmet);
+                break;
+            case "SpeedFanIn1":
+                data = mDataCache.getNewestData(SensorName.SpeedFanIn1);
+                break;
+            case "SpeedFanIn2":
+                data = mDataCache.getNewestData(SensorName.SpeedFanIn2);
+                break;
+            case "SpeedFanOut1":
+                data = mDataCache.getNewestData(SensorName.SpeedFanOut1);
+                break;
+            case "SpeedFanOut2":
+                data = mDataCache.getNewestData(SensorName.SpeedFanOut2);
+                break;
+            case "TemperatureCPU":
+                data = mDataCache.getNewestData(SensorName.TemperatureCPU);
+                break;
+            case "TemperatureMainboard":
+                data = mDataCache.getNewestData(SensorName.TemperatureMainboard);
+                break;
+            case "VoltageBatteryL":
+                data = mDataCache.getNewestData(SensorName.VoltageBatteryL);
+                break;
+            case "VoltageBatteryPLSS":
+                data = mDataCache.getNewestData(SensorName.VoltageBatteryPLSS);
+                break;
+            case "VoltageBatteryR":
+                data = mDataCache.getNewestData(SensorName.VoltageBatteryR);
+                break;
+            default:
+                break;
 		}
-		else
-		if (attr_name == "Heartrate")
-		{
-			//	Add your own code here
-			SensorData data = mDataCache.getNewestData(SensorName.Heartrate);
-			attr.set_value((data != null ? data.getDataAsIntegers()[0] : 0)); 
-		}
-		else
-		if (attr_name == "HelmetHumidity")
-		{
-			//	Add your own code here
-			SensorData data = mDataCache.getNewestData(SensorName.HumidityHelmet);
-			attr.set_value((data != null ? data.getDataAsIntegers()[0] : 0)); 
-		}
-		else
-		if (attr_name == "HelmetTemp")
-		{
-			//	Add your own code here
-			SensorData data = mDataCache.getNewestData(SensorName.TemperatureHelmet);
-			attr.set_value((data != null ? data.getDataAsIntegers()[0] : 0));
-		}
-		else
-		if (attr_name == "CO2")
-		{
-			//	Add your own code here
-			SensorData data = mDataCache.getNewestData(SensorName.CO2Helmet);
-			attr.set_value((data != null ? data.getDataAsIntegers()[0] : 0)); 
-		}
-		else
-		if (attr_name == "O2")
-		{
-			//	Add your own code here
-			SensorData data = mDataCache.getNewestData(SensorName.O2Helmet);
-			attr.set_value((data != null ? data.getDataAsIntegers()[0] : 0));
-		}
-		else
-		if (attr_name == "AccelerationBody")
-		{
-			//	Add your own code here
-			SensorData data = mDataCache.getNewestData(SensorName.AccelerationBody);
-			attr.set_value((data != null ? data.getDataAsIntegers()[0] : 0));
-		}
-
-	}
+        attr.set_value((data != null ? data.getDataAsIntegers()[0] : 0));
+    }
 
 
 
@@ -267,6 +302,7 @@ public class AoudaOBDHJava extends DeviceImpl implements TangoConst
 	{
 		try
 		{
+            // read and set up command line options
             int host_str_index = Arrays.asList(argv).indexOf("--host");
             int control_port_str_index = Arrays.asList(argv).indexOf("--control");
             int data_port_str_index = Arrays.asList(argv).indexOf("--data");
