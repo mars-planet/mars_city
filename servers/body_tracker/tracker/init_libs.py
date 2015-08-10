@@ -1,6 +1,8 @@
 # This script check if the two .dll files needed for gesture recognition
-# are in the correct location.
+# are updated and in the correct location.
 # If they are not, it try to find them, to copy both files in the right folder
+
+from __future__ import print_function
 
 import sys
 import glob
@@ -40,7 +42,7 @@ def check_dlls():
         interaction_path2 = path.join(get_kinect_interaction_def_dir(),
                                       KINECT_INTERACTION_FILENAME)
     except:
-        print 'Error: Kinect Developer Toolkit not found'
+        print('Error: Kinect Developer Toolkit not found')
         return False
 
     if path.isfile(KINECT_INTERACTION_FILENAME):
@@ -59,7 +61,7 @@ def check_dlls():
         flag = False
 
     if not flag:
-        print 'Error: ' + KINECT_INTERACTION_FILENAME + ' not found.'
+        print('Error: ' + KINECT_INTERACTION_FILENAME + ' not found.')
         return False
 
     flag = False
@@ -69,6 +71,16 @@ def check_dlls():
     if path.isfile(KINECT_GESTURE_RECOGNIZER_FILENAME):
         # KinectGestureRecognizer.dll exists and it is in the right place
         flag = True
+
+        # Check for an updated version
+        last_mod_in_dir = path.getmtime(KINECT_GESTURE_RECOGNIZER_FILENAME)
+        last_mod_gest_path = path.getmtime(gesture_path)
+        if last_mod_gest_path > last_mod_in_dir:
+            # An updated version of KinectGestureRecognizer.dll is available
+            try:
+                shutil.copy(gesture_path, '.')
+            except IOError, e:
+                print("WARNING: error in updating " + KINECT_GESTURE_RECOGNIZER_FILENAME, file=sys.stderr)
     elif path.isfile(gesture_path):
         # KinectGestureRecognizer.dll exists, but it must be copied in the right folder
         shutil.copy(gesture_path, '.')
@@ -78,8 +90,8 @@ def check_dlls():
         flag = False
 
     if not flag:
-        print 'Error: ' + KINECT_GESTURE_RECOGNIZER_FILENAME + ' not found.'
-        print 'Have you compiled and built the C++ gesture recognition library?'
+        print('Error: ' + KINECT_GESTURE_RECOGNIZER_FILENAME + ' not found.')
+        print('Have you compiled and built the C++ gesture recognition library?')
         return False
 
     return True
