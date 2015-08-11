@@ -383,7 +383,10 @@ def main():
         screen.fill((250, 250, 250))
 
         # Draw GUI
-        this_gui.paint(screen)
+        try:
+            this_gui.paint(screen)
+        except pygame.error as e:
+            pass
 
         pygame.display.flip()
 
