@@ -3,6 +3,7 @@ import numpy as np
 import threading
 import re
 import pyqtgraph as pg
+import json
 from pymongo import MongoClient
 from PyQt4 import QtCore, QtGui
 from habitat import Ui_MainWindow
@@ -97,6 +98,10 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.ui.summaryCB.hide()
         self.ui.summaryLW1.hide()
         self.ui.summaryLW2.hide()
+        self.ui.hour_label.hide()
+        self.ui.minutes_label.hide()
+        self.ui.hour_value.hide()
+        self.ui.minutes_value.hide()
 
 
     def delete_summary(self):
@@ -254,25 +259,79 @@ class HabitatMonitor(QtGui.QMainWindow):
         print "updating_plot:  current node --", self.currentNode
         if '-' in self.currentNode:
             print "updating_plot:  proxy---", self.proxy
-            temp = self.proxy[self.attr].value
+            params = json.dumps({'period': self.data_period})
+            data = json.loads(self.proxy.get_data(params))
+            data = data[self.attr]
+            data1 = [i[1] for i in data]
+            latest_data = data[len(data) - 1][0].split('T')[1].split(':')
+            print "latest_data:", latest_data
+            lh = latest_data[0]
+            lm = latest_data[1]
+            self.data = data1
+            dataval = [":".join(i[0].split('T')[1].split(':')[2:]) for i in data]
+            data_hour = dataval[len(dataval) - 1]
+            values = range(1, len(dataval)+1)
+            xdata = zip(values, dataval)
+            self.ui.graphicsView.getAxis('bottom').setTicks([xdata])
+            self.curve.setData(self.data)
+            # temp = self.proxy[self.attr].value
         else:
             node = self.db.nodes.find_one({'name': self.currentNode, 'attr': ""})
-            temp = node['data'][str(self.ui.childrenBox.currentText())]
-        try:
-            if len(self.data) >= 60:
-                self.data.pop(0)
-            self.data.append(temp)
+            try:
+                temp = node['data'][str(self.ui.childrenBox.currentText())]
+            except KeyError as kex:
+                print "Exception"
+                print kex
+                return
+            except TypeError as tex:
+                return
+            try:
+                if len(self.data) >= 10:
+                    self.data.pop(0)
+                    self.branch_axis_counter += 1
+                    self.curve.setPos(self.branch_axis_counter, 0)
+                self.data.append(temp)
+                if len(self.branch_time_array) >= 10:
+                    self.branch_time_array.pop(0)
+                ct = dt.now().time()
+                lh = ct.hour
+                lm = ct.minute
+                self.branch_time_array.append(str(ct.second) + ":" + str(ct.microsecond))
+            except Exception as ex:
+                print ex
+            values = range(self.branch_axis_counter, self.branch_axis_counter + len(self.data) + 1)
+            xdata = zip(values, self.branch_time_array)
+            print "----update_plot----"
+            print "values:", values
+            print "branch_time_array:", self.branch_time_array
+            print "branch_axis_counter:", self.branch_axis_counter 
+            self.ui.graphicsView.getAxis('bottom').setTicks([xdata])
             self.curve.setData(self.data[:])
-        except Exception as ex:
-            print ex
+        self.ui.hour_value.setText(str(lh))
+        self.ui.minutes_value.setText(str(lm))
 
 
     def init_graph(self):
         temp = str(self.itemText).split(' - ')
+        self.ui.hour_label.show()
+        self.ui.hour_value.show()
+        self.ui.minutes_label.show()
+        self.ui.minutes_value.show()
         if len(temp) > 1:
             self.attr = temp[1]
+            with open('graph_config', 'r') as fin:
+                graph_nodes = json.loads(fin.read())
+                current_graph_node = graph_nodes[str(self.itemText)]
+                total_graph_values = int(current_graph_node['total_graph_values'])
+                graph_updation_time = int(current_graph_node['graph_updation_time'])
+                print "----init_graph----"
+                print "total_graph_values:", total_graph_values
+                print "graph_updation_time:", graph_updation_time
         elif len(temp) == 1:
             self.attr = str(self.ui.childrenBox.currentText())
+            self.branch_time_array = []
+            self.branch_axis_counter = 0
+            graph_updation_time = 2000
         pg.setConfigOptions(antialias=True)
         self.ui.graphicsView.clear()
         self.curve = self.ui.graphicsView.plot(pen='y')
@@ -287,11 +346,16 @@ class HabitatMonitor(QtGui.QMainWindow):
         self.ptr = 0
         if len(temp) > 1:
             self.proxy = DeviceProxy(temp[0])
+            params = json.dumps({'period': 1})
+            data = json.loads(self.proxy.get_data(params))
+            data = data[self.attr]
+            data_len = len(data)
+            self.data_period = total_graph_values / data_len 
         else:
             self.proxy = ''
         self.graphTimer.stop()
         self.graphTimer.timeout.connect(self.update_plot)
-        self.graphTimer.start(3000)
+        self.graphTimer.start(graph_updation_time)
 
 
     def fetch_data(self, devName):
@@ -323,7 +387,6 @@ class HabitatMonitor(QtGui.QMainWindow):
     def fetch_branch_data(self, branchName):
         nodes = self.db.nodes
         node = nodes.find_one({'name': branchName, 'attr': ""})
-        # print ""node
         if node != None:
             childNodes = node['children']
             raw_data = {}
@@ -489,6 +552,30 @@ class HabitatMonitor(QtGui.QMainWindow):
         node_id = nodes.insert_one(node).inserted_id
         print "inserted node:", nodes.find_one({'_id': node_id})
         if sourceType == "leaf":
+            ok = None
+            while(not ok):
+                total_graph_values, ok = QtGui.QInputDialog.getText(self, 'Input Dialog',
+                    'Enter Total values to be shown in graph:')
+                total_graph_values = str(total_graph_values)
+            ok = None
+            while(not ok):
+                graph_updation_time, ok = QtGui.QInputDialog.getText(self, 'Input Dialog',
+                    'Enter Graph updation time in microseconds:')
+                graph_updation_time = str(graph_updation_time)
+            with open('graph_config', 'r') as fin:
+                try:
+                    gc = json.loads(fin.read())
+                except ValueError as ex:
+                    gc = {}
+            with open('graph_config', 'w') as fout:
+                dev_name = node['name'] + ' - ' + node['attr']
+                print "dev_name:", dev_name
+                print "total_graph_values:", total_graph_values
+                print "graph_updation_time:", graph_updation_time
+                config_dict = {'total_graph_values': total_graph_values, 'graph_updation_time': graph_updation_time}
+                gc[dev_name] = config_dict
+                fout.write(json.dumps(gc))
+
             self.update_tree(self.dataSourcesTreeItem, self.devName, attr)
             t = threading.Thread(target=self.aggregate_data,args=([self.devName + " - " + attr]))
             t.start()
@@ -709,8 +796,11 @@ class HabitatMonitor(QtGui.QMainWindow):
             self.ui.childrenBox.show()
             # self.ui.selectChildLabel.show()
             self.ui.childrenBox.clear()
-            print node['data'].keys()
-            self.ui.childrenBox.addItems(node['data'].keys())
+            print node['data']
+            try:
+                self.ui.childrenBox.addItems(node['data'].keys())
+            except:
+                pass
             self.ui.tabWidget.show()
             self.ui.listWidget.show()
             self.ui.listWidget_2.show()

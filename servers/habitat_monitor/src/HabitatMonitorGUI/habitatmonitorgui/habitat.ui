@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>797</width>
+    <width>975</width>
     <height>600</height>
    </rect>
   </property>
@@ -138,8 +138,8 @@
      <rect>
       <x>190</x>
       <y>0</y>
-      <width>601</width>
-      <height>431</height>
+      <width>741</width>
+      <height>481</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -274,7 +274,7 @@
        <rect>
         <x>20</x>
         <y>50</y>
-        <width>571</width>
+        <width>701</width>
         <height>331</height>
        </rect>
       </property>
@@ -288,6 +288,54 @@
         <height>25</height>
        </rect>
       </property>
+     </widget>
+     <widget class="QWidget" name="verticalLayoutWidget_7">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>380</y>
+        <width>160</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="hour_label">
+           <property name="text">
+            <string>Hours: </string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="hour_value">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLabel" name="minutes_label">
+           <property name="text">
+            <string>Minutes</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="minutes_value">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </widget>
     </widget>
    </widget>
@@ -364,7 +412,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>797</width>
+     <width>975</width>
      <height>23</height>
     </rect>
    </property>

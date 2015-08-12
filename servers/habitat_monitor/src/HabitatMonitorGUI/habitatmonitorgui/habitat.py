@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'habitat.ui'
 #
-# Created: Thu Jul 30 15:19:34 2015
+# Created: Tue Aug 11 01:33:11 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
-        MainWindow.resize(797, 600)
+        MainWindow.resize(975, 600)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.verticalLayoutWidget = QtGui.QWidget(self.centralwidget)
@@ -82,7 +82,7 @@ class Ui_MainWindow(object):
         self.functionButton.setObjectName(_fromUtf8("functionButton"))
         self.verticalLayout_3.addWidget(self.functionButton)
         self.tabWidget = QtGui.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(190, 0, 601, 431))
+        self.tabWidget.setGeometry(QtCore.QRect(190, 0, 741, 481))
         self.tabWidget.setObjectName(_fromUtf8("tabWidget"))
         self.dataTab = QtGui.QWidget()
         self.dataTab.setObjectName(_fromUtf8("dataTab"))
@@ -141,11 +141,37 @@ class Ui_MainWindow(object):
         self.graphTab = QtGui.QWidget()
         self.graphTab.setObjectName(_fromUtf8("graphTab"))
         self.graphicsView = PlotWidget(self.graphTab)
-        self.graphicsView.setGeometry(QtCore.QRect(20, 50, 571, 331))
+        self.graphicsView.setGeometry(QtCore.QRect(20, 50, 701, 331))
         self.graphicsView.setObjectName(_fromUtf8("graphicsView"))
         self.childrenBox = QtGui.QComboBox(self.graphTab)
         self.childrenBox.setGeometry(QtCore.QRect(20, 10, 179, 25))
         self.childrenBox.setObjectName(_fromUtf8("childrenBox"))
+        self.verticalLayoutWidget_7 = QtGui.QWidget(self.graphTab)
+        self.verticalLayoutWidget_7.setGeometry(QtCore.QRect(20, 380, 160, 61))
+        self.verticalLayoutWidget_7.setObjectName(_fromUtf8("verticalLayoutWidget_7"))
+        self.verticalLayout_7 = QtGui.QVBoxLayout(self.verticalLayoutWidget_7)
+        self.verticalLayout_7.setMargin(0)
+        self.verticalLayout_7.setObjectName(_fromUtf8("verticalLayout_7"))
+        self.horizontalLayout_2 = QtGui.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
+        self.hour_label = QtGui.QLabel(self.verticalLayoutWidget_7)
+        self.hour_label.setObjectName(_fromUtf8("hour_label"))
+        self.horizontalLayout_2.addWidget(self.hour_label)
+        self.hour_value = QtGui.QLabel(self.verticalLayoutWidget_7)
+        self.hour_value.setText(_fromUtf8(""))
+        self.hour_value.setObjectName(_fromUtf8("hour_value"))
+        self.horizontalLayout_2.addWidget(self.hour_value)
+        self.verticalLayout_7.addLayout(self.horizontalLayout_2)
+        self.horizontalLayout_3 = QtGui.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName(_fromUtf8("horizontalLayout_3"))
+        self.minutes_label = QtGui.QLabel(self.verticalLayoutWidget_7)
+        self.minutes_label.setObjectName(_fromUtf8("minutes_label"))
+        self.horizontalLayout_3.addWidget(self.minutes_label)
+        self.minutes_value = QtGui.QLabel(self.verticalLayoutWidget_7)
+        self.minutes_value.setText(_fromUtf8(""))
+        self.minutes_value.setObjectName(_fromUtf8("minutes_value"))
+        self.horizontalLayout_3.addWidget(self.minutes_value)
+        self.verticalLayout_7.addLayout(self.horizontalLayout_3)
         self.tabWidget.addTab(self.graphTab, _fromUtf8(""))
         self.verticalLayoutWidget_6 = QtGui.QWidget(self.centralwidget)
         self.verticalLayoutWidget_6.setGeometry(QtCore.QRect(220, 60, 181, 51))
@@ -170,7 +196,7 @@ class Ui_MainWindow(object):
         self.summaryNameLE.setObjectName(_fromUtf8("summaryNameLE"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 797, 23))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 975, 23))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menuFile = QtGui.QMenu(self.menubar)
         self.menuFile.setObjectName(_fromUtf8("menuFile"))
@@ -220,6 +246,8 @@ class Ui_MainWindow(object):
         self.attributeName.setText(_translate("MainWindow", "Attribute: ", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.dataTab), _translate("MainWindow", "Raw Data", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.summaryTab), _translate("MainWindow", "Summary", None))
+        self.hour_label.setText(_translate("MainWindow", "Hours: ", None))
+        self.minutes_label.setText(_translate("MainWindow", "Minutes", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.graphTab), _translate("MainWindow", "Graph", None))
         self.attrLabel.setText(_translate("MainWindow", "Select an attribute", None))
         self.addBranchDevices.setText(_translate("MainWindow", "Add Devices", None))
