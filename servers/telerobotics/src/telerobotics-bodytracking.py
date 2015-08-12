@@ -24,7 +24,7 @@ Plotting to be implemented
 """
 # import matplotlib.pyplot as plt
 
-# Get currentent time
+# Get current time
 TIME_START = time.time()
 
 # Configure Bodytracking Tango Device name
@@ -35,7 +35,7 @@ MOVES_FILE = "moves_file.log"
 moves_file = open("MOVES_FILE", 'w')
 
 # Refresh Rate for Kinect is 30 fps
-REFRESH_RATE = 1/30
+REFRESH_RATE = 1.0 / 30.0
 
 # Create a Device Proxy for the Bodytracking device
 device_proxy = PyTango.DeviceProxy(DEVICE_NAME)
@@ -56,6 +56,7 @@ orientation_events = deque()
 #ROS Husky topic name for velocity
 HUSKY_TOPIC = '/husky_velocity_controller/cmd_vel'
 ROS_NODE_NAME = 'Telerobot'
+HUSKY_QUEUE_SIZE = 1000
 
 # Trigger to enable/disable the interface
 TRIGGER = True
@@ -75,7 +76,7 @@ class Callback:
     def command(self, linear_velocity, angular_velocity):
 
         # Create  a publisher Node to the HUSKY_TOPIC
-        pub = rospy.Publisher(HUSKY_TOPIC, Twist, queue_size=100)
+        pub = rospy.Publisher(HUSKY_TOPIC, Twist, queue_size = HUSKY_QUEUE_SIZE)
 
         # Construct a twist message, and set up the linear and angular
         # velocity arguments
@@ -175,15 +176,19 @@ if __name__ == "__main__":
         print("roscore is not initiated yet. Message", init_exception)
 
     while TRIGGER:
-        # Subscribe to the 'moves' event from the Bodytracking interface
-        moves_event = device_proxy.subscribe_event
-                                                                    (
-                                                                    'moves',
-                                                                    PyTango.
-                                                                    EventType.
-                                                                    CHANGE_EVENT,
-                                                                    cb,
-                                                                     []
-                                                                     )
+        try:
+            # Subscribe to the 'moves' event from the Bodytracking interface
+            moves_event = device_proxy.subscribe_event(
+                                                                        'moves',
+                                                                        PyTango.
+                                                                        EventType.
+                                                                        CHANGE_EVENT,
+                                                                        cb,
+                                                                         []
+                                                                         )
+        except PyTango.DevError as err:
+            PyTango.Except.print_exception(err)
+
+
         # Wait for at least REFRESH_RATE Seconds for the next callback.
         time.sleep(REFRESH_RATE)
