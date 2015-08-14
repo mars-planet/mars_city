@@ -305,7 +305,7 @@ The entire ERAS project currently under development can be summarized logically 
 
 Layers
 ------
-The ERAS software applicationg belong to the heterogeneous Distributed Control System (DCS) domain  which can be represented as a layered architecture. This is a very common design pattern used when developing systems that consist of many components across multiple levels of abstraction as in ERAS case. Normally, you should be developing components that belong to the Application layer
+The ERAS software applications belong to the heterogeneous Distributed Control System (DCS) domain  which can be represented as a layered architecture. This is a common design pattern used when developing systems that consist of many components across multiple levels of abstraction as in ERAS case. Normally, you should be developing components that belong to the Application layer
 
 A simulated robot model is used in the initial parts of the project to ensure correctness and provide transparency in results.
 
