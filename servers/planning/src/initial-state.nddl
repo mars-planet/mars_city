@@ -2,17 +2,15 @@
 
 // Create a planner configuration instance in PLASMA.
 Location lander = new Location("LANDER", 0, 0);
-Location loc1 = new Location("SITE1", 9, 9);
-Location loc2 = new Location("SITE2", 0, 9);
-
-
+Location rock1 = new Location("ROCK1", 9, 9);
+Location rock2 = new Location("ROCK2", 1, 6);
+Location rock3 = new Location("ROCK3", 4, 8);
+Location rock4 = new Location("ROCK4", 3, 9);
 
 // Allocate paths
-Path p2 = new Path("Very Long Way", lander, loc1, 2000.0);
-Path p3 = new Path("Moderately Long Way", lander, loc1, 1500.0);
-Path p1 = new Path("Short Cut", lander, loc1, 400.0);
-Path p4 = new Path("loc1 to loc2", loc1, loc2, 200.0);
-
+Path p2 = new Path("Very Long Way", lander, rock4, 2000.0);
+Path p3 = new Path("Moderately Long Way", lander, rock4, 1500.0);
+Path p1 = new Path("Short Cut", lander, rock4, 400.0);
 
 // Allocate Rover
 Battery battery = new Battery(1000.0, 0.0, 1000.0);
@@ -20,4 +18,3 @@ Rover spirit = new Rover(battery);
 
 // Close the the PLASMA Database - no more objects can be created.
 close();
-
