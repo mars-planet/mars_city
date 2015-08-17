@@ -167,7 +167,7 @@ Walkthrough
 Start the GUI
 +++++++++++++
     
-    #. Navigate to the mongodb directory and start the mongodb daemon
+    1. Navigate to the mongodb directory and start the mongodb daemon
     ::
 
         sudo ./mongod
@@ -175,13 +175,13 @@ Start the GUI
     ::
         sudo mongod
 
-    #. Start the servers that you want to monitor through the GUI. For example:
+    2. Start the servers that you want to monitor through the GUI. For example:
     ::
 
         sudo aouda 1 simulate_data
     If you want to add an aouda server to the GUI to monitor.
 
-    #. Navigate to the Habitat Monitor directory and start the application by issuing the following command:
+    3. Navigate to the Habitat Monitor directory and start the application by issuing the following command:
     ::
 
         python app.py
@@ -189,4 +189,38 @@ Start the GUI
     - Once the GUI has successfully started you will be shown a screen similar to the following image:
     .. image:: images/tutorial/1.PNG
 
+Adding Devices
+++++++++++++++
 
+    1. Click on 'File' menu.
+    2. Click on 'Add Device'.
+    .. image:: images/tutorial/2.PNG
+    3. Enter the device address.
+    .. image:: images/tutorial/3.PNG
+    4. Select and attribute from the device and a summary function. Also enter the summary period.
+    The summary period should be in the format 'hh:mm:ss.ms'.
+    .. image:: images/tutorial/4.PNG
+    5. Click on 'Add Summary' button.
+    6. Enter the 'Total values to be shown in the graph'.
+    .. image:: images/tutorial/5.PNG
+    7. Enter the graph updation time in microseconds.
+    .. image:: images/tutorial/6.PNG
+
+    Raw Data
+    --------
+    It shows the data coming in directly from the device server in case of leaves, i.e., device servers.
+    .. image:: images/tutorial/7.PNG
+
+    Summary
+    -------
+    It shows the summary as calculated by the summary function in the provided time period
+    .. image:: images/tutorial/8.PNG
+
+    Graph
+    -----
+    It shows the real-time graph of the raw data according to the total number of values mentioned while
+    adding a device and the graph updation frequency. User can edit these values via the 'graph_config' file
+    inside the application directory.
+    The hours and minutes are shown below of the graph panel while seconds and milliseconds are shown inside
+    the graph panel in order to avoid large x-values and avoid cluttering.
+    .. image:: images/tutorial/9.PNG
