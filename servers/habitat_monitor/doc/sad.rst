@@ -1,3 +1,5 @@
+.. sectnum:: :start: 2
+
 ================================================================================
 Software Architecture Document for the Habitat Monitoring and Alarming Interface
 ================================================================================
