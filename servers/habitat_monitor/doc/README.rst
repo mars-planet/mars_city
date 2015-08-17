@@ -94,6 +94,7 @@ Prerequisites
    + pip >= 1.5.4
    + pyqtgraph
    + PyTango >= 8.1.5
+   + pymongo >= 3.0.3
 * libboost-python-dev >= 1.54
 * MongoDB
 
@@ -147,11 +148,45 @@ MongoDB
     ~~~~~~~~~~~~~~~~~~~~~~~
     Follow the following tutorial - http://docs.mongodb.org/manual/tutorial/install-mongodb-on-linux/
 
+pymongo
++++++++
+
+   sudo pip install pymongo
 
 pyqtgraph:
 ++++++++++
 
     Download the appropriate installer for your Operating System and install from the following link:
         http://www.pyqtgraph.org/
+
+
+
+Walkthrough
+===========
+
+Start the GUI
++++++++++++++
+    
+    #. Navigate to the mongodb directory and start the mongodb daemon
+    ::
+
+        sudo ./mongod
+    You can also start it by issuing the following command if you have exported it to system path 
+    ::
+        sudo mongod
+
+    #. Start the servers that you want to monitor through the GUI. For example:
+    ::
+
+        sudo aouda 1 simulate_data
+    If you want to add an aouda server to the GUI to monitor.
+
+    #. Navigate to the Habitat Monitor directory and start the application by issuing the following command:
+    ::
+
+        python app.py
+
+    - Once the GUI has successfully started you will be shown a screen similar to the following image:
+    .. image:: images/tutorial/1.PNG
 
 
