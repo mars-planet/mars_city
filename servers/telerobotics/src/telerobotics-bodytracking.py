@@ -19,10 +19,6 @@ import datetime
 from collections import deque
 import rospy
 from geometry_msgs.msg import Twist
-"""
-Plotting to be implemented
-"""
-# import matplotlib.pyplot as plt
 
 # Get current time
 TIME_START = time.time()
@@ -188,7 +184,6 @@ if __name__ == "__main__":
                                                                          )
         except PyTango.DevError as err:
             PyTango.Except.print_exception(err)
-
 
         # Wait for at least REFRESH_RATE Seconds for the next callback.
         time.sleep(REFRESH_RATE)
