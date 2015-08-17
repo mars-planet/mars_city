@@ -206,18 +206,21 @@ Adding Devices
     7. Enter the graph updation time in microseconds.
         .. image:: images/tutorial/6.PNG
 
-    - Raw Data
-      ++++++++
+    Raw Data
+    ========
+
     It shows the data coming in directly from the device server in case of leaves, i.e., device servers.
         .. image:: images/tutorial/7.PNG
 
-    - Summary
-      +++++++
+    Summary
+    =======
+    
     It shows the summary as calculated by the summary function in the provided time period
         .. image:: images/tutorial/8.PNG
 
-    - Graph
-      +++++
+    Graph
+    =====
+
     It shows the real-time graph of the raw data according to the total number of values mentioned while
     adding a device and the graph updation frequency. User can edit these values via the 'graph_config' file
     inside the application directory.
