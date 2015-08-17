@@ -206,17 +206,14 @@ Adding Devices
     7. Enter the graph updation time in microseconds.
         .. image:: images/tutorial/6.PNG
 
-    8. Raw Data -It shows the data coming in directly from the device server in case of leaves, i.e., device servers.
-    ===========
+    8. Raw Data Tab -It shows the data coming in directly from the device server in case of leaves, i.e., device servers.
         .. image:: images/tutorial/7.PNG
     
 
-    9. Summary - It shows the summary as calculated by the summary function in the provided time period
-    ==========
+    9. Summary Tab - It shows the summary as calculated by the summary function in the provided time period
         .. image:: images/tutorial/8.PNG
 
-    10. Graph - It shows the real-time graph of the raw data according to the total number of values mentioned while
-    =========
+    10. Graph Tab - It shows the real-time graph of the raw data according to the total number of values mentioned while
     adding a device and the graph updation frequency. User can edit these values via the 'graph_config' file
     inside the application directory.
     The hours and minutes are shown below of the graph panel while seconds and milliseconds are shown inside
