@@ -193,16 +193,22 @@ Adding Devices
 ++++++++++++++
 
     1. Click on 'File' menu.
-    2. Click on 'Add Device'.
+
+    2. Click on 'Add Device' option.
         .. image:: images/tutorial/2.PNG
+
     3. Enter the device address.
         .. image:: images/tutorial/3.PNG
+
     4. Select and attribute from the device and a summary function. Also enter the summary period.
         The summary period should be in the format 'hh:mm:ss.ms'.
             .. image:: images/tutorial/4.PNG
+
     5. Click on 'Add Summary' button.
+
     6. Enter the 'Total values to be shown in the graph'.
         .. image:: images/tutorial/5.PNG
+
     7. Enter the graph updation time in microseconds.
         .. image:: images/tutorial/6.PNG
 
@@ -220,3 +226,22 @@ Adding Devices
         the graph panel in order to avoid large x-values and avoid cluttering.
         
         .. image:: images/tutorial/9.PNG
+
+Creating Branches
++++++++++++++++++
+
+    1. Click on 'File' menu.
+
+    2. Click on 'Create Branch' option.
+
+    3. Enter the branch name and click ok button.
+        .. image:: images/tutorial/10.PNG
+
+    4. Select the devices you want to add to the branch.
+        .. image:: images/tutorial/11.PNG
+
+    5. Summary Creation - Enter summary name and select a summary function.
+        Unlike the leaf summary, there in no option to provide the summary time
+        in case of branches as branch summary is calculated instantaneously.
+        
+        .. image:: images/tutorial/12.PNG
