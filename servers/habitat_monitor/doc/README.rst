@@ -194,17 +194,17 @@ Adding Devices
 
     1. Click on 'File' menu.
     2. Click on 'Add Device'.
-    .. image:: images/tutorial/2.PNG
+        .. image:: images/tutorial/2.PNG
     3. Enter the device address.
-    .. image:: images/tutorial/3.PNG
+        .. image:: images/tutorial/3.PNG
     4. Select and attribute from the device and a summary function. Also enter the summary period.
     The summary period should be in the format 'hh:mm:ss.ms'.
-    .. image:: images/tutorial/4.PNG
+        .. image:: images/tutorial/4.PNG
     5. Click on 'Add Summary' button.
     6. Enter the 'Total values to be shown in the graph'.
-    .. image:: images/tutorial/5.PNG
+        .. image:: images/tutorial/5.PNG
     7. Enter the graph updation time in microseconds.
-    .. image:: images/tutorial/6.PNG
+        .. image:: images/tutorial/6.PNG
 
     Raw Data
     --------
