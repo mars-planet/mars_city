@@ -227,6 +227,7 @@ Adding Devices
         
         .. image:: images/tutorial/9.PNG
 
+
 Creating Branches
 +++++++++++++++++
 
@@ -243,5 +244,15 @@ Creating Branches
     5. Summary Creation - Enter summary name and select a summary function.
         Unlike the leaf summary, there in no option to provide the summary time
         in case of branches as branch summary is calculated instantaneously.
-        
+
         .. image:: images/tutorial/12.PNG
+
+    6. Raw Data Tab - Shows the raw data for each child of the branch.
+        .. image:: images/tutorial/13.PNG
+
+    7. Summary Tab - Shows the summary as defined by the summary function and summary name in the drop down box.
+        .. image:: images/tutorial/14.PNG
+
+    8. Graph Tab - Shows the graph of the raw data. I avoided showing all graphs in the same pannel so as to avoid cluttering.
+        You can select the child from the dropdown menu and view its graph.
+
