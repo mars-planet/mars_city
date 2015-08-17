@@ -198,7 +198,7 @@ Adding Devices
     3. Enter the device address.
         .. image:: images/tutorial/3.PNG
     4. Select and attribute from the device and a summary function. Also enter the summary period.
-    The summary period should be in the format 'hh:mm:ss.ms'.
+        The summary period should be in the format 'hh:mm:ss.ms'.
         .. image:: images/tutorial/4.PNG
     5. Click on 'Add Summary' button.
     6. Enter the 'Total values to be shown in the graph'.
@@ -207,20 +207,20 @@ Adding Devices
         .. image:: images/tutorial/6.PNG
 
     Raw Data
-    --------
+    ++++++++
     It shows the data coming in directly from the device server in case of leaves, i.e., device servers.
-    .. image:: images/tutorial/7.PNG
+        .. image:: images/tutorial/7.PNG
 
     Summary
-    -------
+    +++++++
     It shows the summary as calculated by the summary function in the provided time period
-    .. image:: images/tutorial/8.PNG
+        .. image:: images/tutorial/8.PNG
 
     Graph
-    -----
+    +++++
     It shows the real-time graph of the raw data according to the total number of values mentioned while
     adding a device and the graph updation frequency. User can edit these values via the 'graph_config' file
     inside the application directory.
     The hours and minutes are shown below of the graph panel while seconds and milliseconds are shown inside
     the graph panel in order to avoid large x-values and avoid cluttering.
-    .. image:: images/tutorial/9.PNG
+        .. image:: images/tutorial/9.PNG
