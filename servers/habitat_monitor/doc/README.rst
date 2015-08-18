@@ -306,3 +306,21 @@ Summary Deletion
     - Click on the 'Delete Summary' option.
 
     - Click on 'Yes' option in the popup to delete the summary.
+
+
+Node Deletion
+-------------
+
+If you delete a node from the data source, then it will be deleted from everywhere, i.e., from under all branches.
+But if you delete it from under a specific branch, it will only be deleted from there.
+
+    - Click on the node you want to delete.        
+
+    - Click on the 'Edit' menu.
+        .. image:: images/tutorial/22.PNG
+
+    - Select 'Delete Node' option.
+        .. image:: images/tutorial/23.PNG
+
+    - Click on 'Yes' option to delete the node.
+        .. image:: images/tutorial/24.PNG
