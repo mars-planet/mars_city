@@ -255,4 +255,54 @@ Creating Branches
 
     8. Graph Tab - Shows the graph of the raw data. I avoided showing all graphs in the same pannel so as to avoid cluttering.
         You can select the child from the dropdown menu and view its graph.
+        .. image:: images/tutorial/15.PNG
 
+
+Modifications
+-------------
+
+Summary Modification
+~~~~~~~~~~~~~~~~~~~~
+    - Summary modification is only for leaves, i.e., the data sources
+
+    - Click on the 'Edit' menu.
+        .. image:: images/tutorial/16.PNG
+
+    - Click on the 'Modify Summary' option.
+
+    - Select the summary function and enter the summary time.
+        .. image:: images/tutorial/17.PNG
+
+    - Click on 'Modify Summary' button.
+
+Summary Addition
+~~~~~~~~~~~~~~~~
+    - Summary addition works only for branches.
+
+    - Click on the 'Edit' menu.
+
+    - Click on the 'Add Summary' option.
+        .. image:: images/tutorial/18.PNG
+
+    - Enter the summary name, select the nodes you want to be added to the summary
+    from amongst the branch children, select the summary summary function.
+        .. image:: images/tutorial/20.PNG    
+
+    - Click on 'Add Summary' button.
+
+Summary Deletion
+~~~~~~~~~~~~~~~~
+    - Summary addition works only for branches.
+
+    - Click on the branch in the left pane.
+
+    - Navigate to the 'Summary' tab.
+
+    - Select a summary from the dropdown box.
+        .. image:: images/tutorial/21.PNG
+
+    - Click on the 'Edit' menu.
+
+    - Click on the 'Delete Summary' option.
+
+    - Click on 'Yes' option in the popup to delete the summary.
