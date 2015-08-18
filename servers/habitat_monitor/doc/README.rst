@@ -165,7 +165,7 @@ Walkthrough
 ===========
 
 Start the GUI
-+++++++++++++
+-------------
     
     1. Navigate to the mongodb directory and start the mongodb daemon
     ::
@@ -190,7 +190,7 @@ Start the GUI
     .. image:: images/tutorial/1.PNG
 
 Adding Devices
-++++++++++++++
+--------------
 
     1. Click on 'File' menu.
 
@@ -229,7 +229,7 @@ Adding Devices
 
 
 Creating Branches
-+++++++++++++++++
+-----------------
 
     1. Click on 'File' menu.
 
