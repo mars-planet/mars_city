@@ -207,7 +207,7 @@ Open **three** terminals -
 
 * In the first terminal, run
 
-  ``roslaunch husky-gazebo husky_empty_world.launch``
+  ``roslaunch husky_gazebo husky_empty_world.launch``
 
 * In the second terminal, run
 
