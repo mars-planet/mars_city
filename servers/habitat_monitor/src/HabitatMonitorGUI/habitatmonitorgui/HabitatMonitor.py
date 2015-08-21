@@ -563,15 +563,25 @@ class HabitatMonitor(QtGui.QMainWindow):
         print "inserted node:", nodes.find_one({'_id': node_id})
         if sourceType == "leaf":
             ok = None
+            message = "Enter Total values to be shown in graph:"
+            errmsg = ""
             while(not ok):
                 total_graph_values, ok = QtGui.QInputDialog.getText(self, 'Input Dialog',
-                                                                    'Enter Total values to be shown in graph:')
+                                                                    errmsg + message)
                 total_graph_values = str(total_graph_values)
+                pattern = re.compile("^[0-9]*$")
+                if not pattern.match(total_graph_values) or total_graph_values == "":
+                    errmsg = "Incorrect format. Please enter numbers only!\n"
+                    ok = None
             ok = None
             while(not ok):
                 graph_updation_time, ok = QtGui.QInputDialog.getText(self, 'Input Dialog',
                                                                      'Enter Graph updation time in microseconds:')
                 graph_updation_time = str(graph_updation_time)
+                pattern = re.compile("^[0-9]*$")
+                if not pattern.match(total_graph_values) or total_graph_values == "":
+                    QtGui.QErrorMessage(self).showMessage("Incorrect format. Please enters numbers only!")
+                    ok = None
             with open('graph_config', 'r') as fin:
                 try:
                     gc = json.loads(fin.read())
@@ -598,11 +608,19 @@ class HabitatMonitor(QtGui.QMainWindow):
                 total_graph_values, ok = QtGui.QInputDialog.getText(self, 'Input Dialog',
                                                                     'Enter Total values to be shown in graph:')
                 total_graph_values = str(total_graph_values)
+                pattern = re.compile("^[0-9]*$")
+                if not pattern.match(total_graph_values) or total_graph_values == "":
+                    QtGui.QErrorMessage(self).showMessage("Incorrect format. Please enters numbers only!")
+                    ok = None
             ok = None
             while(not ok):
                 graph_updation_time, ok = QtGui.QInputDialog.getText(self, 'Input Dialog',
                                                                      'Enter Graph updation time in microseconds:')
                 graph_updation_time = str(graph_updation_time)
+                pattern = re.compile("^[0-9]*$")
+                if not pattern.match(total_graph_values) or total_graph_values == "":
+                    QtGui.QErrorMessage(self).showMessage("Incorrect format. Please enters numbers only!")
+                    ok = None
             with open('graph_config', 'r') as fin:
                 try:
                     gc = json.loads(fin.read())
