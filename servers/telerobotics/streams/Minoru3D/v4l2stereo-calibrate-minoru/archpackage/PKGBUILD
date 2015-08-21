@@ -1,0 +1,31 @@
+# Maintainer: Bob Mottram (4096 bits) <bob@robotics.uk.to>
+pkgname=v4l2stereo
+pkgver=0.1
+pkgrel=1
+pkgdesc="Enables the generation of depth maps from stereo vision"
+arch=('i686' 'x86_64')
+url="https://github.com/fuzzgun/v4l2stereo"
+license=('GPL3')
+groups=()
+depends=('libopencv')
+makedepends=('libopencv')
+optdepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=()
+install=
+changelog=
+source=($pkgname-$pkgver.tar.gz)
+noextract=()
+md5sums=()
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+  ./configure --prefix=/usr
+  make
+}
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make DESTDIR="$pkgdir/" PREFIX="/usr" install
+}

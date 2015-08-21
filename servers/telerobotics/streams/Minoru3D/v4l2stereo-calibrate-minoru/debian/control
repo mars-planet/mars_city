@@ -1,0 +1,14 @@
+Source: v4l2stereo
+Section: utils
+Priority: extra
+Maintainer: Bob Mottram (4096 bits) <bob@robotics.uk.to>
+Build-Depends: debhelper (>= 9.0.0), libopencv-dev
+Standards-Version: 3.9.4
+Homepage: https://github.com/fuzzgun/v4l2stereo
+Vcs-Git: https://github.com/fuzzgun/v4l2stereo.git
+
+Package: v4l2stereo
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libopencv
+Description: Utility for stereoscopic vision
+ Enables the generation of depth maps from stereo vision
