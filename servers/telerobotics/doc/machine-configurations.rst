@@ -57,7 +57,7 @@ folder path to the ``Path`` variabe in Windows. In order to do this, follow thes
 You will also need to set the ``PYTHONPATH`` variable likewise. Create a new environment variable with the name **PYTHONPATH**
 and the value of ``C:\Python27_32bit\``
 
-In order to use Python 2.7 on Windows, Visual C++ compiler (*VCforPython27*)must also be installed. It can be downloaded `from this link. <www.microsoft.com/en-in/download/details.aspx?id=44266>`_
+In order to use Python 2.7 on Windows, Visual C++ compiler (*VCforPython27*) must also be installed.  It can be downloaded `from this link. <https://www.microsoft.com/en-in/download/details.aspx?id=44266>`_
 
 Setting up Kinect Tools
 ---------------------------------------------
@@ -66,8 +66,8 @@ In order to use Kinect on Windows, Kinect Developer Kit and the SDK need to be i
 The installation process will be quite long, and it will probably require some reboots.
 After that, you have to install (in this order):
 
-* `Kinect SDK`: <https://www.microsoft.com/en-us/download/details.aspx?id=40278>
-* `Kinect Developer Kit`: <https://www.microsoft.com/en-us/download/details.aspx?id=40276>
+* `Kinect SDK <https://www.microsoft.com/en-us/download/details.aspx?id=40278>`_
+* `Kinect Developer Kit <https://www.microsoft.com/en-us/download/details.aspx?id=40276>`_
 
 Installing PyKinect
 -------------------
@@ -82,8 +82,8 @@ Before continuing, you need also to install the following Python packages:
 
 * *numpy*: required to install PyTango; it can be installed with ``pip install numpy``
 * *PyTango*: download the last 32-bit version for Python 2.7, available
-  from https://pypi.python.org/pypi/PyTango/
-* *pgu*: download from https://code.google.com/p/pgu/ and install it with
+  from `here <https://pypi.python.org/pypi/PyTango/>`_
+* *pgu*: download from `here <https://code.google.com/p/pgu/>`_ and install it with
   ``pip`` (follow the above instructions, as if the package you download
   is a .whl file)
 * *VPython*: download the automatic installer for Visual Python `from here <http://vpython.org/contents/download_windows.html>`_
@@ -96,12 +96,12 @@ Before continuing, you need also to install the following Python packages:
 
 Installing Tango
 ---------------------------------------------
-Go to http://www.tango-controls.org/downloads/source/ and select the binary
+Go to `this page <http://www.tango-controls.org/downloads/source/>`_ and select the binary
 distribution for Windows x64. Download and install it.
 
 After the installation, you will be able to access to a lot of utility and tools to get
 information about Tango and the device servers (e.g. *Jive*). To use them, you must install
-*Java for Windows*; you can get it from https://java.com/download/
+*Java for Windows*; you can get it from `here <https://java.com/download/>`_
 
 Configure Tango Host
 --------------------
@@ -160,7 +160,7 @@ Install **ROS Indigo** on Ubuntu using the following instructions -
 
 Tango Setup
 --------------------
-Follow the instructions in the `ERAS documentation to set up Tango.<http://eras.readthedocs.org/en/latest/doc/setup.html>`_
+Follow the instructions in the `ERAS documentation to set up Tango. <http://eras.readthedocs.org/en/latest/doc/setup.html>`_
 
 
 This should set up everything on the Ubuntu side.

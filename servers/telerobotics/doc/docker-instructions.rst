@@ -22,6 +22,8 @@ Change Record
 Introduction
 ============
 
+From the `Docker website <https://www.docker.com/>`_ -
 
+    Docker is an open platform for building, shipping and running distributed applications. It gives programmers, development teams and operations engineers the common toolbox they need to take advantage of the distributed and networked nature of modern applications.
 
-    ``docker run --net=host -i -t sidcode/ros-eras bash ``
+``docker run -i -t sidcode/ros-eras bash ``
