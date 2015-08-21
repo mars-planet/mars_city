@@ -41,11 +41,6 @@ device_proxy = PyTango.DeviceProxy(DEVICE_NAME)
 # Configuration Variables for the Robot
 linear_speed, angular_speed = 0, 0
 
-#Plotting commands - TBD
-# plt.axis([0,20,-0.1,0.1])
-# plt.ion()
-# plt.show()
-
 # Event containers for time, position, and orientation
 time_events = deque()
 position_events = deque()
