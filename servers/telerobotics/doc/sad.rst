@@ -63,7 +63,7 @@ Applicable Documents
 Reference Documents
 -------------------
 
-- [1] -- `ERAS 2015 GSoC Telerobotics Proposal`__
+- [1] -- `ERAS 2015 GSoC Telerobotics Proposal`_
 - [2] -- `TANGO distributed control system`_
 - [3] -- `PyTANGO - Python bindings for TANGO`_
 - [4] -- `Tango Setup`_
@@ -243,7 +243,8 @@ The **RealTimeStereo** API enables real-time video streaming between an FFMPEG c
 
 The **AugmentedReality** API allows a user to display information on the ERAS Application and consequently on the Oculus device.
 
-The specifics of the individual APIs are TBD.
+EUROPA Navigation API
+
 
 Hardware Interfaces
 -------------------
