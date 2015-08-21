@@ -18,6 +18,10 @@ from urllib import urlopen
 import ctypes
 import kinect_interactions
 
+KINECT_FPS = 30
+
+sim_cond = threading.Event()
+
 def distance(p0, p1):
     """calculate distance between two joint/3D-tuple in the XZ plane (2D)"""
     return math.sqrt((p0[0] - p1[0])**2 + (p0[2] - p1[2])**2)
@@ -137,7 +141,7 @@ class PyTracker(Device):
                                                 sk[JointId.HipCenter])
 
             # hip_center | avg(hip_left, hip_right)
-            avg_hip = sk[JointId.HipLeft]
+            avg_hip = copy.deepcopy(sk[JointId.HipLeft])
             avg_hip.x = (sk[JointId.HipLeft].x + sk[JointId.HipRight].x) / 2.0
             avg_hip.y = (sk[JointId.HipLeft].y + sk[JointId.HipRight].y) / 2.0
             avg_hip.z = (sk[JointId.HipLeft].z + sk[JointId.HipRight].z) / 2.0
@@ -474,8 +478,7 @@ class Tracker:
     def start_emulate_tracker(self, sim_file_name):
         """Start a fake tracker, that reads from a file some\
         joints instead of getting them from an actual Kinect device"""
-        # Kinect works at 30fps
-        polling = 1.0/30.0
+        polling = 1.0/KINECT_FPS
         fp = open(sim_file_name)
         for index, line in enumerate(fp):
             # unfiltered data are stored in even lines
@@ -485,6 +488,7 @@ class Tracker:
             self.sim_left_hand_status = int(data[1])
             self.sim_right_hand_status = int(data[2])
             time.sleep(polling)
+        sim_cond.set()
 
     def set_tracker_in_device(self):
         util = PyTango.Util.instance()
