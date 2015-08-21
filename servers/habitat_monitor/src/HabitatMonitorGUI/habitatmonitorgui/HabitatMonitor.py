@@ -283,12 +283,12 @@ class HabitatMonitor(QtGui.QMainWindow):
             except TypeError as tex:
                 return
             try:
-                if len(self.data) >= 10:
+                if len(self.data) >= self.total_graph_values:
                     self.data.pop(0)
                     self.branch_axis_counter += 1
                     self.curve.setPos(self.branch_axis_counter, 0)
                 self.data.append(temp)
-                if len(self.branch_time_array) >= 10:
+                if len(self.branch_time_array) >= self.total_graph_values:
                     self.branch_time_array.pop(0)
                 ct = dt.now().time()
                 lh = ct.hour
@@ -329,9 +329,18 @@ class HabitatMonitor(QtGui.QMainWindow):
                 print "graph_updation_time:", graph_updation_time
         elif len(temp) == 1:
             self.attr = str(self.ui.childrenBox.currentText())
+            with open('graph_config', 'r') as fin:
+                graph_nodes = json.loads(fin.read())
+                current_graph_node = graph_nodes[str(self.itemText)]
+                self.total_graph_values = int(
+                    current_graph_node['total_graph_values'])
+                graph_updation_time = int(
+                    current_graph_node['graph_updation_time'])
+                print "----init_graph----"
+                print "total_graph_values:", self.total_graph_values
+                print "graph_updation_time:", graph_updation_time
             self.branch_time_array = []
             self.branch_axis_counter = 0
-            graph_updation_time = 2000
         pg.setConfigOptions(antialias=True)
         self.ui.graphicsView.clear()
         self.curve = self.ui.graphicsView.plot(pen='y')
@@ -584,6 +593,31 @@ class HabitatMonitor(QtGui.QMainWindow):
             t.start()
 
         if sourceType == "branch":
+            ok = None
+            while(not ok):
+                total_graph_values, ok = QtGui.QInputDialog.getText(self, 'Input Dialog',
+                                                                    'Enter Total values to be shown in graph:')
+                total_graph_values = str(total_graph_values)
+            ok = None
+            while(not ok):
+                graph_updation_time, ok = QtGui.QInputDialog.getText(self, 'Input Dialog',
+                                                                     'Enter Graph updation time in microseconds:')
+                graph_updation_time = str(graph_updation_time)
+            with open('graph_config', 'r') as fin:
+                try:
+                    gc = json.loads(fin.read())
+                except ValueError as ex:
+                    gc = {}
+            with open('graph_config', 'w') as fout:
+                branch_name = node['name']
+                print "branch_name:", branch_name
+                print "total_graph_values:", total_graph_values
+                print "graph_updation_time:", graph_updation_time
+                config_dict = {
+                    'total_graph_values': total_graph_values, 'graph_updation_time': graph_updation_time}
+                gc[branch_name] = config_dict
+                fout.write(json.dumps(gc))
+
             t = threading.Thread(target=self.aggregate_branch_data,
                                  args=([self.branchName]))
             t.start()
