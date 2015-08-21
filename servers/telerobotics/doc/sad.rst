@@ -213,6 +213,8 @@ GUI (Graphical User Interface)
 
 The real-time video streams are displayed in the Blender Game Engine application. The GUI therefore is inherited from the V-ERAS Application. There is no separate GUI for telerobotic control. The interface with the Oculus Rift device is minimal and displayed on the twin Oculus screens. This augmented reality interface is essential for blending in the rover's world with the astronaut's world.
 
+While controlling the navigation of a robot, the ROS Visualizer could be used to control the goal point and pose of a robot to override the Scheduler/Planner's output plans.
+
 CLI (Command Line Interface)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -229,21 +231,72 @@ CLI (Command Line Interface)
 
     ``clk.read_attribute("battery").value``
 
+- The Fallback Keyboard Teleoperation interface has the following command line interface -
+
+    ``
+    Teleoperate Husky using Keyboard
+
+
+      Moving around:
+
+       u    i    o
+
+       j    k    l
+
+       m    ,    .
+
+    q/z : increase/decrease max speeds by 10%
+
+    w/x : increase/decrease only linear speed by 10%
+
+    e/c : increase/decrease only angular speed by 10%
+
+    anything else : stop
+
+    CTRL-C to quit
+    ``
+
+    The Teleoperation Commands have been kept similiar to the ROS interface to minimize learning curve for ROS users transferring from other robots.
+
+    Future plans include a choice of left-handed controls for left-handed users. This is essential because Teleoperation should entail Human Computer Interaction principles of ease-of-use and discoverability.
 
 API (Application Programming Interface)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The Telerobotics API includes public functions for **selecting a robot** (generic API), Mapping bodytracking information to robot commands.
+The Telerobotics Server is the organizer of all the Robotics information for the ERAS mission. Curently, it has the following interfaces -
 
-The **RobotSelect** function takes the **robot name** as an *argument* and returns the **robot identifier** corresponding to that robot.
+- EUROPA-ROS Interface
+- Bodytracking-ROS Interface
+- Robot Diagnostics Server
 
-The **Mapping** API maps the bodytracking information to a corresponding robot motion command.
+  The diagnostic server provides all the essential information about the ROS-based robot. Any device in the Tango database can use this data in the following way -
 
-The **RealTimeStereo** API enables real-time video streaming between an FFMPEG client and server.
+    ``clk = DeviceProxy("C3/Robot/Diagnostics")``
 
-The **AugmentedReality** API allows a user to display information on the ERAS Application and consequently on the Oculus device.
+    ``clk.read_attribute("battery").value``
 
-EUROPA Navigation API
+  The Robot attributes currently supported are -
+
+  1. Battery Capacity
+  2. Battery Percentage
+  3. Robot Uptime
+  4. Current Drawn
+  5. Voltage Drawn
+  6. Robot Interior Temperature
+  7. Error Interrupts
+
+- Robot Information Collector Server
+
+  The Collector subscribes to the various sensor outputs of the Robot -
+
+  1. Robot Twist Information
+  2. Robot Pose Information
+  3. Robot Laser Data
+  4. IMU Calculations
+  5. Left Camera image
+  6. Right Camera Image
+
+- Fall-back keyboard mode for Teleoperation
 
 
 Hardware Interfaces
@@ -322,18 +375,18 @@ Hardware Limitations
 
 - The hardware of desktop machines are unsuitable for Stereoscopic Streaming applications.
 - The Kernel is not configured to use multiple webcams. This results in memory-related errors.
-- Currently, the Minoru 3D stereo camera is able to provide the feed at 24 frames per second at a scale of 320x240
-
+- Currently, the Minoru 3D stereo camera is able to provide a **live stereoscopic feed** at 24 frames per second at a scale of 320x240.
+- Telerobotics is provided as a Docker image. Docker uses the same process space as the host computer. Thus it is not suited for high-performance ROS calculations. Hardware is a limitation in using Virtual Environments.
 
 Software validation and verification
 ------------------------------------
 
-- The *unittest* library for **Python** will be used for all software testing.
-- Unit testing for each individual module ensures correctness at the base level.
+- Exceptions are used wherever possible to check for all circumstances.
 - Python's inbuilt *Profiler* will be used for estimating the areas which need optimization.
-- Thorough Integration testing is planned since *Telerobotics* is a multi-component application.
-- ffprobe is used to analyze the encoding and streaming performance of the Stereoscopic camera feed.
-- roswtf is used to verify proper ROS behaviour
+- Thorough Integration testing is planned since *Telerobotics* is a multi-component application. Current Integration supports Bodytracking Integration and EUROPA Integration.
+- ``ffprobe`` is used to analyze the encoding and streaming performance of the Stereoscopic camera feed.
+- ``roswtf`` is used to verify proper ROS behaviour
+- The *unittest* library for **Python** will be used for all software testing.
 
 Planning
 --------

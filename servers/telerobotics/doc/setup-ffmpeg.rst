@@ -62,4 +62,4 @@ In case of dropped frames or memory-related issues, it is quite possible that th
 
 Knowing the capability of the camera in hand goes a long way in identifying the usage profile of the camera as a video device. Cameras have a fixed set of frame rates supported by the hardware. These must be kept in mind before streaming at an intended frame rate.
 
-``ffmpeg`` has its own levels of verbosity which can be changed while streaming.
+``ffmpeg`` has its own levels of verbosity which can be changed while streaming. ``ffprobe`` can be used for further performance analysis. ``ffplay`` is a good tool to check the output quality of a stream.
