@@ -15,6 +15,9 @@ from pykinect.nui.structs import TransformSmoothParameters
 from pykinect.nui import SkeletonTrackingState, JointId
 from urllib import urlopen
 
+# Check dlls before of all
+import init_libs
+
 import ctypes
 import kinect_interactions
 

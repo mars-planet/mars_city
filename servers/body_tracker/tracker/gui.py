@@ -1,6 +1,3 @@
-# Check dlls before of all
-import init_libs
-
 import sys
 import itertools
 import pygame
