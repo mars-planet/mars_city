@@ -6,10 +6,10 @@ import time
 import numpy
 from PyTango import *
 from PyTango import AttrQuality, AttrWriteType, DispLevel, DevState, DebugIt
-from PyTango.server import Device, DeviceMeta, attribute, command, run
+from PyTango.server import Device, DeviceMeta, attribute, command
 from PyTango.server import device_property
 
-
+coordinates={"rock1":(1,1),"rock2":(3,3),"rock3":(2,2),"rock4":(9,9)}
 # Connect to planner device via PyTango
 planner= DeviceProxy("C3/pso/1")
 
@@ -18,27 +18,28 @@ def get_actions():
 
 def get_objects():
     return planner.get_objects()
-"""
-def load_image(name, colorkey=None):
-    try:
-        image = pygame.image.load(name)
-    except pygame.error, message:
-        print 'Cannot load image:', name
-        raise SystemExit, message
-    image = image.convert()
-    if colorkey is not None:
-        if colorkey is -1:
-            colorkey = image.get_at((0,0))
-        image.set_colorkey(colorkey, 255)
-    return image, image.get_rect()
-"""
+
 
 actions = json.loads(get_actions())
 print "EUROPA PLAN:",actions["Rover"],"\n"
 
 
+def cal_co_ord(actions):
+    for n, action in enumerate(actions["Rover"]):
+        event = action["events"][0]
+        print "PLAN EVENT CALLED:",event
+        if ".Go" in event:
+            destination=re.search("dest={(.*)[/(]", event).group(1)
+            #print destination
+            return(coordinates.get("{0}".format(destination)))
 
-_co_ordinates=destination
+
+
+
+co_ordinates= cal_co_ord(actions)
+print co_ordinates
+
+
 class Publisher(Device):
     __metaclass__ = DeviceMeta
     POLLING = 30
@@ -49,21 +50,8 @@ class Publisher(Device):
                           polling_period = POLLING,
                           max_dim_x = 100,
                           max_dim_y = 100,
-
                           doc="An attribute for Linear and angular \
                                displacements")
-
-    def cal_co_ord(actions):
-        for n, action in enumerate(actions["Rover"]):
-        action_time=action["upper"][0] if type(action["upper"]
-            )==list else action["upper"]
-        if step==action_time:
-            event = action["events"][0]
-            print "PLAN EVENT CALLED:",event
-
-            if ".Go" in event:
-                destination=re.search("dest={(.*)[/(]", event).group(1)
-                print destination
 
 
 
@@ -73,7 +61,7 @@ class Publisher(Device):
         self.info_stream('In Python init_device method')
         self.set_state(PyTango.DevState.ON)
 
-    self.push_change_event('coordinates', _co_ordinates, 2)
+    self.push_change_event('coordinates', co_ordinates, 2)
 
 if __name__ == "__main__":
     run([Publisher])
@@ -91,6 +79,20 @@ if __name__ == "__main__":
 
 
 """
+
+#def cal_co_ord(actions):
+        #step = (time.clock()-start_time)/1000
+        #for n, action in enumerate(actions["Rover"]):
+            #action_time=action["upper"][0] if type(action["upper"]
+                #)==list else action["upper"]
+            #if step==action_time:
+                #event = action["events"][0]
+                #print "PLAN EVENT CALLED:",event
+
+                #if ".Go" in event:
+                    #destination=re.search("dest={(.*)[/(]", event).group(1)
+                    #print destination
+                    #return(coordinates.get("{0}".format(destination)))
 class Object(pygame.sprite.Sprite):
 
     moving = None
