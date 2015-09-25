@@ -59,12 +59,13 @@ class Publish(Device):
 
     def init_device(self):
         Device.init_device(self)
-        self.__coordinates = [0,0]
+        self.__coordinates = (0,0)
         self.set_state(DevState.STANDBY)
 
     @command
     def set_coord(self):
-        self.__coordinates = co_ord
+        self.__coordinates = tuple(co_ord)
+        self.push_change_event('coordinates', tuple(self.__coordinates), 2)
 
 
     def get_coordinates(self):

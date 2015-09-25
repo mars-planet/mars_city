@@ -7,3 +7,4 @@ ERAS Planning
 
    sad
    europa_installation
+   runningplanner
