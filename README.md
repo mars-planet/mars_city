@@ -1,4 +1,4 @@
-# ![eras+ims_small.JPG](https://bitbucket.org/repo/G6qdMb/images/484281664-eras%2Bims_small.JPG) #
+# ![Logo Nuovo A.jpg](https://bitbucket.org/repo/G6qdMb/images/1041870328-Logo%20Nuovo%20A.jpg) #
 
 ERAS is a system of systems, and a key enabler for Mars exploration. It will serve as a state-of-the art test bed for international researchers working on the five showstoppers for Mars exploration.
 
