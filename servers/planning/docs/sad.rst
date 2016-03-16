@@ -13,14 +13,14 @@ Change Record
    it can be included here by using (dedent to make it work):
 
 - Created on 27 May 2015.
-- Added layers involved in europa on 29 June 2015
+- Added layers involved in Europa on 29 June 2015
 
 Introduction
 ============
 
 Purpose
 -------
-The main aim of this project will be making a  Astronaut’s Digital
+The main aim of this project will be making a Astronaut’s Digital
 Assistant which will take into account all the constraints and rules
 that has been defined and plot a plan of action. It will also
 schedule all the tasks for the astronaut such that job of the
@@ -41,15 +41,11 @@ Applicable Documents
 - [5] -- `Py4J`_
 
 
-.. _`C3 Prototype document v.4`: <http://www.erasproject.org/
-                                  index.php?option=com_joomdoc&view=
-                                  documents&path=C3+Subsystem/ERAS-
-                                  C3Prototype_v4.pdf&Itemid=148>
-.. _`EUROPA`: <code.google.com/p/europa-pso/>
-.. _`Software Engineering Practices Guidelines for the ERAS Project`:
-     <https://eras.readthedocs.org/en/latest/doc/guidelines.html>
-.. _`TANGO distributed control system`: <http://www.tango-controls.org/>
-.. _`Py4J`: <http://py4j.sourceforge.net/>
+.. _`C3 Prototype document v.4`: http://erasproject.org/download/eras-command-control-and-communication-c3-prototype/
+.. _`EUROPA`: https://github.com/nasa/europa
+.. _`Software Engineering Practices Guidelines for the ERAS Project`: https://eras.readthedocs.org/en/latest/doc/guidelines.html
+.. _`TANGO distributed control system`: http://www.tango-controls.org/
+.. _`Py4J`: http://py4j.sourceforge.net/
 
 Reference Documents
 -------------------
@@ -103,12 +99,12 @@ all the sensors and other devices.
 Non-functional requirements
 ---------------------------
 
-- High speed secure network.
+- High-speed secure network.
 
 Use Case View (functional requirements)
 ---------------------------------------
 
-It will be used for scheduling and planning of TREVOR using Pyeuropa.
+It will be used for scheduling and planning of TREVOR using PyEuropa.
 
 
 
@@ -131,8 +127,7 @@ Software Interfaces
 - subversion-- sudo apt-get install subversion
 - wget -- sudo apt-get install wget
 - SWIG sudo apt-get install swig
-- `libantlr3c
-   <https://code.google.com/p/europa-pso/wiki/BuildingEuropa#Install>`_
+- `libantlr3c <https://github.com/nasa/europa/wiki/Building-Europa#install-antlr-c>`_
 
 Communication Interfaces
 ------------------------
@@ -145,8 +140,8 @@ be collected and used effectively.
 Performance Requirements
 ========================
 
-The band width should be high enough to support real time data
-accusation for processing of the data and coming up with a plan.
+The bandwidth should be high enough to support real-time data
+acquisition for processing of the data and coming up with a plan.
 
 Layers
 ------
@@ -197,7 +192,7 @@ Layers
 Subsystems
 ----------
 - Linux box running core Europa.
-- Sensors collecting real time data.
+- Sensors collecting real-time data.
 - Tango bus up and running.
 
 Planning
@@ -211,4 +206,3 @@ Notes
 =====
 
 .. notes can be handled automatically by Sphinx
-
