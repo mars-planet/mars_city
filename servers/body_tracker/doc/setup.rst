@@ -44,7 +44,7 @@ Installing Python
 =================
 
 To support PyKinect, you must install *Python 32-bit 2.7*.
-To install this version of Python, use this link: https://www.python.org/ftp/python/2.7/python-2.7.msi
+To install this version of Python, use this `Link <https://www.python.org/ftp/python/2.7/python-2.7.msi>`_
 
 It is recommended to install this version of Python in ``C:\Python27_32bit\``.
 
@@ -68,8 +68,8 @@ Tests were done using *Visual Studio 2013*.
 The installation process will be quite long, and it will probably require some reboots.
 After that, you have to install (in this order):
 
-* `Kinect SDK 1.8`: <https://www.microsoft.com/en-us/download/details.aspx?id=40278>
-* `Kinect Developer Kit 1.8`: <https://www.microsoft.com/en-us/download/details.aspx?id=40276>
+* `Kinect SDK 1.8 <https://www.microsoft.com/en-us/download/details.aspx?id=40278>`_
+* `Kinect Developer Kit 1.8 <https://www.microsoft.com/en-us/download/details.aspx?id=40276>`_
 
 Finally, simply plug-in the Kinect and let Windows Update to install its drivers.
 
@@ -77,7 +77,7 @@ Installing PTVS and PyKinect
 ============================
 
 Python Tools for Visual Studio (PTVS) "is a free, open source plugin that
-turns Visual Studio into a Python IDE". It can be useful if you want to 
+turns Visual Studio into a Python IDE". It can be useful if you want to
 develop in Python with Visual Studio, and it also provides some facilities
 for Kinect developers.
 
@@ -87,33 +87,31 @@ Installing and use PTVS on Visual Studio
 In order to install PTVS, go to http://pytools.codeplex.com/releases and
 download the most recent version of PTVS that fits with your Visual Studio
 version. Tests were done using Visual Studio 2013 and *PTVS 2.1*, and the
-following documentation referes to these versions.
+following documentation refers to these versions.
 
-After having installed PTVS, open Visual Studio, and go to
-:guilabel:`File -> New -> Project`. Then, under
-:guilabel:`Template -> Python -> Samples`, select :guilabel:`PyGame using PyKinect`.
+After having installed PTVS, open Visual Studio, and go to `File -> New -> Project`. Then, under `Template -> Python -> Samples`, select `PyGame using PyKinect`.
 This will create a new Python project, with a Python script structured to
 be used with PyGame and PyKinect.
 
 Project configuration
 ---------------------
 
-In Visual Studio 2013, go to :guilabel:`Tools -> Options`. Then, under
-:guilabel:`Python Tools -> Environment Options`, select the
-:guilabel:`Python 32-bit 2.7` environment. If it is not available, select
-:guilabel:`Add Environment`, name it :guilabel:`Python 32-bit 2.7` and add
+In Visual Studio 2013, go to `Tools -> Options`. Then, under
+`Python Tools -> Environment Options`, select the
+`Python 32-bit 2.7` environment. If it is not available, select
+`Add Environment`, name it `Python 32-bit 2.7` and add
 the following fields:
 
-* :guilabel:`Path`: ``C:\Python27_32bit\python.exe``
-* :guilabel:`Windows Path`: ``C:\Python27_32bit\pythonw.exe``
-* :guilabel:`Library Path`: ``C:\Python27_32bit\lib``
-* :guilabel:`Architecture`: ``x86``
-* :guilabel:`Language Version`: ``2.7``
-* :guilabel:`Path Environment Variable`: ``PYTHONPATH``
+* `Path`: ``C:\Python27_32bit\python.exe``
+* `Windows Path`: ``C:\Python27_32bit\pythonw.exe``
+* `Library Path`: ``C:\Python27_32bit\lib``
+* `Architecture`: ``x86``
+* `Language Version`: ``2.7``
+* `Path Environment Variable`: ``PYTHONPATH``
 
 Now open the Solution Explorer under the project name, right click on
-:guilabel:`Python Environments` and select :guilabel:`Add/Remove Python Environments...`.
-Then make sure that only the :guilabel:`Python 32-bit 2.7` environment
+`Python Environments` and select `Add/Remove Python Environments...`.
+Then make sure that only the `Python 32-bit 2.7` environment
 is checked.
 
 Installing PyGame
@@ -125,20 +123,21 @@ but also by following the instructions shown in Visual Studio after project
 creation. These instruction are summarized as follows, and can be generally
 used for installing any additional Python package.
 
-* In the Solution Explorer, right click on :guilabel:`Python 32-bit 2.7`
-  (under :guilabel:`Python Environments`) and then select
-  :guilabel:`Install Python Packages...`
+* In the Solution Explorer, right click on `Python 32-bit 2.7`
+  (under `Python Environments`) and then select
+  `Install Python Packages...`
 * If you want to install a Python package without explicitly download it:
-    * Select :guilabel:`pip`, type the package name and then select :guilabel:`OK`
+    * Select `pip`, type the package name and then select `OK`
 * If you want to install a downloaded .whl package (e.g. obtained from
   http://www.lfd.uci.edu/~gohlke/pythonlibs/):
+
     * Make sure to have the package ``wheel`` installed. If not, install
       it as described above
-    * Select :guilabel:`pip`, type the full path to the file (wrapped by
-      double quotes) and then select :guilabel:`OK`
+    * Select `pip`, type the full path to the file (wrapped by
+      double quotes) and then select `OK`
 
 Using the above instructions you will be able to install PyGame, by typing
-the double-quoted full path of the PyGame package downloaded from 
+the double-quoted full path of the PyGame package downloaded from
 http://www.lfd.uci.edu/~gohlke/pythonlibs/#pygame. Make sure to select the
 last 32-bit version for Pythion 2.7 (the file name should be something like
 ``pygame‑X.X.XXX‑cp27‑none‑win32.whl``.
@@ -186,7 +185,7 @@ information about Tango and the device servers (e.g. *Jive*). To use them, you m
 Configure Tango Host
 --------------------
 
-To be able to get all Tango informations, you need to specify the address of the Tango host.
+To be able to get all Tango information, you need to specify the address of the Tango host.
 Assuming that it is 198.168.1.100:10000, open the command line and type:
 
     ``set TANGO_HOST=192.168.1.100:10000``
