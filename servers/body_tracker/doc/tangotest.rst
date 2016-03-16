@@ -15,7 +15,7 @@ Purpose
 =======
 This document explains the procedure to test Tango-based software
 on Windows. The basic idea is to provide clear instructions to setup all the necessary
-components to test, on a single machine, if data sent on Tango bus can be 
+components to test, on a single machine, if data sent on Tango bus can be
 read from other clients.
 
 In order to test Tango integration, VirtualBox needs to be installed on
@@ -27,7 +27,7 @@ clients, by testing if data from Windows can be read also on Ubuntu.
 Reference Documents
 ===================
 
-- [1] -- `Instructions for setting up a MS Windows machine for running body tracking`: <https://eras.readthedocs.org/en/latest/servers/body_tracker_ms/doc/setup.html>
+- [1] -- `Instructions for setting up a MS Windows machine for running body tracking`: https://eras.readthedocs.org/en/latest/servers/body_tracker_ms/doc/setup.html
 
 Version of Microsoft Windows
 ============================
@@ -85,14 +85,14 @@ Installation of Tango on Ubuntu (guest)
 =======================================
 
 The next step is to install Tango on the Ubuntu virtual machine. Please
-refer to the `Tango setup <https://eras.readthedocs.org/en/latest/doc/setup.html>`
+refer to the `Tango setup <https://eras.readthedocs.org/en/latest/doc/setup.html>`_
 page of this documentation.
 
 Set environment variable on Windows
 ===================================
 
 In the `Instructions for setting up a MS Windows machine for running body
-tracking <https://eras.readthedocs.org/en/latest/servers/body_tracker_ms/doc/setup.html>`,
+tracking <https://eras.readthedocs.org/en/latest/servers/body_tracker_ms/doc/setup.html>`_,
 you were asked to set up an address for the Tango server. What we will do here
 is to perform our tests with a simple Tango server installed in the virtual
 machine.
