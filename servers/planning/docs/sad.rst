@@ -41,15 +41,15 @@ Applicable Documents
 - [5] -- `Py4J`_
 
 
-.. _`C3 Prototype document v.4`: <http://www.erasproject.org/
+.. _`C3 Prototype document v.4`: http://www.erasproject.org/
                                   index.php?option=com_joomdoc&view=
                                   documents&path=C3+Subsystem/ERAS-
-                                  C3Prototype_v4.pdf&Itemid=148>
-.. _`EUROPA`: <code.google.com/p/europa-pso/>
+                                  C3Prototype_v4.pdf&Itemid=148
+.. _`EUROPA`: http://code.google.com/p/europa-pso/
 .. _`Software Engineering Practices Guidelines for the ERAS Project`:
-     <https://eras.readthedocs.org/en/latest/doc/guidelines.html>
-.. _`TANGO distributed control system`: <http://www.tango-controls.org/>
-.. _`Py4J`: <http://py4j.sourceforge.net/>
+     https://eras.readthedocs.org/en/latest/doc/guidelines.html
+.. _`TANGO distributed control system`: http://www.tango-controls.org/
+.. _`Py4J`: http://py4j.sourceforge.net/
 
 Reference Documents
 -------------------
@@ -131,8 +131,7 @@ Software Interfaces
 - subversion-- sudo apt-get install subversion
 - wget -- sudo apt-get install wget
 - SWIG sudo apt-get install swig
-- `libantlr3c
-   <https://code.google.com/p/europa-pso/wiki/BuildingEuropa#Install>`_
+- `libantlr3c <https://code.google.com/p/europa-pso/wiki/BuildingEuropa#Install>`_.
 
 Communication Interfaces
 ------------------------
