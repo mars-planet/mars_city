@@ -12,6 +12,7 @@ print('dev Proxy obtained')
 # Coordinate structure
 Coords = namedtuple('coords', 'x y z')
 
+
 def getJoints():
     '''returns joints information read from tango bus
     '''
@@ -36,6 +37,7 @@ def getJoints():
             right_elbow, right_hand, torso, left_hip, left_knee, left_foot,
             right_hip, right_knee, right_foot, hand_left_status, hand_right_status]
 
+
 def getRawJoints():
     '''returns unfiltered joints information read from tango bus
     '''
@@ -58,10 +60,11 @@ def getRawJoints():
             right_elbow, right_hand, torso, left_hip, left_knee, left_foot,
             right_hip, right_knee, right_foot]
 
+
 def scaledJoints(raw=False):
     '''returns joints scaled by scale factor sf'''
     sf = 1.5 / 778
-    
+
     if raw:
         return [Coords(joint.x/sf, joint.y/sf, joint.z/sf) for joint in getRawJoints()]
     else:
@@ -75,11 +78,9 @@ class SkeletonFrame(object):
     def __init__(self, frame, raw=False):
         '''Creates a skeleton frame in given frame'''
         self.frame = frame
-        self.joints = [sphere(frame = frame, radius = 50, color =
-                              color.yellow) for i in range(0, 15)]
+        self.joints = [sphere(frame=frame, radius=50, color=color.yellow) for i in range(0, 15)]
         self.joints[0].radius = 80
-        self.bones = [cylinder(frame = frame, radius = 25, color =
-                                color.green) for bone in bones]
+        self.bones = [cylinder(frame=frame, radius=25, color=color.green) for bone in bones]
         self.raw = raw
         print self.raw
 
@@ -131,14 +132,14 @@ bones = [(0, 1), (2, 5), (1, 8), (2, 3), (3, 4), (5, 6), (6, 7), (8, 12),
 if __name__ == '__main__':
     printUnfiltered = len(sys.argv) > 1 and sys.argv[1] == '--unfiltered'
 
-    displayFiltered = display( title = "Filtered" )
+    displayFiltered = display(title="Filtered")
     displayFiltered.select()
     skeletonFrame = SkeletonFrame(frame(visible=False))
-    
+
     if printUnfiltered:
-        displayUnfiltered = display( title = "Unfiltered" )
+        displayUnfiltered = display(title="Unfiltered")
         displayUnfiltered.select()
-        skeletonRawFrame = SkeletonFrame(frame(visible=False),True)
+        skeletonRawFrame = SkeletonFrame(frame(visible=False), True)
 
     while True:
         rate(20)
