@@ -72,13 +72,13 @@ TBD
 Reference Documents
 -------------------
 
-- [1] -- `Real-Time Human Pose Recognition in Parts from a Single Depth Image: <http://research.microsoft.com/apps/pubs/default.aspx?id=145347>`_
+- [1] -- `Real-Time Human Pose Recognition in Parts from a Single Depth Image <http://research.microsoft.com/apps/pubs/default.aspx?id=145347>`_
 - [2] -- `PyKinect <https://github.com/Microsoft/PTVS/wiki/PyKinect>`_
-- [3] -- `Kinect for Windows Sensor Components and Specifications: <https://msdn.microsoft.com/en-us/library/jj131033.aspx?f=255&MSPPError=-2147217396>`_
+- [3] -- `Kinect for Windows Sensor Components and Specifications <https://msdn.microsoft.com/en-us/library/jj131033.aspx?f=255&MSPPError=-2147217396>`_
 
 Glossary
 --------
-.. _glossary:
+.. glossary::
 
       ``IMS``
           Italian Mars Society
@@ -136,7 +136,7 @@ Non-functional requirements
 
 Previous version of skeletal tracking module have been based on open source
 solutions. However, using the Microsoft API provided with the
-`Kinect SDK v1.8: <https://www.microsoft.com/en-us/download/details.aspx?id=40278>`_
+`Kinect SDK v1.8 <https://www.microsoft.com/en-us/download/details.aspx?id=40278>`_
 has shown better performance, so it has been decided to use this software
 solution.
 
@@ -164,7 +164,7 @@ navigation paths that an astronaut defines by walking inside a Motivity treadmil
 
 This module should be able to track hand gestures too.
 
-An usable GUI should be provided, to allow system managers and
+An usable :term:`GUI` should be provided, to allow system managers and
 maintainers to manage multiple Kinects.
 
 Interface Requirements

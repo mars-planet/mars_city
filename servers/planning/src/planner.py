@@ -38,7 +38,7 @@ class Planner(object):
         self.logger.addHandler(hdlr)
         self.logger.setLevel(logging.INFO)
 
-        # TEST ###
+        # TEST
         cp = self.getCurrentPlan()  # Get the current plan
         self.objects = cp.objects
         self.actions = cp.actions
