@@ -20,7 +20,7 @@ Introduction
 
 Purpose
 -------
-The main aim of this project will be making a  Astronautâ€™s Digital
+The main aim of this project will be making a  Astronaut's Digital
 Assistant which will take into account all the constraints and rules
 that has been defined and plot a plan of action. It will also
 schedule all the tasks for the astronaut such that job of the
@@ -166,7 +166,7 @@ Layers
   objects and the interactions between them. This is the code embodiment
   of the EUROPA planning paradigm. It supports all services for creation,
   deletion, modification and inspection of partial plans. It maintains
-  the dynamic constraint network underlying a partialâ€“plan by delegation
+  the dynamic constraint network underlying a partial plan by delegation
   to the Constraint Engine and leverages that propagation infrastructure
   to maintain relationships between tokens and objects.
 - The Solvers module provides abstractions to support search in line
