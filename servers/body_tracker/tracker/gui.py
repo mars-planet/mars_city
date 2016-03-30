@@ -346,10 +346,9 @@ def main():
                                  i)
 
             kinects[i].depth_stream.open(nui.ImageStreamType.depth, 2,
-                                          nui.ImageResolution.resolution_640x480,
-                                          nui.ImageType.depth_and_player_index)
+                                         nui.ImageResolution.resolution_640x480,
+                                         nui.ImageType.depth_and_player_index)
             kinects[i].depth_frame_ready += lambda f, i=i: update_depth(f, i)
-
 
             kinects[i].skeleton_engine.enabled = True
             kinects[i].skeleton_frame_ready += lambda f, i=i: update_skel(f, i)

@@ -25,15 +25,18 @@ KINECT_FPS = 30
 
 sim_cond = threading.Event()
 
+
 def distance(p0, p1):
     """calculate distance between two joint/3D-tuple in the XZ plane (2D)"""
     return math.sqrt((p0[0] - p1[0])**2 + (p0[2] - p1[2])**2)
+
 
 def joint_distance(joint_1, joint_2):
     dx = joint_1.x - joint_2.x
     dy = joint_1.y - joint_2.y
     dz = joint_1.z - joint_2.z
     return math.sqrt(dx**2 + dy**2 + dz**2)
+
 
 class PyTracker(Device):
     __metaclass__ = DeviceMeta
@@ -58,12 +61,12 @@ class PyTracker(Device):
         self.tracker.get_skeleton_lock().release()
 
     # attribute to represent users' movements
-    moves = attribute(label = "Linear and angular displacement",
-                      dtype = (float,),
-                      unit = "(meters, radians)",
-                      polling_period = POLLING,
-                      max_dim_x = 2,
-                      abs_change = sys.float_info.min,
+    moves = attribute(label="Linear and angular displacement",
+                      dtype=(float,),
+                      unit="(meters, radians)",
+                      polling_period=POLLING,
+                      max_dim_x=2,
+                      abs_change=sys.float_info.min,
                       doc="An attribute for Linear and angular displacements")
 
     joints = [
@@ -106,14 +109,14 @@ class PyTracker(Device):
         exec "def read_%s(self):\n\treturn self._%s" % (joint + "_raw", joint + "_raw")
 
     # Hand status attributes
-    hand_left_status = attribute(label = "Hand Left Status",
-                                 dtype = bool,
-                                 polling_period = POLLING,
+    hand_left_status = attribute(label="Hand Left Status",
+                                 dtype=bool,
+                                 polling_period=POLLING,
                                  doc="An attribute which represents the left hand status, which can be open (True) or closed (False)")
-    hand_right_status = attribute(label = "Hand Right Status",
-                                 dtype = bool,
-                                 polling_period = POLLING,
-                                 doc="An attribute which represents the right hand status, which can be open (True) or closed (False)")
+    hand_right_status = attribute(label="Hand Right Status",
+                                  dtype=bool,
+                                  polling_period=POLLING,
+                                  doc="An attribute which represents the right hand status, which can be open (True) or closed (False)")
 
     old_skeleton = {}
     old_skeleton_init = False
@@ -190,12 +193,12 @@ class PyTracker(Device):
 
     def estimate_user_movements(self):
         # body orientation
-        d_z = self.old_skeleton["skeleton_left_hip"][2] - self.old_skeleton["skeleton_right_hip"][2];
-        d_x = self.old_skeleton["skeleton_left_hip"][0] - self.old_skeleton["skeleton_right_hip"][0];
-        old_angle = math.atan2(d_z,d_x)
+        d_z = self.old_skeleton["skeleton_left_hip"][2] - self.old_skeleton["skeleton_right_hip"][2]
+        d_x = self.old_skeleton["skeleton_left_hip"][0] - self.old_skeleton["skeleton_right_hip"][0]
+        old_angle = math.atan2(d_z, d_x)
         d_z = self._skeleton_left_hip[2] - self._skeleton_right_hip[2]
         d_x = self._skeleton_left_hip[0] - self._skeleton_right_hip[0]
-        new_angle = math.atan2(d_z,d_x)
+        new_angle = math.atan2(d_z, d_x)
         body_orientation = new_angle - old_angle
 
         # distance estimation

@@ -25,7 +25,7 @@ ERAS station environment, by reproducing body movements of a real user
 inside a Motivity treadmill.
 
 This module is based on the 3D skeleton tracking technique described at `this
-link`: <http://research.microsoft.com/apps/pubs/default.aspx?id=145347>.
+link <http://research.microsoft.com/apps/pubs/default.aspx?id=145347>`_.
 The Microsoft Kinect device generates a depth map in real time, where each
 pixel represents the distance between the Kinect sensor and the closest object
 in the scene at that pixel location. Based on this map, the Microsoft API
@@ -57,7 +57,7 @@ body tracker application.
 
    Figure 1. System architecture. One main server with MS Windows is used to
    manage up to 4 Kinects. Data from these devices are sent to the Tango bus,
-   that makes them available for any other ERAS software module. 
+   that makes them available for any other ERAS software module.
 
 Scope
 -----
@@ -72,13 +72,14 @@ TBD
 Reference Documents
 -------------------
 
-- [1] -- `Real-Time Human Pose Recognition in Parts from a Single Depth Image`: <http://research.microsoft.com/apps/pubs/default.aspx?id=145347>
-- [2] -- `PyKinect`: <https://github.com/Microsoft/PTVS/wiki/PyKinect>
-- [3] -- `Kinect for Windows Sensor Components and Specifications`: <https://msdn.microsoft.com/en-us/library/jj131033.aspx?f=255&MSPPError=-2147217396>
+- [1] -- `Real-Time Human Pose Recognition in Parts from a Single Depth Image <http://research.microsoft.com/apps/pubs/default.aspx?id=145347>`_
+- [2] -- `PyKinect <https://github.com/Microsoft/PTVS/wiki/PyKinect>`_
+- [3] -- `Kinect for Windows Sensor Components and Specifications <https://msdn.microsoft.com/en-us/library/jj131033.aspx?f=255&MSPPError=-2147217396>`_
 
 Glossary
 --------
 .. glossary::
+
       ``IMS``
           Italian Mars Society
 
@@ -115,7 +116,7 @@ of users that interact with the system is needed.
 
       ``System manager``
           An user that interacts with the system in order to install and
-          configure it, or to assist and/or monitor an astronaut 
+          configure it, or to assist and/or monitor an astronaut
           during his/her interactions with the system
 
 Overview
@@ -135,7 +136,7 @@ Non-functional requirements
 
 Previous version of skeletal tracking module have been based on open source
 solutions. However, using the Microsoft API provided with the
-`Kinect SDK v1.8`: <https://www.microsoft.com/en-us/download/details.aspx?id=40278>
+`Kinect SDK v1.8 <https://www.microsoft.com/en-us/download/details.aspx?id=40278>`_
 has shown better performance, so it has been decided to use this software
 solution.
 
@@ -161,7 +162,7 @@ An algorithm to estimate user step using skeletal joint data should be
 developed and included in this module, in order to estimate and reproduce
 navigation paths that an astronaut defines by walking inside a Motivity treadmill.
 
-This module shouble be able to track hand gestures too.
+This module should be able to track hand gestures too.
 
 An usable :term:`GUI` should be provided, to allow system managers and
 maintainers to manage multiple Kinects.
@@ -229,7 +230,7 @@ The outputted JSON file can be also used to simulate the tracking,
 without the need to use an actual device. To do this, just execute the following:
 
     ``python tracker.py eras-X --sim test.json``
-    
+
 To sum up how the ``tracker.py`` script works, here is the command line usage
 for it:
 
@@ -250,13 +251,15 @@ Hardware Interfaces
 -------------------
 
 The system needs/supports the following hardware components:
-- Up to 4 Microsoft Kinect for Xbox 360 devices
-- A Kinect Power/USB Adapter for each Kinect device
-- A modern PC/Laptop with the following minimal hardware configuration:
-	 - 32-bit (x86) or 64-bit (x64) processor
-	 - Dual-core 2.66-GHz or faster processor
-	 - Dedicated USB 2.0 bus for each Kinect
-	 - 2 GB RAM or more
+
+#. Up to 4 Microsoft Kinect for Xbox 360 devices
+#. A Kinect Power/USB Adapter for each Kinect device
+#. A modern PC/Laptop with the following minimal hardware configuration:
+
+         - 32-bit (x86) or 64-bit (x64) processor
+         - Dual-core 2.66-GHz or faster processor
+         - Dedicated USB 2.0 bus for each Kinect
+         - 2 GB RAM or more
 
 Software Interfaces
 -------------------
@@ -429,4 +432,3 @@ Postconditions
 
 Notes
 -----
-

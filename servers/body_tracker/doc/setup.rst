@@ -44,7 +44,7 @@ Installing Python
 =================
 
 To support PyKinect, you must install *Python 32-bit 2.7*.
-To install this version of Python, use this link: https://www.python.org/ftp/python/2.7/python-2.7.msi
+To install this version of Python, use `this link <https://www.python.org/ftp/python/2.7/python-2.7.msi>`_
 
 It is recommended to install this version of Python in ``C:\Python27_32bit\``.
 
@@ -68,8 +68,8 @@ Tests were done using *Visual Studio 2013*.
 The installation process will be quite long, and it will probably require some reboots.
 After that, you have to install (in this order):
 
-* `Kinect SDK 1.8`: <https://www.microsoft.com/en-us/download/details.aspx?id=40278>
-* `Kinect Developer Kit 1.8`: <https://www.microsoft.com/en-us/download/details.aspx?id=40276>
+* `Kinect SDK 1.8 <https://www.microsoft.com/en-us/download/details.aspx?id=40278>`_
+* `Kinect Developer Kit 1.8 <https://www.microsoft.com/en-us/download/details.aspx?id=40276>`_
 
 Finally, simply plug-in the Kinect and let Windows Update to install its drivers.
 
@@ -77,7 +77,7 @@ Installing PTVS and PyKinect
 ============================
 
 Python Tools for Visual Studio (PTVS) "is a free, open source plugin that
-turns Visual Studio into a Python IDE". It can be useful if you want to 
+turns Visual Studio into a Python IDE". It can be useful if you want to
 develop in Python with Visual Studio, and it also provides some facilities
 for Kinect developers.
 
@@ -87,7 +87,7 @@ Installing and use PTVS on Visual Studio
 In order to install PTVS, go to http://pytools.codeplex.com/releases and
 download the most recent version of PTVS that fits with your Visual Studio
 version. Tests were done using Visual Studio 2013 and *PTVS 2.1*, and the
-following documentation referes to these versions.
+following documentation refers to these versions.
 
 After having installed PTVS, open Visual Studio, and go to
 :guilabel:`File -> New -> Project`. Then, under
@@ -125,20 +125,21 @@ but also by following the instructions shown in Visual Studio after project
 creation. These instruction are summarized as follows, and can be generally
 used for installing any additional Python package.
 
-* In the Solution Explorer, right click on :guilabel:`Python 32-bit 2.7`
-  (under :guilabel:`Python Environments`) and then select
-  :guilabel:`Install Python Packages...`
+* In the Solution Explorer, right click on `Python 32-bit 2.7`
+  (under `Python Environments`) and then select
+  `Install Python Packages...`
 * If you want to install a Python package without explicitly download it:
     * Select :guilabel:`pip`, type the package name and then select :guilabel:`OK`
 * If you want to install a downloaded .whl package (e.g. obtained from
   http://www.lfd.uci.edu/~gohlke/pythonlibs/):
+
     * Make sure to have the package ``wheel`` installed. If not, install
       it as described above
     * Select :guilabel:`pip`, type the full path to the file (wrapped by
       double quotes) and then select :guilabel:`OK`
 
 Using the above instructions you will be able to install PyGame, by typing
-the double-quoted full path of the PyGame package downloaded from 
+the double-quoted full path of the PyGame package downloaded from
 http://www.lfd.uci.edu/~gohlke/pythonlibs/#pygame. Make sure to select the
 last 32-bit version for Pythion 2.7 (the file name should be something like
 ``pygame‑X.X.XXX‑cp27‑none‑win32.whl``.
@@ -186,7 +187,7 @@ information about Tango and the device servers (e.g. *Jive*). To use them, you m
 Configure Tango Host
 --------------------
 
-To be able to get all Tango informations, you need to specify the address of the Tango host.
+To be able to get all Tango information, you need to specify the address of the Tango host.
 Assuming that it is 198.168.1.100:10000, open the command line and type:
 
     ``set TANGO_HOST=192.168.1.100:10000``
