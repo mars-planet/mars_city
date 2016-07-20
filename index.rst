@@ -6,7 +6,7 @@ High level design docs:
 .. toctree::
    :maxdepth: 1
 
-   doc/MOCC
+   MOCC/docs
 
 .. toctree::
    :maxdepth: 3
