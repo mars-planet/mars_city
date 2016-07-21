@@ -7,8 +7,6 @@ import _ctypes
 import pygame
 import sys
 import json
-import numpy
-
 
 if sys.hexversion >= 0x03000000:
     import _thread as thread
@@ -57,13 +55,6 @@ class BodyGameRuntime(object):
         self._bodies = None
 
     def draw_body_bone(self, joints, jointPoints, color, joint0, joint1):
-        """
-        #self.draw_body_bone(joints, jointPoints, color, PyKinectV2.JointType_Head, PyKinectV2.JointType_Neck)
-        joints = body.joints
-        #print joints
-        # convert joint coordinates to color space
-        joint_points = self._kinect.body_joints_to_color_space(joints)
-        """
         joint0State = joints[joint0].TrackingState
         joint1State = joints[joint1].TrackingState
 
@@ -85,101 +76,49 @@ class BodyGameRuntime(object):
         except:  # need to catch it due to possible invalid positions (with inf)
             pass
 
-    def get_coordinates(self, joints, jointPoints, color, start, end):
-        final_coordinates = []
-        joint0State = joints[start].TrackingState
-        joint1State = joints[end].TrackingState
-
-        # both joints are not tracked
-        if (joint0State == PyKinectV2.TrackingState_NotTracked) or (joint1State == PyKinectV2.TrackingState_NotTracked):
-            return
-
-        # both joints are not *really* tracked
-        if (joint0State == PyKinectV2.TrackingState_Inferred) and (joint1State == PyKinectV2.TrackingState_Inferred):
-            return
-
-        # ok, at least one is good
-        startcordinates = (jointPoints[start].x, jointPoints[start].y)
-        endcoordinates = (jointPoints[end].x, jointPoints[end].y)
-
-        try:
-            # print start, "    ", end
-            final_coordinates.append(startcordinates)
-            final_coordinates.append(endcoordinates)
-            return final_coordinates
-        except:  # need to catch it due to possible invalid positions (with inf)
-            pass
-
-    def save_body_coodrinates(self, joints, jointPoints):
+    def save_body(self):
         # Torso
-        torso = []
-        torso.append(self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_Head, PyKinectV2.JointType_Neck))
-        torso.append(
-            self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_Neck, PyKinectV2.JointType_SpineShoulder))
-        torso.append(self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_SpineShoulder,
-                                          PyKinectV2.JointType_SpineMid))
-        torso.append(
-            self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_SpineMid, PyKinectV2.JointType_SpineBase))
-        torso.append(self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_SpineShoulder,
-                                          PyKinectV2.JointType_ShoulderRight))
-        torso.append(self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_SpineShoulder,
-                                          PyKinectV2.JointType_ShoulderLeft))
-        torso.append(
-            self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_SpineBase, PyKinectV2.JointType_HipRight))
-        torso.append(
-            self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_SpineBase, PyKinectV2.JointType_HipLeft))
+        tor1 = (PyKinectV2.JointType_Head, PyKinectV2.JointType_Neck)
+        tor2 = (PyKinectV2.JointType_Neck, PyKinectV2.JointType_SpineShoulder)
+        tor3 = (PyKinectV2.JointType_SpineShoulder, PyKinectV2.JointType_SpineMid)
+        tor4 = (PyKinectV2.JointType_SpineMid, PyKinectV2.JointType_SpineBase)
+        tor5 = (PyKinectV2.JointType_SpineShoulder, PyKinectV2.JointType_ShoulderRight)
+        tor6 = (PyKinectV2.JointType_SpineShoulder, PyKinectV2.JointType_ShoulderLeft)
+        tor7 = (PyKinectV2.JointType_SpineBase, PyKinectV2.JointType_HipRight)
+        tor8 = (PyKinectV2.JointType_SpineBase, PyKinectV2.JointType_HipLeft)
+
+        torso = tor1 + tor2 + tor3 + tor4 + tor5 + tor6 + tor7 + tor8
 
         # Right Arm
-        right_arm = []
-        right_arm.append(self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_ShoulderRight,
-                                              PyKinectV2.JointType_ElbowRight))
-        right_arm.append(self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_ElbowRight,
-                                              PyKinectV2.JointType_WristRight))
-        right_arm.append(self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_WristRight,
-                                              PyKinectV2.JointType_HandRight))
-        right_arm.append(self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_HandRight,
-                                              PyKinectV2.JointType_HandTipRight))
-        right_arm.append(self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_WristRight,
-                                              PyKinectV2.JointType_ThumbRight))
+        ra1 = (PyKinectV2.JointType_ShoulderRight, PyKinectV2.JointType_ElbowRight)
+        ra2 = (PyKinectV2.JointType_ElbowRight, PyKinectV2.JointType_WristRight)
+        ra3 = (PyKinectV2.JointType_WristRight, PyKinectV2.JointType_HandRight)
+        ra4 = (PyKinectV2.JointType_HandRight, PyKinectV2.JointType_HandTipRight)
+        ra5 = (PyKinectV2.JointType_WristRight, PyKinectV2.JointType_ThumbRight)
+        right_arm = ra1 + ra2 + ra3 + ra4 + ra5
 
-        # Left Arm
-        left_arm = []
-        left_arm.append(self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_ShoulderLeft,
-                                             PyKinectV2.JointType_ElbowLeft))
-        left_arm.append(
-            self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_ElbowLeft,
-                                 PyKinectV2.JointType_WristLeft))
-        left_arm.append(
-            self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_WristLeft, PyKinectV2.JointType_HandLeft))
-        left_arm.append(self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_HandLeft,
-                                             PyKinectV2.JointType_HandTipLeft))
-        left_arm.append(
-            self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_WristLeft,
-                                 PyKinectV2.JointType_ThumbLeft))
+        # left arm
+        la1 = (PyKinectV2.JointType_ShoulderLeft, PyKinectV2.JointType_ElbowLeft)
+        la2 = (PyKinectV2.JointType_ElbowLeft, PyKinectV2.JointType_WristLeft)
+        la3 = (PyKinectV2.JointType_WristLeft, PyKinectV2.JointType_HandLeft)
+        la4 = (PyKinectV2.JointType_HandLeft, PyKinectV2.JointType_HandTipLeft)
+        la5 = (PyKinectV2.JointType_WristLeft, PyKinectV2.JointType_ThumbLeft)
+        left_arm = la1 + la2 + la3 + la4 + la5
 
-        # Right Leg
-        right_leg = []
-        right_leg.append(
-            self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_HipRight, PyKinectV2.JointType_KneeRight))
-        right_leg.append(self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_KneeRight,
-                                              PyKinectV2.JointType_AnkleRight))
-        right_leg.append(self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_AnkleRight,
-                                              PyKinectV2.JointType_FootRight))
+        # right leg
+        rl1 = (PyKinectV2.JointType_HipRight, PyKinectV2.JointType_KneeRight)
+        rl2 = (PyKinectV2.JointType_KneeRight, PyKinectV2.JointType_AnkleRight)
+        rl3 = (PyKinectV2.JointType_AnkleRight, PyKinectV2.JointType_FootRight)
+        right_leg = rl1 + rl2 + rl3
 
-        # Left Leg
-        left_leg = []
-        left_leg.append(
-            self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_HipLeft, PyKinectV2.JointType_KneeLeft))
-        left_leg.append(
-            self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_KneeLeft, PyKinectV2.JointType_AnkleLeft))
-        left_leg.append(
-            self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_AnkleLeft, PyKinectV2.JointType_FootLeft))
+        # left leg
+        ll1 = (PyKinectV2.JointType_HipLeft, PyKinectV2.JointType_KneeLeft)
+        ll2 = (PyKinectV2.JointType_KneeLeft, PyKinectV2.JointType_AnkleLeft)
+        ll3 = (PyKinectV2.JointType_AnkleLeft, PyKinectV2.JointType_FootLeft)
+        left_leg = ll1 + ll2 + ll3
 
-        skeleton = {}
-        skeleton = {"torso": torso, "right arm": right_arm, "left arm": left_arm, "right leg": right_leg,
-                    "left leg": left_leg}
-        skeletonnd = numpy.asarray(skeleton)
-        return skeletonnd
+        skelton = {"1":torso,"2":right_arm,"3":left_arm,"4":right_leg,"5":left_leg}
+        return json.dumps(list(skelton))
 
 
     def draw_body(self, joints, jointPoints, color):
@@ -226,6 +165,7 @@ class BodyGameRuntime(object):
         self.draw_body_bone(joints, jointPoints, color, PyKinectV2.JointType_AnkleLeft, PyKinectV2.JointType_FootLeft)
 
 
+
     def draw_color_frame(self, frame, target_surface):
         target_surface.lock()
         address = self._kinect.surface_as_array(target_surface.get_buffer())
@@ -269,9 +209,9 @@ class BodyGameRuntime(object):
                     #print joints
                     # convert joint coordinates to color space 
                     joint_points = self._kinect.body_joints_to_color_space(joints)
+                    #print joint_points
                     self.draw_body(joints, joint_points, SKELETON_COLORS[i])
-                    self.save_body_coodrinates(joints,joint_points)
-
+                    self.save_body()
 
             # --- copy back buffer surface pixels to the screen, resize it if needed and keep aspect ratio
             # --- (screen size may be different from Kinect's color frame size) 
