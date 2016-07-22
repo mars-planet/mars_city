@@ -1,0 +1,14 @@
+This is a small tcp pytango server modified from the Original HMC Code.
+Please check the port no if error occurs.
+For Setup, It is the Same as Habitat Monitoring Client.Install Everything as needed by the Habitat Monitoring Client.
+https://www.youtube.com/watch?v=XZAK8PdD0Nk&list=PLBZFtXk_23VvzFo-aaXdySSN1xI2HjTXF
+https://eras.readthedocs.io/en/latest/servers/health_monitor/doc/README.html
+
+To run the Server- Type in Terminal:
+	python BlenderHabitat.py
+
+Run Server then the Client in Blender.
+
+
+
+

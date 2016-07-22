@@ -1,0 +1,9 @@
+This is a small server modified from the Original HMC Code.
+For Setup, It is the Same as Habitat Monitoring Client.
+To run the Server- Type in Terminal:
+	python BlenderHabitat.py device_address Attribute Function Time(HH:MM:SS)
+
+Example:
+python BlenderHabitat.py C3/aouda/3 air_flow Maximum 00:10:11
+
+

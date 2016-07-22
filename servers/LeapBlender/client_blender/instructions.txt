@@ -1,0 +1,29 @@
+This is a tcp client in blender developed through bpy api and the Leap API.
+It gets tracking data from the Leap Controller and performs accordingly.
+Then it acts as a TCP client and connects to the BlenderHMC server to get the data
+Install Latest Blender for Ubuntu.
+
+For Installation:
+	Get the Latest LeapMotionSDK for ubuntu.
+ 	Follow the installation steps given in the SDK.
+ 	Copy the three Files from Python3.5 Wrapper folder to /usr/share/blender/2.77/scripts/startup.
+ 	Copy the LeapSDK folder to Desktop for convenience.
+
+Connect the LeapMotionController to the PC.
+Run the Visualizer to make sure the Controller is working right.
+The client has two strings: 
+	1. Query: This tells the server whether to add a device summary or delete a device summary. 
+	2. String: This tells the device name, attribute, funtion and time of device to be added or deleted.
+
+Run the 'client.blend' file in terminal as follows:
+	open Terminal.
+	Type the following commands:
+		1:export PYTHONPATH=/pathtoLeapSDK/lib/x64/:/pathto/LeapSDK/lib/:$PYTHONPATH
+		2:export LD_LIBRARY_PATH=$LD_LIBRARY_PATH/usr/lib/Leap/
+	And then
+	Type: blender client
+
+Please make Sure server script is running in another terminal
+After that, run the script in blender by alt+P and see the output in terminal.
+
+Please check port connection if any error occurs.
