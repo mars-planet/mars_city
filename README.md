@@ -1,12 +1,12 @@
 # ![Logo Nuovo A.jpg](https://bitbucket.org/repo/G6qdMb/images/1041870328-Logo%20Nuovo%20A.jpg) #
 
-ERAS is a system of systems, and a key enabler for Mars exploration. It will serve as a state-of-the art test bed for international researchers working on the five showstoppers for Mars exploration.
+MARS CITY  is a system of systems, and a key enabler for Mars exploration. It will serve as a state-of-the art test bed for international researchers working on the five showstoppers for Mars exploration.
 
-For more information, please see: http://www.erasproject.org/
+For more information, please see: http://www.mars-city.org/
 
 ### Summary ###
 
-The European MaRs Analog Station for Advanced Technologies Integration (ERAS) project is an extension of the Mars Society Mars Analog Research Station (M.A.R.S.) program, which envisions addressing  the “Five Showstoppers for Mars” identified by the scientific community as:
+The MARS CITY  project is an extension of the Mars Society Mars Analog Research Station (M.A.R.S.) program, which envisions addressing the “Five Showstoppers for Mars” identified by the scientific community as:
 
 * Hypogravity
 * Radiation
