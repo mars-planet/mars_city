@@ -12,7 +12,7 @@ import json
 Tcp Socket connection IP and Port address. Buffer Size also defined.
 """
 TCP_IP = '127.0.0.1'
-TCP_PORT = 5040
+TCP_PORT = 2091
 BUFFER_SIZE = 10000
 
 
@@ -42,33 +42,33 @@ class Blender():
                 print data
                 if not data:
                     print "no data"
-                if data=="add" or data=="Add":                	
-	                try:
-	                	data = self.conn.recv(BUFFER_SIZE)
-	                   	response+=data
-	                   	data_arr=json.loads(response)
-	                   	self.devName=data_arr[0]
-	                   	self.attrname=data_arr[1]
-	                   	self.summary_type=data_arr[2]
-	                   	self.summ_time=data_arr[3]
-	                except:
-	                    print "error in sending data"
-                  	self.populate_startup_nodes()
-                  	self.add_device()
+                if data=="add" or data=="Add":                  
+                    try:
+                        data = self.conn.recv(BUFFER_SIZE)
+                        response+=data
+                        data_arr=json.loads(response)
+                        self.devName=data_arr[0]
+                        self.attrname=data_arr[1]
+                        self.summary_type=data_arr[2]
+                        self.summ_time=data_arr[3]
+                    except:
+                        print "error in sending data"
+                    self.populate_startup_nodes()
+                    self.add_device()
 
                 else:
-                	try:
-	                	data = self.conn.recv(BUFFER_SIZE)
-		                response+=data
-		                data_arr=json.loads(response)
-		                #print data_arr
-		                #print data
-		                self.devName=data_arr[0]
-		                self.attrname=data_arr[1]
-	                	self.delete_node()
-	                	self.populate_startup_nodes()
-                	except:
-                		print "delete error"
+                    try:
+                        data = self.conn.recv(BUFFER_SIZE)
+                        response+=data
+                        data_arr=json.loads(response)
+                        #print data_arr
+                        #print data
+                        self.devName=data_arr[0]
+                        self.attrname=data_arr[1]
+                        self.delete_node()
+                        self.populate_startup_nodes()
+                    except:
+                        print "delete error"
             except:
                 print "Receiving error"
         except:
@@ -107,11 +107,11 @@ class Blender():
         proxy = DeviceProxy(dName)
         nodes = self.db.nodes
         node = nodes.find_one({'name': dName, 'attr': dAttr})
-       	#print "inside fetch_data"
-       	
-       	#print proxy
-       	#print dName
-       	#print dAttr
+        #print "inside fetch_data"
+        
+        #print proxy
+        #print dName
+        #print dAttr
         # print node
         # echo
         #conn.close()
@@ -129,9 +129,11 @@ class Blender():
                     list(node['data']), node['function'])
                 nodes.update(
                     {'name': dName, 'attr': dAttr}, {'$set': {'summary_data': summary_data}})
-                response=dName+ " " + dAttr +" "+ node['function']+ "=" + " "+ str(node['summary_data']) 
+                response=dName+ "," + dAttr +","+ node['function']+ ","+ str(node['summary_data'])
+                #response=[str(dName),str(dAttr),str(node['function']),str(node['summary_data'])]
                 summary_value=str(node['summary_data'])
                 try:
+                    #messages=json.dumps(response)
                     self.conn.send(response.encode()) 
                 except:
                     print "could send please check connection"
@@ -244,7 +246,7 @@ class Blender():
                     sys.exit()
 
     def delete_node(self):
-    	"""
+        """
         message = "Are you sure you want to delete the node?"
         reply = QtGui.QMessageBox.question(self, 'Message', message,
                                            QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
@@ -255,10 +257,10 @@ class Blender():
             mdNode = self.devName
             mdAttr = self.attrname
             node=nodes.find_one({'name': mdNode, 'attr': mdAttr})
-            if node:	
-            	nodes.remove({'name': mdNode, 'attr': mdAttr})
+            if node:    
+                nodes.remove({'name': mdNode, 'attr': mdAttr})
             else:
-            	print"Cannot delete. Invalid device name or attribute"
+                print"Cannot delete. Invalid device name or attribute"
             """
             self.ui.treeWidget.clear()
             self.dataSourcesTreeItem = QtGui.QTreeWidgetItem(
