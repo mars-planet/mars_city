@@ -35,7 +35,7 @@ def printer(event_data):
 poll_event_id = td.subscribe_event(
     attr_name, PyTango.EventType.CHANGE_EVENT, printer)
 
-write_json(sample)
+write_json("dump",sample)
 
 # This is how you would unsubscribe from the events.
 #td.unsubscribe_event(poll_event_id)
