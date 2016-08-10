@@ -2,9 +2,7 @@ import sys
 import argparse
 import os
 import threading
-import time
 import PyTango
-import pygame
 
 import copy
 from PyTango.server import Device, DeviceMeta, attribute, command
@@ -17,7 +15,6 @@ import ctypes
 import _ctypes
 import pygame
 
-from urllib import urlopen
 import numpy
 
 # Check dlls before of all
@@ -83,7 +80,6 @@ class PyTracker(Device):
                     # print joints
                     # convert joint coordinates to color space
                     joint_points = self.skletonobj._kinect.body_joints_to_color_space(joints)
-                    # self.draw_body(joints, joint_points, SKELETON_COLORS[i])
                     self.coord_array = self.skletonobj.save_body_coodrinates(joints, joint_points)
                     self.push_change_event("skleton", self.coord_array)
 
@@ -91,9 +87,7 @@ class PyTracker(Device):
                 print("error reading skleton")
 
 
-
 class Tracker:
-    KINECTEVENT = pygame.USEREVENT
 
     device_name = None
 
@@ -109,7 +103,7 @@ class Tracker:
     def start_tango(self):
         PyTango.server.run((PyTracker,),
                            post_init_callback=self.set_tracker_in_device,
-                           args=['unity', self.device_name])
+                           args=['tango_pygame', self.device_name])
 
     def draw_body_bone(self, joints, jointPoints, color, joint0, joint1):
         """
@@ -139,6 +133,14 @@ class Tracker:
             pygame.draw.line(self._frame_surface, color, start, end, 8)
         except:  # need to catch it due to possible invalid positions (with inf)
             pass
+
+    def skleton2numpyarray(self, skleton, strlength):
+        names = ['id', 'data']
+        len1 = "S" + str(strlength) # string length accepted
+        formats = ['S9', len1]
+        dtype = dict(names=names, formats=formats)
+        array = numpy.array(skleton.items(), dtype=dtype)
+        return array
 
     def get_coordinates(self, joints, jointPoints, color, start, end):
         final_coordinates = []
@@ -230,10 +232,12 @@ class Tracker:
         left_leg.append(
             self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_AnkleLeft, PyKinectV2.JointType_FootLeft))
 
-        skeleton = {}
-        skeleton = {"torso": torso, "right arm": right_arm, "left arm": left_arm, "right leg": right_leg,
-                    "left leg": left_leg}
-        skeletonnd = numpy.asarray(skeleton)
+
+        skeleton = {"torso": str(torso), "right arm": str(right_arm), "left arm": str(left_arm),
+                    "right leg": str(right_leg),
+                    "left leg": str(left_leg)}
+        strlength = len(torso) + len(right_arm) + len(left_arm) + len(right_leg) + len(left_leg)
+        skeletonnd = self.skleton2numpyarray(skeleton, strlength)
         return skeletonnd
 
     def draw_body(self, joints, jointPoints, color):
@@ -387,6 +391,6 @@ if __name__ == '__main__':
     except:
         pass
     else:
-        print args.device,"hello"
+        print args.device, "hello"
         t = Tracker(args.device)
         t.run()
