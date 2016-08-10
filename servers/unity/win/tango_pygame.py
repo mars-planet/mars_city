@@ -83,8 +83,10 @@ class PyTracker(Device):
                     self.coord_array = self.skletonobj.save_body_coodrinates(joints, joint_points)
                     self.push_change_event("skleton", self.coord_array)
 
+
             except:
                 print("error reading skleton")
+            return self.coord_array
 
 
 class Tracker:
@@ -375,15 +377,12 @@ class Tracker:
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Read skeletal data '
-                                                 'from the Kinect or logfile, and '
-                                                 'publish them on Tango bus or save '
-                                                 'on a JSON file.')
+    parser = argparse.ArgumentParser(description='Enter the device name.')
 
     parser.add_argument('device',
                         choices=['eras1'],
-                        help='the device where this data will be published '
-                             '(eras-X)')
+                        help='the device where this data will be published'
+                             )
 
     # # parse arguments
     try:

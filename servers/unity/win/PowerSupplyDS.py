@@ -70,6 +70,7 @@ class PowerSupply(Device):
             self.set_noise(numpy.random.random_integers(100, size=(100, 100)))
             # self.get_noise()
             self.push_change_event('noise', self.noise, 100, 100)
+            return self.noise
     @command
     def get_noise(self):
         #print self.noise
