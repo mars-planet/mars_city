@@ -5,10 +5,12 @@
 
 import time
 import numpy
-
+import PyTango
 from PyTango import AttrQuality, AttrWriteType, DispLevel, DevState, DebugIt
 from PyTango.server import Device, DeviceMeta, attribute, command, run
 from PyTango.server import device_property
+
+import time
 
 
 class PowerSupply(Device):
@@ -32,7 +34,9 @@ class PowerSupply(Device):
                         doc="the power supply current")
 
     noise = attribute(label="Noise",
-                      dtype=((int,),),
+                      dtype=[[numpy.float64,
+                             PyTango.IMAGE,
+                             PyTango.READ, 100, 100],],
                       max_dim_x=1024, max_dim_y=1024)
 
     host = device_property(dtype=str)
@@ -41,6 +45,7 @@ class PowerSupply(Device):
     def init_device(self):
         Device.init_device(self)
         self.__current = 0.0
+        self.noise = numpy.random.random_integers(1000, size=(100, 100))
         self.set_state(DevState.STANDBY)
 
     def read_voltage(self):
@@ -51,12 +56,37 @@ class PowerSupply(Device):
         return self.__current
 
     def set_current(self, current):
+
         # should set the power supply current
         self.__current = current
 
+    def set_noise(self, noise):
+        self.noise = noise
+
     @DebugIt()
     def read_noise(self):
-        return numpy.random.random_integers(1000, size=(100, 100))
+        end_time = time.time() + 10
+        while time.time() < end_time:
+            self.set_noise(numpy.random.random_integers(100, size=(100, 100)))
+            # self.get_noise()
+            self.push_change_event('noise', self.noise, 100, 100)
+    @command
+    def get_noise(self):
+        #print self.noise
+        return self.noise
+
+    @command
+    def generate_noise(self):
+        end_time = time.time() + 10
+        while time.time() < end_time:
+            yield self.set_noise(numpy.random.random_integers(100, size=(100, 100)))
+
+            #self.get_noise()
+        #self.push_change_event('noise', self.noise, 100, 100)
+
+    @command
+    def publish(self):
+        self.push_change_event('noise', self.generate_noise() , 100, 100)
 
     @command
     def TurnOn(self):
