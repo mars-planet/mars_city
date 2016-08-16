@@ -1,29 +1,23 @@
-import sys
 import argparse
-import os
-import threading
-import PyTango
-
-import copy
-from PyTango.server import Device, DeviceMeta, attribute, command
-from PyTango.server import class_property, device_property
-
-from pykinect2 import PyKinectV2
-from pykinect2.PyKinectV2 import *
-from pykinect2 import PyKinectRuntime
 import ctypes
-import _ctypes
-import pygame
-
+import sys
+import PyTango
 import numpy
+import pygame
+from PyTango.server import Device, DeviceMeta, attribute
+from pykinect2 import *
+from pykinect2 import PyKinectRuntime
+from pykinect2 import PyKinectV2
+import _ctypes
+import threading
+import time
 
-# Check dlls before of all
 
 KINECT_FPS = 30
 if sys.hexversion >= 0x03000000:
-    import _thread as thread
+    pass
 else:
-    import thread
+    pass
 
 # colors for drawing different bodies
 SKELETON_COLORS = [pygame.color.THECOLORS["red"],
@@ -36,6 +30,10 @@ SKELETON_COLORS = [pygame.color.THECOLORS["red"],
 
 
 class PyTracker(Device):
+    """
+    PyTango class which is responsible for sending skeleton array.
+
+    """
     __metaclass__ = DeviceMeta
 
     POLLING = 30
@@ -45,6 +43,7 @@ class PyTracker(Device):
 
     def init_device(self):
         Device.init_device(self)
+        print "init tango"
         self.info_stream('In Python init_device method')
         self.set_state(PyTango.DevState.ON)
         self.skleton = PyTango.IMAGE
@@ -52,13 +51,27 @@ class PyTracker(Device):
     def set_skleton(self, skletonobj):
         self.skletonobj = skletonobj
 
+    # TODO!
+
+    # skleton = attribute(label="skleton",
+    #                     dtype=[[numpy.float64,
+    #                             PyTango.IMAGE,
+    #                             PyTango.READ, 100, 100], ],
+    #                     polling_period=POLLING,
+    #                     max_dim_x=1024,
+    #                     max_dim_y=1024)
+
     skleton = attribute(label="skleton",
-                        dtype=[[numpy.float64,
-                                PyTango.IMAGE,
-                                PyTango.READ, 100, 100], ],
+                        dtype=PyTango.IMAGE,
                         polling_period=POLLING,
                         max_dim_x=1024,
                         max_dim_y=1024)
+
+    # skleton = attribute(label="skleton",
+    #                     dtype=[[bytearray,numpy.int32],],
+    #                     polling_period=POLLING,
+    #                     max_dim_x=1024,
+    #                     max_dim_y=1024)
 
     def aquire_skelton_status(self):
 
@@ -68,11 +81,16 @@ class PyTracker(Device):
             return True
 
     def read_skleton(self):
+        #print self.aquire_skelton_status()
         if self.aquire_skelton_status():
             try:
-                bodies = self.skeltonobj.get_bodies()
+                #print "inside try statement"
+                #print self.skletonobj
+                self.bodies = self.skletonobj.get_bodies()
+                #print self.bodies
+                #print "after bodies"
                 for i in range(0, self._kinect.max_body_count):
-                    body = bodies.bodies[i]
+                    body = self.bodies.bodies[i]
                     if not body.is_tracked:
                         continue
 
@@ -81,19 +99,29 @@ class PyTracker(Device):
                     # convert joint coordinates to color space
                     joint_points = self.skletonobj._kinect.body_joints_to_color_space(joints)
                     self.coord_array = self.skletonobj.save_body_coodrinates(joints, joint_points)
+                    print self.coord_array
                     self.push_change_event("skleton", self.coord_array)
 
 
             except:
                 print("error reading skleton")
             return self.coord_array
+        else:
+            print("no skeleton found")
 
 
 class Tracker:
-
+    """
+    This class has all the functions required to get data from Kinect and post them on a Pygame and it also initiates
+    Tango server.
+    """
     device_name = None
 
     def get_bodies(self):
+        """
+        Gets skeletons from kinect
+        :return skeleton array:
+        """
         if self._bodies is not None:
             return self._bodies
 
@@ -103,17 +131,24 @@ class Tracker:
         device.set_skleton(self)
 
     def start_tango(self):
+        """
+        Starts the tango server. args should be equal to filename
+        :return:
+        """
         PyTango.server.run((PyTracker,),
                            post_init_callback=self.set_tracker_in_device,
                            args=['tango_pygame', self.device_name])
 
     def draw_body_bone(self, joints, jointPoints, color, joint0, joint1):
         """
-        #self.draw_body_bone(joints, jointPoints, color, PyKinectV2.JointType_Head, PyKinectV2.JointType_Neck)
-        joints = body.joints
-        #print joints
-        # convert joint coordinates to color space
-        joint_points = self._kinect.body_joints_to_color_space(joints)
+        Takes a start and an end joint to make a straight joint.
+
+        :param joints: address of joints
+        :param jointPoints: joints in colour space
+        :param color: colors to be used to plot
+        :param joint0: starting joint
+        :param joint1: Ending Joint
+        :return:
         """
         joint0State = joints[joint0].TrackingState
         joint1State = joints[joint1].TrackingState
@@ -137,14 +172,29 @@ class Tracker:
             pass
 
     def skleton2numpyarray(self, skleton, strlength):
+        """
+        Converts a dictionary(skeleton) to Numpy array
+        :param skleton: Input dictionary data type
+        :param strlength: length of the string for value of the key
+        :return: numpy array
+        """
         names = ['id', 'data']
-        len1 = "S" + str(strlength) # string length accepted
+        len1 = "S" + str(strlength)  # string length accepted
         formats = ['S9', len1]
         dtype = dict(names=names, formats=formats)
         array = numpy.array(skleton.items(), dtype=dtype)
         return array
 
     def get_coordinates(self, joints, jointPoints, color, start, end):
+        """
+
+        :param joints: Joint address
+        :param jointPoints: joint in colour space
+        :param color: color of skeleton
+        :param start: start joint
+        :param end: end joint
+        :return: list containing tuple of coordinates os tart and end
+        """
         final_coordinates = []
         joint0State = joints[start].TrackingState
         joint1State = joints[end].TrackingState
@@ -234,7 +284,6 @@ class Tracker:
         left_leg.append(
             self.get_coordinates(joints, jointPoints, PyKinectV2.JointType_AnkleLeft, PyKinectV2.JointType_FootLeft))
 
-
         skeleton = {"torso": str(torso), "right arm": str(right_arm), "left arm": str(left_arm),
                     "right leg": str(right_leg),
                     "left leg": str(left_leg)}
@@ -243,6 +292,13 @@ class Tracker:
         return skeletonnd
 
     def draw_body(self, joints, jointPoints, color):
+        """
+
+        :param joints: Joints
+        :param jointPoints: joint point in color space
+        :param color: color of skeleton
+        :return: none
+        """
         # Torso
         self.draw_body_bone(joints, jointPoints, color, PyKinectV2.JointType_Head, PyKinectV2.JointType_Neck)
         self.draw_body_bone(joints, jointPoints, color, PyKinectV2.JointType_Neck, PyKinectV2.JointType_SpineShoulder)
@@ -286,6 +342,12 @@ class Tracker:
         self.draw_body_bone(joints, jointPoints, color, PyKinectV2.JointType_AnkleLeft, PyKinectV2.JointType_FootLeft)
 
     def draw_color_frame(self, frame, target_surface):
+        """
+        utility function for pygame to write the color frame to the print buffer of pygame
+        :param frame:
+        :param target_surface:
+        :return:
+        """
         target_surface.lock()
         address = self._kinect.surface_as_array(target_surface.get_buffer())
         ctypes.memmove(address, frame.ctypes.data, frame.size)
@@ -294,6 +356,15 @@ class Tracker:
 
     def __init__(self, device_name):
         self.device_name = device_name
+        main_thread = threading.Thread(target=self.run())
+        main_thread.daemon = True
+        main_thread.run()
+        time.sleep(0.1)
+        print "starting tango"
+        self.start_tango()
+
+
+    def run(self):
         pygame.init()
 
         self._clock = pygame.time.Clock()
@@ -315,9 +386,6 @@ class Tracker:
 
         # here we will store skeleton data
         self._bodies = None
-        self.start_tango()
-
-    def run(self):
         # -------- Main Program Loop -----------
         while not self._done:
             # --- Main event loop
@@ -329,16 +397,12 @@ class Tracker:
                     self._screen = pygame.display.set_mode(event.dict['size'],
                                                            pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE, 32)
 
-            # --- Game logic should go here
-
-            # --- Getting frames and drawing
             # --- Woohoo! We've got a color frame! Let's fill out back buffer surface with frame's data
             if self._kinect.has_new_color_frame():
                 frame = self._kinect.get_last_color_frame()
                 self.draw_color_frame(frame, self._frame_surface)
                 frame = None
-
-            # --- Cool! We have a body frame, so can get skeletons
+            # We have a body frame, so can get skeletons
             if self._kinect.has_new_body_frame():
                 self._bodies = self._kinect.get_last_body_frame()
 
@@ -350,14 +414,11 @@ class Tracker:
                         continue
 
                     joints = body.joints
-                    # print joints
                     # convert joint coordinates to color space
                     joint_points = self._kinect.body_joints_to_color_space(joints)
                     self.draw_body(joints, joint_points, SKELETON_COLORS[i])
                     # self.save_body_coodrinates(joints,joint_points)
 
-            # --- copy back buffer surface pixels to the screen, resize it if needed and keep aspect ratio
-            # --- (screen size may be different from Kinect's color frame size)
             h_to_w = float(self._frame_surface.get_height()) / self._frame_surface.get_width()
             target_height = int(h_to_w * self._screen.get_width())
             surface_to_draw = pygame.transform.scale(self._frame_surface, (self._screen.get_width(), target_height))
@@ -382,7 +443,7 @@ if __name__ == '__main__':
     parser.add_argument('device',
                         choices=['eras1'],
                         help='the device where this data will be published'
-                             )
+                        )
 
     # # parse arguments
     try:
@@ -392,4 +453,3 @@ if __name__ == '__main__':
     else:
         print args.device, "hello"
         t = Tracker(args.device)
-        t.run()
