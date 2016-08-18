@@ -75,9 +75,7 @@ class Blender():
             print "connection couldn't be established to BlenderLeap Client"
             self.sock.close()
             sys.exit()
-            pass
-        #print self.devName,self.attrname,self.summary_type,self.summ_time
-        
+            pass        
     def populate_startup_nodes(self):
         nodes = self.db.nodes
         print dt.now(), ":", 'populating leaves'
@@ -107,14 +105,6 @@ class Blender():
         proxy = DeviceProxy(dName)
         nodes = self.db.nodes
         node = nodes.find_one({'name': dName, 'attr': dAttr})
-        #print "inside fetch_data"
-        
-        #print proxy
-        #print dName
-        #print dAttr
-        # print node
-        # echo
-        #conn.close()
         temp = proxy[dAttr].value
         if node != None:
             try:
@@ -130,10 +120,8 @@ class Blender():
                 nodes.update(
                     {'name': dName, 'attr': dAttr}, {'$set': {'summary_data': summary_data}})
                 response=dName+ "," + dAttr +","+ node['function']+ ","+ str(node['summary_data'])
-                #response=[str(dName),str(dAttr),str(node['function']),str(node['summary_data'])]
                 summary_value=str(node['summary_data'])
                 try:
-                    #messages=json.dumps(response)
                     self.conn.send(response.encode()) 
                 except:
                     print "could send please check connection"
@@ -165,48 +153,8 @@ class Blender():
         nodes = self.db.nodes
         summary=summary_type
         pattern = re.compile("^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]$")
-        #print "here"
-        #print summary
-        #print summ_time
-        #print attrname
-        """
-        if self.addingSummary == True:
-            print "Adding summary"
-            node = nodes.find_one({'name': self.summaryNode, 'attr': ""})
-            summaryName = str(self.ui.summaryNameLE.text())
-            if summaryName == "":
-                QtGui.QErrorMessage(self).showMessage(
-                    "Summary name cannot be empty. Please enter summary name")
-                return
-            children = []
-            print summaryName
-            model = self.ui.devicesListView.model()
-            for i in range(model.rowCount()):
-                item = model.item(i)
-                itemText = str(item.text())
-                if item.checkState() == QtCore.Qt.Checked:
-                    children.append(itemText)
-            if len(children) == 0:
-                QtGui.QErrorMessage(self).showMessage(
-                    "Select at least one child for summary!")
-                return
-            summary_children = node['summary_children']
-            print summary_children
-            summary_children[summaryName] = [children, summary]
-            print summary_children
-            nodes.update({'name': self.summaryNode, 'attr': ""},
-                         {'$set': {'summary_children': summary_children}})
-            self.addingSummary = False
-            self.ui.groupBox.hide()
-            self.ui.comboBox.hide()
-            self.ui.attrLabel.hide()
-            self.ui.devicesListView.hide()
-            self.ui.summaryNameLE.hide()
-            return
-        """    
         sourceType = self.sourceType
         print "logging:", sourceType
-        #self.ui.minButton.setChecked(True)
         if sourceType == "leaf":
             timeField = summ_time
             if len(timeField) == 0:
@@ -232,10 +180,7 @@ class Blender():
                 'summary_data': summary_data,
                 'summary_children': summary_children
                 }
-
-        #print node
         node_id = nodes.insert_one(node).inserted_id
-        #print "inserted node:", nodes.find_one({'_id': node_id})
         if sourceType == "leaf":
             t = threading.Thread(
                 target=self.aggregate_data, args=([self.devName + " - " + attr]))
@@ -246,11 +191,6 @@ class Blender():
                     sys.exit()
 
     def delete_node(self):
-        """
-        message = "Are you sure you want to delete the node?"
-        reply = QtGui.QMessageBox.question(self, 'Message', message,
-                                           QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-        """
         print "reached"
         if 1:
             nodes = self.db.nodes
@@ -261,21 +201,6 @@ class Blender():
                 nodes.remove({'name': mdNode, 'attr': mdAttr})
             else:
                 print"Cannot delete. Invalid device name or attribute"
-            """
-            self.ui.treeWidget.clear()
-            self.dataSourcesTreeItem = QtGui.QTreeWidgetItem(
-                self.ui.treeWidget)
-            self.dataSourcesTreeItem.setText(0, "Data Sources")
-            self.build_tree()
-            root = self.ui.treeWidget.invisibleRootItem()
-            try:
-                item = root.child(0)
-                item = item.child(0)
-            except Exception as ex:
-                print ex
-                item = root.child(0)
-            self.ui.treeWidget.setCurrentItem(item)
-            """
 
     def find_summary(self, data, function):
         if function == "Minimum":
@@ -303,7 +228,6 @@ class Blender():
                 self.proxy = DeviceProxy(devName)
                 print "Device added success"
                 dev_attrs = self.proxy.get_attribute_list()
-                #print dev_attrs
                 if nodes.find_one({'name': devName, 'attr':attrname}) != None:
                     print " attribute already added before sorry"
                 else:
