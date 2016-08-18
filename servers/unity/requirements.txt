@@ -1,0 +1,6 @@
+#
+####### example-requirements.txt #######
+#
+pykinect2
+http://www.lfd.uci.edu/~gohlke/pythonlibs/zpcorkgj/numpy-1.11.1+mkl-cp27-cp27m-win_amd64.whl
+PyTango
