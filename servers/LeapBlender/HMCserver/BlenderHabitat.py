@@ -19,7 +19,6 @@ BUFFER_SIZE = 10000
 class Blender():
 
     def __init__(self):
-        print "inside init"
         client = MongoClient('localhost', 27017)
         self.db = client.habitatdb
         self.threads = []
@@ -29,7 +28,7 @@ class Blender():
         self.summaryNode = None
         nodes = self.db.nodes
         self.checkedLeaves = []
-        try:
+        try: #code to connect to client and recieve first few data items
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.bind((TCP_IP, TCP_PORT))
             self.sock.listen(1)
@@ -60,9 +59,7 @@ class Blender():
                     try:
                         data = self.conn.recv(BUFFER_SIZE)
                         response+=data
-                        data_arr=json.loads(response)
-                        #print data_arr
-                        #print data
+                        data_arr=json.loads(response) #to recieve data as an array of strings from client
                         self.devName=data_arr[0]
                         self.attrname=data_arr[1]
                         self.delete_node()
@@ -75,7 +72,9 @@ class Blender():
             print "connection couldn't be established to BlenderLeap Client"
             self.sock.close()
             sys.exit()
-            pass        
+            pass  
+
+
     def populate_startup_nodes(self):
         nodes = self.db.nodes
         print dt.now(), ":", 'populating leaves'
@@ -92,12 +91,11 @@ class Blender():
                     t = threading.Thread(target=self.aggregate_data,
                                          args=([device]))
                     t.start()
-                    #self.update_tree(self.dataSourcesTreeItem, i['name'],
-                                     #i['attr'])
                     self.checkedLeaves.append(device)
                 except Exception as ex:
                     print "Warning"+ "Start the device server" + device
     
+
     def fetch_data(self, devName):
         temp = devName.split(" - ")
         dName = temp[0]
@@ -136,14 +134,15 @@ class Blender():
         else:
             print devName, "deleted"
            
+
     def aggregate_data(self, devName):
         timer = threading.Timer(3, self.fetch_data, [devName])
         timer.start()
     
+
     def add_summary(self):
         summaryTime = ""
         max_len = 0
-        #argv=sys.argv
         attrname=self.attrname
         summary_type=self.summary_type
         summ_time=self.summ_time
@@ -191,6 +190,7 @@ class Blender():
                     sys.exit()
 
     def delete_node(self):
+    	#Delte a particular node when requested
         print "reached"
         if 1:
             nodes = self.db.nodes
@@ -203,6 +203,7 @@ class Blender():
                 print"Cannot delete. Invalid device name or attribute"
 
     def find_summary(self, data, function):
+    	#Function to return the required value 
         if function == "Minimum":
             return min(data)
         elif function == "Maximum":
@@ -215,13 +216,12 @@ class Blender():
             return value
             
     def add_device(self):
+    	# This Function is called to add a device with the given device name and address to get the required value
         print "Add new device"
-        #argv=sys.argv
         devName = self.devName
         attrname=self.attrname
         self.devName = devName
         nodes = self.db.nodes
-        #print devName
         if 1:
             try:
                 self.sourceType = "leaf"
@@ -240,5 +240,4 @@ class Blender():
 
 
 if __name__ == "__main__":
-    #print"asd"
     myapp = Blender()
