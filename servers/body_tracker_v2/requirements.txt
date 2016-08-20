@@ -17,7 +17,6 @@ Pillow==3.3.0
 Polygon2==2.0.6
 PyAutoGUI==0.9.33
 pygame==1.9.2a0
-pykinect==2.1
 pykinect2==0.1.0
 PyKinectTk==0.1
 PyMsgBox==1.0.3
