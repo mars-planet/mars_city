@@ -1,5 +1,4 @@
 pykinect2==0.1.0
 PyTango
-pygame==1.9.2a0
-Cython==0.24
-http://www.lfd.uci.edu/~gohlke/pythonlibs/zpcorkgj/numpy-1.11.1+mkl-cp27-cp27m-win_amd64.whl
+pygame>=1.9.2a0
+Cython>=0.24
