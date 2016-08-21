@@ -11,8 +11,6 @@ Change Record
 - 12 July 2016
 - 15 August 2016
 
-   .. literalinclude:: ../../servers/servername/NEWS
-
 
 Introduction
 ============
@@ -26,16 +24,11 @@ The data that is being retrieved from kinect include
 - Hd RGB image of the user.
 - Skeleton joint coordinates.
 
-.. image:: fourplusone.jpg
 
 Scope
 -----
 
 Describes the scope of this requirements specification.
-
-Applicable Documents
---------------------
-
 
 
 Reference Documents
@@ -83,11 +76,6 @@ Use Case View (functional requirements)
 
 This project can bu used to further develop advanced applications with Unity game engine as it provides the postion of
 skeleton which can be used to plot the person on a virtual environment.
-
-
-Interface Requirements
-======================
-
 
 
 

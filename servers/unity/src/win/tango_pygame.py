@@ -12,7 +12,6 @@ import _ctypes
 import threading
 import time
 
-
 KINECT_FPS = 30
 if sys.hexversion >= 0x03000000:
     pass
@@ -81,14 +80,14 @@ class PyTracker(Device):
             return True
 
     def read_skleton(self):
-        #print self.aquire_skelton_status()
+        # print self.aquire_skelton_status()
         if self.aquire_skelton_status():
             try:
-                #print "inside try statement"
-                #print self.skletonobj
+                # print "inside try statement"
+                # print self.skletonobj
                 self.bodies = self.skletonobj.get_bodies()
-                #print self.bodies
-                #print "after bodies"
+                # print self.bodies
+                # print "after bodies"
                 for i in range(0, self._kinect.max_body_count):
                     body = self.bodies.bodies[i]
                     if not body.is_tracked:
@@ -362,7 +361,6 @@ class Tracker:
         time.sleep(0.1)
         print "starting tango"
         self.start_tango()
-
 
     def run(self):
         pygame.init()
