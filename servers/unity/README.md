@@ -89,6 +89,6 @@ This project is licensed under the Mars City License - see the [LICENSE.md](http
 
 ## Acknowledgments
 
-* Vito
-* Pykinect2
+* Vito and Antonio.
+* Pykinect2 team.
 
