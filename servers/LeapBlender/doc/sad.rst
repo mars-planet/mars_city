@@ -42,6 +42,7 @@ Reference Documents
 `ERAS VR Software Architecture Document <https://eras.readthedocs.io/en/latest/servers/erasvr/doc/sad.html>`_
 
 
+
 Glossary
 --------
 
@@ -102,4 +103,54 @@ Use Case View (functional requirements)
 
 The goal of this project is to build an interactive HUD which receives data from the Habitat Monitoring client as requested from the user and displays the data on the V-ERAS environment.
 
+Use Case: Activate the HUD by swipe up gesture.
+===========================================================
+The user activates the HUD by swiping in the upward direction which is detected by the leap motion controller. 
 
+Actors
+------
+Users running the V-ERAS simulation.
+Leap Motion Controller.
+Blender Game Engine Script
+
+
+Priority
+--------
+High
+
+Preconditions
+-------------
+Leap Motion Server should be on and running. 
+
+Basic Course
+------------
+#. The User swipes in the upward direction in front of the Leap Motion Controller.
+#. The HUD is displayed on the V-ERAS environment.
+
+
+Alternate Course
+----------------
+<Step-by-step description of the alternate course>
+
+Exception Course
+----------------
+<Step-by-step description of the exception course>
+
+Postconditions
+--------------
+<List of postconditions (if apply)>
+
+User Interfaces
+---------------
+
+The User uses hand gestures such as swipe up,swipe down etc which are recognized by the Leap Motion Controller to interact with the HUD. The leap API on detecting a swipe performs certain actions pre-defined.
+
+
+CLI (Command Line Interface)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Habitat Monitoring Client is modified to make it a Server to send data to the HUD. It is a small TCP pytango server modified from the Original HMC Code.
+For Setup, It is the Same as Habitat Monitoring Client.
+Install Everything as needed by the Habitat Monitoring Client.
+To run the Server- Type in Terminal:
+python BlenderHabitat.py
