@@ -49,7 +49,7 @@ Project structure:
 ### Installing
 
 - Install all the dependencies mentioned above.
-- For Tango installation follow [this](http://shrigsoc.blogspot.in/2016/07/update-on-10-july-tango-installation.html) link since the default installation guide by tango is outdated and dosen't work with newer MySQL versions.
+- For Tango installation follow [this](https://github.com/mars-planet/mars_city/blob/master/servers/body_tracker_v2/src/win/PyTango%20Setup/PyTango%20Installation%20Instructions/Instructions.txt) link since the default installation guide by tango is outdated and dosen't work with newer MySQL versions.
 Once this installation is done sucessfully, JIVE which is an application provided by tango should open sucessfully.
 - Install the python dependencies using ``` pip install -r requirements.txt``` in body_tracker_v2 server repository.
  

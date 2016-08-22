@@ -51,7 +51,7 @@ After installation you can edit the MySQL password.
 
     - **3.2 Create environment variables.**
 
-     2 new environment variables has to be created to run create-db.bat
+        2 new environment variables has to be created to run create-db.bat
         **3-2-1 MYSQL_USER**
 
         This should be ```root```
@@ -63,23 +63,23 @@ After installation you can edit the MySQL password.
 
     - **3.3 MODIFY PATH**
 
-    Add this to windows path for running sql queries.
-    C:\Program Files (x86)\MySQL\MySQL Server 5.7\bin
+        Add this to windows path for running sql queries.
+        C:\Program Files (x86)\MySQL\MySQL Server 5.7\bin
 
     - **3.4 Create the TANGO database tables**
 
-    Be sure the mysql server is running, normally it should.
-    Execute %TANGO_ROOT%\share\tango\db\create_db.bat.
+        Be sure the mysql server is running, normally it should.
+        Execute %TANGO_ROOT%\share\tango\db\create_db.bat.
 
     - **3.5 Start the TANGO database:**
 
-    execute %TANGO_ROOT%\bin\start-db.bat test -v4
-    the console should show
-    "Ready to accept request" on successful installation.
+        Execute %TANGO_ROOT%\bin\start-db.bat test -v4
+        the console should show
+        "Ready to accept request" on successful installation.
 
     - **3.6 Start JIVE**
 
-    Now you can test TANGO with the JIVE tool, from the Tango menu, or by typing the following command on a DOS windows :
+        Now you can test TANGO with the JIVE tool, from the Tango menu, or by typing the following command on a DOS windows :
         %TANGO_ROOT%\bin\start-jive.bat
 
 
