@@ -25,11 +25,11 @@ Describes the scope of this requirements specification.
 
 Applicable Documents
 --------------------
-- [1] -- `Leap Motion Controller Installation for Python`
+- [1] -- `Leap Motion Controller Installation for Python`_
 - [2] -- `How to Pytango`_
 - [3] -- `PyQt4 Reference Guide`_
 
-.. _`How to use Tango Controls`: https://community.leapmotion.com/t/leap-motion-sdk-with-python-3-5-in-linux-tutorial/5249
+.. _`Leap Motion Controller Installation for Python`: https://community.leapmotion.com/t/leap-motion-sdk-with-python-3-5-in-linux-tutorial/5249
 .. _`How to PyTango`: http://www.tango-controls.org/resources/howto/how-pytango/
 .. _`PyQt4 Reference Guide`: http://pyqt.sourceforge.net/Docs/PyQt4/
 
