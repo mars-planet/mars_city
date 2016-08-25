@@ -101,6 +101,47 @@ Use Case View (functional requirements)
 
 The goal of this project is to build an interactive HUD which receives data from the Habitat Monitoring client as requested from the user and displays the data on the V-ERAS environment.
 
+Use Case: Activate the HUD by swipe up gesture.
+===========================================================
+The user activates the HUD by swiping in the upward direction which is detected by the leap motion controller. The user then needs to inform wheter to add a device or delete a device from the habitat monitoring client
+
+.. image:: images/Usecase.png
+
+Actors
+------
+Users running the V-ERAS simulation.
+Leap Motion Controller.
+Blender Game Engine Client.
+Habitat Monitoring Server
+
+
+Priority
+--------
+High
+
+Preconditions
+-------------
+Leap Motion Server should be on and running. 
+Habitat Monitor Server Should be on from terminal
+
+Basic Course
+------------
+#. The User swipes in the upward direction in front of the Leap Motion Controller.
+#. The HUD is displayed on the V-ERAS environment with connected message.
+#. The User then uses his hands to signal whether he wants to add a device or delete one. ( 1.Add 2.Delete)
+#. The Blender Client then sends the device address to Habitat Monitor Server.
+#. The Server then polls the Device's Tango to recieve data and sends it back to Blender Client via Socket Connection
+#. The HUD displays the appropriate data.
+
+
+Alternate Course
+----------------
+None
+
+
+Postconditions
+--------------
+The server returns the data requested or an empty array if no data is available.
 
 User Interfaces
 ---------------
