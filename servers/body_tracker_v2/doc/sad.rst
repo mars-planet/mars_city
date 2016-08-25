@@ -23,6 +23,7 @@ The data that is being retrieved from kinect include
 - Full HD RGB image of the user (color and body frame)
 - Depth frame
 
+.. image:: images/body_tracker_v2.png
 
 Scope
 -----
