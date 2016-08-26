@@ -74,6 +74,8 @@ Architectural Requirements
 ==========================
 This section describes the requirements which are important for developing the software architecture.
 
+.. image:: images/architecture.PNG
+
 Non-functional requirements
 ---------------------------
 
