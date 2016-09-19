@@ -116,8 +116,7 @@ class Blender():
                     list(node['data']), node['function'])
                 nodes.update(
                     {'name': dName, 'attr': dAttr}, {'$set': {'summary_data': summary_data}})
-                response = dName + "," + dAttr + "," + \
-                    node['function'] + "," + str(node['summary_data'])
+                response=dName+ "," + dAttr +","+ node['function']+ ","+ str(node['summary_data'])
                 summary_value = str(node['summary_data'])
                 try:
                     self.conn.send(response.encode())
