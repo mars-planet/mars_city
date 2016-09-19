@@ -69,8 +69,8 @@ def _swig_repr(self):
         strthis = "proxy of " + self.this.__repr__()
     except:
         strthis = ""
-    return "<%s.%s; %s >" % (self.__class__.__module__,
-                             self.__class__.__name__, strthis,)
+    return "<%s.%s; %s >" % (self.__class__.__module__, self.__class__.__name__, strthis,)
+
 
 try:
     _object = object
