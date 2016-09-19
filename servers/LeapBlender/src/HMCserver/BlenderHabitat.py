@@ -28,28 +28,28 @@ class Blender():
         self.summaryNode = None
         nodes = self.db.nodes
         self.checkedLeaves = []
-        try: #code to connect to client and recieve first few data items
+        try:  # code to connect to client and recieve first few data items
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.bind((TCP_IP, TCP_PORT))
             self.sock.listen(1)
             self.conn, self.addr = self.sock.accept()
             print 'Connection ESTAblished successfully to BlenderLeap Client'
             time.sleep(3)
-            response="".encode()
-            try:                   
+            response = "".encode()
+            try:
                 data = self.conn.recv(BUFFER_SIZE)
                 print data
                 if not data:
                     print "no data"
-                if data=="add" or data=="Add":                  
+                if data == "add" or data == "Add":
                     try:
                         data = self.conn.recv(BUFFER_SIZE)
-                        response+=data
-                        data_arr=json.loads(response)
-                        self.devName=data_arr[0]
-                        self.attrname=data_arr[1]
-                        self.summary_type=data_arr[2]
-                        self.summ_time=data_arr[3]
+                        response += data
+                        data_arr = json.loads(response)
+                        self.devName = data_arr[0]
+                        self.attrname = data_arr[1]
+                        self.summary_type = data_arr[2]
+                        self.summ_time = data_arr[3]
                     except:
                         print "error in sending data"
                     self.populate_startup_nodes()
@@ -58,10 +58,11 @@ class Blender():
                 else:
                     try:
                         data = self.conn.recv(BUFFER_SIZE)
-                        response+=data
-                        data_arr=json.loads(response) #to recieve data as an array of strings from client
-                        self.devName=data_arr[0]
-                        self.attrname=data_arr[1]
+                        response += data
+                        # to recieve data as an array of strings from client
+                        data_arr = json.loads(response)
+                        self.devName = data_arr[0]
+                        self.attrname = data_arr[1]
                         self.delete_node()
                         self.populate_startup_nodes()
                     except:
@@ -72,8 +73,7 @@ class Blender():
             print "connection couldn't be established to BlenderLeap Client"
             self.sock.close()
             sys.exit()
-            pass  
-
+            pass
 
     def populate_startup_nodes(self):
         nodes = self.db.nodes
@@ -93,8 +93,7 @@ class Blender():
                     t.start()
                     self.checkedLeaves.append(device)
                 except Exception as ex:
-                    print "Warning"+ "Start the device server" + device
-    
+                    print "Warning" + "Start the device server" + device
 
     def fetch_data(self, devName):
         temp = devName.split(" - ")
@@ -117,40 +116,39 @@ class Blender():
                     list(node['data']), node['function'])
                 nodes.update(
                     {'name': dName, 'attr': dAttr}, {'$set': {'summary_data': summary_data}})
-                response=dName+ "," + dAttr +","+ node['function']+ ","+ str(node['summary_data'])
-                summary_value=str(node['summary_data'])
+                response = dName + "," + dAttr + "," + \
+                    node['function'] + "," + str(node['summary_data'])
+                summary_value = str(node['summary_data'])
                 try:
-                    self.conn.send(response.encode()) 
+                    self.conn.send(response.encode())
                 except:
                     print "could send please check connection"
                     self.sock.close()
                     sys.exit()
                     pass
-                print response 
+                print response
                 threading.Timer(4, self.fetch_data, [devName]).start()
             except Exception as ex:
                 print ex
                 print node
         else:
             print devName, "deleted"
-           
 
     def aggregate_data(self, devName):
         timer = threading.Timer(3, self.fetch_data, [devName])
         timer.start()
-    
 
     def add_summary(self):
         summaryTime = ""
         max_len = 0
-        attrname=self.attrname
-        summary_type=self.summary_type
-        summ_time=self.summ_time
+        attrname = self.attrname
+        summary_type = self.summary_type
+        summ_time = self.summ_time
         children = ""
         attr = ""
         summary_children = {}
         nodes = self.db.nodes
-        summary=summary_type
+        summary = summary_type
         pattern = re.compile("^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]$")
         sourceType = self.sourceType
         print "logging:", sourceType
@@ -186,24 +184,24 @@ class Blender():
             try:
                 t.start()
             except (KeyboardInterrupt, SystemExit):
-                    cleanup_stop_thread();
-                    sys.exit()
+                cleanup_stop_thread()
+                sys.exit()
 
     def delete_node(self):
-    	#Delte a particular node when requested
+        # Delte a particular node when requested
         print "reached"
         if 1:
             nodes = self.db.nodes
             mdNode = self.devName
             mdAttr = self.attrname
-            node=nodes.find_one({'name': mdNode, 'attr': mdAttr})
-            if node:    
+            node = nodes.find_one({'name': mdNode, 'attr': mdAttr})
+            if node:
                 nodes.remove({'name': mdNode, 'attr': mdAttr})
             else:
                 print"Cannot delete. Invalid device name or attribute"
 
     def find_summary(self, data, function):
-    	#Function to return the required value 
+        # Function to return the required value
         if function == "Minimum":
             return min(data)
         elif function == "Maximum":
@@ -214,12 +212,13 @@ class Blender():
             except ZeroDivisionError:
                 value = 0
             return value
-            
+
     def add_device(self):
-    	# This Function is called to add a device with the given device name and address to get the required value
+        # This Function is called to add a device with the given device name
+        # and address to get the required value
         print "Add new device"
         devName = self.devName
-        attrname=self.attrname
+        attrname = self.attrname
         self.devName = devName
         nodes = self.db.nodes
         if 1:
@@ -228,7 +227,7 @@ class Blender():
                 self.proxy = DeviceProxy(devName)
                 print "Device added success"
                 dev_attrs = self.proxy.get_attribute_list()
-                if nodes.find_one({'name': devName, 'attr':attrname}) != None:
+                if nodes.find_one({'name': devName, 'attr': attrname}) != None:
                     print " attribute already added before sorry"
                 else:
                     self.add_summary()
@@ -236,7 +235,7 @@ class Blender():
                 print ex
                 print "Incorrect Device Address"
         else:
-            print "Warning"+"Device not added"
+            print "Warning" + "Device not added"
 
 
 if __name__ == "__main__":
