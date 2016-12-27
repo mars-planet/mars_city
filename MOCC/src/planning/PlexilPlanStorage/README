@@ -1,0 +1,63 @@
+Class : PlexilPlanStorage
+InstanceName : PPSInstance1
+DeviceName : Planning/PlexilPlanStorage/deviceID1
+
+It is assumed that the Plexil Store is a directory:
+--
+	--RoverAPlans
+		--Rplan1.plx
+		--interface_config.xml
+		--scripts
+			--script1.psx
+			--script2.psx
+	--RoverBPlans
+		--
+		--
+	--RoverCPlans
+		--
+		--		
+
+Class Properties:
+- StorageDirPath
+type : DevString
+stores the path to the top level of the Plexil store
+Eg: "/root/PlexilStorage/"
+
+Attributes:
+- IsStorageDirEmpty
+type : readonly Bool
+when this variable is read, it checks if the StorageDirPath is empty
+returns true if empty else returns false
+can be used when the code for changing StorageDirPath is implemented on the client side - if the dir is not empty (which is known by reading this attribute), the files have to be copied before changing the StorageDirPath property.
+
+Commands:
+- AddPlan
+- AddConfigFile
+- AddScript
+argin : DevString - source;destination
+where source is the complete file path, destination is the path within the StorageDirPath - eg: "RoverAPlans/Rplan1.plx" or simple "RoverAPlans/"
+executes a 'cp' command on the specified file.
+argout : bool - indicates success/failure of the cp action
+Though as of now all the three perform same action, we could have support to compile plan files, compile script files using plexilc, while config files (both debug and interface) need no compilation. Also support for library files can be added.
+- DeleteFile
+argin : DevString - path/to/filename
+here argin is again the path within StorageDirPath - so the path up until StorageDirPath can be omitted like above.
+argout : bool - indicates success/failure of the 'rm' action
+- RetreiveFile
+argin : DevString - source;destination
+where source is path within StorageDirPath, destination is complete path
+again executes cp
+argout : bool - indicates success/failure of the 'cp' action
+-ListDir
+argin : DevString - if "stdout" - prints output of "ls -l" terminal
+else prints output of "ls -l" to the file specified
+Basically, argin is appended to "ls -l > " if is not "stdout"
+No argout
+All the commands can be modified to use IPC as per client requirements.
+
+To run:
+Register the device on Jive with the parameters at the top of this README.
+Start the server with "python PlexilPlanStorage PPSInstance1"
+Update on Jive.
+Also for the first time, go to "Class" tab, select "PlexilPlanStorage" and add class property "StorageDirPath" with the value you want for the storage path - make sure the directory exists.
+If "StorageDirPath" is not set, exceptions will be thrown.
