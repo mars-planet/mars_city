@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="ASCII"?>
+<pogoDsl:PogoSystem xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pogoDsl="http://www.esrf.fr/tango/pogo/PogoDsl">
+  <classes name="PlexilPlanStorage" pogoRevision="8.1">
+    <description description="A Tango interface to store and retrieve Plexil plans." title="Plexil Plan Storage" sourcePath="/root/Desktop/PlexilPlanStorage" language="Python" filestogenerate="XMI   file,Code files" license="GPL" hasMandatoryProperty="false" hasConcreteProperty="false" hasAbstractCommand="false" hasAbstractAttribute="false">
+      <inheritances classname="Device_Impl" sourcePath=""/>
+      <identification contact="at gmail.com - dipankar1995" author="dipankar1995" emailDomain="gmail.com" classFamily="InputOutput" siteSpecific="" platform="All Platforms" bus="Not Applicable" manufacturer="IMS" reference=""/>
+    </description>
+    <classProperties name="StorageDirPath" description="Path to the Plexil Storage Directory">
+      <type xsi:type="pogoDsl:StringType"/>
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+      <DefaultPropValue>/root/</DefaultPropValue>
+    </classProperties>
+    <commands name="State" description="This command gets the device state (stored in its device_state data member) and returns it to the caller." execMethod="dev_state" displayLevel="OPERATOR" polledPeriod="0">
+      <argin description="none">
+        <type xsi:type="pogoDsl:VoidType"/>
+      </argin>
+      <argout description="Device state">
+        <type xsi:type="pogoDsl:StateType"/>
+      </argout>
+      <status abstract="true" inherited="true" concrete="true"/>
+    </commands>
+    <commands name="Status" description="This command gets the device status (stored in its device_status data member) and returns it to the caller." execMethod="dev_status" displayLevel="OPERATOR" polledPeriod="0">
+      <argin description="none">
+        <type xsi:type="pogoDsl:VoidType"/>
+      </argin>
+      <argout description="Device status">
+        <type xsi:type="pogoDsl:ConstStringType"/>
+      </argout>
+      <status abstract="true" inherited="true" concrete="true"/>
+    </commands>
+    <commands name="AddPlan" description="Adds a Plexil Plan to storage and tries to compile it." execMethod="add_plan" displayLevel="OPERATOR" polledPeriod="0">
+      <argin description="sourcedestination">
+        <type xsi:type="pogoDsl:StringType"/>
+      </argin>
+      <argout description="result">
+        <type xsi:type="pogoDsl:BooleanType"/>
+      </argout>
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+    </commands>
+    <commands name="AddConfigFile" description="Adds a Plexil Debug Config File or a Plexil Interface Config File to the storage" execMethod="add_config_file" displayLevel="OPERATOR" polledPeriod="0">
+      <argin description="sourcedestination">
+        <type xsi:type="pogoDsl:StringType"/>
+      </argin>
+      <argout description="result">
+        <type xsi:type="pogoDsl:BooleanType"/>
+      </argout>
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+    </commands>
+    <commands name="AddScript" description="Adds a Plexil script file and tries to compile it" execMethod="add_script" displayLevel="OPERATOR" polledPeriod="0">
+      <argin description="sourcedestination">
+        <type xsi:type="pogoDsl:StringType"/>
+      </argin>
+      <argout description="result">
+        <type xsi:type="pogoDsl:BooleanType"/>
+      </argout>
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+    </commands>
+    <commands name="DeleteFile" description="Deletes the given file from storage - can be a plan, a script, a debug-config or a interface config" execMethod="delete_file" displayLevel="OPERATOR" polledPeriod="0">
+      <argin description="pathtofile">
+        <type xsi:type="pogoDsl:StringType"/>
+      </argin>
+      <argout description="result">
+        <type xsi:type="pogoDsl:BooleanType"/>
+      </argout>
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+    </commands>
+    <commands name="RetrieveFile" description="Retreive the specified Plexil File to the specified location" execMethod="retrieve_file" displayLevel="OPERATOR" polledPeriod="0">
+      <argin description="sourcedestination">
+        <type xsi:type="pogoDsl:StringType"/>
+      </argin>
+      <argout description="result">
+        <type xsi:type="pogoDsl:BooleanType"/>
+      </argout>
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+    </commands>
+    <commands name="ListDir" description="Do a `ls` command on the storage directory and pipe it to the specified path if any" execMethod="list_dir" displayLevel="OPERATOR" polledPeriod="0">
+      <argin description="lsdumppath">
+        <type xsi:type="pogoDsl:StringType"/>
+      </argin>
+      <argout description="">
+        <type xsi:type="pogoDsl:VoidType"/>
+      </argout>
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+    </commands>
+    <attributes name="IsStorageDirEmpty" attType="Scalar" rwType="READ" displayLevel="OPERATOR" polledPeriod="0" maxX="" maxY="" allocReadMember="true" isDynamic="false">
+      <dataType xsi:type="pogoDsl:BooleanType"/>
+      <changeEvent fire="false" libCheckCriteria="false"/>
+      <archiveEvent fire="false" libCheckCriteria="false"/>
+      <dataReadyEvent fire="false" libCheckCriteria="true"/>
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+      <properties description="Checks if the Plexil Storage Directory is empty" label="IsStorageDirectoryEmpty" unit="" standardUnit="" displayUnit="" format="" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
+    </attributes>
+    <preferences docHome="./doc_html" makefileHome="/usr/share/pogo/preferences"/>
+  </classes>
+</pogoDsl:PogoSystem>
