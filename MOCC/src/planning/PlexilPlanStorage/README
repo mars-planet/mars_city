@@ -2,14 +2,13 @@ Class : PlexilPlanStorage
 InstanceName : PPSInstance1
 DeviceName : Planning/PlexilPlanStorage/deviceID1
 
-It is assumed that the Plexil Store is a directory:
---
+It is assumed that the Plexil documents are stored in a directory and indexed in the PlexilDatabase:
+--(directory root)
 	--RoverAPlans
 		--Rplan1.plx
 		--interface_config.xml
-		--scripts
-			--script1.psx
-			--script2.psx
+		--script1.psx
+		--script2.psx
 	--RoverBPlans
 		--
 		--
@@ -17,42 +16,86 @@ It is assumed that the Plexil Store is a directory:
 		--
 		--		
 
+Here 'RoverAPlans', 'RoverBPlans', etc. are 'Categories'
+
+
+DATABASE README:
+
+For our purposes, we will be using an ORM based approach (this gives us quite a few advantages and is in vogue these days)
+We'll be using SQLAlchemy as the ORM, with MySQL as the dialect and pymysql as the driver. (pymysql was chosen as it is Python3 compatible)
+For this, you'll need to install and a have MySQL server running. You'll also need to install SQLAlchemy and pymysql.
+
+Use 'Python PlexilDB_declarative.py' to setup the MySQL database.
+(Note that you'll need to change the 'engine' section - The syntax is 'mysql+pymysql://username:password@host:port/DatabaseName' - here, a database with DatabaseName must already be created)
+Please make the above similar change in PlexilPlanStorage.py file also as there too a connection is made to the database.
+There are five tables in the 'PlexilDatabase'.
+
+1) 'Plans'
++----------------+--------------+------+-----+---------------------+-----------------------------+
+| Field          | Type         | Null | Key | Default             | Extra                       |
++----------------+--------------+------+-----+---------------------+-----------------------------+
+| Name           | varchar(255) | NO   | PRI | NULL                |                             |
+| Path           | varchar(255) | NO   |     | NULL                |                             |
+| Category       | varchar(255) | NO   | MUL | NULL                |                             |
+| Last_Modified  | timestamp    | NO   |     | CURRENT_TIMESTAMP   | on update CURRENT_TIMESTAMP |
+| Last_Retrieved | timestamp    | NO   |     | 0000-00-00 00:00:00 |                             |
+| Validity       | tinyint(1)   | NO   |     | NULL                |                             |
+| Is_ple         | tinyint(1)   | NO   |     | NULL                |                             |
++----------------+--------------+------+-----+---------------------+-----------------------------+
+
+As one can see, the 'Last_Modified' field auto updates when any one of the other field values change. To enter a new record, everything except 'Last_Modified' and 'Last_Retrieved' needs to be provided.
+
+2) 'Config'
+'Name', 'Path', 'Category', 'Validity'
+
+3) 'Scripts'
+'Name', 'Path', 'Category', 'Validity', 'Is_pst'
+
+4) 'Categories'
+'Name'
+
+
+TANGO INTERFACE README:
+
 Class Properties:
 - StorageDirPath
-type : DevString
-stores the path to the top level of the Plexil store
-Eg: "/root/PlexilStorage/"
+	type : DevString
+	stores the path to the top level of the Plexil store
+	Eg: "/root/PlexilStorage/"
 
 Attributes:
 - IsStorageDirEmpty
-type : readonly Bool
-when this variable is read, it checks if the StorageDirPath is empty
-returns true if empty else returns false
-can be used when the code for changing StorageDirPath is implemented on the client side - if the dir is not empty (which is known by reading this attribute), the files have to be copied before changing the StorageDirPath property.
+	type : readonly Bool
+	when this variable is read, it checks if the StorageDirPath is empty
+	returns true if empty else returns false
+	can be used when the code for changing StorageDirPath is implemented on the client side - if the dir is not empty (which is known by reading this attribute), the files have to be copied before changing the StorageDirPath property.
 
 Commands:
-- AddPlan
-- AddConfigFile
-- AddScript
-argin : DevString - source;destination
-where source is the complete file path, destination is the path within the StorageDirPath - eg: "RoverAPlans/Rplan1.plx" or simple "RoverAPlans/"
-executes a 'cp' command on the specified file.
-argout : bool - indicates success/failure of the cp action
-Though as of now all the three perform same action, we could have support to compile plan files, compile script files using plexilc, while config files (both debug and interface) need no compilation. Also support for library files can be added.
-- DeleteFile
-argin : DevString - path/to/filename
-here argin is again the path within StorageDirPath - so the path up until StorageDirPath can be omitted like above.
-argout : bool - indicates success/failure of the 'rm' action
-- RetreiveFile
-argin : DevString - source;destination
-where source is path within StorageDirPath, destination is complete path
-again executes cp
-argout : bool - indicates success/failure of the 'cp' action
--ListDir
-argin : DevString - if "stdout" - prints output of "ls -l" terminal
-else prints output of "ls -l" to the file specified
-Basically, argin is appended to "ls -l > " if is not "stdout"
-No argout
+1) AddPlan
+2) AddConfigFile
+3) AddScript
+	argin : DevString - 		source;destination;validity
+	where source is the complete file path, destination is the path within the StorageDirPath - eg: "RoverAPlans/Rplan1.plx" destination is always of the form: "CategoryName/Filename" where Filename needs to be provided, validity is 0 for invalid, 1 for valid.
+	executes a 'cp' command on the specified file and indexes it in the database.
+	argout : bool - indicates success/failure of the cp action and the indexing.
+	Though as of now all the three perform same action, we could have support to compile plan files and compile script files using plexilc, while config files (both debug and interface) need no compilation. Also support for library files can be added.
+4) DeleteFile
+	argin : DevString - 		filename;[0-2]
+	0 - Plan
+	1 - Config
+	2 - Script
+	here argin is just the filename;followed by one of the 3 numbers which indicate the file type.
+	argout : bool - indicates success/failure of the 'rm' action and the delete from database.
+5) RetreiveFile
+	argin : DevString - 		filename;[0-2];destination
+	where filename and [0-2] are similar to above, destination is complete path
+	again executes cp
+	argout : bool - indicates success/failure of the 'cp' action
+6) ListDir
+	argin : DevString - 		if "stdout" - prints output of "ls -l" terminal
+								else prints output of "ls -l" to the file specified
+	Basically, argin is appended to "ls -l > " if it is not "stdout"
+	No argout
 All the commands can be modified to use IPC as per client requirements.
 
 To run:
