@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""DeviceMetaData Tango Service"""
+from __future__ import division, print_function
+import DeviceMetaDataHelper
+from PyTango import DeviceProxy
+from PyTango.server import Device, DeviceMeta, command, server_run
+
+
+class DeviceMetaData(Device):
+    __metaclass__ = DeviceMeta
+
+    @command(dtype_in=str, doc_in="Device id",
+             dtype_out=str, doc_out="JSON response - device metadata")
+    def get_device_meta(self, device_id):
+        dev = DeviceProxy(device_id)
+        DeviceMeta = DeviceMetaDataHelper.get_meta(dev)
+        return DeviceMeta
+
+
+if __name__ == "__main__":
+    server_run([DeviceMetaData])
