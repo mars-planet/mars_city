@@ -52,6 +52,12 @@ import sys
 #----- PROTECTED REGION ID(PlexilPlanStorage.additionnal_import) ENABLED START -----#
 import os, subprocess
 from PyTango import DevState
+
+from sqlalchemy import create_engine, exists
+from sqlalchemy.orm import sessionmaker
+from datetime import datetime
+from PlexilDB_declarative import Category, Plan, Config, Script, Base
+session = None
 #----- PROTECTED REGION END -----#	//	PlexilPlanStorage.additionnal_import
 
 ## Device States Description
@@ -85,6 +91,11 @@ class PlexilPlanStorage (PyTango.Device_4Impl):
         #----- PROTECTED REGION ID(PlexilPlanStorage.init_device) ENABLED START -----#
         self.set_state(DevState.ON);
         self.set_status("Ready to accept queries.");
+        engine = create_engine('mysql+pymysql://root:@localhost:3306/PlexilDatabase')
+        Base.metadata.bind = engine
+        DBSession = sessionmaker(bind=engine)
+        global session
+        session = DBSession()
         #----- PROTECTED REGION END -----#	//	PlexilPlanStorage.init_device
 
     def always_executed_hook(self):
@@ -134,16 +145,48 @@ class PlexilPlanStorage (PyTango.Device_4Impl):
         argout = False
         #----- PROTECTED REGION ID(PlexilPlanStorage.AddPlan) ENABLED START -----#
         try:
+            # Parse the input string
             path = PyTango.Database().get_class_property(sys.argv[0], "StorageDirPath")["StorageDirPath"][0]
             argin = argin.split(";")
-            source, dest = argin[0], path + argin[1]
-            command = 'cp' + ' ' + source + ' ' + dest
-            val = subprocess.check_call(command, shell=True)
-            if val == 0:
+            source, dest, valid = argin[0], argin[1], argin[2]
+            categ = dest.split("/")[0]
+            
+            # Create Category directory if it doesn't exist
+            val1 = 0
+            if not os.path.isdir(path + categ):
+                command = 'mkdir ' + path + categ
+                val1 = subprocess.check_call(command, shell=True)
+            
+            # Get a few params and set extension flag
+            filename = dest
+            dest = path + dest
+            extension = filename.split(".")[1]
+            if extension == 'ple':
+                extension = 1
+            else:
+                extension = 0
+
+            # Copy the file to the directory
+            command = 'cp ' + source + ' ' + dest
+            val2 = subprocess.check_call(command, shell=True)
+
+            # Create Database entry
+            new_plan = Plan(Name=filename, Path=dest, Validity=valid, Is_ple=extension)
+            category = None
+            if not session.query(exists().where(Category.Name==categ)).scalar():
+                category = Category(Name=categ)
+            else:
+                category = session.query(Category).filter(Category.Name==categ).one()
+            category.plans.append(new_plan)
+
+            # Placing the session.commit() inside ensures atomicity of Copying and Database Entry
+            if val1 == 0 and val2 == 0:
+                session.add(new_plan)
+                session.commit()
                 argout = True
         except Exception as e:
+            session.rollback()
             argout = False
-            return argout
         #----- PROTECTED REGION END -----#	//	PlexilPlanStorage.AddPlan
         return argout
         
@@ -158,16 +201,43 @@ class PlexilPlanStorage (PyTango.Device_4Impl):
         argout = False
         #----- PROTECTED REGION ID(PlexilPlanStorage.AddConfigFile) ENABLED START -----#
         try:
+            # Parse the input string
             path = PyTango.Database().get_class_property(sys.argv[0], "StorageDirPath")["StorageDirPath"][0]
             argin = argin.split(";")
-            source, dest = argin[0], path + argin[1]
-            command = 'cp' + ' ' + source + ' ' + dest
-            val = subprocess.check_call(command, shell=True)
-            if val == 0:
+            source, dest, valid = argin[0], argin[1], argin[2]
+            categ = dest.split("/")[0]
+            
+            # Create Category directory if it doesn't exist
+            val1 = 0
+            if not os.path.isdir(path + categ):
+                command = 'mkdir ' + path + categ
+                val1 = subprocess.check_call(command, shell=True)
+            
+            # Get a few params and set extension flag
+            filename = dest
+            dest = path + dest
+
+            # Copy the file to the directory
+            command = 'cp ' + source + ' ' + dest
+            val2 = subprocess.check_call(command, shell=True)
+
+            # Create Database entry
+            new_config = Config(Name=filename, Path=dest, Validity=valid)
+            category = None
+            if not session.query(exists().where(Category.Name==categ)).scalar():
+                category = Category(Name=categ)
+            else:
+                category = session.query(Category).filter(Category.Name==categ).one()
+            category.configs.append(new_config)
+
+            # Placing the session.commit() inside ensures atomicity of Copying and Database Entry
+            if val1 == 0 and val2 == 0:
+                session.add(new_config)
+                session.commit()
                 argout = True
         except Exception as e:
-            argout = False
-            return argout     
+            session.rollback()
+            argout = False     
         #----- PROTECTED REGION END -----#	//	PlexilPlanStorage.AddConfigFile
         return argout
         
@@ -182,16 +252,48 @@ class PlexilPlanStorage (PyTango.Device_4Impl):
         argout = False
         #----- PROTECTED REGION ID(PlexilPlanStorage.AddScript) ENABLED START -----#
         try:
+            # Parse the input string
             path = PyTango.Database().get_class_property(sys.argv[0], "StorageDirPath")["StorageDirPath"][0]
             argin = argin.split(";")
-            source, dest = argin[0], path + argin[1]
-            command = 'cp' + ' ' + source + ' ' + dest
-            val = subprocess.check_call(command, shell=True)
-            if val == 0:
+            source, dest, valid = argin[0], argin[1], argin[2]
+            categ = dest.split("/")[0]
+            
+            # Create Category directory if it doesn't exist
+            val1 = 0
+            if not os.path.isdir(path + categ):
+                command = 'mkdir ' + path + categ
+                val1 = subprocess.check_call(command, shell=True)
+            
+            # Get a few params and set extension flag
+            filename = dest
+            dest = path + dest
+            extension = filename.split(".")[1]
+            if extension == 'pst':
+                extension = 1
+            else:
+                extension = 0
+
+            # Copy the file to the directory
+            command = 'cp ' + source + ' ' + dest
+            val2 = subprocess.check_call(command, shell=True)
+
+            # Create Database entry
+            new_script = Script(Name=filename, Path=dest, Validity=valid, Is_pst=extension)
+            category = None
+            if not session.query(exists().where(Category.Name==categ)).scalar():
+                category = Category(Name=categ)
+            else:
+                category = session.query(Category).filter(Category.Name==categ).one()
+            category.scripts.append(new_script)
+
+            # Placing the session.commit() inside ensures atomicity of Copying and Database Entry
+            if val1 == 0 and val2 == 0:
+                session.add(new_script)
+                session.commit()
                 argout = True
         except Exception as e:
+            session.rollback()
             argout = False
-            return argout
         #----- PROTECTED REGION END -----#	//	PlexilPlanStorage.AddScript
         return argout
         
@@ -207,13 +309,46 @@ class PlexilPlanStorage (PyTango.Device_4Impl):
         #----- PROTECTED REGION ID(PlexilPlanStorage.DeleteFile) ENABLED START -----#
         try:
             path = PyTango.Database().get_class_property(sys.argv[0], "StorageDirPath")["StorageDirPath"][0]
-            command = 'rm ' + path + argin
+            argin = argin.split(';')
+            internalpath, filetype = argin[0], int(argin[1])
+
+            # Check for and delete Database Entry
+            categ = None
+            if filetype == 0:
+                if session.query(exists().where(Plan.Name==internalpath)).scalar():
+                    plan = session.query(Plan).filter(Plan.Name==internalpath).one()
+                    categ = plan.Categories
+                    session.query(Plan).filter(Plan.Name==internalpath).delete()
+            elif filetype == 1:
+                if session.query(exists().where(Config.Name==internalpath)).scalar():
+                    config = session.query(Config).filter(Config.Name==internalpath).one()
+                    categ = config.Categories
+                    session.query(Config).filter(Config.Name==internalpath).delete()
+            elif filetype == 2:
+                if session.query(exists().where(Script.Name==internalpath)).scalar():
+                    script = session.query(Script).filter(Script.Name==internalpath).one()
+                    categ = script.Categories
+                    session.query(Script).filter(Script.Name==internalpath).delete()
+            
+            emptydirflag = False
+            # Ensure empty Category not left over
+            if categ != None and not categ.plans and not categ.configs and not categ.scripts:
+                session.query(Category).filter(Category.Name==categ.Name).delete()
+                emptydirflag = True
+
+            if emptydirflag:
+                command = 'rm -rf ' + path + internalpath.split('/')[0]
+            else:
+                command = 'rm ' + path + internalpath
+
             val = subprocess.check_call(command, shell=True)
+            # Ensure atomicity
             if val == 0:
+                session.commit()
                 argout = True
         except Exception as e:
+            session.rollback()
             argout = False
-            return argout
         #----- PROTECTED REGION END -----#	//	PlexilPlanStorage.DeleteFile
         return argout
         
@@ -230,14 +365,22 @@ class PlexilPlanStorage (PyTango.Device_4Impl):
         try:
             path = PyTango.Database().get_class_property(sys.argv[0], "StorageDirPath")["StorageDirPath"][0]
             argin = argin.split(";")
-            source, dest = path + argin[0], argin[1]
-            command = 'cp' + ' ' + source + ' ' + dest
+            internalpath, filetype, dest = argin[0], argin[1], argin[2]
+            source = path + internalpath
+
+            # Query the database and update the Last_Retrieved if it is a Plan
+            if int(filetype) == 0:
+                session.query(Plan).filter(Plan.Name==internalpath).update({"Last_Retrieved":(datetime.now())})
+
+            # The ordering of cp after the query is important from client's POV
+            command = 'cp ' + source + ' ' + dest
             val = subprocess.check_call(command, shell=True)
             if val == 0:
+                session.commit()
                 argout = True
         except Exception as e:
             argout = False
-            return argout
+            session.rollback()
         #----- PROTECTED REGION END -----#	//	PlexilPlanStorage.RetrieveFile
         return argout
         
