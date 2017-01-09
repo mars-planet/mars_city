@@ -36,6 +36,7 @@ There are five tables in the 'PlexilDatabase'.
 +----------------+--------------+------+-----+---------------------+-----------------------------+
 | Name           | varchar(255) | NO   | PRI | NULL                |                             |
 | Path           | varchar(255) | NO   |     | NULL                |                             |
+| MongoDBid      | varchar(255) | NO   |     | NULL                |                             |
 | Category       | varchar(255) | NO   | MUL | NULL                |                             |
 | Last_Modified  | timestamp    | NO   |     | CURRENT_TIMESTAMP   | on update CURRENT_TIMESTAMP |
 | Last_Retrieved | timestamp    | NO   |     | 0000-00-00 00:00:00 |                             |
@@ -54,6 +55,13 @@ As one can see, the 'Last_Modified' field auto updates when any one of the other
 4) 'Categories'
 'Name'
 
+MONGODB README:
+Database name : PlexilDatabase
+Collection name : Plans
+Host,Port : 'localhost',27017
+
+On executing AddPlan from the TangoInterface, the Plexil Plan (an XML document) is parsed and added to the Plans collection. The "_id" which is unique for each document in a collection is stored in the MySQL Plans table in the 'MongoDBid' column. Note that this is only for '.plx' files.
+On executing DeleteFile with a type 0 (Plan) file, the corresponding MongoDB document is removed.
 
 TANGO INTERFACE README:
 

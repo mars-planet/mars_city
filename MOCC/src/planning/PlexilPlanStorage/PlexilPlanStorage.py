@@ -58,6 +58,8 @@ from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 from PlexilDB_declarative import Category, Plan, Config, Script, Base
 session = None
+
+from MongoDBhelper import addToCollection, removeFromCollection
 #----- PROTECTED REGION END -----#	//	PlexilPlanStorage.additionnal_import
 
 ## Device States Description
@@ -170,8 +172,12 @@ class PlexilPlanStorage (PyTango.Device_4Impl):
             command = 'cp ' + source + ' ' + dest
             val2 = subprocess.check_call(command, shell=True)
 
+            # Parsing and storing into MongoDB's PlexilDatabase's Plans' collection only if .plx file
+            if extension == 0:                
+                uniqueID = addToCollection(source)
+
             # Create Database entry
-            new_plan = Plan(Name=filename, Path=dest, Validity=valid, Is_ple=extension)
+            new_plan = Plan(Name=filename, Path=dest, MongoDBid=str(uniqueID), Validity=valid, Is_ple=extension)
             category = None
             if not session.query(exists().where(Category.Name==categ)).scalar():
                 category = Category(Name=categ)
@@ -185,6 +191,8 @@ class PlexilPlanStorage (PyTango.Device_4Impl):
                 session.commit()
                 argout = True
         except Exception as e:
+            if uniqueID:
+                removeFromCollection(uniqueID)
             session.rollback()
             argout = False
         #----- PROTECTED REGION END -----#	//	PlexilPlanStorage.AddPlan
@@ -318,6 +326,8 @@ class PlexilPlanStorage (PyTango.Device_4Impl):
                 if session.query(exists().where(Plan.Name==internalpath)).scalar():
                     plan = session.query(Plan).filter(Plan.Name==internalpath).one()
                     categ = plan.Categories
+                    uniqueID = plan.MongoDBid
+                    removeFromCollection(uniqueID)
                     session.query(Plan).filter(Plan.Name==internalpath).delete()
             elif filetype == 1:
                 if session.query(exists().where(Config.Name==internalpath)).scalar():
