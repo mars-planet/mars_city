@@ -17,6 +17,7 @@ class Plan(Base):
     __tablename__ = 'Plans'
     Name = Column(String(255), nullable=False, primary_key=True)
     Path = Column(String(255), nullable=False)
+    MongoDBid = Column(String(255), nullable=False)
     Category = Column(String(255), ForeignKey('Categories.Name'), nullable=False)
     Last_Modified = Column(TIMESTAMP, nullable=False)
     Last_Retrieved = Column(TIMESTAMP, nullable=False, default='0000-00-00 00:00:00')
