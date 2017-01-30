@@ -1,5 +1,5 @@
 *************
-ERAS Planning
+MARS CITY Planning
 *************
 
 .. toctree::
