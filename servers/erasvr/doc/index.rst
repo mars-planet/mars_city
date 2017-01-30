@@ -1,5 +1,5 @@
 ********************
-ERAS Virtual Reality
+MARS CITY Virtual Reality
 ********************
 
 .. toctree::
