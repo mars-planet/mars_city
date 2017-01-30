@@ -1,4 +1,4 @@
-Welcome to ERAS's software documentation!
+Welcome to MARS CITY software documentation!
 =========================================
 
 High level design docs:
