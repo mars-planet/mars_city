@@ -1,5 +1,5 @@
 ***********************
-ERAS Habitat Monitoring
+MARS CITY Habitat Monitoring
 ***********************
 
 .. toctree::
