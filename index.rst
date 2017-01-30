@@ -1,4 +1,4 @@
-Welcome to MARS CITY software documentation!
+Welcome to MARS CITY's software documentation!
 =========================================
 
 High level design docs:
