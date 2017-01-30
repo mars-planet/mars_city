@@ -1,4 +1,4 @@
-# ![Logo Nuovo A.jpg](https://bitbucket.org/repo/G6qdMb/images/1041870328-Logo%20Nuovo%20A.jpg) #
+# ![Logo Nuovo A.jpg](http://www.mars-city.org/wp-content/uploads/2016/07/Logo-Nuovo-A-s.jpg) #
 
 MARS CITY  is a system of systems, and a key enabler for Mars exploration. It will serve as a state-of-the art test bed for international researchers working on the five showstoppers for Mars exploration.
 
