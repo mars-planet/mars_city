@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""GetDescendant Tango Service"""
+from __future__ import division, print_function
+import DescendantHelper
+from PyTango.server import Device, DeviceMeta, command, server_run
+
+
+class GetDescendant(Device):
+    __metaclass__ = DeviceMeta
+
+    @command(dtype_in=str, doc_in="Device id",
+         dtype_out=[str,], doc_out="Device ID of all descendants")
+	def get_descendants(self, device_id):
+	    descendants = DescendantHelper.getDescendants(device_id)
+	    return DeviceMeta
+
+
+if __name__ == "__main__":
+    server_run([DeviceMetaData])
