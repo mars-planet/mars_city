@@ -30,7 +30,6 @@ Also start the GetDescendant device server, say, with the id "test/getdescendant
 >>>['test/power_supply/1', 'test/power_supply/2']
 ```
 
-```
 
 ##To enable more levels of hierarchy than what Tango provides out of the box (3 level - *domain/family/member*)
 
