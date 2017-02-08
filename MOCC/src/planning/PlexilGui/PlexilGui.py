@@ -142,16 +142,24 @@ class Frame(wx.Frame):
 		self.Centre()
 
 
-
-
 	def OnActivated(self,e):
 		
 		
 		obj=self.tree.GetItemText(e.GetItem()).split(':')
 		self.StaticText_Node_Type_List1.SetLabel(obj[0])
 		self.StaticText_Node_Name1.SetLabel(obj[1])
+		self.StaticText_Skip_C1.SetLabel(' ')
+		self.StaticText_Post_C1.SetLabel(' ')
+		self.StaticText_Exit_C1.SetLabel(' ')
+		self.StaticText_Node_Parent1.SetLabel(' ')
+		self.StaticText_Inv_C1.SetLabel(' ')
+		self.StaticText_Pre_C1.SetLabel(' ')
+		self.StaticText_End_C1.SetLabel(' ')
+		self.StaticText_Repeat_C1.SetLabel(' ')
+		self.StaticText_Start_C1.SetLabel(' ')
+		self.StaticText_Node_Function1.SetLabel(' ')
+		###	Need to get the other variables from the DB #################
 
-		###Need to get the other variables from the DB #################
 
 	def OnClicked(self,e):
 
@@ -260,7 +268,7 @@ class Frame(wx.Frame):
 
 		vt3box.Add(ht6box,1,wx.EXPAND)
 
-		#3rd Row od Node Conditions
+		#3rd Row of Node Conditions
 					
 		ht7box=wx.BoxSizer(wx.HORIZONTAL)
 		ht8box=wx.BoxSizer(wx.HORIZONTAL)
@@ -302,7 +310,7 @@ class Frame(wx.Frame):
 
 		vt3box.Add(ht10box,1,wx.EXPAND)
 		
-#####################End of Node Conditions##########################		
+##################### End of Node Conditions ##########################		
 		
 
 		vokbox=wx.BoxSizer(wx.VERTICAL)
@@ -332,18 +340,6 @@ class Frame(wx.Frame):
 		self.frame.Show()
 
 
-		'''self.dialog_frame.Close()
-		node_parent = self.Node_Parent.GetValue()
-		node_type = self.Node_Type_List.GetSelection()
-		node_name=self.Node_Name.GetValue()
-		
-		a['root']=self.root
-		if node_type=='List':
-			a[str(node_name)]=self.tree.AppendItem(a[node_parent],self.List[new_type]+':'+str(node_name))
-
-		else:
-			self.tree.AppendItem(a[str(node_parent)],self.List[node_type]+':'+str(node_name))
-		'''
 	def On_Clicked(self,e):
 		
 		self.frame.Close()
@@ -360,7 +356,7 @@ class Frame(wx.Frame):
 		Post_C=self.Text_Post_C.GetValue()
 		Skip_C=self.Text_Skip_C.GetValue()
 		'''
-			Need to save these variables in the database 
+			Need to save these variables in the database  
 		'''
 		if Node_Type=='List':
 			self.a[str(Node_Name)]=self.tree.AppendItem(self.a[Node_Parent],Node_Type+':'+str(Node_Name))
