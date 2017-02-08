@@ -1,3 +1,9 @@
+
+
+#### Add the fields in line 351 to DB ####
+
+
+
 import wx
 
 from thread import start_new_thread
