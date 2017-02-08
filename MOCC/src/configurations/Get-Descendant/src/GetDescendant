@@ -12,13 +12,13 @@ class GetDescendant(Device):
     __metaclass__ = DeviceMeta
 
     @command(dtype_in=str, doc_in="Device id",
-         dtype_out=[str,], doc_out="Device ID of all descendants")
-	def get_descendants(self, device_id):
-		db = PyTango.Database()
-		dev_names = db.get_device_name("*","*")
-	    descendants = DescendantHelper.getDescendants(device_id, dev_names)
-	    return descendants
+             dtype_out=[str, ], doc_out="Device ID of all descendants")
+    def get_descendants(self, device_id):
+        db = PyTango.Database()
+        dev_names = db.get_device_name("*", "*")
+        descendants = DescendantHelper.getDescendants(device_id, dev_names)
+        return descendants
 
 
 if __name__ == "__main__":
-    server_run([DeviceMetaData])
+    server_run([GetDescendant])
