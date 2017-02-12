@@ -11,7 +11,6 @@ from ffnet import loadnet
 import matplotlib.pyplot as plot
 
 
-
 class PyDevice(PyTango.DeviceClass):
     cmd_list = {'add_device': [[PyTango.ArgType.DevVarStringArray],
                                [PyTango.ArgType.DevVoid]],
@@ -19,7 +18,7 @@ class PyDevice(PyTango.DeviceClass):
                          [PyTango.ArgType.DevVoid]],
                 'get_data': [[PyTango.ArgType.DevVoid],
                              [PyTango.ArgType.DevVoid],
-                             {'polling period': 2000}],}
+                             {'polling period': 2000}], }
     attr_type = [
         [PyTango.ArgType.DevFloat,
          PyTango.AttrDataFormat.SCALAR,
@@ -27,12 +26,14 @@ class PyDevice(PyTango.DeviceClass):
         {'polling period': 2000}
     ]
     attr_list = {}
+
     def __init__(self, name):
         PyTango.DeviceClass.__init__(self, name)
         self.set_type("TestDevice")
 
 
 class PyPlotter(PyTango.Device_4Impl):
+
     def __init__(self, cl, name):
         self.devices = {}
         with open('plotting.data') as f:
@@ -48,13 +49,13 @@ class PyPlotter(PyTango.Device_4Impl):
         PyPlotter.init_device(self)
 
     def get_data(self):
-        #print 'get_data',
+        # print 'get_data',
         for device, values in self.devices.items():
             dev = values['dev']
             data = dict((attr, dev[attr.encode('ascii')].value)
                         for attr in values['attrs'])
             values['values'].append(data)
-            #print values['values']
+            # print values['values']
 
     def add_device(self, device_attrs):
         device = device_attrs[0]
