@@ -1,5 +1,5 @@
 #!/bin/bash
-#To run this shell script give "sh install.sh"
+#To run this shell script, execute the command: "sh install.sh"
 
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo "Setting up ERAS Project"

@@ -10,6 +10,7 @@ socket.setdefaulttimeout(5)
 devices = {}
 data = []
 
+
 def simple_app(environ, start_response):
     global data
     path = environ['PATH_INFO']
