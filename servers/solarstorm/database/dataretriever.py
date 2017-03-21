@@ -48,7 +48,7 @@ class DataRetriever:
 
     def dsd_retriever(self):
         for n in range(1996, 2013):
-            url = "http://www.swpc.noaa.gov/ftpdir/warehouse/{0}/{0}_DSD.txt"
+            url = "ftp://ftp.swpc.noaa.gov/pub/warehouse/{0}/{0}_DSD.txt"
             url = url.format(n)
 
             # Constructing output as example : destination/dsd_2011.txt
