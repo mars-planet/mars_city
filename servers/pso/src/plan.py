@@ -4,7 +4,7 @@ from itertools import takewhile
 
 def build_tree(log):
     is_tab = '\t'.__eq__
-    log = log.replace("   ","\t").replace("*","") 
+    log = log.replace("   ", "\t").replace("*", "") 
     lines = iter(log.split("\n"))
     tree = []
     stack = []
