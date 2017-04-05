@@ -13,6 +13,9 @@ sleep 1
 sudo apt-get --yes update
 echo "Done Updating"
 
+echo "--------------------------------------------------------------------"
+echo "Checking Python version"
+echo "--------------------------------------------------------------------"
 version="$(python --version  2>&1 |cut -c 8)"
 if [ $version -eq 2 ] ;then
     eval python --version
