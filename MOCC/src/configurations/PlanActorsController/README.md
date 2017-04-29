@@ -6,15 +6,15 @@ The information is stored in a [sqlite3 database](https://docs.python.org/2/libr
 
 The **Schema** of **plan_actors** is:
 ```
-type - text
 address - Primary key - text
+type - text
 avail_start - text
 avail_end - text
 capabilities - text
 ```
 
-1) **type** :  type of actor (rover/astronaut)
-2) **address** : unique address associated with the plan_actor
+1) **address** : unique address associated with the plan_actor
+2) **type** :  type of actor (rover/astronaut)
 3) **avail_start** : availability start of the actor (Date - Time)
 4) **avail_end** : availability end of the actor
 5) **capabilities** : a JSON string
@@ -58,6 +58,18 @@ Finally start the PlanActorsController service.
 ```
 $ python PowerSupplyDS.py test
 Ready to accept request
+```
+
+You can use the service as follow:
+
+```
+>>> import PyTango
+
+>>> plan_actor = PyTango.DeviceProxy("PlanActorsController/test/1")
+>>> plan_actor.add_actor_meta(["address","rover","2017-05-05 12:45:00","2017-05-05 13:45:00","{string:capabilities}"])
+'Actor added'
+>>> plan_actor.get_actor_meta("address")
+["address","rover","2017-05-05 12:45:00","2017-05-05 13:45:00","{string:capabilities}"]
 ```
 
 For more  details regarding registering and starting device servers, refer [here](http://www.esrf.eu/computing/cs/tango/tango_doc/kernel_doc/pytango/latest/quicktour.html).

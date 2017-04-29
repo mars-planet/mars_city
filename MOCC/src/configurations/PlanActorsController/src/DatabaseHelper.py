@@ -6,8 +6,8 @@ con = sq.connect('plan_actors', check_same_thread=False)
 def createDatabase():
     con.execute('DROP TABLE IF EXISTS plan_actors;')
     con.execute("CREATE TABLE plan_actors\
-    (type TEXT NOT NULL,\
-    address TEXT PRIMARY KEY NOT NULL,\
+    (address TEXT PRIMARY KEY NOT NULL,\
+    type TEXT NOT NULL,\
     avail_start DATE NOT NULL,\
     avail_end DATE NOT NULL,\
     capabilities TEXT NOT NULL);")
@@ -15,15 +15,15 @@ def createDatabase():
 
 
 def add(data):
-    type_t = data[0]
-    address = data[1]
+    address = data[0]
+    type_t = data[1]
     avail_start = data[2]
     avail_end = data[3]
     capabilities = data[4]
 
     query = '''INSERT INTO plan_actors VALUES
-    (\'''' + type_t + '''\',
-    \'''' + address + '''\',
+    (\'''' + address + '''\',
+    \'''' + type_t + '''\',
     \'''' + avail_start + '''\',
     \'''' + avail_end + '''\',
     \'''' + capabilities + '''\');'''
