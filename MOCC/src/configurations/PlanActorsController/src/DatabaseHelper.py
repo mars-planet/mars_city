@@ -1,8 +1,10 @@
 import sqlite3 as sq
 
+
+# Connection to the database
 con = sq.connect('plan_actors', check_same_thread=False)
 
-
+# To create the initial database, to be called only once from the service
 def createDatabase():
     con.execute('DROP TABLE IF EXISTS plan_actors;')
     con.execute("CREATE TABLE plan_actors\
@@ -14,12 +16,13 @@ def createDatabase():
     print("Table created successfully")
 
 
+# To add the plan actor fields into the database
 def add(data):
-    address = data[0]
-    type_t = data[1]
-    avail_start = data[2]
-    avail_end = data[3]
-    capabilities = data[4]
+    address = data[0]   #Address
+    type_t = data[1]    #Type
+    avail_start = data[2]   #available start date time
+    avail_end = data[3]     #available end date time
+    capabilities = data[4]  #capability string - JSON
 
     query = '''INSERT INTO plan_actors VALUES
     (\'''' + address + '''\',
@@ -37,6 +40,7 @@ def add(data):
     return 0
 
 
+#To retrive the details of the actor whose address is passed
 def get(address):
     return_data = []
 
