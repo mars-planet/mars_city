@@ -19,10 +19,6 @@ class PlanActorsController(Device):
         else:
             return "Actor added"
 
-    @command
-    def createDatabase(self):
-        db.createDatabase()
-
     @command(dtype_in=str, doc_in="Actor address",
              dtype_out=[str, ], doc_out="Actor info as list")
     def get_actor_meta(self, actor_address):

@@ -1,57 +1,51 @@
-import sqlite3 as sq
+from __future__ import division, print_function
+from plan_actor_schema import PlanActors
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 
-# Connection to the database
-con = sq.connect('plan_actors', check_same_thread=False)
+# Connecting to the database
+engine = create_engine('sqlite:///plan_actors.db', echo=False)
+Session = sessionmaker(bind=engine)
 
-# To create the initial database, to be called only once from the service
-def createDatabase():
-    con.execute('DROP TABLE IF EXISTS plan_actors;')
-    con.execute("CREATE TABLE plan_actors\
-    (address TEXT PRIMARY KEY NOT NULL,\
-    type TEXT NOT NULL,\
-    avail_start DATE NOT NULL,\
-    avail_end DATE NOT NULL,\
-    capabilities TEXT NOT NULL);")
-    print("Table created successfully")
+# Create session
+s = Session()
 
 
 # To add the plan actor fields into the database
 def add(data):
-    address = data[0]   #Address
-    type_t = data[1]    #Type
-    avail_start = data[2]   #available start date time
-    avail_end = data[3]     #available end date time
-    capabilities = data[4]  #capability string - JSON
+    address = data[0]  # Address
+    type_t = data[1]  # Type
+    avail_start = data[2]  # available start date time
+    avail_end = data[3]  # available end date time
+    capabilities = data[4]  # capability string - JSON
 
-    query = '''INSERT INTO plan_actors VALUES
-    (\'''' + address + '''\',
-    \'''' + type_t + '''\',
-    \'''' + avail_start + '''\',
-    \'''' + avail_end + '''\',
-    \'''' + capabilities + '''\');'''
-    try:
-        con.execute(query)
-        con.commit()
-    except sq.IntegrityError:
+    query = s.query(PlanActors).filter(PlanActors.address.in_([address]))
+    result = query.first()
+    if result:
         return -1
+    else:
+        actor = PlanActors(address, type_t, avail_start,
+                           avail_end, capabilities)
+        s.add(actor)
+
+        # commit the record the database
+        s.commit()
 
     print("Inserted row successfully")
     return 0
 
 
-#To retrive the details of the actor whose address is passed
+# To retrive the details of the actor whose address is passed
 def get(address):
     return_data = []
 
-    query = '''SELECT * FROM plan_actors WHERE
-    ADDRESS == \'''' + address + '''\';'''
-    cursor = con.execute(query)
+    query = s.query(PlanActors).filter(PlanActors.address.in_([address]))
+    result = query.first()
 
-    for row in cursor:
-        return_data.append(row[0])
-        return_data.append(row[1])
-        return_data.append(row[2])
-        return_data.append(row[3])
-        return_data.append(row[4])
+    return_data.append(result.address)
+    return_data.append(result.type)
+    return_data.append(result.avail_start)
+    return_data.append(result.avail_end)
+    return_data.append(result.capabilities)
     return return_data
