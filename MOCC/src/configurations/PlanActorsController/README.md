@@ -2,7 +2,7 @@
 
 This service is used to store the information about the rovers and the astronauts (plan_actors).
 
-The information is stored in a [sqlite3 database](https://docs.python.org/2/library/sqlite3.html).
+The information is stored in a [SQLAlchemy](http://docs.sqlalchemy.org/en/latest/).
 
 The **Schema** of **plan_actors** is:
 ```
@@ -37,6 +37,13 @@ capabilities - text
 # Getting started
 
 Refer [this](https://github.com/mars-planet/mars_city/blob/master/servers/body_tracker_v2/src/win/PyTango%20Setup/PyTango%20Installation%20Instructions/Instructions.txt) to set up Tango on your system.
+
+
+Create the database using
+
+```
+python plan_actor_schema.py
+```
 
 # Usage
 Register the PlanActorsController Service.
