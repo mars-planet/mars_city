@@ -8,6 +8,9 @@ from sqlalchemy.orm import sessionmaker
 engine = create_engine('sqlite:///plan_actors.db', echo=False)
 Session = sessionmaker(bind=engine)
 
+# Create session
+s = Session()
+
 
 # To add the plan actor fields into the database
 def add(data):
@@ -16,9 +19,6 @@ def add(data):
     avail_start = data[2]  # available start date time
     avail_end = data[3]  # available end date time
     capabilities = data[4]  # capability string - JSON
-
-    # Create session
-    s = Session()
 
     try:
         query = s.query(PlanActors).filter(PlanActors.address.in_([address]))
@@ -37,28 +37,19 @@ def add(data):
             return 0
 
     except:
-        s.rollback()
         return -1
 
-    finally:
-        s.close()
 
 # To retrive the details of the actor whose address is passed
-
-
 def get(address):
     return_data = []
 
-    s = Session()
-    try:
-        query = s.query(PlanActors).filter(PlanActors.address.in_([address]))
-        result = query.first()
-        return_data.append(result.address)
-        return_data.append(result.actor_type)
-        return_data.append(result.avail_start)
-        return_data.append(result.avail_end)
-        return_data.append(result.capabilities)
-        s.close()
-        return return_data
-    except:
-        return -1
+    query = s.query(PlanActors).filter(PlanActors.address.in_([address]))
+    result = query.first()
+
+    return_data.append(result.address)
+    return_data.append(result.actor_type)
+    return_data.append(result.avail_start)
+    return_data.append(result.avail_end)
+    return_data.append(result.capabilities)
+    return return_data
