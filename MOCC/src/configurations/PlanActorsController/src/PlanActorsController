@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""DeviceMetaData Tango Service"""
+from __future__ import division, print_function
+import DatabaseHelper as db
+from PyTango.server import Device, DeviceMeta, command, server_run
+
+
+class PlanActorsController(Device):
+    __metaclass__ = DeviceMeta
+
+    @command(dtype_in=[str, ], doc_in="Actor attributes",
+             dtype_out=str, doc_out="Command success/failure")
+    def add_actor_meta(self, actor_info):
+        success = db.add(actor_info)
+        if success == -1:
+            return "Actor already present"
+        else:
+            return "Actor added"
+
+    @command(dtype_in=str, doc_in="Actor address",
+             dtype_out=[str, ], doc_out="Actor info as list")
+    def get_actor_meta(self, actor_address):
+        data = db.get(actor_address)
+        return data
+
+
+if __name__ == "__main__":
+    server_run([PlanActorsController])
