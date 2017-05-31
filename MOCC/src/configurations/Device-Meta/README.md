@@ -17,11 +17,14 @@ Project Structure:
 
 ```
 
+
 # Getting started
 
 Refer [this](https://github.com/mars-planet/mars_city/blob/master/servers/body_tracker_v2/src/win/PyTango%20Setup/PyTango%20Installation%20Instructions/Instructions.txt) to set up Tango on your system.
 
 # Usage
+=======
+
 Consider *test/power_supply/1* is running on Tango. (Refer [this](http://www.esrf.eu/computing/cs/tango/tango_doc/kernel_doc/pytango/latest/quicktour.html) to get it running)
 ```
 >>>import PyTango
@@ -35,6 +38,8 @@ Consider *test/power_supply/1* is running on Tango. (Refer [this](http://www.esr
 (Above output trimmed)
 
 ## Device Meta data schema
+=======
+
 
 ```
 {
@@ -74,7 +79,10 @@ Consider *test/power_supply/1* is running on Tango. (Refer [this](http://www.esr
 }
 ```
 
+
 # For Testing
+=======
+
 
 Register a new server with the Tango System. Refer [this](http://www.esrf.eu/computing/cs/tango/tango_doc/kernel_doc/pytango/latest/quicktour.html).
 OR
