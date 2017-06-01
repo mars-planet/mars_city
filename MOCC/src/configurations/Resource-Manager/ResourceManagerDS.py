@@ -14,10 +14,16 @@ class ResourceManager(Device):
 
     @command(dtype_in=str, dtype_out=str)
     def ask_resource(self, name):
-        print "Hello!"
+        print "request for ", name, " received"
         # resource_string = get_resource_string(name)
         resource = Resources.get(Resources.name == name)
-        resource_string = "" + resource.name + " # " + resource.type + " # " + str(resource.availability_start) + " # " + str(resource.availability_end) + " # " + str(resource.rate) + " # " + str(resource.amount)
+
+        resource_string = "" + resource.name + " # " + resource.type
+        resource_string += " # " + str(resource.availability_start)
+        resource_string += " # " + str(resource.availability_end)
+        resource_string += " # " + str(resource.rate)
+        resource_string += " # " + str(resource.amount)
+
         # Sending the resource as a string
         return str(resource_string)
 
