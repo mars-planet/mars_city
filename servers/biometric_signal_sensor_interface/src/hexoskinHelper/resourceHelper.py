@@ -10,7 +10,7 @@ line of abstraction.
 '''
 
 
-def getRecordListHelper(auth, user):
+def get_record_list_helper(auth, user):
     '''
     Each astronaut session with the hexoskin is a record. Record starts when he
     plugs the device to his shirt, and stops when the device is plugged into
@@ -19,7 +19,7 @@ def getRecordListHelper(auth, user):
     raise NotImplementedError
 
 
-def getActiveRecordListHelper(auth, user):
+def get_active_record_list_helper(auth, user):
     '''
     Param auth token, userID
 
@@ -29,7 +29,7 @@ def getActiveRecordListHelper(auth, user):
     return NotImplementedError
 
 
-def getRecordInfoHelper(auth, recordID):
+def get_record_info_helper(auth, recordID):
     '''
     Param: auth, recordID
 
@@ -38,7 +38,7 @@ def getRecordInfoHelper(auth, recordID):
     raise NotImplementedError
 
 
-def getBiometricDataHelper(auth, recordID, datatype):
+def get_data_helper(auth, recordID, datatype):
     '''
     Param: auth token, record ID of the record/session and the datatype of the
     metric that needs to be measured.
@@ -49,7 +49,7 @@ def getBiometricDataHelper(auth, recordID, datatype):
     return NotImplementedError
 
 
-def getRealtimeBiometricDataHelper(auth, recordID, datatype):
+def get_realtime_data_helper(auth, recordID, datatype):
     '''
     Param: auth token, record ID of the record/session and the datatype of the
     metric that needs to be measured.
@@ -60,7 +60,7 @@ def getRealtimeBiometricDataHelper(auth, recordID, datatype):
     return NotImplementedError
 
 
-def getMetricHelper(auth, recordID, datatype):
+def get_metric_helper(auth, recordID, datatype):
     '''
     Param: auth token, record ID of the record/session and the datatype of the
     metric that needs to be measured.
@@ -73,7 +73,7 @@ def getMetricHelper(auth, recordID, datatype):
     return NotImplementedError
 
 
-def getGPSHelper(auth, userID):
+def get_gps_helper(auth, userID):
     '''
     Param auth token, userID
     '''

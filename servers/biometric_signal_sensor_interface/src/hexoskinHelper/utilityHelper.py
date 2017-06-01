@@ -11,7 +11,7 @@ line of abstraction.
 '''
 
 
-def allUsers():
+def all_users():
     '''
     Param: void
     Return value: JSON response string with account information of the users
@@ -23,7 +23,7 @@ def allUsers():
     raise NotImplementedError
 
 
-def accountInfoHelper():
+def account_info_helper():
     '''
     Param: void
     Return value: JSON response string with authenticated user information
@@ -34,7 +34,7 @@ def accountInfoHelper():
     raise NotImplementedError
 
 
-def userAccountInfoHelper(userID):
+def user_account_info_helper(userID):
     '''
     Param: userID
     Return value: JSON response string with user's data whose user-id is userID
@@ -45,7 +45,7 @@ def userAccountInfoHelper(userID):
     raise NotImplementedError
 
 
-def hexoskinDatatypesHelper(auth):
+def hexoskin_datatypes_helper(auth):
     '''
     Param: auth (authentication token)
     Return value: JSON response string containing datatypes and associated IDs
@@ -58,7 +58,7 @@ def hexoskinDatatypesHelper(auth):
     raise NotImplementedError
 
 
-def authHelper():
+def auth_helper():
     '''
     Param: void
     Return value: auth (authentication token)
