@@ -20,7 +20,7 @@ def getRecordListHelper(auth, user):
 
 def getActiveRecordListHelper(auth, user):
 	'''
-	Param auth token, recordID
+	Param auth token, userID
 
 	Returns the records that are currently in progress, i.e astronaut is still 
 	exploring and hasn't returned to the stationed and docked in yet.
@@ -37,7 +37,7 @@ def getRecordInfoHelper(auth, recordID):
     raise NotImplementedError
 
 
-def getMetricHelper(auth, recordID, datatype):
+def getBiometricDataHelper(auth, recordID, datatype):
 	'''
 	Param: auth token, record ID of the record/session and the datatype of the
 	metric that needs to be measured.
@@ -47,13 +47,33 @@ def getMetricHelper(auth, recordID, datatype):
 	return NotImplementedError
 
 
-def getRealtimeMetricHelper(auth, recordID, datatype):
+def getRealtimeBiometricDataHelper(auth, recordID, datatype):
 	'''
 	Param: auth token, record ID of the record/session and the datatype of the
 	metric that needs to be measured.
 
 	Runs till the record is active and returns the data of the user every 5 
 	seconds adding to the record.
+	'''
+	return NotImplementedError
+
+
+def getMetricHelper(auth, recordID, datatype):
+	'''
+	Param: auth token, record ID of the record/session and the datatype of the
+	metric that needs to be measured.
+
+	Along with the actual data from the hexoskin, metrics are also available.
+	Metrics are a way to summarize data in a single values or histograms.
+	A few example of metrics are heart rate average, max activity, minimum
+	breathing rate and so on.
+	'''
+	return NotImplementedError
+
+
+def getGPSHelper(auth, userID):
+	'''
+	Param auth token, userID
 	'''
 	return NotImplementedError
 

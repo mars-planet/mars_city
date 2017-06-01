@@ -45,7 +45,7 @@ def userAccountInfoHelper(userID):
     raise NotImplementedError
 
 
-def HexoskinDatatypesHelper(auth):
+def hexoskinDatatypesHelper(auth):
     '''
     Param: auth (authentication token)
     Return value: JSON response string containing datatypes and associated IDs
