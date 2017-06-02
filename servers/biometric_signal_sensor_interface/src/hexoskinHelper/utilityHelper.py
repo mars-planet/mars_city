@@ -1,8 +1,6 @@
 from __future__ import absolute_import, division, print_function
 import sys
 import datetime
-import os
-import time
 import hexoskin.client
 import hexoskin.errors
 import requests
@@ -21,10 +19,11 @@ line of abstraction.
 # Model type : Hexoskin or CHA3000
 MODEL = 'Hexoskin'
 
-# Specify timestamp output format : Epoch or String. Epoch goes for the standard Hexoskin epoch, while String is human-formatted string
+# Specify timestamp output format : Epoch or String. Epoch goes for the
+# standard Hexoskin epoch, while String is human-formatted string
 TIMESTAMP = 'Epoch'
 
-# Timestamp format, as described in https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior
+# Timestamp format
 # Use only if TIMESTAMP is set to String
 TIMESTAMP_FORMAT = '%Y:%m:%d\t%H:%M:%S:%f'
 
@@ -36,72 +35,78 @@ privateKey = "oTnpWKynoGSkameYNoJLlz70ITX1FC"
 
 # Datatypes definitions
 if MODEL == 'Hexoskin':
-    raw_datatypes = {'acc':[4145,4146,4147],
-        'ecg':[4113],
-        'resp':[4129,4130]}
-    datatypes = {'activity':[49],
-        'cadence':[53],
-        'heartrate':[19],
-        'minuteventilation':[36],
-        'vt':[37],
-        'breathingrate':[33],
-        'hr_quality':[1000],
-        'br_quality':[1001],
-        'inspiration':[34],
-        'expiration':[35],
-        'batt':[247],
-        'step':[52],
-        'rrinterval':[18],
-        'qrs':[22],
-    }
+    raw_datatypes = {'acc': [4145, 4146, 4147],
+                     'ecg': [4113],
+                     'resp': [4129, 4130]}
+    datatypes = {'activity': [49],
+                 'cadence': [53],
+                 'heartrate': [19],
+                 'minuteventilation': [36],
+                 'vt': [37],
+                 'breathingrate': [33],
+                 'hr_quality': [1000],
+                 'br_quality': [1001],
+                 'inspiration': [34],
+                 'expiration': [35],
+                 'batt': [247],
+                 'step': [52],
+                 'rrinterval': [18],
+                 'qrs': [22],
+                 }
 
 #  Sample rates definitions (in 256/samples/second)
 dataSampleRate = {
-    4145:4,  # 64Hz
-    4146:4,
-    4147:4,
-    4113:1,  # 256Hz
-    4114:1,
-    4115:1,
-    4129:2,  # 128Hz
-    4130:2,
-    81:256,  # 1Hz
-    64:4,
-    49:256,
-    53:256,
-    19:256,
-    36:256,
-    37:[],
-    33:256,
-    1000:256,
-    1001:256,
-    1002:256,
-    66:256,
-    98:256,
-    34:256,
-    35:256,
-    247:256,
-    52:[],
-    18:256,
-    22:256,
-    212:256,
-    97:256,
-    208:256
+    4145: 4,  # 64Hz
+    4146: 4,
+    4147: 4,
+    4113: 1,  # 256Hz
+    4114: 1,
+    4115: 1,
+    4129: 2,  # 128Hz
+    4130: 2,
+    81: 256,  # 1Hz
+    64: 4,
+    49: 256,
+    53: 256,
+    19: 256,
+    36: 256,
+    37: [],
+    33: 256,
+    1000: 256,
+    1001: 256,
+    1002: 256,
+    66: 256,
+    98: 256,
+    34: 256,
+    35: 256,
+    247: 256,
+    52: [],
+    18: 256,
+    22: 256,
+    212: 256,
+    97: 256,
+    208: 256
 }
+
 
 class SessionInfo:
     """
-    This is the class containing your api login information. Instantiate an object of this class and pass it as argument
+    This is the class containing your api login information. Instantiate an
+    object of this class and pass it as argument
     to the api calls you make. You can instantiate as many tokens as you want
     """
 
-    def __init__(self, publicKey='null', privateKey='null', username='null', password='null', base_url='api'):
+    def __init__(self, publicKey='null', privateKey='null', username='null',
+                 password='null', base_url='api'):
         """
-        The init function instantiate your login token. Your API calls will need this to authenticate to our servers
-            @param username :   The username to use for creating the token. This will influence what you can and can not
+        The init function instantiate your login token. Your API calls will
+        need this to authenticate to our servers
+            @param username :   The username to use for creating the token.
+                                This will influence what you can and can not
                                 see
-            @param password :   the password to login in the "username" account
-            @param database :   The database to log into. Choices are api for the production database, or sapi for the
+            @param password :   password to login in the "username" account
+            @param database :   The database to log into. Choices are api for
+                                the production database, or sapi for the
                                 development database
         """
         if base_url == 'api':
@@ -117,7 +122,9 @@ class SessionInfo:
         else:
             raise NotImplementedError
         print(apiurl)
-        self.api = hexoskin.client.HexoApi(publicKey, privateKey, base_url=apiurl, auth=username + ':' + password, api_version = '3.3.x')
+        self.api = hexoskin.client.HexoApi(
+            publicKey, privateKey, base_url=apiurl, auth=username + ':' +
+            password, api_version='3.3.x')
         authCode = test_auth(self.api)
         if authCode != '':
             raise
@@ -132,8 +139,9 @@ def auth_login():
     Requires the credentials mentioned below.
     It can be directly added to code (set interactiveLoginFlag = False)
     or from the terminal (set interactiveLoginFlag = True)
-    '''   
-    auth = SessionInfo(publicKey=publicKey,privateKey=privateKey,username=username,password=password)
+    '''
+    auth = SessionInfo(publicKey=publicKey, privateKey=privateKey,
+                       username=username, password=password)
 
     return auth
 
@@ -160,7 +168,6 @@ def all_users(auth):
     '''
     users = auth.api.user.list()
     return users.response
-
 
 
 def account_info_helper(auth):
@@ -208,28 +215,30 @@ def convertTimestamps(arr, format):
         out = []
         for i in arr:
             if len(arr[0]) == 1:
-                ts = datetime.datetime.fromtimestamp(float(i)/256).strftime(TIMESTAMP_FORMAT)
+                ts = datetime.datetime.fromtimestamp(
+                    float(i) / 256).strftime(TIMESTAMP_FORMAT)
                 out.append(ts)
             elif len(arr[0]) > 1:
-                ts = datetime.datetime.fromtimestamp(float(i[0])/256).strftime(TIMESTAMP_FORMAT)
+                ts = datetime.datetime.fromtimestamp(
+                    float(i[0]) / 256).strftime(TIMESTAMP_FORMAT)
                 line = []
                 line.append(ts)
                 [line.append(x) for x in i[1:]]
                 out.append(tuple(line))
     return out
 
+
 def clearCache(auth):
     """
-    This function clears the API cache. To be used only if the resource list changes, which shouldn't happen often
+    This function clears the API cache. To be used only if the resource
+    list changes, which shouldn't happen often
     """
     auth.api.clear_resource_cache()
 
 
 def main(argv):
-    auth  = auth_login()
-    users = hexoskin_datatypes_helper()
-    print(users.text)
-    
+    pass
+
 
 if __name__ == "__main__":
     main(sys.argv)
