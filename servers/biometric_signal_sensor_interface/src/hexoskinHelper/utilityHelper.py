@@ -28,10 +28,10 @@ TIMESTAMP = 'Epoch'
 TIMESTAMP_FORMAT = '%Y:%m:%d\t%H:%M:%S:%f'
 
 # Credentials are entered here, directly in the code
-username = "abhijith4m0505@gmail.com"
-password = "qwerty123"
-publicKey = "tFH3mjczIXydhK9Tyl4fJpJU6QhkLb"
-privateKey = "oTnpWKynoGSkameYNoJLlz70ITX1FC"
+username = ""
+password = ""
+publicKey = ""
+privateKey = ""
 
 # Datatypes definitions
 if MODEL == 'Hexoskin':
