@@ -6,8 +6,6 @@ import time
 import hexoskin.client
 import hexoskin.errors
 import requests
-from requests.auth import HTTPBasicAuth
-import requests.packages.urllib3
 
 requests.packages.urllib3.disable_warnings()
 
@@ -19,6 +17,7 @@ such as user information, available users, available biometric resources, etc.
 This helper module is called by the Tango server module providing a clear
 line of abstraction.
 '''
+
 # Model type : Hexoskin or CHA3000
 MODEL = 'Hexoskin'
 
@@ -28,6 +27,12 @@ TIMESTAMP = 'Epoch'
 # Timestamp format, as described in https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior
 # Use only if TIMESTAMP is set to String
 TIMESTAMP_FORMAT = '%Y:%m:%d\t%H:%M:%S:%f'
+
+# Credentials are entered here, directly in the code
+username = "abhijith4m0505@gmail.com"
+password = "qwerty123"
+publicKey = "tFH3mjczIXydhK9Tyl4fJpJU6QhkLb"
+privateKey = "oTnpWKynoGSkameYNoJLlz70ITX1FC"
 
 # Datatypes definitions
 if MODEL == 'Hexoskin':
@@ -127,13 +132,7 @@ def auth_login():
     Requires the credentials mentioned below.
     It can be directly added to code (set interactiveLoginFlag = False)
     or from the terminal (set interactiveLoginFlag = True)
-    '''
-    # Credentials are entered here, directly in the code
-    username = "abhijith4m0505@gmail.com"
-    password = "qwerty123"
-    publicKey = "tFH3mjczIXydhK9Tyl4fJpJU6QhkLb"
-    privateKey = "oTnpWKynoGSkameYNoJLlz70ITX1FC"
-    
+    '''   
     auth = SessionInfo(publicKey=publicKey,privateKey=privateKey,username=username,password=password)
 
     return auth
@@ -159,13 +158,12 @@ def all_users(auth):
     Returns list of users under authenticated user's account and respective
     information such as name, email, profile and resource uri
     '''
-    users = auth.api.account.list()
-
+    users = auth.api.user.list()
     return users.response
 
 
 
-def account_info_helper():
+def account_info_helper(auth):
     '''
     Param: auth token
     Return value: JSON response string with authenticated user information
@@ -173,10 +171,8 @@ def account_info_helper():
     Returns only the authenticated user's data such as name, email, uri,
     profile information, etc.
     '''
-    url = "https://api.hexoskin.com/api/account/"
-    response = api_helper(url)
-
-    return response
+    users = auth.api.account.list()
+    return users.response
 
 
 def user_account_info_helper(userID):
@@ -201,8 +197,7 @@ def hexoskin_datatypes_helper():
     Useful for adding new biometric resource support to the project.
     '''
     url = "https://api.hexoskin.com/api/datatype/"
-    response = api_helper(url)
-
+    response = requests.get(url, auth=(username, password))
     return response
 
 
@@ -232,7 +227,7 @@ def clearCache(auth):
 
 def main(argv):
     auth  = auth_login()
-    users = all_users(auth)
+    users = hexoskin_datatypes_helper()
     print(users.text)
     
 
