@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function
-import sys
+import sys, os
 import datetime
 import hexoskin.client
 import hexoskin.errors
@@ -137,13 +137,21 @@ def auth_login():
 
     Allows you login into your hexoskin account.
     Requires the credentials mentioned below.
-    It can be directly added to code (set interactiveLoginFlag = False)
-    or from the terminal (set interactiveLoginFlag = True)
     '''
-    auth = SessionInfo(publicKey=publicKey, privateKey=privateKey,
-                       username=username, password=password)
+    try:
+        if (publicKey == '' or privateKey == '' or 
+            privateKey == '' or privateKey == ''):
+            raise Exception("Credentials missing")
 
-    return auth
+    except Exception as error:
+        error_msg = error.args
+        print(error_msg[0])
+
+    else:
+        auth = SessionInfo(publicKey=publicKey, privateKey=privateKey, 
+            username=username, password=password)
+
+        return auth
 
 
 def test_auth(api):

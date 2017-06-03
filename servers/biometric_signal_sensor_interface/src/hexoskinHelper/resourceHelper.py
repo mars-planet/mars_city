@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function
 import sys
-import time
+import time, calendar
 import utilityHelper as util
 
 __author__ = 'abhijith'
@@ -170,8 +170,11 @@ def get_unsubsampled_data_helper(auth, userID, start, end, dataID):
     out = util.convertTimestamps(out, util.TIMESTAMP)
     return out
 
+def get_realtime_data_helper(auth, recordID, datatypes):
+    raise NotImplementedError
 
-def get_realtime_data_helper(auth, recordID, datatype):
+
+def get_realtime_data(auth, recordID, datatypes):
     '''
     Param: auth token, record ID of the record/session and the datatype of the
     metric that needs to be measured.
@@ -179,9 +182,23 @@ def get_realtime_data_helper(auth, recordID, datatype):
     Runs till the record is active and returns the data of the user every 5
     seconds adding to the record.
     '''
-    active_records = get_active_record_list_helper(auth)
-    if recordID in active_records:
-        return NotImplementedError
+    record = auth.api.record.get(recordID)
+    if record.status != 'complete':
+        return "No realtime data available with this record. Already docked."
+
+    start_epoch = calendar.timegm(time.gmtime())
+    start = start_epoch * 256
+    # 24 hours
+    end_epoch = int(start_epoch) + (24 * 60 * 60)
+    end = end_epoch * 256
+
+    realtime_data = []
+    while record.status == 'complete':
+        data = (get_realtime_data_helper(auth, start, end, datatypes))
+        record = auth.api.record.get(recordID)
+        start = end
+        end = (start/256) * 24 * 60 * 60
+        yield data
 
 
 def get_metric_helper(recordID, datatype):
@@ -206,7 +223,7 @@ def get_gps_helper(userID):
 
 def main(argv):
     auth = util.auth_login()
-    res = get_data(auth=auth, recordID=125340, datatypes=[19], downloadRaw=False)
+    res = get_realtime_data(auth=auth, recordID=125340, datatypes=[19])
     print(res)
 
 
