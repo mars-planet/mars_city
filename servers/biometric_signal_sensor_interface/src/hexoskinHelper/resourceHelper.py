@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 import sys
-import time, calendar
+import time
+import calendar
 import utilityHelper as util
 
 __author__ = 'abhijith'
@@ -103,11 +104,12 @@ def get_data(auth, recordID, start='', end='', datatypes='',
     if datatypes != '':
         for dataID in datatypes:
             raw_flag = 0
-            key = [key for key, value in util.datatypes.items() if value == [
+            d_items = util.datatypes.items()
+            key = [d_key for d_key, value in d_items if value == [
                 dataID]]
             if not key:
-                data_items = util.raw_datatypes.items()
-                key = [key for key, value in data_items if value == [dataID]]
+                d_items = util.raw_datatypes.items()
+                key = [d_key for d_key, value in d_items if value == [dataID]]
                 raw_flag = 1
             print("Downloading " + key[0])
             if raw_flag:
@@ -159,14 +161,13 @@ def get_unsubsampled_data_helper(auth, userID, start, end, dataID):
                     data = [zip(*dat.response.result[0][u'data'][str(v)])[1]
                             for v in dataID]
                     out.extend(zip(ts, *data))
-            except Exception as e:
+            except:
                 time.sleep(2)
 
             a = min(a + sampPerIter, end)
             b = min(b + sampPerIter, end)
             # Rate limiting to stay below 5 requests per second
             time.sleep(0.2)
-            
     else:
         dat = auth.api.data.list(start=start, end=end,
                                  user=userID, datatype=dataID)
@@ -181,11 +182,11 @@ def get_realtime_data_helper(auth, user, start, end, datatypes):
 
     for dataID in datatypes:
         raw_flag = 0
-        key = [key for key, value in util.datatypes.items() if value == [
+        key = [d_key for d_key, value in util.datatypes.items() if value == [
             dataID]]
         if not key:
             data_items = util.raw_datatypes.items()
-            key = [key for key, value in data_items if value == [dataID]]
+            key = [d_key for d_key, value in data_items if value == [dataID]]
             raw_flag = 1
 
         if raw_flag:
@@ -207,15 +208,14 @@ def realtime_data_generator(auth, recordID, datatypes):
     start_epoch = start_epoch - (60)
     start = (start_epoch) * 256
 
-    #start = record.start
-
-    end = int((start/256) + 5)*256
+    end = int((start / 256) + 5) * 256
 
     while True:
-        data = get_realtime_data_helper(auth, record.user, start, end, datatypes)
+        user = record.user
+        data = get_realtime_data_helper(auth, user, start, end, datatypes)
         record = auth.api.record.get(recordID)
         start = end
-        end = int((start/256) + 5)*256
+        end = int((start / 256) + 5) * 256
         yield data
         time.sleep(3)
 
@@ -239,7 +239,6 @@ def get_realtime_data(auth, recordID, datatypes):
         if record.status == "complete":
             break
         print(data)
-   
 
 
 def get_metric_helper(recordID, datatype):

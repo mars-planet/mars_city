@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function
-import sys, os
+import sys
 import datetime
 import hexoskin.client
 import hexoskin.errors
@@ -139,8 +139,8 @@ def auth_login():
     Requires the credentials mentioned below.
     '''
     try:
-        if (publicKey == '' or privateKey == '' or 
-            privateKey == '' or privateKey == ''):
+        if (publicKey == '' or privateKey == '' or
+                privateKey == '' or privateKey == ''):
             raise Exception("Credentials missing")
 
     except Exception as error:
@@ -148,8 +148,8 @@ def auth_login():
         print(error_msg[0])
 
     else:
-        auth = SessionInfo(publicKey=publicKey, privateKey=privateKey, 
-            username=username, password=password)
+        auth = SessionInfo(publicKey=publicKey, privateKey=privateKey,
+                           username=username, password=password)
 
         return auth
 
