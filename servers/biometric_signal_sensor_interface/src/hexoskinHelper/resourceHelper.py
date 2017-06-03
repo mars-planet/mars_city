@@ -51,7 +51,7 @@ def get_active_record_list_helper(auth):
     response = []
 
     for record in recordList:
-        if(record['status'] == "complete"):
+        if(record['status'] == "realtime"):
             response.append(record['id'])
 
     return response
@@ -153,15 +153,20 @@ def get_unsubsampled_data_helper(auth, userID, start, end, dataID):
         while a < end:
             dat = auth.api.data.list(
                 start=a, end=b, user=userID, datatype=dataID)
-            if len(dat.response.result[0]['data'].values()[0]) > 0:
-                ts = zip(*dat.response.result[0][u'data'].values()[0])[0]
-                data = [zip(*dat.response.result[0][u'data'][str(v)])[1]
-                        for v in dataID]
-                out.extend(zip(ts, *data))
+            try:
+                if len(dat.response.result[0]['data'].values()[0]) > 0:
+                    ts = zip(*dat.response.result[0][u'data'].values()[0])[0]
+                    data = [zip(*dat.response.result[0][u'data'][str(v)])[1]
+                            for v in dataID]
+                    out.extend(zip(ts, *data))
+            except Exception as e:
+                time.sleep(2)
+
             a = min(a + sampPerIter, end)
             b = min(b + sampPerIter, end)
             # Rate limiting to stay below 5 requests per second
             time.sleep(0.2)
+            
     else:
         dat = auth.api.data.list(start=start, end=end,
                                  user=userID, datatype=dataID)
@@ -170,8 +175,51 @@ def get_unsubsampled_data_helper(auth, userID, start, end, dataID):
     out = util.convertTimestamps(out, util.TIMESTAMP)
     return out
 
-def get_realtime_data_helper(auth, recordID, datatypes):
-    raise NotImplementedError
+
+def get_realtime_data_helper(auth, user, start, end, datatypes):
+    final_dat = {}
+
+    for dataID in datatypes:
+        raw_flag = 0
+        key = [key for key, value in util.datatypes.items() if value == [
+            dataID]]
+        if not key:
+            data_items = util.raw_datatypes.items()
+            key = [key for key, value in data_items if value == [dataID]]
+            raw_flag = 1
+
+        if raw_flag:
+            data = get_unsubsampled_data_helper(
+                auth=auth, userID=user, start=start, end=end,
+                dataID=util.raw_datatypes[key[0]])
+        else:
+            data = get_unsubsampled_data_helper(
+                auth=auth, userID=user, start=start, end=end,
+                dataID=util.datatypes[key[0]])
+        final_dat[dataID] = data
+    return final_dat
+
+
+def realtime_data_generator(auth, recordID, datatypes):
+    record = auth.api.record.get(recordID)
+
+    start_epoch = calendar.timegm(time.gmtime())
+    start_epoch = start_epoch - (60)
+    start = (start_epoch) * 256
+
+    #start = record.start
+
+    end = int((start/256) + 5)*256
+
+    while True:
+        data = get_realtime_data_helper(auth, record.user, start, end, datatypes)
+        record = auth.api.record.get(recordID)
+        start = end
+        end = int((start/256) + 5)*256
+        yield data
+        time.sleep(3)
+
+    return
 
 
 def get_realtime_data(auth, recordID, datatypes):
@@ -183,22 +231,15 @@ def get_realtime_data(auth, recordID, datatypes):
     seconds adding to the record.
     '''
     record = auth.api.record.get(recordID)
-    if record.status != 'complete':
-        return "No realtime data available with this record. Already docked."
+    if record.status != 'realtime':
+        print("No realtime data available with this record. Already docked.")
+        return
 
-    start_epoch = calendar.timegm(time.gmtime())
-    start = start_epoch * 256
-    # 24 hours
-    end_epoch = int(start_epoch) + (24 * 60 * 60)
-    end = end_epoch * 256
-
-    realtime_data = []
-    while record.status == 'complete':
-        data = (get_realtime_data_helper(auth, start, end, datatypes))
-        record = auth.api.record.get(recordID)
-        start = end
-        end = (start/256) * 24 * 60 * 60
-        yield data
+    for data in realtime_data_generator(auth, recordID, datatypes):
+        if record.status == "complete":
+            break
+        print(data)
+   
 
 
 def get_metric_helper(recordID, datatype):
@@ -223,8 +264,8 @@ def get_gps_helper(userID):
 
 def main(argv):
     auth = util.auth_login()
-    res = get_realtime_data(auth=auth, recordID=125340, datatypes=[19])
-    print(res)
+    print(get_active_record_list_helper(auth))
+    get_realtime_data(auth, get_active_record_list_helper(auth)[0], [4113])
 
 
 if __name__ == "__main__":
