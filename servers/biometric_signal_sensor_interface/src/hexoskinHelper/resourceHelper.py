@@ -162,7 +162,7 @@ def get_unsubsampled_data_helper(auth, userID, start, end, dataID):
                             for v in dataID]
                     out.extend(zip(ts, *data))
             except:
-                time.sleep(2)
+                out.extend(zip([], []))
 
             a = min(a + sampPerIter, end)
             b = min(b + sampPerIter, end)
@@ -205,19 +205,20 @@ def realtime_data_generator(auth, recordID, datatypes):
     record = auth.api.record.get(recordID)
 
     start_epoch = calendar.timegm(time.gmtime())
-    start_epoch = start_epoch - (60)
+    start_epoch = start_epoch - (10)
     start = (start_epoch) * 256
 
-    end = int((start / 256) + 5) * 256
+    #end = int((start / 256) + 3) * 256
+    end = (calendar.timegm(time.gmtime()) - 5 )* 256
 
     while True:
         user = record.user
         data = get_realtime_data_helper(auth, user, start, end, datatypes)
         record = auth.api.record.get(recordID)
         start = end
-        end = int((start / 256) + 5) * 256
+        end = (calendar.timegm(time.gmtime()) - 5)* 256
+        time.sleep(2)
         yield data
-        time.sleep(3)
 
     return
 
@@ -227,7 +228,7 @@ def get_realtime_data(auth, recordID, datatypes):
     Param: auth token, record ID of the record/session and the datatype of the
     metric that needs to be measured.
 
-    Runs till the record is active and returns the data of the user every 5
+    Runs till the record is active and returns the data of the user every 3
     seconds adding to the record.
     '''
     record = auth.api.record.get(recordID)
@@ -235,10 +236,16 @@ def get_realtime_data(auth, recordID, datatypes):
         print("No realtime data available with this record. Already docked.")
         return
 
+    exitCounter = 5
     for data in realtime_data_generator(auth, recordID, datatypes):
-        if record.status == "complete":
-            break
-        print(data)
+        if len(data[datatypes[0]]) == 0:
+            exitCounter = exitCounter - 5
+            if exitCounter == 0:
+                break
+        else:
+            exitCounter = 5
+            print(data)
+    return
 
 
 def get_metric_helper(recordID, datatype):
@@ -264,7 +271,7 @@ def get_gps_helper(userID):
 def main(argv):
     auth = util.auth_login()
     print(get_active_record_list_helper(auth))
-    get_realtime_data(auth, get_active_record_list_helper(auth)[0], [4113])
+    get_realtime_data(auth, get_active_record_list_helper(auth)[0], [18])
 
 
 if __name__ == "__main__":
