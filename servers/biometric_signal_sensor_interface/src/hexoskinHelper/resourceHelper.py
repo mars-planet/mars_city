@@ -13,7 +13,7 @@ clear line of abstraction.
 '''
 
 
-def get_record_list_helper(auth, limit="100", user='', deviceFilter=''):
+def get_record_list(auth, limit="100", user='', deviceFilter=''):
     '''
     Each astronaut session with the hexoskin is a record. Record starts when
     he plugs the device to his shirt, and stops when the device is plugged
@@ -40,7 +40,7 @@ def get_record_list_helper(auth, limit="100", user='', deviceFilter=''):
     return out.response.result['objects']
 
 
-def get_active_record_list_helper(auth, limit="100", user='', deviceFilter=''):
+def get_active_record_list(auth, limit="100", user='', deviceFilter=''):
     '''
     Returns the results records that are measuring in realtime corresponding
     to the selected filters
@@ -108,6 +108,8 @@ def get_data(auth, recordID, start='', end='', datatypes='',
         @param start:       Start timestamp for data to be fetched
         @param end:         End timestamp for data to be fetched
         @param datatypes:   Datatypes to be fetched
+                            If not passed, all raw_datatypes (based on next
+                            param value) and other datatypes downloaded
         @param downloadRaw: Flag to fetch raw-datatypes also
         @return :           returns a dictionary containing all datatypes
                             in separate entries
@@ -319,8 +321,9 @@ def get_gps_helper(userID):
 
 def main(argv):
     auth = util.auth_login()
-    print(get_active_record_list_helper(auth))
-    get_realtime_data(auth, get_active_record_list_helper(auth)[0], [18])
+    print(get_data(auth, recordID=125340, datatypes=[1000]))
+    # print(get_active_record_list(auth))
+    # get_realtime_data(auth, get_active_record_list(auth)[0], [18])
 
 
 if __name__ == "__main__":
