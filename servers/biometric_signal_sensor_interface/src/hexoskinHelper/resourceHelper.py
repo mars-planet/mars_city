@@ -20,14 +20,14 @@ def get_record_list_helper(auth, limit="100", user='', deviceFilter=''):
     into the system when the astronaut returns to the station.
 
     Returns the results records corresponding to the selected filters
-    @param auth:            The authentication token to use for the call
-    @param limit:           The limit of results to return. Passing 0 returns
-                            all the records
-    @param userFilter:      The ID of the user to look for
-    @param deviceFilter:    The device ID to look for. Takes the form
-                            HXSKIN12XXXXXXXX, where XXXXXXXX is the
-                            0-padded serial number. Example : HXSKIN1200001234
-    @return :               The record list
+        @param auth:            The authentication token to use for the call
+        @param limit:           The limit of results to return. Passing 0 returns
+                                all the records
+        @param userFilter:      The ID of the user to look for
+        @param deviceFilter:    The device ID to look for. Takes the form
+                                HXSKIN12XXXXXXXX, where XXXXXXXX is the
+                                0-padded serial number. Example : HXSKIN1200001234
+        @return :               The record list
     '''
     filters = dict()
     if limit != "100":
@@ -40,13 +40,18 @@ def get_record_list_helper(auth, limit="100", user='', deviceFilter=''):
     return out.response.result['objects']
 
 
-def get_active_record_list_helper(auth):
+def get_active_record_list_helper(auth, limit="100", user='', deviceFilter=''):
     '''
-    Param auth token, userID
-
-    Returns the records (record ID) that are currently in progress, i.e
-    astronaut is still exploring and hasn't returned to the stationed
-    and docked in yet.
+    Returns the results records that are measuring in realtime corresponding
+    to the selected filters
+        @param auth:            The authentication token to use for the call
+        @param limit:           The limit of results to return. Passing 0 returns
+                                all the records
+        @param userFilter:      The ID of the user to look for
+        @param deviceFilter:    The device ID to look for. Takes the form
+                                HXSKIN12XXXXXXXX, where XXXXXXXX is the
+                                0-padded serial number. Example : HXSKIN1200001234
+        @return :               The realtime measuring record list
     '''
     recordList = get_record_list_helper(auth)
     response = []
@@ -60,9 +65,11 @@ def get_active_record_list_helper(auth):
 
 def get_record_info_helper(auth, recordID):
     '''
-    Param: auth, recordID
-
     Returns the information regarding the passed recordID
+        @param auth:        The authentication token to use for the call
+        @param recordID:    Record ID of record
+        @return :           Returns the information regarding the passed
+                            recordID
     '''
 
     recordList = get_record_list_helper(auth)
@@ -78,8 +85,11 @@ def get_record_info_helper(auth, recordID):
 def get_record_data(auth, recordID, downloadRaw=True):
     """
     This function allows you to specify a record, and it will manage the
-    download of the different datatypes by itself
-    returns a dictionary containing all datatypes in separate entries
+    retrieval of the different datatypes by itself
+        @param auth:        The authentication token to use for the call
+        @param recordID:    Record ID of record
+        @return :           returns a dictionary containing all datatypes
+                            in separate entries
     """
     record = auth.api.record.get(recordID)
     final_dat = get_data(auth=auth, recordID=recordID,
@@ -93,6 +103,14 @@ def get_data(auth, recordID, start='', end='', datatypes='',
     """
     This function fetches the specified data range. Called by getRangeData
     and getRecordData
+        @param auth:        The authentication token to use for the call
+        @param recordID:    Record ID of record
+        @param start:       Start timestamp for data to be fetched
+        @param end:         End timestamp for data to be fetched
+        @param datatypes:   Datatypes to be fetched
+        @param downloadRaw: Flag to fetch raw-datatypes also
+        @return :           returns a dictionary containing all datatypes
+                            in separate entries
     """
     record = auth.api.record.get(recordID)
     if start == '':
@@ -143,6 +161,13 @@ def get_unsubsampled_data_helper(auth, userID, start, end, dataID):
     All data comes in subsampled form if the number of samples
     exceeds 65535. If this is the case, fetch data
     page by page to prevent getting subsampled data.
+        @param auth:        The authentication token to use for the call
+        @param userID:      userID ID of record
+        @param start:       Start timestamp for data to be fetched
+        @param end:         End timestamp for data to be fetched
+        @param datatypes:   Datatypes to be fetched
+        @return :           returns a dictionary containing all datatypes
+                            in separate entries
     """
     out = []
     # Number of ticks between each sample
@@ -178,6 +203,17 @@ def get_unsubsampled_data_helper(auth, userID, start, end, dataID):
 
 
 def get_realtime_data_helper(auth, user, start, end, datatypes):
+    """
+    This function fetches the specified data range. Called by
+    realtime_data_generator() page by page to prevent getting subsampled data.
+        @param auth:        The authentication token to use for the call
+        @param userID:      userID ID of record
+        @param start:       Start timestamp for data to be fetched
+        @param end:         End timestamp for data to be fetched
+        @param datatypes:   Datatypes to be fetched
+        @return :           returns a dictionary containing all datatypes in
+                            separate entries
+    """
     final_dat = {}
 
     for dataID in datatypes:
@@ -202,21 +238,28 @@ def get_realtime_data_helper(auth, user, start, end, datatypes):
 
 
 def realtime_data_generator(auth, recordID, datatypes):
+    '''
+    A generator function that yields the realtime data to get_realtime_data()
+        @param auth:        The authentication token to use for the call
+        @param recordID:    recordID ID of record
+        @param datatypes:   Datatypes to be fetched
+        @return :           returns a dictionary containing all datatypes in
+                            separate entries
+    '''
     record = auth.api.record.get(recordID)
 
     start_epoch = calendar.timegm(time.gmtime())
     start_epoch = start_epoch - (10)
     start = (start_epoch) * 256
 
-    #end = int((start / 256) + 3) * 256
-    end = (calendar.timegm(time.gmtime()) - 5 )* 256
+    end = (calendar.timegm(time.gmtime()) - 5) * 256
 
     while True:
         user = record.user
         data = get_realtime_data_helper(auth, user, start, end, datatypes)
         record = auth.api.record.get(recordID)
         start = end
-        end = (calendar.timegm(time.gmtime()) - 5)* 256
+        end = (calendar.timegm(time.gmtime()) - 5) * 256
         time.sleep(2)
         yield data
 
@@ -228,8 +271,14 @@ def get_realtime_data(auth, recordID, datatypes):
     Param: auth token, record ID of the record/session and the datatype of the
     metric that needs to be measured.
 
-    Runs till the record is active and returns the data of the user every 3
-    seconds adding to the record.
+    
+    This function fetches the specified data range. Called by
+    realtime_data_generator() page by page to prevent getting subsampled data.
+        @param auth:        The authentication token to use for the call
+        @param recordID:    recordID ID of record
+        @param datatypes:   Datatypes to be fetched
+        @return :           Runs till the record is active and returns the
+                            data of the user regularly, adding to the record.
     '''
     record = auth.api.record.get(recordID)
     if record.status != 'realtime':

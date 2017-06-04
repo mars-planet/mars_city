@@ -131,11 +131,9 @@ class SessionInfo:
 
 def auth_login():
     '''
-    Param: void
-    Return value: auth (authentication token)
-
     Allows you login into your hexoskin account.
     Requires the credentials mentioned below.
+        @return :   auth (authentication token)
     '''
     try:
         if (publicKey == '' or privateKey == '' or
@@ -154,6 +152,12 @@ def auth_login():
 
 
 def test_auth(api):
+    '''
+    Tests whether the login to hexoskin servers was successful or not.
+    Called by auth_login()
+    Requires the credentials mentioned below.
+        @return : empty string (if valid) or 'login_invalid'
+    '''
     try:
         api.account.list()
     except Exception, e:
@@ -166,12 +170,11 @@ def test_auth(api):
 
 def all_users(auth):
     '''
-    Param: auth token
-    Return value: JSON response string with account information of the users
-    under authenticated user's account
-
     Returns list of users under authenticated user's account and respective
     information such as name, email, profile and resource uri
+        @param auth :   authentication token
+        @return :       JSON response string with account information
+                        of the users under authenticated user's account
     '''
     users = auth.api.user.list()
     return users.response
@@ -179,36 +182,39 @@ def all_users(auth):
 
 def account_info_helper(auth):
     '''
-    Param: auth token
-    Return value: JSON response string with authenticated user information
-
     Returns only the authenticated user's data such as name, email, uri,
     profile information, etc.
+        @param auth :   authentication token
+        @return :       JSON response string with authenticated user
+                        information
     '''
     users = auth.api.account.list()
     return users.response
 
 
-def user_account_info_helper(userID):
+def user_account_info_helper(auth, userID):
     '''
     Param: userID
     Return value: JSON response string with user's data whose user-id is userID
 
     Returns only the user's data such as name, email, uri, profile inforation,
     etc, whose user-id is userID
+        @param auth :   authentication token
+        @param userID : user id
+        @return :       JSON response string with user's data
+                        whose user-id is userID
     '''
     raise NotImplementedError
 
 
 def hexoskin_datatypes_helper():
     '''
-    Param: auth (authentication token)
-    Return value: JSON response string containing datatypes and associated IDs
-
     Returns all the datatypes that the hexoskin allows. Datatypes in Hexoskin
     are the biometric resources it provides, such as Breathing rate, etc.
 
     Useful for adding new biometric resource support to the project.
+        @return :       JSON response string containing datatypes and
+                        associated IDs
     '''
     url = "https://api.hexoskin.com/api/datatype/"
     response = requests.get(url, auth=(username, password))
@@ -216,6 +222,13 @@ def hexoskin_datatypes_helper():
 
 
 def convertTimestamps(arr, format):
+    '''
+    Converts timestamps from hexoskin timestamp format to human readable format
+    Called by other functions
+        @param arr :        timestamp
+        @param format :     desirec output format
+        @return :           timestamp in format
+    '''
     if format == 'Epoch':
         out = arr
     if format == 'String':
@@ -239,6 +252,7 @@ def clearCache(auth):
     """
     This function clears the API cache. To be used only if the resource
     list changes, which shouldn't happen often
+        @param auth :   authentication token
     """
     auth.api.clear_resource_cache()
 
