@@ -1,8 +1,11 @@
 from __future__ import absolute_import, division, print_function
 import sys
 import time
+import json
 import calendar
 import utilityHelper as util
+import pandas as pd
+import numpy as np
 
 __author__ = 'abhijith'
 
@@ -281,11 +284,12 @@ def get_realtime_data(auth, recordID, datatypes):
         @param datatypes:   Datatypes to be fetched
         @return :           Runs till the record is active and returns the
                             data of the user regularly, adding to the record.
+                            -1, if data not being collected in realtime
     '''
     record = auth.api.record.get(recordID)
     if record.status != 'realtime':
         print("No realtime data available with this record. Already docked.")
-        return
+        return -1
 
     exitCounter = 5
     for data in realtime_data_generator(auth, recordID, datatypes):
@@ -295,7 +299,16 @@ def get_realtime_data(auth, recordID, datatypes):
                 break
         else:
             exitCounter = 5
-            print(data)
+            hTimestamp = []
+            value = []
+            for a in data[datatypes[0]]:
+                hTimestamp.append(a[0])
+                value.append(a[1])
+            # Pandas Dataframe
+            df = pd.DataFrame(np.column_stack([hTimestamp, value]))
+
+            # Call anomaly detection endpoint here
+            print(df.head())
     return
 
 
@@ -321,9 +334,9 @@ def get_gps_helper(userID):
 
 def main(argv):
     auth = util.auth_login()
-    print(get_data(auth, recordID=125340, datatypes=[1000]))
+    #print(json.loads(str())
     # print(get_active_record_list(auth))
-    # get_realtime_data(auth, get_active_record_list(auth)[0], [18])
+    #get_realtime_data(auth, 125340, [18])
 
 
 if __name__ == "__main__":

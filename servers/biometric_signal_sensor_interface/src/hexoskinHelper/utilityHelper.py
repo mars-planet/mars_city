@@ -4,8 +4,10 @@ import datetime
 import hexoskin.client
 import hexoskin.errors
 import requests
+import ConfigParser
 
 requests.packages.urllib3.disable_warnings()
+config = ConfigParser.ConfigParser()
 
 __author__ = 'abhijith'
 
@@ -26,12 +28,6 @@ TIMESTAMP = 'Epoch'
 # Timestamp format
 # Use only if TIMESTAMP is set to String
 TIMESTAMP_FORMAT = '%Y:%m:%d\t%H:%M:%S:%f'
-
-# Credentials are entered here, directly in the code
-username = "abhijith4m0505@gmail.com"
-password = "qwerty123"
-publicKey = "tFH3mjczIXydhK9Tyl4fJpJU6QhkLb"
-privateKey = "oTnpWKynoGSkameYNoJLlz70ITX1FC"
 
 # Datatypes definitions
 if MODEL == 'Hexoskin':
@@ -135,6 +131,12 @@ def auth_login():
     Requires the credentials mentioned below.
         @return :   auth (authentication token)
     '''
+    # Credentials should be added in ../biometric_monitor/config.cfg
+    config.read("../biometric_monitor/config.cfg")
+    username = config_helper("Credentials")['username']
+    password = config_helper("Credentials")['password']
+    publicKey = config_helper("Credentials")['publickey']
+    privateKey = config_helper("Credentials")['privatekey']
     try:
         if (publicKey == '' or privateKey == '' or
                 privateKey == '' or privateKey == ''):
@@ -257,8 +259,29 @@ def clearCache(auth):
     auth.api.clear_resource_cache()
 
 
+def config_helper(section):
+    '''
+    Returns a dictonary of the configuration stored in
+    ../biometric_monitor/config.cfg
+        @param section: configuration section from the config file that,
+                        has to be read
+    '''
+    dict_config = {}
+    options = config.options(section)
+    for option in options:
+        try:
+            dict_config[option] = config.get(section, option)
+            if dict_config[option] == -1:
+                DebugPrint("skip: %s" % option)
+        except:
+            print("exception on %s!" % option)
+            dict_config[option] = None
+    return dict_config
+
+
 def main(argv):
-    pass
+    auth = auth_login()
+    print(auth)
 
 
 if __name__ == "__main__":
