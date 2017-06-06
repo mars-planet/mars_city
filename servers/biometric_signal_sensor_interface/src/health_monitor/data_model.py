@@ -15,7 +15,7 @@ class AtrFibAlarms(Base):
     doe = Column(DateTime, nullable=False, default=datetime.now)
     num_of_NEC = Column(SmallInteger, nullable=False)
     data_reliability = Column(SmallInteger, nullable=False)
-    window_size = Column(SmallInteger, nullable=False, default=64)    
+    window_size = Column(SmallInteger, nullable=False, default=64)
 
     def __repr__(self):
         return ("<AtrFibAlarms('%s', '%s', '%s', '%s', '%s')>"
