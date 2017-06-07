@@ -1,0 +1,7 @@
+flask
+flask-script
+requests
+requests-ftp
+numpy
+scipy
+pandas
