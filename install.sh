@@ -14,6 +14,16 @@ sudo apt-get --yes update
 echo "Done Updating"
 
 echo "--------------------------------------------------------------------"
+echo "Checking Python version"
+echo "--------------------------------------------------------------------"
+version="$(python --version  2>&1 |cut -c 8)"
+if [ $version -eq 2 ] ;then
+    eval python --version
+else
+    echo "Please use Python 2.7.x"
+fi
+
+echo "--------------------------------------------------------------------"
 echo "Installing MySql"
 echo "--------------------------------------------------------------------"
 sleep 1
