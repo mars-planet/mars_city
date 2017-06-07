@@ -17,7 +17,7 @@ class AnomalyDetector(object):
 
     def __init__(self):
         config = ConfigParser.RawConfigParser()
-        dirname = os.path.dirname(os.path.abspath(sys.argv[0]))
+        dirname = dir_path = os.path.dirname(os.path.realpath(__file__))
         cfg_filename = os.path.join(dirname, 'anomaly_detector.cfg')
         config.read(cfg_filename)
 
@@ -69,6 +69,9 @@ class AnomalyDetector(object):
             data timestamps to set AFAlarmAttribute at
             the health_monitor server
         """
+        rr_intervals.columns = ["hexoskin_timestamps", "rr_int"]
+        hr_quality_indices.columns = ["hexoskin_timestamps", "quality_ind"]
+
         if not (len(rr_intervals)) == self.window_size:
             raise ValueError("window length of rr_intervals\
                 passed doesn't match config file")

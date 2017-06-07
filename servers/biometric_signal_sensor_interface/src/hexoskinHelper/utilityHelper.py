@@ -8,6 +8,7 @@ import ConfigParser
 
 requests.packages.urllib3.disable_warnings()
 config = ConfigParser.ConfigParser()
+config.read("../health_monitor/config.cfg")
 
 __author__ = 'abhijith'
 
@@ -132,7 +133,6 @@ def auth_login():
         @return :   auth (authentication token)
     '''
     # Credentials should be added in ../biometric_monitor/config.cfg
-    config.read("../biometric_monitor/config.cfg")
     username = config_helper("Credentials")['username']
     password = config_helper("Credentials")['password']
     publicKey = config_helper("Credentials")['publickey']
@@ -218,9 +218,7 @@ def hexoskin_datatypes_helper():
         @return :       JSON response string containing datatypes and
                         associated IDs
     '''
-    url = "https://api.hexoskin.com/api/datatype/"
-    response = requests.get(url, auth=(username, password))
-    return response
+    not NotImplementedError
 
 
 def convertTimestamps(arr, format):
@@ -271,8 +269,6 @@ def config_helper(section):
     for option in options:
         try:
             dict_config[option] = config.get(section, option)
-            if dict_config[option] == -1:
-                DebugPrint("skip: %s" % option)
         except:
             print("exception on %s!" % option)
             dict_config[option] = None
@@ -280,8 +276,7 @@ def config_helper(section):
 
 
 def main(argv):
-    auth = auth_login()
-    print(auth)
+    pass
 
 
 if __name__ == "__main__":

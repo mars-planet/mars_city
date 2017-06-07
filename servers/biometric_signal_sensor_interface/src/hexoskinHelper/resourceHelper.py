@@ -1,7 +1,6 @@
 from __future__ import absolute_import, division, print_function
 import sys
 import time
-import json
 import calendar
 import utilityHelper as util
 import pandas as pd
@@ -24,12 +23,13 @@ def get_record_list(auth, limit="100", user='', deviceFilter=''):
 
     Returns the results records corresponding to the selected filters
         @param auth:            The authentication token to use for the call
-        @param limit:           The limit of results to return. Passing 0 returns
-                                all the records
+        @param limit:           The limit of results to return. Passing 0
+                                returns all the records
         @param userFilter:      The ID of the user to look for
         @param deviceFilter:    The device ID to look for. Takes the form
                                 HXSKIN12XXXXXXXX, where XXXXXXXX is the
-                                0-padded serial number. Example : HXSKIN1200001234
+                                0-padded serial number.
+                                Example : HXSKIN1200001234
         @return :               The record list
     '''
     filters = dict()
@@ -48,15 +48,16 @@ def get_active_record_list(auth, limit="100", user='', deviceFilter=''):
     Returns the results records that are measuring in realtime corresponding
     to the selected filters
         @param auth:            The authentication token to use for the call
-        @param limit:           The limit of results to return. Passing 0 returns
-                                all the records
+        @param limit:           The limit of results to return. Passing 0
+                                returns all the records
         @param userFilter:      The ID of the user to look for
         @param deviceFilter:    The device ID to look for. Takes the form
                                 HXSKIN12XXXXXXXX, where XXXXXXXX is the
-                                0-padded serial number. Example : HXSKIN1200001234
+                                0-padded serial number.
+                                Example : HXSKIN1200001234
         @return :               The realtime measuring record list
     '''
-    recordList = get_record_list_helper(auth)
+    recordList = get_record_list(auth)
     response = []
 
     for record in recordList:
@@ -75,7 +76,7 @@ def get_record_info_helper(auth, recordID):
                             recordID
     '''
 
-    recordList = get_record_list_helper(auth)
+    recordList = get_record_list(auth)
     response = []
 
     for record in recordList:
@@ -254,31 +255,30 @@ def realtime_data_generator(auth, recordID, datatypes):
     record = auth.api.record.get(recordID)
 
     start_epoch = calendar.timegm(time.gmtime())
-    start_epoch = start_epoch - (10)
+    start_epoch = start_epoch - (20)
     start = (start_epoch) * 256
 
-    end = (calendar.timegm(time.gmtime()) - 5) * 256
+    end = (calendar.timegm(time.gmtime()) - 10) * 256
 
     while True:
         user = record.user
         data = get_realtime_data_helper(auth, user, start, end, datatypes)
         record = auth.api.record.get(recordID)
         start = end
-        end = (calendar.timegm(time.gmtime()) - 5) * 256
-        time.sleep(2)
+        end = (calendar.timegm(time.gmtime()) - 10) * 256
+        time.sleep(5)
         yield data
 
     return
 
 
-def get_realtime_data(auth, recordID, datatypes):
+def get_realtime_data(auth, recordID, func, window_size='64', datatypes=''):
     '''
     Param: auth token, record ID of the record/session and the datatype of the
     metric that needs to be measured.
 
-    
-    This function fetches the specified data range. Called by
-    realtime_data_generator() page by page to prevent getting subsampled data.
+
+    This function fetches the specified data range.
         @param auth:        The authentication token to use for the call
         @param recordID:    recordID ID of record
         @param datatypes:   Datatypes to be fetched
@@ -291,24 +291,42 @@ def get_realtime_data(auth, recordID, datatypes):
         print("No realtime data available with this record. Already docked.")
         return -1
 
+    N = len(datatypes) * 2
+
     exitCounter = 5
+    lists_for_df = [[] for x in range(N)]
+
     for data in realtime_data_generator(auth, recordID, datatypes):
+
         if len(data[datatypes[0]]) == 0:
-            exitCounter = exitCounter - 5
+            exitCounter = exitCounter - 1
             if exitCounter == 0:
                 break
         else:
             exitCounter = 5
-            hTimestamp = []
-            value = []
             for a in data[datatypes[0]]:
-                hTimestamp.append(a[0])
-                value.append(a[1])
-            # Pandas Dataframe
-            df = pd.DataFrame(np.column_stack([hTimestamp, value]))
+                lists_for_df[0].append(a[0])
+                lists_for_df[1].append(a[1])
 
-            # Call anomaly detection endpoint here
-            print(df.head())
+            for a in data[datatypes[1]]:
+                lists_for_df[2].append(a[0])
+                lists_for_df[3].append(a[1])
+
+            if (len(lists_for_df[0]) >= window_size and
+                    len(lists_for_df[2]) >= window_size):
+                # Pandas Dataframe
+                rr_df = pd.DataFrame(np.column_stack([lists_for_df[0],
+                                                      lists_for_df[1]]))
+                hrq_df = pd.DataFrame(np.column_stack([lists_for_df[2],
+                                                       lists_for_df[3]]))
+                lists_for_df = [[] for x in range(N)]
+
+                start = int(len(rr_df) / 64)
+                end = int(len(rr_df) / 64) + 64
+                rr_df = rr_df[start:end]
+                rr_df.reset_index(drop=True, inplace=True)
+                # Call anomaly detection endpoint here
+                print(func(rr_df, hrq_df[0:64]))
     return
 
 
@@ -333,10 +351,7 @@ def get_gps_helper(userID):
 
 
 def main(argv):
-    auth = util.auth_login()
-    #print(json.loads(str())
-    # print(get_active_record_list(auth))
-    #get_realtime_data(auth, 125340, [18])
+    pass
 
 
 if __name__ == "__main__":
