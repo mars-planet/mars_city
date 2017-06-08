@@ -1,10 +1,10 @@
 from __future__ import absolute_import, division, print_function
 import sys
 import os
-sys.path.insert(0, '../hexoskinHelper')
+sys.path.insert(0, '../hexoskin_helper')
 sys.path.insert(0, '../anomaly_detector')
-import utilityHelper as util
-import resourceHelper as resource
+import utility_helper as util
+import resource_helper as resource
 import anomaly_detector as ad
 import ConfigParser
 
