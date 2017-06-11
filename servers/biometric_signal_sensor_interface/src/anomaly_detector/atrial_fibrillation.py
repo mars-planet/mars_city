@@ -12,16 +12,29 @@ class AtrialFibrillation(object):
     by Jie Lian et. al.
     Input data from rr_interval.txt and hr_quality.txt
     """
-    def __init__(self, rr_intervals, hr_quality_indices, win_size):
+    def __init__(self, rr_intervals, hr_quality_indices, config):
         self.rr_intervals = rr_intervals
         self.hr_quality_indices = hr_quality_indices
-        self.win_size = win_size
+        self.win_size = config.getint('Atrial Fibrillation', 'window_size')
         # throws key error if win_size is wrongly set
         self.nec_cutoff_threshold = {32: 23, 64: 40, 128: 65}[self.win_size]
         self.num_of_squares = 56
         # set from the cited paper - has to be a square grid
         self.x_offset = -8
         self.y_offset = 20
+
+        if not (len(rr_intervals)) == self.win_size:
+            raise ValueError("window length of rr_intervals\
+                passed doesn't match config file")
+
+        if not (rr_intervals['hexoskin_timestamps'][0] >=
+                hr_quality_indices['hexoskin_timestamps'][0] and
+                rr_intervals['hexoskin_timestamps'][len(rr_intervals)-1] <=
+                hr_quality_indices
+                ['hexoskin_timestamps'][len(hr_quality_indices)-1]):
+                raise ValueError("first rr_interval timestamp\
+                 and last rr_interval timestamp must lie within first \
+                 and last timestamp of hr_quality")
 
     def __calc_hr_quality(self):
         """

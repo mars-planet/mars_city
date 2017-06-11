@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import division, print_function
 
 import os
 import sys
@@ -16,12 +16,10 @@ class AnomalyDetector(object):
     """
 
     def __init__(self):
-        config = ConfigParser.RawConfigParser()
+        self.config = ConfigParser.RawConfigParser()
         dirname = os.path.dirname(os.path.abspath(sys.argv[0]))
         cfg_filename = os.path.join(dirname, 'anomaly_detector.cfg')
-        config.read(cfg_filename)
-
-        self.window_size = config.getint('Atrial Fibrillation', 'window_size')
+        self.config.read(cfg_filename)
 
     def af_anomaly_detect(self, rr_intervals, hr_quality_indices):
         """
@@ -69,21 +67,8 @@ class AnomalyDetector(object):
             data timestamps to set AFAlarmAttribute at
             the health_monitor server
         """
-        if not (len(rr_intervals)) == self.window_size:
-            raise ValueError("window length of rr_intervals\
-                passed doesn't match config file")
-
-        if not (rr_intervals['hexoskin_timestamps'][0] >=
-                hr_quality_indices['hexoskin_timestamps'][0] and
-                rr_intervals['hexoskin_timestamps'][len(rr_intervals)-1] <=
-                hr_quality_indices
-                ['hexoskin_timestamps'][len(hr_quality_indices)-1]):
-                raise ValueError("first rr_interval timestamp\
-                 and last rr_interval timestamp must lie within first \
-                 and last timestamp of hr_quality")
-
         AF = AtrialFibrillation(rr_intervals, hr_quality_indices,
-                                self.window_size)
+                                self.config)
         return AF.get_anomaly()
 
 
@@ -91,14 +76,17 @@ def main():
     AD = AnomalyDetector()
     rr_intervals = (pd.read_csv('rrinterval.txt',
                     sep="\t",
-                    nrows=AD.window_size,
+                    nrows=AD.config.getint('Atrial Fibrillation',
+                                           'window_size'),
                     dtype={"hexoskin_timestamps": np.int64,
                            "rr_int": np.float64},
                     header=None,
                     names=["hexoskin_timestamps", "rr_int"]))
     hr_quality_indices = (pd.read_csv('hr_quality.txt',
                                       sep="\t",
-                                      nrows=AD.window_size-8,
+                                      nrows=AD.config.
+                                      getint('Atrial Fibrillation',
+                                             'window_size')-8,
                                       dtype={"hexoskin_timestamps": np.int64,
                                              "quality_ind": np.int32},
                                       header=None,
