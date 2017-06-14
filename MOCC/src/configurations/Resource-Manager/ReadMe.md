@@ -19,7 +19,7 @@ A device server called ResourceManagerDS provides access to this database throug
 currently, data about the resource is being transferred as a string as we cannot pass python objects through PyTango commands.
 This could be improved.
 
-Fields of the data are seperated by ' # '
+Fields of the data are seperated by '#'
 
 Relevant information will be extracted from the string.
 
