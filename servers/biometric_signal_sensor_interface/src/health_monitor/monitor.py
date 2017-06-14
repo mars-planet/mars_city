@@ -12,12 +12,12 @@ import ConfigParser
 __author__ = 'abhijith'
 
 
-def atrial_fibrillation_helper(auth, recordID):
+def atrial_fibrillation_helper(auth):
     '''
     Returns the rr_interval data in realtime.
             @param auth:		Authentication token
-            @param recordID:	Record ID of session to be tracked.
     '''
+    recordID = resource.get_active_record_list(auth)[0]
     if recordID not in resource.get_active_record_list(auth):
         # record not updated in realtime.
         return -1
@@ -40,18 +40,37 @@ def atrial_fibrillation_helper(auth, recordID):
     return 1
 
 
-# def get_hr_quality_rt(auth, recordID):
-# 	'''
-# 	Returns the rr_interval data in realtime.
-# 		@param auth:		Authentication token
-# 		@param recordID:	Record ID of session to be tracked.
-# 	'''
-# 	if recordID not in resource.get_active_record_list(auth):
-# 		# record not updated in realtime.
-# 		return -1
-# 	resource.get_realtime_data(auth, recordID, util.datatypes['hr_quality'])
-# 	# Successfully finished. Astronaut docked.
-# 	return 1
+def next_AD_algo(auth):
+	'''
+	Returns the rr_interval data in realtime.
+		@param auth:		Authentication token
+	'''
+    recordID = resource.get_active_record_list(auth)[0]
+	if recordID not in resource.get_active_record_list(auth):
+		# record not updated in realtime.
+		return -1
+	resource.get_realtime_data(auth, recordID, util.datatypes['hr_quality'])
+	
+	#AD = ad.AnomalyDetector()
+
+    config = ConfigParser.RawConfigParser()
+    dirname = os.path.dirname(os.path.realpath(__file__))
+    cfg_filename = os.path.join(dirname,
+                                '../anomaly_detector/anomaly_detector.cfg')
+    config.read(cfg_filename)
+
+    window_size = config.getint('Atrial Fibrillation', 'window_size')
+
+    datatypes = [util.datatypes['ecg'][0],
+                 util.datatypes['heartrate'][0],
+                 util.datatypes['qrs'][0]]
+    
+    resource.get_realtime_data(auth, recordID, AD.af_anomaly_detect,
+                               window_size, datatypes)
+
+
+	# Successfully finished. Astronaut docked.
+	return 1
 
 
 def get_data(auth, recordID, start='', end='', datatypes='',
@@ -94,7 +113,7 @@ values accepted as datatypes:
 
 def main(argv):
     auth = util.auth_login()
-    atrial_fibrillation_helper(auth, resource.get_active_record_list(auth)[0])
+    atrial_fibrillation_helper(auth)
 
 
 if __name__ == "__main__":

@@ -57,7 +57,7 @@ def get_active_record_list(auth, limit="100", user='', deviceFilter=''):
                                 Example : HXSKIN1200001234
         @return :               The realtime measuring record list
     '''
-    recordList = get_record_list(auth)
+    recordList = get_record_list(auth, limit, user, deviceFilter)
     response = []
 
     for record in recordList:
