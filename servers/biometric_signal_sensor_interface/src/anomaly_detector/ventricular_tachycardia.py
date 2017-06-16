@@ -224,7 +224,9 @@ class VentricularTachycardia(object):
         __trough_avg_ampl = abs((sum([self.ecg['ecg_val'][i] for i in trough_indices])/len(trough_indices)) + self.mean)
         __cur_ampl = (__peak_avg_ampl + __trough_avg_ampl)/2
 
-        if __cur_ampl > prev_ampl:
+        # Note that __cur_ampl is in the mV unit as it is needed for further processing
+        # But we use self.mean_ampl as it is easier to calulate for a window in general
+        if self.mean_ampl > prev_ampl:
             return __cur_ampl, True
         else:
             return __cur_ampl, False
@@ -275,7 +277,7 @@ class VentricularTachycardia(object):
             classf = 'VT/VF'
         else:
             classf = 'Unknown'
-            
+
         return classf
 
     def asystole_detector(self, cur_ampl):

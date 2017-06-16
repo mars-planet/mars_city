@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 
 from atrial_fibrillation import AtrialFibrillation
+from ventricular_tachycardia import VentricularTachycardia
 
 
 class AnomalyDetector(object):
@@ -71,6 +72,39 @@ class AnomalyDetector(object):
                                 self.config)
         return AF.get_anomaly()
 
+    def vt_anomaly_detect(self, ecg, rr_intervals, rr_interval_status, prev_ampl):
+        """
+         __zero_one_count - if it is the string 'True', it means that analysis of next 6 seconds is required
+                          - if it is None, it means that next 6 second analysis is not required
+                          - if it has an integer value then it means that a VT event has been detected and it
+                            has to be stored in the anomaly database
+        """
+        __zero_one_count = 'True'
+        VTobj = VentricularTachycardia(ecg, rr_intervals, rr_interval_status, self.config)
+        further_analyze = VTobj.analyze_six_second()
+        if not further_analyze:
+            __zero_one_count = None
+            return VTobj.mean_ampl, __zero_one_count
+        
+        print("Doing further analysis")
+        VTobj.signal_preprocess()
+        cur_ampl, stop_cur = VTobj.DHA_detect(prev_ampl)
+        
+        # whatever be the results of the following stages, we have to analyze the next six second epoch
+        if stop_cur == True:
+            return VTobj.mean_ampl, __zero_one_count
+
+        # asystole detector
+        vtvfres = VTobj.asystole_detector(cur_ampl)
+
+        # to analyze next six second epoch
+        if vtvfres == 'VT/VF':
+            print(vtvfres)
+            __zero_one_count = VTobj.zero_one_count
+            return VTobj.mean_ampl, __zero_one_count
+        else:
+            print(vtvfres)
+            return VTobj.mean_ampl, __zero_one_count
 
 def main():
     AD = AnomalyDetector()
@@ -92,8 +126,34 @@ def main():
                                       header=None,
                                       names=["hexoskin_timestamps",
                                              "quality_ind"]))
-    print(AD.af_anomaly_detect(rr_intervals, hr_quality_indices))
+    # call the Atrial Fibrillation anomaly detection method
+    # print(AD.af_anomaly_detect(rr_intervals, hr_quality_indices))
 
+    ecg = (pd.read_csv('ecg.txt',
+                    sep="\t",
+                    nrows=256*6,
+                    dtype={"hexoskin_timestamps": np.int64,
+                           "ecg_val": np.int32},
+                    header=None,
+                    names=["hexoskin_timestamps", "ecg_val"]))
+    # for testing, ensure that only the relevant timestamped rr_intervals are present in rrinterval.txt
+    rr_intervals = (pd.read_csv('rrinterval.txt',
+                    sep="\t",
+                    nrows=7,
+                    dtype={"hexoskin_timestamps": np.int64,
+                           "rr_int": np.float64},
+                    header=None,
+                    names=["hexoskin_timestamps", "rr_int"]))
+    # for testing, ensure that only the relevant timestamped rr_status are present in rr_interval_status.txt
+    rr_interval_status = (pd.read_csv('rr_interval_status.txt',
+                          sep="\t",
+                          nrows=7,
+                          dtype={"hexoskin_timestamps": np.int64,
+                                 "rr_status": np.int32},
+                          header=None,
+                          names=["hexoskin_timestamps", "rr_status"]))
+    # call the Ventricular Tachycardia anomaly detection method
+    AD.vt_anomaly_detect(ecg, rr_intervals, rr_interval_status, 1400)
 
 if __name__ == '__main__':
     main()
