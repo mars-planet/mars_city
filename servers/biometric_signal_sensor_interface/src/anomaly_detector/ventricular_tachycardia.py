@@ -137,6 +137,8 @@ class VentricularTachycardia(object):
                         __ectopic_count += 1
             # return the truth value of - if ectopic beats are greater than 1/5 i.e. 20%
             return ((__ectopic_count/len(self.rr_intervals)) >= 0.2)
+        else:
+            return True
 
     def analyze_six_second(self):
         if (self.analyze_PVC_Unknown() or self.analyze_ectopic_beats()):
@@ -298,6 +300,11 @@ def main():
     cfg_filename = os.path.join(dirname, 'anomaly_detector.cfg')
     config.read(cfg_filename)
 
+    """
+    a return value of True implies further analysis is needed
+    a return value of False implies no further analysis is needed
+    a return value of an integer indicates VT episode
+    """
     ecg = (pd.read_csv('ecg.txt',
                     sep="\t",
                     nrows=256*6,
@@ -325,7 +332,7 @@ def main():
     VTobj = VentricularTachycardia(ecg, rr_intervals, rr_interval_status, config)
     further_analyze = VTobj.analyze_six_second()
     if not further_analyze:
-        return VTobj.mean_ampl, False
+        return False
     
     print("Doing further analysis")
     VTobj.signal_preprocess()
@@ -333,7 +340,7 @@ def main():
     
     # to analyze next six second epoch
     if stop_cur == True:
-        return VTobj.mean_ampl, False
+        return True
 
     # asystole detector
     vtvfres = VTobj.asystole_detector(cur_ampl)
@@ -341,10 +348,9 @@ def main():
     # to analyze next six second epoch
     if vtvfres == 'VT/VF':
         print(vtvfres)
-        return VTobj.mean_ampl, True
-    else:
+        return self.zero_one_count
         print(vtvfres)
-        return VTobj.mean_ampl, False
+        return True
     
 if __name__ == '__main__':
     main()

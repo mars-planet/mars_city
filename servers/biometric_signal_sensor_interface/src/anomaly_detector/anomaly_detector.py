@@ -22,6 +22,8 @@ class AnomalyDetector(object):
         cfg_filename = os.path.join(dirname, 'anomaly_detector.cfg')
         self.config.read(cfg_filename)
 
+        self.vt_result = None
+
     def af_anomaly_detect(self, rr_intervals, hr_quality_indices):
         """
         executes the Atrial Fibrillation Anomaly detection
@@ -74,17 +76,17 @@ class AnomalyDetector(object):
 
     def vt_anomaly_detect(self, ecg, rr_intervals, rr_interval_status, prev_ampl):
         """
-         __zero_one_count - if it is the string 'True', it means that analysis of next 6 seconds is required
-                          - if it is None, it means that next 6 second analysis is not required
+         __zero_one_count - if it is the string True, it means that analysis of next 6 seconds is required
+                          - if it is False, it means that next 6 second analysis is not required
                           - if it has an integer value then it means that a VT event has been detected and it
                             has to be stored in the anomaly database
         """
-        __zero_one_count = 'True'
+        __zero_one_count = True
         VTobj = VentricularTachycardia(ecg, rr_intervals, rr_interval_status, self.config)
         further_analyze = VTobj.analyze_six_second()
         if not further_analyze:
-            __zero_one_count = None
-            return VTobj.mean_ampl, __zero_one_count
+            __zero_one_count = False
+            self.vt_result = __zero_one_count
         
         print("Doing further analysis")
         VTobj.signal_preprocess()
@@ -92,7 +94,7 @@ class AnomalyDetector(object):
         
         # whatever be the results of the following stages, we have to analyze the next six second epoch
         if stop_cur == True:
-            return VTobj.mean_ampl, __zero_one_count
+            self.vt_result = __zero_one_count
 
         # asystole detector
         vtvfres = VTobj.asystole_detector(cur_ampl)
@@ -101,10 +103,10 @@ class AnomalyDetector(object):
         if vtvfres == 'VT/VF':
             print(vtvfres)
             __zero_one_count = VTobj.zero_one_count
-            return VTobj.mean_ampl, __zero_one_count
+            self.vt_result = __zero_one_count
         else:
             print(vtvfres)
-            return VTobj.mean_ampl, __zero_one_count
+            self.vt_result = __zero_one_count
 
 def main():
     AD = AnomalyDetector()

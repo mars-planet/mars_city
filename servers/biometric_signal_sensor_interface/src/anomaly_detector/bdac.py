@@ -98,6 +98,7 @@ def AnalyzeBeatTypeSixSecond(ecg, ADCGain, ADCZero, ip_freq, op_freq):
 			beatTypeList.append(beatType)
 			detectionTimeList.append(DetectionTime)
 
+	delattr(getVec, "i")
 	return beatTypeList, detectionTimeList
 
 def main():
