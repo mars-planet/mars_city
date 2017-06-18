@@ -6,6 +6,8 @@ from fractions import gcd
 import os
 import sys
 import csv
+import queue
+import ctypes
 
 import numpy as np
 import pandas as pd
@@ -38,6 +40,19 @@ class BeatAnalyzer(object):
 		self.vv = 0
 		self.v = 0
 		self.rval = 0
+
+		self.OSEA = ctypes.CDLL('osea.so')
+		self.OSEA.BeatDetectAndClassify.argtypes = (ctypes.c_int, ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int))
+		self.OSEA.ResetBDAC.argtypes = ()
+
+	def ResetBDAC(self):
+		self.OSEA.ResetBDAC()
+
+	def BeatDetectAndClassify(self, sample_val):
+	    beatType = ctypes.c_int()
+	    beatMatch = ctypes.c_int()
+	    result = self.OSEA.BeatDetectAndClassify(ctypes.c_int(sample_val), ctypes.byref(beatType), ctypes.byref(beatMatch))
+	    return int(result), int(beatType.value)
 
 	def getVec(self):
 		try:
@@ -96,7 +111,22 @@ class VTBeatDetector(object):
 		# read these from config file - already set up
 		self.hr_low = 40
 		self.hr_high = 70
-	
+
+		# read these from config file - already set up
+		# config file will give time in sec, multiply by 256
+		self.PVC_window = 10 * 256
+		self.PVC_number = 4
+
+		# config file will give time in sec, multiply by 256
+		self.Unknown_window = 10 * 256
+		self.Unknown_number = 4
+
+		# config file will give time in sec, multiply by 256
+		self.ectopic_window = 10 * 256
+		self.ectopic_number = 4
+		# read from config file
+		self.ectopic_beat_thresh = 10
+
 	def collect_data(self):
 		"""
 		this should be implemented as:
@@ -231,27 +261,36 @@ class VTBeatDetector(object):
 
 	def heart_rate_analyzer(self, init_hexo_time):
 		while True:
-			__timestamp = self.__get_key(False, init_hexo_time, 1)
-			if not self.hr_low <= self.hr_dict[__timestamp][0] <= self.hr_high:
-				if self.hr_dict[__timestamp][1] == 0:
-					print(self.hr_dict[__timestamp], __timestamp)
-					self.analyze_six_second(__timestamp)
-			# find next timestamp
-			init_hexo_time = __timestamp + 1
-			# delay to be set according to how fast the data is being collected
-			# could be reset dynamically
-			sleep(0.5)
-
+			try:
+				__timestamp = self.__get_key(False, init_hexo_time, 1)
+				if not self.hr_low <= self.hr_dict[__timestamp][0] <= self.hr_high:
+					if self.hr_dict[__timestamp][1] == 0:
+						# print(self.hr_dict[__timestamp], __timestamp)
+						self.analyze_six_second(__timestamp)
+				# find next timestamp
+				init_hexo_time = __timestamp + 1
+				# delay to be set according to how fast the data is being collected
+				# could be reset dynamically
+				# sleep(0.5)
+			except:
+				return
 
 	def beat_classf_analyzer(self, init_hexo_time):
+		"""
+		High number of PVC's within a certain time limit can indicate a VT onset.
+		Many 'unknown' beat types in a short time interval indicate that something is
+		wrong with the heart signal because QRS-complexes cannot be detected.
+		"""
 		Beats = BeatAnalyzer(self.ecg_dict, init_hexo_time)
 		ADCGain, ADCZero = 200, 1024
 		ip_freq, op_freq = 256, 200
 
-		bdac.ResetBDAC()
+		Beats.ResetBDAC()
 		samplecount = 0
 
 		beatTypeList, detectionTimeList = [], []
+		PVC_q = queue.Queue(maxsize=self.PVC_number)
+		Unknown_q = queue.Queue(maxsize=self.Unknown_number)
 
 		nextval, ecgval = Beats.beat_next_sample(ip_freq, op_freq, 1)
 		while nextval != -1:
@@ -263,8 +302,7 @@ class VTBeatDetector(object):
 			lTemp /= ADCGain
 			ecgval = lTemp
 
-			delay, beatType = bdac.BeatDetectAndClassify(int(ecgval))
-
+			delay, beatType = Beats.BeatDetectAndClassify(int(ecgval))
 			if delay != 0:
 				DetectionTime = samplecount - delay
 
@@ -272,28 +310,89 @@ class VTBeatDetector(object):
 				DetectionTime /= op_freq
 
 				# print(beatType, DetectionTime)
-				detectionTimeList.append(DetectionTime)
+				# detectionTimeList.append(DetectionTime)
 
-			# uncomment to visualize
+				if beatType == 5:
+					end = int(init_hexo_time + DetectionTime)
+					PVC_q.put(end)
+					if PVC_q.full():
+						begin = PVC_q.get()
+						if (end - begin) <= self.PVC_window:
+							self.analyze_six_second(end)
+
+				if beatType == 13:
+					end = int(init_hexo_time + DetectionTime)
+					Unknown_q.put(end)
+					if Unknown_q.full():
+						begin = Unknown_q.get()
+						if (end - begin) <= self.Unknown_window:
+							self.analyze_six_second(end)
+
+			# delay to be set according to how fast the data is being collected
+			# could be reset dynamically
+			# sleep(0.05)
+
+			# # uncomment to visualize
 			# if samplecount == 256*20:
 			# 	break
 
-		# uncomment to visualize
-		# temparr = [((self.ecg_dict[i] * 1.4)/2) for i in xrange(init_hexo_time, init_hexo_time+(256*20))]
+		# print(samplecount)
+		# # uncomment to visualize
+		# temparr = [((self.ecg_dict[i] * 1.4)/2) for i in xrange(init_hexo_time, init_hexo_time+(256*25))]
 		# newtemparr = [init_hexo_time + i for i in detectionTimeList]
-		# plt.plot(range(init_hexo_time, init_hexo_time + (256*20)), temparr)
+		# plt.plot(range(init_hexo_time, init_hexo_time + (256*25)), temparr)
 		# plt.plot(newtemparr, [950]*len(newtemparr), 'ro')
 		# plt.show()
+
+	def ectopic_analyzer(self, init_hexo_time):
+		rrint_q = queue.Queue(maxsize=self.ectopic_number)
+		rrintstatus_dict = {}
+		__timestamp = self.__get_key(True, init_hexo_time, 1)
+		prev_interval = self.rr_dict[__timestamp][0]
+		init_hexo_time = __timestamp
+		try:
+			while True:
+				init_hexo_time += 1
+				__timestamp = self.__get_key(True, init_hexo_time, 1)
+				# calc threshold rr_intervals value
+				__thresh_value = (self.ectopic_beat_thresh/100) * prev_interval
+				# check if current beat is within given percentage of previous beat
+				if not ((prev_interval - __thresh_value) <= self.rr_dict[__timestamp][0] <= (prev_interval + __thresh_value)):
+					rrint_q.put(__timestamp)
+					rrintstatus_dict[__timestamp] = self.rr_dict[__timestamp][1]
+					if rrint_q.full():
+						num_of_zeroone = len([1 for key in rrintstatus_dict if (rrintstatus_dict[key] == 0 or rrintstatus_dict[key] == 1)])
+						begin = rrint_q.get()
+						end = __timestamp
+						del rrintstatus_dict[begin]
+						if num_of_zeroone >= int(self.ectopic_number/2) and (end-begin) >= self.ectopic_window:
+							# print(begin, rrintstatus_dict)
+							self.analyze_six_second(end)
+
+				# set vars for next iteration
+				prev_interval = self.rr_dict[__timestamp][0]
+				init_hexo_time = __timestamp
+
+				# delay to be set according to how fast the data is being collected
+				# could be reset dynamically
+				# sleep(0.05)
+		except:
+			return		
 
 	def beat_analyze(self, init_hexo_time):
 		# init_hexo_time is the timestamp to begin with
 		
 		# start heart_rate analysis thread
-		# th = Thread(target=self.heart_rate_analyzer, args=[init_hexo_time])
-		# th.start()
+		th1 = Thread(target=self.heart_rate_analyzer, args=[init_hexo_time])
+		th1.start()
+
 		# start PVC and Unknown beat classification thread
-		th = Thread(target=self.beat_classf_analyzer, args=[init_hexo_time])
-		th.start()
+		th2 = Thread(target=self.beat_classf_analyzer, args=[init_hexo_time])
+		th2.start()
+		
+		# start ectopic beats analysis thread
+		th3 = Thread(target=self.ectopic_analyzer, args=[init_hexo_time])
+		th3.start()
 		
 def main():
 	VTBD = VTBeatDetector()

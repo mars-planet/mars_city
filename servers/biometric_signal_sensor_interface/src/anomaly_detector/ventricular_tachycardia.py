@@ -114,14 +114,19 @@ class VentricularTachycardia(object):
         # call the function from bdac.py which in turn calls the code written in C
         # the prototype is (ecg, gain, bitresolution/2, ipfreq, opfreq) - opfreq is always 200, ipfreq is Hexoskin's ecg freq
         # bitresolution/2 is for a 11 bit resolution of MIT BIH Arrythmia database data
-        __beat_types, __detection_times = bdac.AnalyzeBeatTypeSixSecond(__ecg_vals, 200, 1024, 256, 200)
+        BDACobj = bdac.BDAC(__ecg_vals)
+        __beat_types, __detection_times = BDACobj.AnalyzeBeatTypeSixSecond(200, 1024, 256, 200)
+        # print(__beat_types, __detection_times)
         # plt.plot([i for i in xrange(len(__ecg_vals))], __ecg_vals)
         # plt.plot([int(j) for j in __detection_times], [950]*len(__detection_times), 'ro')
         # plt.show()
 
         # return the truth value of - if number of anomalous beats is greater than 50%
+        # try:
         __anomalous_beats = (len(__beat_types) - len([i for i in __beat_types if i == 1]))/len(__beat_types)
         return(__anomalous_beats > 0.5)
+        # except:
+            # return True
 
     def analyze_ectopic_beats(self):
         # ensure rr_intervals are of good quality
