@@ -115,7 +115,6 @@ class VentricularTachycardia(object):
         # the prototype is (ecg, gain, bitresolution/2, ipfreq, opfreq) - opfreq is always 200, ipfreq is Hexoskin's ecg freq
         # bitresolution/2 is for a 11 bit resolution of MIT BIH Arrythmia database data
         __beat_types, __detection_times = bdac.AnalyzeBeatTypeSixSecond(__ecg_vals, 200, 1024, 256, 200)
-
         # plt.plot([i for i in xrange(len(__ecg_vals))], __ecg_vals)
         # plt.plot([int(j) for j in __detection_times], [950]*len(__detection_times), 'ro')
         # plt.show()

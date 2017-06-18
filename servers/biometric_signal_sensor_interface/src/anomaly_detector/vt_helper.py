@@ -1,6 +1,7 @@
 from __future__ import division, print_function
 from threading import Thread
 from time import sleep
+from fractions import gcd
 
 import os
 import sys
@@ -8,6 +9,7 @@ import csv
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from anomaly_detector import AnomalyDetector
 from ventricular_tachycardia import get_Ampl
@@ -21,6 +23,52 @@ method of the Anomaly Detector class.
 A lot of things are not up to quality and need to be improved
 while implementing
 """
+
+class BeatAnalyzer(object):
+	def __init__(self, ecg_dict, init_hexo_time):
+		self.ecg_dict = ecg_dict
+
+		self.i = int(init_hexo_time)
+
+		self.m = 0
+		self.n = 0
+		self.mn = 0
+		self.ot = 0
+		self.it = 0
+		self.vv = 0
+		self.v = 0
+		self.rval = 0
+
+	def getVec(self):
+		try:
+			self.i += 1
+			return int(int(self.ecg_dict[self.i - 1] * 1.4) / 2)
+		except:
+			return -1
+
+	def beat_next_sample(self, ifreq, ofreq, init):
+		vout = -1
+		if init:
+			i = gcd(ifreq, ofreq)
+			self.m = int(ifreq/i)
+			self.n = int(ofreq/i)
+			self.mn = int(self.m*self.n)
+			self.vv = int(self.getVec())
+			self.v = int(self.getVec())
+			self.rval = self.v
+		else:
+			while self.ot > self.it:
+				self.vv = self.v
+				self.v = int(self.getVec())
+				self.rval = self.v
+				if self.it > self.mn:
+					self.it -= self.mn
+					self.ot -= self.mn
+				self.it += self.n
+			vout = int(self.vv + int((self.ot%self.n)) * (self.v-self.vv)/self.n)
+			self.ot += self.m
+		return int(self.rval), int(vout)
+
 
 # creating a class is necessary as it is easier to use the same
 # data in different threads
@@ -42,6 +90,12 @@ class VTBeatDetector(object):
 
 		# dict of active vt threads
 		self.vt_dict = {}
+		# a mod counter
+		self.vt_dict_count = 0
+
+		# read these from config file - already set up
+		self.hr_low = 40
+		self.hr_high = 70
 	
 	def collect_data(self):
 		"""
@@ -83,18 +137,32 @@ class VTBeatDetector(object):
 		"""
 		raise NotImplementedError
 
-	def __get_key_rr(self, hexo_time, flag):
+	def __get_key(self, rr_flag, hexo_time, flag):
 		try:
-			# if flag, look in forward direction for next timestamp - 20 seconds
-			if flag:
-				for i in xrange(hexo_time, hexo_time + (256*20)):
-					if i in self.rr_dict:
-						return i
-			# if not flag, look in backward direction for prev timestamp - 20 seconds
+			# look in rr_dict
+			if rr_flag:
+				# if flag, look in forward direction for next timestamp - 20 seconds
+				if flag:
+					for i in xrange(hexo_time, hexo_time + (256*20)):
+						if i in self.rr_dict:
+							return i
+				# if not flag, look in backward direction for prev timestamp - 20 seconds
+				else:
+					for i in xrange(hexo_time, hexo_time - (256*20), -1):
+						if i in self.rr_dict:
+							return i
+			# look in hr_dict
 			else:
-				for i in xrange(hexo_time, hexo_time - (256*20), -1):
-					if i in self.rr_dict:
-						return i
+				# look in forward direction for next timestamp - 20 seconds
+				if flag:
+					for i in xrange(hexo_time, hexo_time + (256*20)):
+						if i in self.hr_dict:
+							return i
+				# if not flag, look in backward direction for prev timestamp - 20 seconds
+				else:
+					for i in xrange(hexo_time, hexo_time - (256*20), -1):
+						if i in self.hr_dict:
+							return i
 		except:
 			raise KeyError
 
@@ -121,8 +189,8 @@ class VTBeatDetector(object):
 		# construct rr_int and rr_status dataframes
 		six_second_rr_df, six_second_rrint_stat_df = None, None
 		# construct rr_intervals and rr_interval_status data frames
-		__startindex = self.__get_key_rr(start_hexo_time, 1)
-		__endindex = self.__get_key_rr(start_hexo_time + (256*6) - 1, 0)
+		__startindex = self.__get_key(True, start_hexo_time, 1)
+		__endindex = self.__get_key(True, start_hexo_time + (256*6) - 1, 0)
 
 		six_second_rr_dict = {timestamp:self.rr_dict[timestamp][0] for timestamp in xrange(__startindex, __endindex + 1) if timestamp in self.rr_dict}
 		six_second_rr_dict = sorted(six_second_rr_dict.items())
@@ -134,33 +202,106 @@ class VTBeatDetector(object):
 
 		return six_second_df, six_second_rr_df, six_second_rrint_stat_df, __ampl
 
-	def analyze_six_second(self, start_hexo_time, count):
+	def analyze_six_second(self, start_hexo_time):
 		# start_hexo_time is an int indicating start of six second window
 		six_second_df, six_second_rr_df, six_second_rrint_stat_df, ampl = self.get_six_second_data(start_hexo_time)
 		
 		AD = AnomalyDetector()
-		th = Thread(target=AD.vt_anomaly_detect, args=(six_second_df, six_second_rr_df, six_second_rrint_stat_df, ampl))
+		th = Thread(target=AD.vt_anomaly_detect, args=[six_second_df, six_second_rr_df, six_second_rrint_stat_df, ampl])
 		th.start()
-		self.vt_dict[count] = AD
+		self.vt_dict[self.vt_dict_count] = AD
+		self.vt_dict_count = (self.vt_dict_count + 1) % 1000
 		# print(AD.vt_result)
 		# th.join()
 
 	def ping_AD_dict(self):
+		"""
+		ping the vt_dict periodically
+		i.e. check the return value for all the keys in the dict
+		if the value of vt_result is False, do nothing
+		if the value of vt_result is True, get next six second data - 
+			take current timestamp, add (256*6) and call analyze_six_second
+		if the value of vt_result is an int, store it in the database
+		
+		finally delete the key: value from the dict
+		"""
 		while True:
 			sleep(1)
-			print(self.vt_dict[1].vt_result)
+			print(len(self.vt_dict))
+
+	def heart_rate_analyzer(self, init_hexo_time):
+		while True:
+			__timestamp = self.__get_key(False, init_hexo_time, 1)
+			if not self.hr_low <= self.hr_dict[__timestamp][0] <= self.hr_high:
+				if self.hr_dict[__timestamp][1] == 0:
+					print(self.hr_dict[__timestamp], __timestamp)
+					self.analyze_six_second(__timestamp)
+			# find next timestamp
+			init_hexo_time = __timestamp + 1
+			# delay to be set according to how fast the data is being collected
+			# could be reset dynamically
+			sleep(0.5)
+
+
+	def beat_classf_analyzer(self, init_hexo_time):
+		Beats = BeatAnalyzer(self.ecg_dict, init_hexo_time)
+		ADCGain, ADCZero = 200, 1024
+		ip_freq, op_freq = 256, 200
+
+		bdac.ResetBDAC()
+		samplecount = 0
+
+		beatTypeList, detectionTimeList = [], []
+
+		nextval, ecgval = Beats.beat_next_sample(ip_freq, op_freq, 1)
+		while nextval != -1:
+			nextval, ecgval = Beats.beat_next_sample(ip_freq, op_freq, 0)
+			samplecount += 1
+
+			lTemp = ecgval - ADCZero
+			lTemp *= 200
+			lTemp /= ADCGain
+			ecgval = lTemp
+
+			delay, beatType = bdac.BeatDetectAndClassify(int(ecgval))
+
+			if delay != 0:
+				DetectionTime = samplecount - delay
+
+				DetectionTime *= ip_freq
+				DetectionTime /= op_freq
+
+				# print(beatType, DetectionTime)
+				detectionTimeList.append(DetectionTime)
+
+			# uncomment to visualize
+			# if samplecount == 256*20:
+			# 	break
+
+		# uncomment to visualize
+		# temparr = [((self.ecg_dict[i] * 1.4)/2) for i in xrange(init_hexo_time, init_hexo_time+(256*20))]
+		# newtemparr = [init_hexo_time + i for i in detectionTimeList]
+		# plt.plot(range(init_hexo_time, init_hexo_time + (256*20)), temparr)
+		# plt.plot(newtemparr, [950]*len(newtemparr), 'ro')
+		# plt.show()
 
 	def beat_analyze(self, init_hexo_time):
 		# init_hexo_time is the timestamp to begin with
-		pass
-
-
+		
+		# start heart_rate analysis thread
+		# th = Thread(target=self.heart_rate_analyzer, args=[init_hexo_time])
+		# th.start()
+		# start PVC and Unknown beat classification thread
+		th = Thread(target=self.beat_classf_analyzer, args=[init_hexo_time])
+		th.start()
+		
 def main():
 	VTBD = VTBeatDetector()
 	VTBD.collect_data()
 	# VTBD.delete_data()
-	VTBD.analyze_six_second(383021233184, 1)
-	VTBD.ping_AD_dict()
+	# VTBD.analyze_six_second(383021233184)
+	VTBD.beat_analyze(383021233184)
+	# VTBD.ping_AD_dict()
 
 if __name__ == '__main__':
 	main()
