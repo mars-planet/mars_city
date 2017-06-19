@@ -5,6 +5,7 @@ import calendar
 import utility_helper as util
 import pandas as pd
 import numpy as np
+import anomaly_database_helper as db
 
 __author__ = 'abhijith'
 
@@ -332,7 +333,9 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
                 rr_df = rr_df[start:end]
                 rr_df.reset_index(drop=True, inplace=True)
                 # Call anomaly detection endpoint here
-                print(func(rr_df, hrq_df[0:64]))
+
+                anomaly = func(rr_df, hrq_df[0:64])
+                db.add_af(anomaly)
     return
 
 
