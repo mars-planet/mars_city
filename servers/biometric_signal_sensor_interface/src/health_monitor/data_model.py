@@ -22,6 +22,7 @@ class AtrFibAlarms(Base):
                 % (self.start_hexo_timestamp, self.end_hexo_timestamp,
                    self.doe, self.num_of_NEC, self.data_reliability))
 
+
 class VenTacAlarms(Base):
     __tablename__ = 'VenTacAlarms'
     start_hexo_timestamp = Column(Integer, primary_key=True, nullable=False)
