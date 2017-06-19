@@ -272,7 +272,71 @@ def realtime_data_generator(auth, recordID, datatypes):
     return
 
 
-def get_realtime_data(auth, recordID, func, window_size='64', datatypes=''):
+def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
+    '''
+    Param: auth token, record ID of the record/session and the datatype of the
+    metric that needs to be measured.
+    
+    Realtime data collector for Atrial Fribillation
+
+    This function fetches the specified data range.
+        @param auth:        The authentication token to use for the call
+        @param recordID:    recordID ID of record
+        @param datatypes:   Datatypes to be fetched
+        @return :           Runs till the record is active and returns the
+                            data of the user regularly, adding to the record.
+                            -1, if data not being collected in realtime
+    '''
+    record = auth.api.record.get(recordID)
+    if record.status != 'realtime':
+        print("No realtime data available with this record. Already docked.")
+        return -1
+
+    exitCounter = 5
+
+    rr_timestamp = []
+    rr_values = []
+    hrq_timestamp = []
+    hrq_values = []
+
+    for data in realtime_data_generator(auth, recordID, datatypes):
+
+        if len(data[datatypes[0]]) == 0:
+            exitCounter = exitCounter - 1
+            if exitCounter == 0:
+                break
+        else:
+            exitCounter = 5
+            for a in data[datatypes[0]]:
+                rr_timestamp.append(a[0])
+                rr_values.append(a[1])
+
+            for a in data[datatypes[1]]:
+                hrq_timestamp.append(a[0])
+                hrq_values.append(a[1])
+
+            if (len(lists_for_df[0]) >= window_size and
+                    len(lists_for_df[2]) >= window_size):
+                # Pandas Dataframe
+                rr_df = pd.DataFrame(np.column_stack([rr_timestamp,
+                                                      rr_values]))
+                hrq_df = pd.DataFrame(np.column_stack([hrq_timestamp,
+                                                       hrq_values]))
+                rr_timestamp = []
+                rr_values = []
+                hrq_timestamp = []
+                hrq_values = []
+
+                start = int(len(rr_df) / 64)
+                end = int(len(rr_df) / 64) + 64
+                rr_df = rr_df[start:end]
+                rr_df.reset_index(drop=True, inplace=True)
+                # Call anomaly detection endpoint here
+                print(func(rr_df, hrq_df[0:64]))
+    return
+
+
+def VT_realtime(auth, recordID, func, window_size='64', datatypes=''):
     '''
     Param: auth token, record ID of the record/session and the datatype of the
     metric that needs to be measured.
@@ -291,10 +355,14 @@ def get_realtime_data(auth, recordID, func, window_size='64', datatypes=''):
         print("No realtime data available with this record. Already docked.")
         return -1
 
-    N = len(datatypes) * 2
-
     exitCounter = 5
-    lists_for_df = [[] for x in range(N)]
+    
+    ecg_timestamp = []
+    ecg_values = []
+    hr_timestamp = []
+    hr_values = []
+    qrs_timestamp = []
+    qrs_values = []
 
     for data in realtime_data_generator(auth, recordID, datatypes):
 
@@ -305,27 +373,34 @@ def get_realtime_data(auth, recordID, func, window_size='64', datatypes=''):
         else:
             exitCounter = 5
             for a in data[datatypes[0]]:
-                lists_for_df[0].append(a[0])
-                lists_for_df[1].append(a[1])
+                ecg_timestamp.append(a[0])
+                ecg_values.append(a[1])
 
             for a in data[datatypes[1]]:
-                lists_for_df[2].append(a[0])
-                lists_for_df[3].append(a[1])
+                hr_timestamp.append(a[0])
+                hr_values.append(a[1])
+
+            for a in data[datatypes[2]]:
+                qrs_timestamp.append(a[0])
+                qrs_values.append(a[1])
 
             if (len(lists_for_df[0]) >= window_size and
                     len(lists_for_df[2]) >= window_size):
                 # Pandas Dataframe
-                rr_df = pd.DataFrame(np.column_stack([lists_for_df[0],
-                                                      lists_for_df[1]]))
-                hrq_df = pd.DataFrame(np.column_stack([lists_for_df[2],
-                                                       lists_for_df[3]]))
-                lists_for_df = [[] for x in range(N)]
+                ecg_df = pd.DataFrame(np.column_stack([ecg_timestamp,
+                                                      ecg_values]))
+                hr_df = pd.DataFrame(np.column_stack([hr_timestamp,
+                                                       hr_values]))
+                qrs_df = pd.DataFrame(np.column_stack([qrs_timestamp,
+                                                      qrs_values]))
+                ecg_timestamp = []
+                ecg_values = []
+                hr_timestamp = []
+                hr_values = []
+                qrs_timestamp = []
+                qrs_values = []
 
-                start = int(len(rr_df) / 64)
-                end = int(len(rr_df) / 64) + 64
-                rr_df = rr_df[start:end]
-                rr_df.reset_index(drop=True, inplace=True)
-                # Call anomaly detection endpoint here
+                #TODO
                 print(func(rr_df, hrq_df[0:64]))
     return
 

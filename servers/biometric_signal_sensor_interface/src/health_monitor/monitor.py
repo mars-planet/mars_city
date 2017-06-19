@@ -34,13 +34,13 @@ def atrial_fibrillation_helper(auth):
 
     datatypes = [util.datatypes['rrinterval'][0],
                  util.datatypes['hr_quality'][0]]
-    resource.get_realtime_data(auth, recordID, AD.af_anomaly_detect,
+    resource.AF_realtime(auth, recordID, AD.af_anomaly_detect,
                                window_size, datatypes)
     # Successfully finished. Astronaut docked.
     return 1
 
 
-def next_AD_algo(auth):
+def ventricular_tachycardia_helper(auth):
 	'''
 	Returns the rr_interval data in realtime.
 		@param auth:		Authentication token
@@ -76,37 +76,37 @@ def next_AD_algo(auth):
 def get_data(auth, recordID, start='', end='', datatypes='',
              downloadRaw=True):
     """
-This function fetches the specified data range. Called by getRangeData
-and getRecordData
-    @param auth:        The authentication token to use for the call
-    @param recordID:    Record ID of record
-    @param start:       Start timestamp for data to be fetched
-    @param end:         End timestamp for data to be fetched
-    @param datatypes:   Datatypes to be fetched
-                        If not passed, all raw_datatypes (based on next
-                        param value) and other datatypes downloaded
-    @param downloadRaw: Flag to fetch raw-datatypes also
-    @return :           returns a dictionary containing all datatypes
-                        in separate entries
-values accepted as datatypes:
-'acc': [4145, 4146, 4147],
-    'ecg': [4113],
-    'resp': [4129, 4130]
-'activity': [49],
-'cadence': [53],
-    'heartrate': [19],
-    'minuteventilation': [36],
-    'vt': [37],
-    'breathingrate': [33],
-    'hr_quality': [1000],
-    'br_quality': [1001],
-    'inspiration': [34],
-    'expiration': [35],
-    'batt': [247],
-    'step': [52],
-    'rrinterval': [18],
-    'qrs': [22],
-"""
+	This function fetches the specified data range. Called by getRangeData
+	and getRecordData
+	    @param auth:        The authentication token to use for the call
+	    @param recordID:    Record ID of record
+	    @param start:       Start timestamp for data to be fetched
+	    @param end:         End timestamp for data to be fetched
+	    @param datatypes:   Datatypes to be fetched
+	                        If not passed, all raw_datatypes (based on next
+	                        param value) and other datatypes downloaded
+	    @param downloadRaw: Flag to fetch raw-datatypes also
+	    @return :           returns a dictionary containing all datatypes
+	                        in separate entries
+	values accepted as datatypes:
+	'acc': [4145, 4146, 4147],
+	    'ecg': [4113],
+	    'resp': [4129, 4130]
+	'activity': [49],
+	'cadence': [53],
+	    'heartrate': [19],
+	    'minuteventilation': [36],
+	    'vt': [37],
+	    'breathingrate': [33],
+	    'hr_quality': [1000],
+	    'br_quality': [1001],
+	    'inspiration': [34],
+	    'expiration': [35],
+	    'batt': [247],
+	    'step': [52],
+	    'rrinterval': [18],
+	    'qrs': [22],
+	"""
     return resource.get_data(auth, recordID, start, end, datatypes,
                              downloadRaw)
 
