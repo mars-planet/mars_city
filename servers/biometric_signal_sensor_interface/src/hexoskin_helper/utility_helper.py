@@ -43,6 +43,7 @@ if MODEL == 'Hexoskin':
                  'breathingrate': [33],
                  'hr_quality': [1000],
                  'br_quality': [1001],
+                 'rrintervalstatus': [1004],
                  'inspiration': [34],
                  'expiration': [35],
                  'batt': [247],

@@ -69,8 +69,6 @@ class AnomalyDetector(object):
             data timestamps to set AFAlarmAttribute at
             the health_monitor server
         """
-        rr_intervals.columns = ["hexoskin_timestamps", "rr_int"]
-        hr_quality_indices.columns = ["hexoskin_timestamps", "quality_ind"]
 
         if not (len(rr_intervals)) == self.window_size:
             raise ValueError("window length of rr_intervals\

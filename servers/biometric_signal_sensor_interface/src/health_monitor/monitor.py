@@ -45,29 +45,26 @@ def ventricular_tachycardia_helper(auth):
 	Returns the rr_interval data in realtime.
 		@param auth:		Authentication token
 	'''
-    recordID = resource.get_active_record_list(auth)[0]
+	recordID = resource.get_active_record_list(auth)[0]
 	if recordID not in resource.get_active_record_list(auth):
 		# record not updated in realtime.
 		return -1
+
 	resource.get_realtime_data(auth, recordID, util.datatypes['hr_quality'])
 	
-	#AD = ad.AnomalyDetector()
+	VTBD = VTBeatDetector()
 
-    config = ConfigParser.RawConfigParser()
-    dirname = os.path.dirname(os.path.realpath(__file__))
-    cfg_filename = os.path.join(dirname,
-                                '../anomaly_detector/anomaly_detector.cfg')
-    config.read(cfg_filename)
+	datatypes = [util.datatypes['ecg'][0],
+	             util.datatypes['rrinterval'][0],
+	             util.datatypes['rrintervalstatus'][0]]
 
-    window_size = config.getint('Atrial Fibrillation', 'window_size')
+	#Call to get data
+	resource.get_realtime_data(auth, recordID, VTBD.collect_data,
+	                           datatypes)
 
-    datatypes = [util.datatypes['ecg'][0],
-                 util.datatypes['heartrate'][0],
-                 util.datatypes['qrs'][0]]
-    
-    resource.get_realtime_data(auth, recordID, AD.af_anomaly_detect,
-                               window_size, datatypes)
+	#VTBD.delete_data()
 
+	#VTBD.ping_AD_dict()
 
 	# Successfully finished. Astronaut docked.
 	return 1

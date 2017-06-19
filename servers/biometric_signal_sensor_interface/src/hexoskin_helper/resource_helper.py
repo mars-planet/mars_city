@@ -316,8 +316,9 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
                 hrq_timestamp.append(a[0])
                 hrq_values.append(a[1])
 
-            if (len(lists_for_df[0]) >= window_size and
-                    len(lists_for_df[2]) >= window_size):
+            print(len(rr_values))
+            if (len(rr_timestamp) >= window_size and
+                    len(hrq_timestamp) >= window_size):
                 # Pandas Dataframe
                 rr_df = pd.DataFrame(np.column_stack([rr_timestamp,
                                                       rr_values]))
@@ -333,13 +334,20 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
                 rr_df = rr_df[start:end]
                 rr_df.reset_index(drop=True, inplace=True)
                 # Call anomaly detection endpoint here
-
-                anomaly = func(rr_df, hrq_df[0:64])
-                db.add_af(anomaly)
+                rr_df.columns = ["hexoskin_timestamps", "rr_int"]
+                hrq_df.columns = ["hexoskin_timestamps", "quality_ind"]
+                
+                try:
+                    anomaly = func(rr_df, hrq_df[0:64])
+                    print(anomaly)
+                    # if anomaly != -1:
+                    #     db.add_af(anomaly)
+                except:
+                    continue
     return
 
 
-def VT_realtime(auth, recordID, func, window_size='64', datatypes=''):
+def VT_realtime(auth, recordID, func, datatypes=''):
     '''
     Param: auth token, record ID of the record/session and the datatype of the
     metric that needs to be measured.
@@ -362,13 +370,12 @@ def VT_realtime(auth, recordID, func, window_size='64', datatypes=''):
     
     ecg_timestamp = []
     ecg_values = []
-    hr_timestamp = []
-    hr_values = []
-    qrs_timestamp = []
-    qrs_values = []
+    rr_timestamp = []
+    rr_values = []
+    rrstatus_timestamp = []
+    rrstatus_values = []
 
     for data in realtime_data_generator(auth, recordID, datatypes):
-
         if len(data[datatypes[0]]) == 0:
             exitCounter = exitCounter - 1
             if exitCounter == 0:
@@ -380,52 +387,35 @@ def VT_realtime(auth, recordID, func, window_size='64', datatypes=''):
                 ecg_values.append(a[1])
 
             for a in data[datatypes[1]]:
-                hr_timestamp.append(a[0])
-                hr_values.append(a[1])
+                rr_timestamp.append(a[0])
+                rr_values.append(a[1])
 
             for a in data[datatypes[2]]:
-                qrs_timestamp.append(a[0])
-                qrs_values.append(a[1])
+                rrstatus_timestamp.append(a[0])
+                rrstatus_values.append(a[1])
 
-            if (len(lists_for_df[0]) >= window_size and
-                    len(lists_for_df[2]) >= window_size):
-                # Pandas Dataframe
-                ecg_df = pd.DataFrame(np.column_stack([ecg_timestamp,
-                                                      ecg_values]))
-                hr_df = pd.DataFrame(np.column_stack([hr_timestamp,
-                                                       hr_values]))
-                qrs_df = pd.DataFrame(np.column_stack([qrs_timestamp,
-                                                      qrs_values]))
-                ecg_timestamp = []
-                ecg_values = []
-                hr_timestamp = []
-                hr_values = []
-                qrs_timestamp = []
-                qrs_values = []
+        
+            # Pandas Dataframe
+            ecg_df = pd.DataFrame(np.column_stack([ecg_timestamp,
+                                                  ecg_values]))
+            rr_df = pd.DataFrame(np.column_stack([rr_timestamp,
+                                                   rr_values]))
+            rrs_df = pd.DataFrame(np.column_stack([rrstatus_timestamp,
+                                                  rrstatus_values]))
 
-                #TODO
-                print(func(rr_df, hrq_df[0:64]))
+            ecg_df.columns = ["hexoskin_timestamps", "ecg_val"]
+            rr_df.columns = ["hexoskin_timestamps", "rr_int"]
+            rrs_df.columns = ["hexoskin_timestamps", "rr_status"]
+
+            ecg_timestamp = []
+            ecg_values = []
+            rr_timestamp = []
+            rr_values = []
+            rrstatus_timestamp = []
+            rrstatus_values = []
+            
+            print(func(ecg_df, rr_df, rrs_df))
     return
-
-
-def get_metric_helper(recordID, datatype):
-    '''
-    Param: auth token, record ID of the record/session and the datatype of the
-    metric that needs to be measured.
-
-    Along with the actual data from the hexoskin, metrics are also available.
-    Metrics are a way to summarize data in a single values or histograms.
-    A few example of metrics are heart rate average, max activity, minimum
-    breathing rate and so on.
-    '''
-    return NotImplementedError
-
-
-def get_gps_helper(userID):
-    '''
-    Param auth token, userID
-    '''
-    return NotImplementedError
 
 
 def main(argv):
