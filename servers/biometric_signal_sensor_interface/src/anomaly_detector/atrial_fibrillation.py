@@ -92,4 +92,4 @@ class AtrialFibrillation(object):
                     'data_reliability': data_reliability,
                     'window_size': self.win_size}
         else:
-            return None
+            return -1
