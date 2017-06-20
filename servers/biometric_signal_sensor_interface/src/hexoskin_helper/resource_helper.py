@@ -316,7 +316,6 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
                 hrq_timestamp.append(a[0])
                 hrq_values.append(a[1])
 
-            print(len(rr_values))
             if (len(rr_timestamp) >= window_size and
                     len(hrq_timestamp) >= window_size):
                 # Pandas Dataframe
@@ -367,13 +366,17 @@ def VT_realtime(auth, recordID, func, datatypes=''):
         return -1
 
     exitCounter = 5
-    
+
     ecg_timestamp = []
     ecg_values = []
     rr_timestamp = []
     rr_values = []
-    rrstatus_timestamp = []
-    rrstatus_values = []
+    rrs_timestamp = []
+    rrs_values = []
+    hr_timestamp = []
+    hr_values = []
+    hrq_timestamp = []
+    hrq_values = []
 
     for data in realtime_data_generator(auth, recordID, datatypes):
         if len(data[datatypes[0]]) == 0:
@@ -383,38 +386,50 @@ def VT_realtime(auth, recordID, func, datatypes=''):
         else:
             exitCounter = 5
             for a in data[datatypes[0]]:
-                ecg_timestamp.append(a[0])
-                ecg_values.append(a[1])
+                ecg_timestamp.append(int(a[0]))
+                ecg_values.append(int(a[1]))
 
             for a in data[datatypes[1]]:
-                rr_timestamp.append(a[0])
-                rr_values.append(a[1])
+                rr_timestamp.append(int(a[0]))
+                rr_values.append(float(a[1]))
 
             for a in data[datatypes[2]]:
-                rrstatus_timestamp.append(a[0])
-                rrstatus_values.append(a[1])
+                rrs_timestamp.append(int(a[0]))
+                rrs_values.append(int(a[1]))
 
-        
-            # Pandas Dataframe
-            ecg_df = pd.DataFrame(np.column_stack([ecg_timestamp,
-                                                  ecg_values]))
-            rr_df = pd.DataFrame(np.column_stack([rr_timestamp,
-                                                   rr_values]))
-            rrs_df = pd.DataFrame(np.column_stack([rrstatus_timestamp,
-                                                  rrstatus_values]))
+            for a in data[datatypes[3]]:
+                hr_timestamp.append(int(a[0]))
+                hr_values.append(float(a[1]))
 
-            ecg_df.columns = ["hexoskin_timestamps", "ecg_val"]
-            rr_df.columns = ["hexoskin_timestamps", "rr_int"]
-            rrs_df.columns = ["hexoskin_timestamps", "rr_status"]
+            for a in data[datatypes[4]]:
+                hrq_timestamp.append(int(a[0]))
+                hrq_values.append(int(a[1]))
+
+            ecg_dict = dict(zip(ecg_timestamp, ecg_values))
+
+            rr_dict = {}
+            for time, rr, rrs in zip(rrs_timestamp, rr_values, rrs_values):
+                rr_dict[time] = (rr, rrs)
+            
+            hr_dict = {}
+            for time, hr, hrq in zip(hr_timestamp, hr_values, hrq_values):
+                hr_dict[time] = (hr, hrq)
 
             ecg_timestamp = []
             ecg_values = []
             rr_timestamp = []
             rr_values = []
-            rrstatus_timestamp = []
-            rrstatus_values = []
+            rrs_timestamp = []
+            rrs_values = []
+            hr_timestamp = []
+            hr_values = []
+            hrq_timestamp = []
+            hrq_values = []
             
-            print(func(ecg_df, rr_df, rrs_df))
+            try:
+                anomaly = func(ecg_dict, rr_dict, hr_dict)
+            except:
+                continue
     return
 
 

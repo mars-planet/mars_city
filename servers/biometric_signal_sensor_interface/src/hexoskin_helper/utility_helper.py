@@ -79,6 +79,7 @@ dataSampleRate = {
     247: 256,
     52: [],
     18: 256,
+    1004: 256,  #actually its async
     22: 256,
     212: 256,
     97: 256,
@@ -118,12 +119,13 @@ class SessionInfo:
             apiurl = 'https://dapi.hexoskin.com'
         else:
             raise NotImplementedError
-        print(apiurl)
+        print("Fetching...")
         self.api = hexoskin.client.HexoApi(
             publicKey, privateKey, base_url=apiurl, auth=username + ':' +
             password, api_version='3.3.x')
         authCode = test_auth(self.api)
         if authCode != '':
+            print("Failed...")
             raise
 
 

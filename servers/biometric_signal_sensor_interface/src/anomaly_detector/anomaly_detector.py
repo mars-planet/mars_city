@@ -10,7 +10,6 @@ import pandas as pd
 from atrial_fibrillation import AtrialFibrillation
 from ventricular_tachycardia import VentricularTachycardia
 
-
 class AnomalyDetector(object):
     """
     implements methods to call various Anomaly Detection Algorithms
@@ -20,7 +19,7 @@ class AnomalyDetector(object):
         config = ConfigParser.RawConfigParser()
         dirname = dir_path = os.path.dirname(os.path.realpath(__file__))
         cfg_filename = os.path.join(dirname, 'anomaly_detector.cfg')
-        self.config.read(cfg_filename)
+        config.read(cfg_filename)
 
         self.vt_result = None
 

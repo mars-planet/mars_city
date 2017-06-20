@@ -6,6 +6,7 @@ sys.path.insert(0, '../anomaly_detector')
 import utility_helper as util
 import resource_helper as resource
 import anomaly_detector as ad
+import vt_helper as vth
 import ConfigParser
 
 
@@ -49,17 +50,17 @@ def ventricular_tachycardia_helper(auth):
 	if recordID not in resource.get_active_record_list(auth):
 		# record not updated in realtime.
 		return -1
-
-	resource.get_realtime_data(auth, recordID, util.datatypes['hr_quality'])
 	
-	VTBD = VTBeatDetector()
+	VTBD = vth.VTBeatDetector()
 
-	datatypes = [util.datatypes['ecg'][0],
+	datatypes = [util.raw_datatypes['ecg'][0],
 	             util.datatypes['rrinterval'][0],
-	             util.datatypes['rrintervalstatus'][0]]
+	             util.datatypes['rrintervalstatus'][0],
+	             util.datatypes['heartrate'][0],
+	             util.datatypes['hr_quality'][0]]
 
 	#Call to get data
-	resource.get_realtime_data(auth, recordID, VTBD.collect_data,
+	resource.VT_realtime(auth, recordID, VTBD.collect_data,
 	                           datatypes)
 
 	#VTBD.delete_data()
@@ -110,7 +111,8 @@ def get_data(auth, recordID, start='', end='', datatypes='',
 
 def main(argv):
     auth = util.auth_login()
-    atrial_fibrillation_helper(auth)
+    #atrial_fibrillation_helper(auth)
+    ventricular_tachycardia_helper(auth)
 
 
 if __name__ == "__main__":

@@ -2,18 +2,19 @@ from __future__ import division, print_function
 from threading import Thread
 from time import sleep
 from fractions import gcd
-
-import os
-import sys
-import csv
-import queue
-import ctypes
-
-import pandas as pd
 # import matplotlib.pyplot as plt
-
 from anomaly_detector import AnomalyDetector
 from ventricular_tachycardia import get_Ampl
+import ctypes
+import pandas as pd
+import os
+import csv
+import sys
+is_py2 = sys.version[0] == '2'
+if is_py2:
+    import Queue as queue
+else:
+    import queue as queue
 
 """
 The purpose of this file is to indicate the proper way to call
@@ -133,7 +134,7 @@ class VTBeatDetector(object):
         # read from config file
         self.ectopic_beat_thresh = 10
 
-    def collect_data(self):
+    def collect_data(self, ecg, rr_rrs, hr_hrq):
         """
         this should be implemented as:
         create three threads to call Hexoskin's API and popluate
@@ -142,28 +143,32 @@ class VTBeatDetector(object):
         other methods if data is already being collected elsewhere
         """
         # read ecg data
-        with open('ecg_full.txt', 'r') as ipfile:
-            ip = (csv.reader(ipfile, delimiter='\t'))
-            for i in ip:
-                self.ecg_dict[int(i[0])] = int(i[1])
+        self.ecg_dict.update(ecg)
+        # with open('ecg_full.txt', 'r') as ipfile:
+        #     ip = (csv.reader(ipfile, delimiter='\t'))
+        #     for i in ip:
+        #         self.ecg_dict[int(i[0])] = int(i[1])
+        #         print(i[0])
 
         # read rr_interval data
-        with open('rrinterval_full.txt', 'r') as ipfile1:
-            ip1 = list(csv.reader(ipfile1, delimiter='\t'))
-            with open('rrinterval_status_full.txt', 'r') as ipfile2:
-                ip2 = list(csv.reader(ipfile2, delimiter='\t'))
-                for i in xrange(len(ip1)):
-                    self.rr_dict[int(ip2[i][0])] =\
-                        (float(ip1[i][1]), int(ip2[i][1]))
+        self.rr_dict.update(rr_rrs)
+        # with open('rrinterval_full.txt', 'r') as ipfile1:
+        #     ip1 = list(csv.reader(ipfile1, delimiter='\t'))
+        #     with open('rrinterval_status_full.txt', 'r') as ipfile2:
+        #         ip2 = list(csv.reader(ipfile2, delimiter='\t'))
+        #         for i in xrange(len(ip1)):
+        #             self.rr_dict[int(ip2[i][0])] =\
+        #                 (float(ip1[i][1]), int(ip2[i][1]))
 
         # read heartrate data
-        with open('heartrate_full.txt', 'r') as ipfile1:
-            ip1 = list(csv.reader(ipfile1, delimiter='\t'))
-            with open('hr_quality_full.txt', 'r') as ipfile2:
-                ip2 = list(csv.reader(ipfile2, delimiter='\t'))
-                for i in xrange(len(ip1)):
-                    self.hr_dict[int(ip1[i][0])] =\
-                        (float(ip1[i][1]), int(ip2[i][1]))
+        self.hr_dict.update(hr_hrq)
+        # with open('heartrate_full.txt', 'r') as ipfile1:
+        #     ip1 = list(csv.reader(ipfile1, delimiter='\t'))
+        #     with open('hr_quality_full.txt', 'r') as ipfile2:
+        #         ip2 = list(csv.reader(ipfile2, delimiter='\t'))
+        #         for i in xrange(len(ip1)):
+        #             self.hr_dict[int(ip1[i][0])] =\
+        #                 (float(ip1[i][1]), int(ip2[i][1]))
 
     def delete_data(self):
         """
