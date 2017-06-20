@@ -1,4 +1,5 @@
 from __future__ import absolute_import, division, print_function
+from threading import Thread
 import sys
 import time
 import calendar
@@ -427,7 +428,12 @@ def VT_realtime(auth, recordID, func, datatypes=''):
             hrq_values = []
             
             try:
-                anomaly = func(ecg_dict, rr_dict, hr_dict)
+                print("starting thread")
+                th1 = Thread(target=func, args=[ecg_dict, rr_dict, hr_dict])
+                th1.start()
+                print("terminated thread")
+
+
             except:
                 continue
     return

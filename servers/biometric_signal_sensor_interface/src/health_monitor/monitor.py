@@ -60,12 +60,19 @@ def ventricular_tachycardia_helper(auth):
 	             util.datatypes['hr_quality'][0]]
 
 	#Call to get data
-	resource.VT_realtime(auth, recordID, VTBD.collect_data,
-	                           datatypes)
+	th1 = Thread(target=resource.VT_realtime, args=[auth, recordID,
+		VTBD.collect_data,datatypes])
+    th1.start()
 
-	#VTBD.delete_data()
+	# sleep(5)
+	# th2 = Thread(target=VTBD.beat_analyze, args=[ecg_timestamp[0]])
+	# th2.start()
 
-	#VTBD.ping_AD_dict()
+	#Call to keep VT datastructure size under limit
+	sleep(120)
+	while(True):
+		VTBD.delete_data()
+		sleep(2)
 
 	# Successfully finished. Astronaut docked.
 	return 1
