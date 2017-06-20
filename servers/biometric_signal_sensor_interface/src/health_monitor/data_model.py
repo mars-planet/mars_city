@@ -8,9 +8,6 @@ Base = declarative_base()
 
 ########################################################################
 
-
-# Add class Datapoint(Base)
-
 class AtrFibAlarms(Base):
     __tablename__ = 'AtrFibAlarms'
     start_hexo_timestamp = Column(Integer, primary_key=True, nullable=False)
@@ -34,6 +31,19 @@ class AtrFibAlarms(Base):
         self.data_reliability = data_reliability
         self.window_size = window_size
 # ----------------------------------------------------------------------------
+
+class VenTacAlarms(Base):
+    __tablename__ = 'VenTacAlarms'
+    start_hexo_timestamp = Column(Integer, primary_key=True, nullable=False)
+    end_hexo_timestamp = Column(Integer, nullable=False)
+    doe = Column(DateTime, nullable=False, default=datetime.now)
+    data_reliability = Column(SmallInteger, nullable=False)
+
+    def __repr__(self):
+        return ("<AtrFibAlarms('%s', '%s', '%s', '%s')>"
+                % (self.start_hexo_timestamp, self.end_hexo_timestamp,
+                   self.doe, self.data_reliability))
+
 
 # create tables
 Base.metadata.create_all(engine)

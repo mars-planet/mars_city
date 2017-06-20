@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import division, print_function
 
 import os
 import sys
@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 
 from atrial_fibrillation import AtrialFibrillation
+from ventricular_tachycardia import VentricularTachycardia
 
 
 class AnomalyDetector(object):
@@ -19,9 +20,9 @@ class AnomalyDetector(object):
         config = ConfigParser.RawConfigParser()
         dirname = dir_path = os.path.dirname(os.path.realpath(__file__))
         cfg_filename = os.path.join(dirname, 'anomaly_detector.cfg')
-        config.read(cfg_filename)
+        self.config.read(cfg_filename)
 
-        self.window_size = config.getint('Atrial Fibrillation', 'window_size')
+        self.vt_result = None
 
     def af_anomaly_detect(self, rr_intervals, hr_quality_indices):
         """
@@ -60,6 +61,7 @@ class AnomalyDetector(object):
                                             as values
             else:
                 None
+
         Notes:
             based on 'A Simple Method to Detect
             Atrial Fibrillation Using RR Intervals'
@@ -84,28 +86,174 @@ class AnomalyDetector(object):
                  and last timestamp of hr_quality")
 
         AF = AtrialFibrillation(rr_intervals, hr_quality_indices,
-                                self.window_size)
+                                self.config)
         return AF.get_anomaly()
+
+    def vt_anomaly_detect(self, ecg, rr_intervals,
+                          rr_interval_status, prev_ampl):
+        """
+        creates an object and calls the Ventricular Tachycardia
+        anomaly detection methods
+        Input:
+            ecg:                    a 2D pandas dataframe -
+                                    (refer ecg.txt from Hexoskin record)
+                                    first column named "hexoskin_timestamps" -
+                                    contains 'int' timestamps
+                                    second column named as "ecg_val" -
+                                    contains 'int' raw ecg data
+            rr_intervals:           a 2D pandas dataframe -
+                                    (refer rrinterval.txt from Hexoskin record)
+                                    first column named "hexoskin_timestamps" -
+                                    contains 'int' timestamps
+                                    second column named as "rr_int" -
+                                    contains 'double' interval data
+            rr_intervals_status:    a 2D pandas dataframe -
+                                    (refer rrintervalstatus from Hexoskin API)
+                                    first column named "hexoskin_timestamps" -
+                                    containts 'int' timestamps
+                                    second column named as "rr_status" -
+                                    contains 'int' quality indices.
+
+        Output:
+            sets:
+            vt_result:  this is an attribute of an object of this
+                        (Anomaly Detector) class. Its value can
+                        be read from the caller method. Its value
+                        is set to __zero_one_count which is
+                        described next.
+
+            __zero_one_count    -   if it is the string True, it means
+                                    that analysis of next 6 seconds is
+                                    required
+                                -   if it is False, it means that next 6
+                                    second analysis is not required
+                                -   if it has an integer value then it
+                                    means that a VT event has been detected
+                                    and it has to be stored in the anomaly
+                                    database and of course next 6 second
+                                    analysis is required
+
+        Notes:
+            based on the following three papers:
+
+            'Ventricular Tachycardia/Fibrillation Detection
+            Algorithm for 24/7 Personal Wireless Heart Monitoring'
+            by Fokkenrood et. al.
+
+            'Real Time detection of ventricular fibrillation
+            and tachycardia' by Jekova et. al.
+
+            'Increase in Heart Rate Precedes Episodes of
+            Ventricular Tachycardia and Ventricular
+            Fibrillation in Patients with Implantahle
+            Cardioverter Defihrillators: Analysis of
+            Spontaneous Ventricular Tachycardia Database'
+            by Nemec et. al.
+
+            Refer to readme for more details
+        """
+        __zero_one_count = True
+
+        VTobj = VentricularTachycardia(ecg, rr_intervals,
+                                       rr_interval_status, self.config)
+
+        further_analyze = VTobj.analyze_six_second()
+        # if initial analysis indicates that further analysis
+        # is not required
+        if not further_analyze:
+            __zero_one_count = False
+            self.vt_result = __zero_one_count
+
+        # the print can be commented out
+        print("Doing further analysis")
+
+        # perform the preprocessing
+        VTobj.signal_preprocess()
+
+        # call the DangerousHeartActivity detector
+        cur_ampl, stop_cur = VTobj.DHA_detect(prev_ampl)
+
+        # whatever be the results of the following stages,
+        # we necessarily have to analyze the next six second epoch
+
+        # if further analysis is not required
+        if stop_cur is True:
+            self.vt_result = __zero_one_count
+
+        # asystole detector
+        vtvfres = VTobj.asystole_detector(cur_ampl)
+
+        # to analyze next six second epoch
+        if vtvfres == 'VT/VF':
+            # A VT episode has been found
+            # the print can be omitted
+            print(vtvfres)
+            __zero_one_count = VTobj.zero_one_count
+            self.vt_result = __zero_one_count
+        else:
+            # not a VT episode
+            # the print can be omitted
+            print(vtvfres)
+            self.vt_result = __zero_one_count
 
 
 def main():
     AD = AnomalyDetector()
     rr_intervals = (pd.read_csv('rrinterval.txt',
                     sep="\t",
-                    nrows=AD.window_size,
+                    nrows=AD.config.getint('Atrial Fibrillation',
+                                           'window_size'),
                     dtype={"hexoskin_timestamps": np.int64,
                            "rr_int": np.float64},
                     header=None,
                     names=["hexoskin_timestamps", "rr_int"]))
     hr_quality_indices = (pd.read_csv('hr_quality.txt',
                                       sep="\t",
-                                      nrows=AD.window_size-8,
+                                      nrows=AD.config.
+                                      getint('Atrial Fibrillation',
+                                             'window_size')-8,
                                       dtype={"hexoskin_timestamps": np.int64,
                                              "quality_ind": np.int32},
                                       header=None,
                                       names=["hexoskin_timestamps",
                                              "quality_ind"]))
-    print(AD.af_anomaly_detect(rr_intervals, hr_quality_indices))
+    # call the Atrial Fibrillation anomaly detection method
+    # print(AD.af_anomaly_detect(rr_intervals, hr_quality_indices))
+
+    ecg = (pd.read_csv('ecg.txt',
+                       sep="\t",
+                       nrows=256*6,
+                       dtype={"hexoskin_timestamps": np.int64,
+                              "ecg_val": np.int32},
+                       header=None,
+                       names=["hexoskin_timestamps", "ecg_val"]))
+    """
+    for testing, ensure that only the relevant timestamped
+    rr_intervals are present in rrinterval.txt as it reads
+    a preset 7 rows
+    """
+    rr_intervals = (pd.read_csv('rrinterval.txt',
+                                sep="\t",
+                                nrows=7,
+                                dtype={"hexoskin_timestamps": np.int64,
+                                       "rr_int": np.float64},
+                                header=None,
+                                names=["hexoskin_timestamps", "rr_int"]))
+    """
+    for testing, ensure that only the relevant timestamped
+    rr_status are present in rr_interval_status.txt as it
+    reads a preset 7 rows
+    """
+    rr_interval_status = (pd.read_csv('rr_interval_status.txt',
+                                      sep="\t",
+                                      nrows=7,
+                                      dtype={"hexoskin_timestamps": np.int64,
+                                             "rr_status": np.int32},
+                                      header=None,
+                                      names=["hexoskin_timestamps",
+                                             "rr_status"]))
+    # call the Ventricular Tachycardia anomaly detection method
+    AD.vt_anomaly_detect(ecg, rr_intervals, rr_interval_status, 1400)
 
 
 if __name__ == '__main__':
