@@ -328,10 +328,18 @@ class VTBeatDetector(object):
 
         finally delete the key: value from the dict
         """
-        # while True:
-        #     sleep(1)
-        #     print(len(self.vt_dict))
-        raise NotImplementedError
+        while True:
+            sleep(1)
+            print(len(self.vt_dict))
+            for i in self.vt_dict.values():
+                print(i.vt_result)
+                if i.vt_result == False:
+                    pass
+                elif i.vt_result == True:
+                    pass
+                else:
+                    #Write into the database
+        
 
     def heart_rate_analyzer(self, init_hexo_time):
         # analyze if heart rate is within lower and upper bound

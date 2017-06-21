@@ -1,6 +1,8 @@
 from __future__ import absolute_import, division, print_function
+from threading import Thread
 import sys
 import os
+import time
 sys.path.insert(0, '../hexoskin_helper')
 sys.path.insert(0, '../anomaly_detector')
 import utility_helper as util
@@ -60,10 +62,17 @@ def ventricular_tachycardia_helper(auth):
 	             util.datatypes['hr_quality'][0]]
 
 	#Call to get data
-	resource.VT_realtime(auth, recordID, VTBD, datatypes)
+	th1 = Thread(target=resource.VT_realtime, args=[auth, recordID, VTBD, datatypes])
+	th1.start()
+	#resource.VT_realtime(auth, recordID, VTBD, datatypes)
+
+	#Call to add anomaly into the data base
+	th1 = Thread(target=VTBD.ping_AD_dict)
+	th1.start()
+	#VTBD.ping_AD_dict()
 
 	#Call to keep VT datastructure size under limit
-	sleep(120)
+	time.sleep(120)
 	while(True):
 		VTBD.delete_data()
 		sleep(2)
