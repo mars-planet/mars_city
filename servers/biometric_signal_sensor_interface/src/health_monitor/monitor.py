@@ -60,13 +60,7 @@ def ventricular_tachycardia_helper(auth):
 	             util.datatypes['hr_quality'][0]]
 
 	#Call to get data
-	th1 = Thread(target=resource.VT_realtime, args=[auth, recordID,
-		VTBD.collect_data,datatypes])
-    th1.start()
-
-	# sleep(5)
-	# th2 = Thread(target=VTBD.beat_analyze, args=[ecg_timestamp[0]])
-	# th2.start()
+	resource.VT_realtime(auth, recordID, VTBD, datatypes)
 
 	#Call to keep VT datastructure size under limit
 	sleep(120)

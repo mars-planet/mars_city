@@ -44,6 +44,13 @@ class VenTacAlarms(Base):
                 % (self.start_hexo_timestamp, self.end_hexo_timestamp,
                    self.doe, self.data_reliability))
 
+    def __init__(self, start_hexo_timestamp, end_hexo_timestamp,
+        num_of_NEC, data_reliability, window_size):
+        self.start_hexo_timestamp = start_hexo_timestamp
+        self.end_hexo_timestamp = end_hexo_timestamp
+        self.doe = datetime.now()
+        self.data_reliability = data_reliability
+
 
 # create tables
 Base.metadata.create_all(engine)

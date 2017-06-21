@@ -16,10 +16,10 @@ class AnomalyDetector(object):
     """
 
     def __init__(self):
-        config = ConfigParser.RawConfigParser()
+        self.config = ConfigParser.RawConfigParser()
         dirname = dir_path = os.path.dirname(os.path.realpath(__file__))
         cfg_filename = os.path.join(dirname, 'anomaly_detector.cfg')
-        config.read(cfg_filename)
+        self.config.read(cfg_filename)
 
         self.vt_result = None
 

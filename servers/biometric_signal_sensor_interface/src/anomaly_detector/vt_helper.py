@@ -144,7 +144,6 @@ class VTBeatDetector(object):
         """
         # read ecg data
         self.ecg_dict.update(ecg)
-        print(self.ecg_dict)
         # with open('ecg_full.txt', 'r') as ipfile:
         #     ip = (csv.reader(ipfile, delimiter='\t'))
         #     for i in ip:

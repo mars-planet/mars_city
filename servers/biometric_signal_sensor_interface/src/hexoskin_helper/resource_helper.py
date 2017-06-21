@@ -347,7 +347,7 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
     return
 
 
-def VT_realtime(auth, recordID, func, datatypes=''):
+def VT_realtime(auth, recordID, VTBD, datatypes=''):
     '''
     Param: auth token, record ID of the record/session and the datatype of the
     metric that needs to be measured.
@@ -416,6 +416,8 @@ def VT_realtime(auth, recordID, func, datatypes=''):
             for time, hr, hrq in zip(hr_timestamp, hr_values, hrq_values):
                 hr_dict[time] = (hr, hrq)
 
+            beat_analyze_timestamp = rr_timestamp[0]
+
             ecg_timestamp = []
             ecg_values = []
             rr_timestamp = []
@@ -428,11 +430,11 @@ def VT_realtime(auth, recordID, func, datatypes=''):
             hrq_values = []
             
             try:
-                print("starting thread")
-                th1 = Thread(target=func, args=[ecg_dict, rr_dict, hr_dict])
+                th1 = Thread(target=VTBD.collect_data, args=[ecg_dict, rr_dict, hr_dict])
                 th1.start()
-                print("terminated thread")
 
+                th2 = Thread(target=VTBD.beat_analyze, args=[beat_analyze_timestamp])
+                th2.start()
 
             except:
                 continue
