@@ -339,9 +339,9 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
                 
                 try:
                     anomaly = func(rr_df, hrq_df[0:64])
-                    print(anomaly)
-                    # if anomaly != -1:
-                    #     db.add_af(anomaly)
+                    if anomaly != -1:
+                        db.add_af(anomaly)
+                        print(anomaly)
                 except:
                     continue
     return

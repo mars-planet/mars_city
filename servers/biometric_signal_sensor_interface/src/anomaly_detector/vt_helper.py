@@ -10,6 +10,8 @@ import pandas as pd
 import os
 import csv
 import sys
+sys.path.insert(0, '../hexoskin_helper')
+import anomaly_database_helper as db
 is_py2 = sys.version[0] == '2'
 if is_py2:
     import Queue as queue
@@ -311,7 +313,8 @@ class VTBeatDetector(object):
                     args=[six_second_df, six_second_rr_df,
                           six_second_rrint_stat_df, ampl])
         th.start()
-        self.vt_dict[self.vt_dict_count] = AD
+        self.vt_dict[self.vt_dict_count] = (AD,
+            six_second_df['hexoskin_timestamps'][0])
         # 1000 threads can be active at a time
         self.vt_dict_count = (self.vt_dict_count + 1) % 1000
         # print(AD.vt_result)
@@ -328,18 +331,38 @@ class VTBeatDetector(object):
 
         finally delete the key: value from the dict
         """
+        counter = 0
         while True:
-            sleep(1)
             print(len(self.vt_dict))
-            for i in self.vt_dict.values():
-                print(i.vt_result)
-                if i.vt_result == False:
+
+            if self.vt_dict[counter]:
+                if self.vt_dict[counter][0].vt_result == False:
+                    #Do nothing
                     pass
-                elif i.vt_result == True:
-                    pass
+                elif self.vt_dict[counter][0].vt_result == True:
+                    #Analyse for the next 6 seconds
+                    analyze_six_second(self.vt_dict[counter][1] + 256*6)
                 else:
-                    #Write into the database
-        
+                    #Anomaly is detected
+                    anomaly_dict = {}
+                    anomaly_dict['start_hexo_timestamp'] = \
+                    self.vt_dict[counter][1]
+                    
+                    anomaly_dict['end_hexo_timestamp'] = \
+                    self.vt_dict[counter][1] + 256*6
+                    
+                    anomaly_dict['data_reliability'] = \
+                    self.vt_dict[counter][0].vt_result
+                    
+                    db.add_vt(anomaly_dict)
+                    analyze_six_second(self.vt_dict[counter][1] + 256*6)
+                
+                del self.vt_dict[counter]
+                counter = (counter + 1) % 1000
+            
+            else:
+                #wait for the counter(key) to have a value
+                sleep(2)       
 
     def heart_rate_analyzer(self, init_hexo_time):
         # analyze if heart rate is within lower and upper bound

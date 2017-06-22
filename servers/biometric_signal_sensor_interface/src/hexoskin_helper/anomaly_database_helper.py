@@ -40,11 +40,43 @@ def add_af(data):
 
     except:
         s.rollback()
-        return "das"
+        return -1
 
     finally:
         s.close()
 
+
+def add_af(data):
+    start_hexo_timestamp = data['start_hexo_timestamp']  
+    end_hexo_timestamp = data['end_hexo_timestamp']  
+    data_reliability = data['data_reliability']  
+
+    # Create session
+    s = Session()
+
+    try:
+        query = s.query(VenTacAlarms).filter(VenTacAlarms
+            .start_hexo_timestamp.in_([start_hexo_timestamp]))
+        result = query.first()
+
+        if result:
+            return -1
+        else:
+            vt = VenTacAlarms(start_hexo_timestamp, end_hexo_timestamp,
+                data_reliability)
+            s.add(vt)
+
+            # commit the record the database
+            s.commit()
+            print("Inserted row successfully")
+            return 0
+
+    except:
+        s.rollback()
+        return -1
+
+    finally:
+        s.close()
 
 # def get(address):
 #     return_data = []
