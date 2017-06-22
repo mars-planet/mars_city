@@ -1,0 +1,115 @@
+1) Atrial Fibrillation:
+To execute:
+python anomaly_detector.py
+
+One can also uncomment the call to '__plot_map()' in the 'get_anomaly()' of atrial_fibrillation.py
+
+executes the Atrial Fibrillation Anomaly detection
+    Input:
+        rr_intervals:           a 2D pandas dataframe -
+                                (refer rrinterval.txt from Hexoskin record)
+                                first column named "hexoskin_timestamps" -
+                                contains 'int' timestamps
+                                second column named as "rr_int" -
+                                contains 'double' interval data
+        hr_quality_indices:     a 2D pandas dataframe -
+                                (refer hr_quality.txt from Hexoskin record)
+                                first column named "hexoskin_timestamps" -
+                                containts 'int' timestamps
+                                second column named as "quality_ind" -
+                                contains 'int' quality indices,
+                                with max value 127
+
+    Output:
+        returns:
+        if anomaly:
+            'dict' with follwing keys:
+                start_hexo_timestamp:   an integer denoting timestamp of
+                                        the first record
+                end_hexo_timestamp:     an integer denoting timestamp of
+                                        32/64/128 - last record
+                num_of_NEC:             a small integer, higher the number,
+                                        more severe the anomaly here
+                data_reliability:       a small integer, which denotes as a
+                                        percentage, the quality of the data
+                                        in this window
+                                        the higher the percentage, worse
+                                        the quality
+                window_size:            a small integer, takes 32/64/128
+                                        as values
+        else:
+            None
+
+    Notes:
+        based on 'A Simple Method to Detect
+        Atrial Fibrillation Using RR Intervals'
+        by Jie Lian et. al.
+        Note the return value (if not 'None') and
+        check with the data_reliability and previous
+        data timestamps to set AFAlarmAttribute at
+        the health_monitor server
+
+---------------------------------------------------------------------------------------------------------------------------
+2) Ventricular Tachycardia:
+To execute:
+python vt_helper.py
+
+creates an object and calls the Ventricular Tachycardia
+anomaly detection methods
+    Input:
+        ecg:                    a 2D pandas dataframe -
+                                (refer ecg.txt from Hexoskin record)
+                                first column named "hexoskin_timestamps" -
+                                contains 'int' timestamps
+                                second column named as "ecg_val" -
+                                contains 'int' raw ecg data
+        rr_intervals:           a 2D pandas dataframe -
+                                (refer rrinterval.txt from Hexoskin record)
+                                first column named "hexoskin_timestamps" -
+                                contains 'int' timestamps
+                                second column named as "rr_int" -
+                                contains 'double' interval data
+        rr_intervals_status:    a 2D pandas dataframe -
+                                (refer rrintervalstatus from Hexoskin API)
+                                first column named "hexoskin_timestamps" -
+                                containts 'int' timestamps
+                                second column named as "rr_status" -
+                                contains 'int' quality indices.
+
+    Output:
+        sets:
+        vt_result:  this is an attribute of an object of this
+                    (Anomaly Detector) class. Its value can
+                    be read from the caller method. Its value
+                    is set to __zero_one_count which is
+                    described next.
+
+        __zero_one_count    -   if it is the string True, it means
+                                that analysis of next 6 seconds is
+                                required
+                            -   if it is False, it means that next 6
+                                second analysis is not required
+                            -   if it has an integer value then it
+                                means that a VT event has been detected
+                                and it has to be stored in the anomaly
+                                database and of course next 6 second
+                                analysis is required
+
+    Notes:
+        based on the following three papers:
+
+        'Ventricular Tachycardia/Fibrillation Detection
+        Algorithm for 24/7 Personal Wireless Heart Monitoring'
+        by Fokkenrood et. al.
+
+        'Real Time detection of ventricular fibrillation
+        and tachycardia' by Jekova et. al.
+
+        'Increase in Heart Rate Precedes Episodes of
+        Ventricular Tachycardia and Ventricular
+        Fibrillation in Patients with Implantahle
+        Cardioverter Defihrillators: Analysis of
+        Spontaneous Ventricular Tachycardia Database'
+        by Nemec et. al.
+
+        Refer to readme for more details

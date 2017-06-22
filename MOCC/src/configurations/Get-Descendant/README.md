@@ -16,11 +16,14 @@ Project Structure:
 
 ```
 
-#Getting started
+
+# Getting started
 
 Refer [this](https://github.com/mars-planet/mars_city/blob/master/servers/body_tracker_v2/src/win/PyTango%20Setup/PyTango%20Installation%20Instructions/Instructions.txt) to set up Tango on your system.
 
-#Usage
+# Usage
+=======
+
 Consider *test/power_supply/1*, *test/power_supply/2*, *test/water_supply/1* and *test/water_supply/2* is running on Tango. (Refer [this](http://www.esrf.eu/computing/cs/tango/tango_doc/kernel_doc/pytango/latest/quicktour.html) to get it running)
 Also start the GetDescendant device server, say, with the id "test/getdescendant/1"
 ```
@@ -31,7 +34,10 @@ Also start the GetDescendant device server, say, with the id "test/getdescendant
 ```
 
 
-##To enable more levels of hierarchy than what Tango provides out of the box (3 level - *domain/family/member*)
+
+## To enable more levels of hierarchy than what Tango provides out of the box (3 level - *domain/family/member*)
+=======
+
 
 Tango provides the domain/family/member schema for the device servers, thus limiting our hierarchy of devices to upto three layers.
 
