@@ -10,18 +10,17 @@ import pandas as pd
 from atrial_fibrillation import AtrialFibrillation
 from ventricular_tachycardia import VentricularTachycardia
 
-
 class AnomalyDetector(object):
     """
     implements methods to call various Anomaly Detection Algorithms
     """
 
     def __init__(self):
-        config = ConfigParser.RawConfigParser()
+        self.config = ConfigParser.RawConfigParser()
         dirname = dir_path = os.path.dirname(os.path.realpath(__file__))
         cfg_filename = os.path.join(dirname, 'anomaly_detector.cfg')
         self.config.read(cfg_filename)
-
+        self.window_size = self.config.getint('Atrial Fibrillation', 'window_size')
         self.vt_result = None
 
     def af_anomaly_detect(self, rr_intervals, hr_quality_indices):
@@ -71,8 +70,6 @@ class AnomalyDetector(object):
             data timestamps to set AFAlarmAttribute at
             the health_monitor server
         """
-        rr_intervals.columns = ["hexoskin_timestamps", "rr_int"]
-        hr_quality_indices.columns = ["hexoskin_timestamps", "quality_ind"]
 
         if not (len(rr_intervals)) == self.window_size:
             raise ValueError("window length of rr_intervals\
