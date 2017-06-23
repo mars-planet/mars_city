@@ -8,6 +8,7 @@ Base = declarative_base()
 
 ########################################################################
 
+
 class AtrFibAlarms(Base):
     __tablename__ = 'AtrFibAlarms'
     start_hexo_timestamp = Column(Integer, primary_key=True, nullable=False)
@@ -23,7 +24,7 @@ class AtrFibAlarms(Base):
                    self.doe, self.num_of_NEC, self.data_reliability))
 
     def __init__(self, start_hexo_timestamp, end_hexo_timestamp,
-        num_of_NEC, data_reliability, window_size):
+                 num_of_NEC, data_reliability, window_size):
         self.start_hexo_timestamp = start_hexo_timestamp
         self.end_hexo_timestamp = end_hexo_timestamp
         self.doe = datetime.now()
@@ -31,6 +32,7 @@ class AtrFibAlarms(Base):
         self.data_reliability = data_reliability
         self.window_size = window_size
 # ----------------------------------------------------------------------------
+
 
 class VenTacAlarms(Base):
     __tablename__ = 'VenTacAlarms'
@@ -45,7 +47,7 @@ class VenTacAlarms(Base):
                    self.doe, self.data_reliability))
 
     def __init__(self, start_hexo_timestamp, end_hexo_timestamp,
-        data_reliability):
+                 data_reliability):
         self.start_hexo_timestamp = start_hexo_timestamp
         self.end_hexo_timestamp = end_hexo_timestamp
         self.doe = datetime.now()

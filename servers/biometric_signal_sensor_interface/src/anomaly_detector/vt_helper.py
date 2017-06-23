@@ -7,8 +7,7 @@ from anomaly_detector import AnomalyDetector
 from ventricular_tachycardia import get_Ampl
 import ctypes
 import pandas as pd
-import os
-import csv
+import numbers
 import sys
 sys.path.insert(0, '../hexoskin_helper')
 import anomaly_database_helper as db
@@ -73,9 +72,9 @@ class BeatAnalyzer(object):
         vout = -1
         if init:
             i = gcd(ifreq, ofreq)
-            self.m = int(ifreq/i)
-            self.n = int(ofreq/i)
-            self.mn = int(self.m*self.n)
+            self.m = int(ifreq / i)
+            self.n = int(ofreq / i)
+            self.mn = int(self.m * self.n)
             self.vv = int(self.getVec())
             self.v = int(self.getVec())
             self.rval = self.v
@@ -89,7 +88,7 @@ class BeatAnalyzer(object):
                     self.ot -= self.mn
                 self.it += self.n
             vout = int(self.vv + int((self.ot % self.n)) *
-                       (self.v-self.vv)/self.n)
+                       (self.v - self.vv) / self.n)
             self.ot += self.m
         return int(self.rval), int(vout)
 
@@ -101,6 +100,7 @@ class VTBeatDetector(object):
     """
     holds various data
     """
+
     def __init__(self):
         # one could make all of these as private variables and
         # write methods to access them
@@ -181,29 +181,29 @@ class VTBeatDetector(object):
         create a three more threads maybe?
         """
         limit = 1000
-        
-        if len(self.ecg_dict) > 1000:
+
+        if len(self.ecg_dict) > limit:
             ecg_lim = 200
             for key in sorted(self.ecg_dict):
-                if ecg_lim!=0:
+                if ecg_lim != 0:
                     del self.ecg_dict[key]
                     ecg_lim = ecg_lim - 1
                 else:
                     break
 
-        if len(self.rr_dict) > 1000:
+        if len(self.rr_dict) > limit:
             rr_lim = 200
             for key in sorted(self.ecg_dict):
-                if rr_lim!=0:
+                if rr_lim != 0:
                     del self.ecg_dict[key]
                     rr_lim = rr_lim - 1
                 else:
                     break
 
-        if len(self.hr_dict) > 1000:
+        if len(self.hr_dict) > limit:
             hr_lim = 200
             for key in sorted(self.ecg_dict):
-                if hr_lim!=0:
+                if hr_lim != 0:
                     del self.ecg_dict[key]
                     hr_lim = hr_lim - 1
                 else:
@@ -216,26 +216,26 @@ class VTBeatDetector(object):
                 # if flag, look in forward direction for
                 # next timestamp - 20 seconds
                 if flag:
-                    for i in xrange(hexo_time, hexo_time + (256*20)):
+                    for i in xrange(hexo_time, hexo_time + (256 * 20)):
                         if i in self.rr_dict:
                             return i
                 # if not flag, look in backward direction for
                 # prev timestamp - 20 seconds
                 else:
-                    for i in xrange(hexo_time, hexo_time - (256*20), -1):
+                    for i in xrange(hexo_time, hexo_time - (256 * 20), -1):
                         if i in self.rr_dict:
                             return i
             # look in hr_dict
             else:
                 # look in forward direction for next timestamp - 20 seconds
                 if flag:
-                    for i in xrange(hexo_time, hexo_time + (256*20)):
+                    for i in xrange(hexo_time, hexo_time + (256 * 20)):
                         if i in self.hr_dict:
                             return i
                 # if not flag, look in backward direction for
                 # prev timestamp - 20 seconds
                 else:
-                    for i in xrange(hexo_time, hexo_time - (256*20), -1):
+                    for i in xrange(hexo_time, hexo_time - (256 * 20), -1):
                         if i in self.hr_dict:
                             return i
         except:
@@ -252,7 +252,7 @@ class VTBeatDetector(object):
             six_second_dict = {timestamp: self.ecg_dict[timestamp]
                                for timestamp in
                                xrange(start_hexo_time,
-                                      start_hexo_time + (256*6))}
+                                      start_hexo_time + (256 * 6))}
             six_second_dict = sorted(six_second_dict.items())
             six_second_df = pd.DataFrame(six_second_dict,
                                          columns=["hexoskin_timestamps",
@@ -261,10 +261,10 @@ class VTBeatDetector(object):
             # calculate amplitude of previous df so that it can be passed
             # as an argument in the call to the ventricular_tachycardia
             # method from anomaly_detector.py
-            if (start_hexo_time - (256*6)) in self.ecg_dict:
+            if (start_hexo_time - (256 * 6)) in self.ecg_dict:
                 prev_six_second_dict = {timestamp: self.ecg_dict[timestamp]
                                         for timestamp in
-                                        xrange(start_hexo_time - (256*6),
+                                        xrange(start_hexo_time - (256 * 6),
                                                start_hexo_time)}
                 prev_six_second_dict = sorted(prev_six_second_dict.items())
                 prev_six_second_df = pd.\
@@ -278,7 +278,7 @@ class VTBeatDetector(object):
         six_second_rr_df, six_second_rrint_stat_df = None, None
         # construct rr_intervals and rr_interval_status data frames
         __startindex = self.__get_key(True, start_hexo_time, 1)
-        __endindex = self.__get_key(True, start_hexo_time + (256*6) - 1, 0)
+        __endindex = self.__get_key(True, start_hexo_time + (256 * 6) - 1, 0)
 
         six_second_rr_dict = {timestamp: self.
                               rr_dict[timestamp][0] for timestamp in
@@ -303,22 +303,25 @@ class VTBeatDetector(object):
 
     def analyze_six_second(self, start_hexo_time):
         # start_hexo_time is an int indicating start of six second window
-        six_second_df, six_second_rr_df, six_second_rrint_stat_df, ampl\
-            = self.get_six_second_data(start_hexo_time)
-
-        # create object and start thread and add object to vt_dict
-        # as value with the modulo count vt_dict_count as key
-        AD = AnomalyDetector()
-        th = Thread(target=AD.vt_anomaly_detect,
-                    args=[six_second_df, six_second_rr_df,
-                          six_second_rrint_stat_df, ampl])
-        th.start()
-        self.vt_dict[self.vt_dict_count] = (AD,
-            six_second_df['hexoskin_timestamps'][0])
-        # 1000 threads can be active at a time
-        self.vt_dict_count = (self.vt_dict_count + 1) % 1000
-        # print(AD.vt_result)
-        # th.join()
+        try:
+            six_second_df, six_second_rr_df, six_second_rrint_stat_df, ampl\
+                = self.get_six_second_data(start_hexo_time)
+        except:
+            pass
+        else:
+            # create object and start thread and add object to vt_dict
+            # as value with the modulo count vt_dict_count as key
+            AD = AnomalyDetector()
+            th = Thread(target=AD.vt_anomaly_detect,
+                        args=[six_second_df, six_second_rr_df,
+                              six_second_rrint_stat_df, ampl])
+            th.start()
+            self.vt_dict[self.vt_dict_count] = (
+                AD, six_second_df['hexoskin_timestamps'][0])
+            # 1000 threads can be active at a time
+            self.vt_dict_count = (self.vt_dict_count + 1) % 1000
+            # print(AD.vt_result)
+            # th.join()
 
     def ping_AD_dict(self):
         """
@@ -333,36 +336,41 @@ class VTBeatDetector(object):
         """
         counter = 0
         while True:
-            print(len(self.vt_dict))
-
-            if self.vt_dict[counter]:
-                if self.vt_dict[counter][0].vt_result == False:
-                    #Do nothing
+            try:
+                self.vt_dict[counter]
+            except:
+                # wait for the counter(key) to have a value
+                sleep(2)
+            else:
+                if self.vt_dict[counter][0].vt_result is False:
+                    # Do nothing
                     pass
-                elif self.vt_dict[counter][0].vt_result == True:
-                    #Analyse for the next 6 seconds
-                    analyze_six_second(self.vt_dict[counter][1] + 256*6)
-                else:
-                    #Anomaly is detected
+                elif self.vt_dict[counter][0].vt_result is True:
+                    # Analyse for the next 6 seconds
+                    thr1 = Thread(target=self.analyze_six_second,
+                                  args=[self.vt_dict[counter][1] + 256 * 6])
+                    thr1.start()
+                elif isinstance(
+                    self.vt_dict[counter][0].vt_result, numbers.Integral):
+                    # Anomaly is detected
                     anomaly_dict = {}
                     anomaly_dict['start_hexo_timestamp'] = \
-                    self.vt_dict[counter][1]
-                    
+                        self.vt_dict[counter][1]
+
                     anomaly_dict['end_hexo_timestamp'] = \
-                    self.vt_dict[counter][1] + 256*6
-                    
+                        self.vt_dict[counter][1] + 256 * 6
+
                     anomaly_dict['data_reliability'] = \
-                    self.vt_dict[counter][0].vt_result
-                    
+                        self.vt_dict[counter][0].vt_result
+
                     db.add_vt(anomaly_dict)
-                    analyze_six_second(self.vt_dict[counter][1] + 256*6)
-                
+                    print(anomaly_dict)
+                    thr2 = Thread(target=self.analyze_six_second,
+                                  args=[self.vt_dict[counter][1] + 256 * 6])
+                    thr2.start()
+
                 del self.vt_dict[counter]
                 counter = (counter + 1) % 1000
-            
-            else:
-                #wait for the counter(key) to have a value
-                sleep(2)       
 
     def heart_rate_analyzer(self, init_hexo_time):
         # analyze if heart rate is within lower and upper bound
@@ -469,7 +477,8 @@ class VTBeatDetector(object):
                 init_hexo_time += 1
                 __timestamp = self.__get_key(True, init_hexo_time, 1)
                 # calc threshold rr_intervals value
-                __thresh_value = (self.ectopic_beat_thresh/100) * prev_interval
+                __thresh_value = (
+                    self.ectopic_beat_thresh / 100) * prev_interval
                 # check if current beat is within given
                 # percentage of previous beat
                 if not ((prev_interval - __thresh_value) <=
@@ -485,8 +494,8 @@ class VTBeatDetector(object):
                         begin = rrint_q.get()
                         end = __timestamp
                         del rrintstatus_dict[begin]
-                        if num_of_zeroone >= int(self.ectopic_number/2) and\
-                                (end-begin) >= self.ectopic_window:
+                        if num_of_zeroone >= int(self.ectopic_number / 2) and\
+                                (end - begin) >= self.ectopic_window:
                             # print(begin, rrintstatus_dict)
                             self.analyze_six_second(end)
 

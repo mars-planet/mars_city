@@ -20,7 +20,7 @@ class AnomalyDetector(object):
         dirname = dir_path = os.path.dirname(os.path.realpath(__file__))
         cfg_filename = os.path.join(dirname, 'anomaly_detector.cfg')
         self.config.read(cfg_filename)
-
+        self.window_size = self.config.getint('Atrial Fibrillation', 'window_size')
         self.vt_result = None
 
     def af_anomaly_detect(self, rr_intervals, hr_quality_indices):

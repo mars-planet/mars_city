@@ -79,7 +79,7 @@ dataSampleRate = {
     247: 256,
     52: [],
     18: 256,
-    1004: 256,  #actually its async
+    1004: 256,  # actually its async
     22: 256,
     212: 256,
     97: 256,

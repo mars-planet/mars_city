@@ -278,7 +278,7 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
     '''
     Param: auth token, record ID of the record/session and the datatype of the
     metric that needs to be measured.
-    
+
     Realtime data collector for Atrial Fribillation
 
     This function fetches the specified data range.
@@ -317,6 +317,7 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
                 hrq_timestamp.append(a[0])
                 hrq_values.append(a[1])
 
+            print("Collected {} data points".format(len(rr_timestamp)))
             if (len(rr_timestamp) >= window_size and
                     len(hrq_timestamp) >= window_size):
                 # Pandas Dataframe
@@ -336,12 +337,13 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
                 # Call anomaly detection endpoint here
                 rr_df.columns = ["hexoskin_timestamps", "rr_int"]
                 hrq_df.columns = ["hexoskin_timestamps", "quality_ind"]
-                
+
                 try:
                     anomaly = func(rr_df, hrq_df[0:64])
+                    if anomaly == -1:
+                        print("No Anomaly")
                     if anomaly != -1:
                         db.add_af(anomaly)
-                        print(anomaly)
                 except:
                     continue
     return
@@ -411,7 +413,7 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
             rr_dict = {}
             for time, rr, rrs in zip(rrs_timestamp, rr_values, rrs_values):
                 rr_dict[time] = (rr, rrs)
-            
+
             hr_dict = {}
             for time, hr, hrq in zip(hr_timestamp, hr_values, hrq_values):
                 hr_dict[time] = (hr, hrq)
@@ -428,12 +430,14 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
             hr_values = []
             hrq_timestamp = []
             hrq_values = []
-            
+
             try:
-                th1 = Thread(target=VTBD.collect_data, args=[ecg_dict, rr_dict, hr_dict])
+                th1 = Thread(target=VTBD.collect_data, args=[
+                             ecg_dict, rr_dict, hr_dict])
                 th1.start()
 
-                th2 = Thread(target=VTBD.beat_analyze, args=[beat_analyze_timestamp])
+                th2 = Thread(target=VTBD.beat_analyze,
+                             args=[beat_analyze_timestamp])
                 th2.start()
 
             except:
