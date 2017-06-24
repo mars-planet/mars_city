@@ -181,9 +181,10 @@ class VTBeatDetector(object):
         create a three more threads maybe?
         """
         limit = 1000
+        ecg_limit = 25000
 
-        if len(self.ecg_dict) > limit:
-            ecg_lim = 200
+        if len(self.ecg_dict) > ecg_limit:
+            ecg_lim = 2500
             for key in sorted(self.ecg_dict):
                 if ecg_lim != 0:
                     del self.ecg_dict[key]
