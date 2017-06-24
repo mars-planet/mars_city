@@ -8,7 +8,7 @@ import ConfigParser
 
 requests.packages.urllib3.disable_warnings()
 config = ConfigParser.ConfigParser()
-config.read("../health_monitor/config.cfg")
+config.read("../health_monitor/login_config.cfg")
 
 __author__ = 'abhijith'
 
@@ -135,7 +135,7 @@ def auth_login():
     Requires the credentials mentioned below.
         @return :   auth (authentication token)
     '''
-    # Credentials should be added in ../biometric_monitor/config.cfg
+    # Credentials should be added in ../biometric_monitor/login_config.cfg
     username = config_helper("Credentials")['username']
     password = config_helper("Credentials")['password']
     publicKey = config_helper("Credentials")['publickey']
