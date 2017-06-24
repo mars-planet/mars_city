@@ -381,6 +381,8 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
     hrq_timestamp = []
     hrq_values = []
 
+    beat_analyze_flag = 0
+
     for data in realtime_data_generator(auth, recordID, datatypes):
         if len(data[datatypes[0]]) == 0:
             exitCounter = exitCounter - 1
@@ -436,9 +438,11 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
                              ecg_dict, rr_dict, hr_dict])
                 th1.start()
 
-                th2 = Thread(target=VTBD.beat_analyze,
-                             args=[beat_analyze_timestamp])
-                th2.start()
+                if beat_analyze_flag == 0:
+                    th2 = Thread(target=VTBD.beat_analyze,
+                        args=[beat_analyze_timestamp])
+                    th2.start()
+                    beat_analyze_flag = 1
 
             except:
                 continue
