@@ -18,9 +18,9 @@ class start():
             clear_limit					:	Number of dosage readings below
                                             threshold for the all-clear signal
     '''
-    Al_3_threshold = 0.09
-    Al_10_threshold = 0.001
-    SEP_pt = 0.004
+    Al_3_threshold = 0.068
+    Al_10_threshold = 0.068
+    SEP_pt = 0.25
     Distance = 149600000
     stack = []
     stack2 = []
