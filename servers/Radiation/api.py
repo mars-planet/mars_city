@@ -19,14 +19,14 @@ class test(object):
         os.system('scrapy crawl prediccs')
         os.system('scrapy crawl cactus')
         var1 = self.StartObj.alarm()
-        if self.StartObj.alarm_triggered and not self.StartObj.SEP:
+        if not self.StartObj.SEP:
             var2 = self.StartObj.prediccs_alarm()
         if self.StartObj.SEP:
             var3 = self.StartObj.all_clear()
         data = {'time of arrival': var1,
                 'prediccs-alarm': var2, 'all-clear': var3}
         data = {'data': data, 'time': str(datetime.now()), 'thresholds': {
-            'SEP probability threshold': 0.04,
+            'SEP probability threshold': 0.25,
             'Thin spacesuit shielding threshold': 0.068,
             'Storm shelter shielding threshold': 0.068}}
         resp.body = json.dumps(data)
