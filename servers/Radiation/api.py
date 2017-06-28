@@ -27,8 +27,8 @@ class test(object):
                 'prediccs-alarm': var2, 'all-clear': var3}
         data = {'data': data, 'time': str(datetime.now()), 'thresholds': {
             'SEP probability threshold': 0.04,
-            'Thin spacesuit shielding threshold': 0.09,
-            'Storm shelter shielding threshold': 0.001}}
+            'Thin spacesuit shielding threshold': 0.068,
+            'Storm shelter shielding threshold': 0.068}}
         resp.body = json.dumps(data)
         resp.status = falcon.HTTP_200
         resp.content_type = 'application/json'
