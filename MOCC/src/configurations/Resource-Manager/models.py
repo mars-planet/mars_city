@@ -24,6 +24,17 @@ class Resources(BaseModel):
     amount = peewee.DecimalField()
     rate = peewee.DecimalField()
 
+class ResourceObject:
+    """
+    class to encapsulate a resource
+    """
+    def __init__(self, name, type, availability_start, availability_end, rate, amount):
+        self.name = name
+        self.type = type
+        self.availability_start = availability_start
+        self.availability_end = availability_end
+        self.rate = rate
+        self.amount = amount
 
 if __name__ == "__main__":
     try:
