@@ -142,4 +142,4 @@ class start():
                         data.append(j)
                     if final_entry == j[0]:
                         flag = 1
-        return {'data': data, 'alarm_data': self.stack}
+        return {'data': data}
