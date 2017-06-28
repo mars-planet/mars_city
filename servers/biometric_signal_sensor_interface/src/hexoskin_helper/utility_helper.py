@@ -8,7 +8,7 @@ import ConfigParser
 
 requests.packages.urllib3.disable_warnings()
 config = ConfigParser.ConfigParser()
-config.read("../health_monitor/config.cfg")
+config.read("../health_monitor/login_config.cfg")
 
 __author__ = 'abhijith'
 
@@ -43,6 +43,7 @@ if MODEL == 'Hexoskin':
                  'breathingrate': [33],
                  'hr_quality': [1000],
                  'br_quality': [1001],
+                 'rrintervalstatus': [1004],
                  'inspiration': [34],
                  'expiration': [35],
                  'batt': [247],
@@ -78,6 +79,7 @@ dataSampleRate = {
     247: 256,
     52: [],
     18: 256,
+    1004: 256,  # actually its async
     22: 256,
     212: 256,
     97: 256,
@@ -117,12 +119,13 @@ class SessionInfo:
             apiurl = 'https://dapi.hexoskin.com'
         else:
             raise NotImplementedError
-        print(apiurl)
+        print("Fetching...")
         self.api = hexoskin.client.HexoApi(
             publicKey, privateKey, base_url=apiurl, auth=username + ':' +
             password, api_version='3.3.x')
         authCode = test_auth(self.api)
         if authCode != '':
+            print("Failed...")
             raise
 
 
@@ -132,7 +135,7 @@ def auth_login():
     Requires the credentials mentioned below.
         @return :   auth (authentication token)
     '''
-    # Credentials should be added in ../biometric_monitor/config.cfg
+    # Credentials should be added in ../biometric_monitor/login_config.cfg
     username = config_helper("Credentials")['username']
     password = config_helper("Credentials")['password']
     publicKey = config_helper("Credentials")['publickey']

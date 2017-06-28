@@ -1,18 +1,19 @@
+from __future__ import division, print_function
 from datetime import datetime
-
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, DateTime, Integer, SmallInteger
+from sqlalchemy import Column, DateTime, Integer, SmallInteger, create_engine
 
+engine = create_engine('sqlite:///anomalies.db', echo=False)
 Base = declarative_base()
 
+########################################################################
 
-# Add class Datapoint(Base)
 
 class AtrFibAlarms(Base):
     __tablename__ = 'AtrFibAlarms'
     start_hexo_timestamp = Column(Integer, primary_key=True, nullable=False)
     end_hexo_timestamp = Column(Integer, nullable=False)
-    doe = Column(DateTime, nullable=False, default=datetime.now)
+    doe = Column(DateTime, nullable=False, default=datetime.now())
     num_of_NEC = Column(SmallInteger, nullable=False)
     data_reliability = Column(SmallInteger, nullable=False)
     window_size = Column(SmallInteger, nullable=False, default=64)
@@ -21,6 +22,16 @@ class AtrFibAlarms(Base):
         return ("<AtrFibAlarms('%s', '%s', '%s', '%s', '%s')>"
                 % (self.start_hexo_timestamp, self.end_hexo_timestamp,
                    self.doe, self.num_of_NEC, self.data_reliability))
+
+    def __init__(self, start_hexo_timestamp, end_hexo_timestamp,
+                 num_of_NEC, data_reliability, window_size):
+        self.start_hexo_timestamp = start_hexo_timestamp
+        self.end_hexo_timestamp = end_hexo_timestamp
+        self.doe = datetime.now()
+        self.num_of_NEC = num_of_NEC
+        self.data_reliability = data_reliability
+        self.window_size = window_size
+# ----------------------------------------------------------------------------
 
 
 class VenTacAlarms(Base):
@@ -34,3 +45,14 @@ class VenTacAlarms(Base):
         return ("<AtrFibAlarms('%s', '%s', '%s', '%s')>"
                 % (self.start_hexo_timestamp, self.end_hexo_timestamp,
                    self.doe, self.data_reliability))
+
+    def __init__(self, start_hexo_timestamp, end_hexo_timestamp,
+                 data_reliability):
+        self.start_hexo_timestamp = start_hexo_timestamp
+        self.end_hexo_timestamp = end_hexo_timestamp
+        self.doe = datetime.now()
+        self.data_reliability = data_reliability
+
+
+# create tables
+Base.metadata.create_all(engine)

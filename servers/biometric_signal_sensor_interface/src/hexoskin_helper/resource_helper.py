@@ -1,10 +1,12 @@
 from __future__ import absolute_import, division, print_function
+from threading import Thread
 import sys
 import time
 import calendar
 import utility_helper as util
 import pandas as pd
 import numpy as np
+import anomaly_database_helper as db
 
 __author__ = 'abhijith'
 
@@ -57,7 +59,7 @@ def get_active_record_list(auth, limit="100", user='', deviceFilter=''):
                                 Example : HXSKIN1200001234
         @return :               The realtime measuring record list
     '''
-    recordList = get_record_list(auth)
+    recordList = get_record_list(auth, limit, user, deviceFilter)
     response = []
 
     for record in recordList:
@@ -272,7 +274,82 @@ def realtime_data_generator(auth, recordID, datatypes):
     return
 
 
-def get_realtime_data(auth, recordID, func, window_size='64', datatypes=''):
+def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
+    '''
+    Param: auth token, record ID of the record/session and the datatype of the
+    metric that needs to be measured.
+
+    Realtime data collector for Atrial Fribillation
+
+    This function fetches the specified data range.
+        @param auth:        The authentication token to use for the call
+        @param recordID:    recordID ID of record
+        @param datatypes:   Datatypes to be fetched
+        @return :           Runs till the record is active and returns the
+                            data of the user regularly, adding to the record.
+                            -1, if data not being collected in realtime
+    '''
+    record = auth.api.record.get(recordID)
+    if record.status != 'realtime':
+        print("No realtime data available with this record. Already docked.")
+        return -1
+
+    exitCounter = 5
+
+    rr_timestamp = []
+    rr_values = []
+    hrq_timestamp = []
+    hrq_values = []
+
+    for data in realtime_data_generator(auth, recordID, datatypes):
+
+        if len(data[datatypes[0]]) == 0:
+            exitCounter = exitCounter - 1
+            if exitCounter == 0:
+                break
+        else:
+            exitCounter = 5
+            for a in data[datatypes[0]]:
+                rr_timestamp.append(a[0])
+                rr_values.append(a[1])
+
+            for a in data[datatypes[1]]:
+                hrq_timestamp.append(a[0])
+                hrq_values.append(a[1])
+
+            print("Collected {} data points".format(len(rr_timestamp)))
+            if (len(rr_timestamp) >= window_size and
+                    len(hrq_timestamp) >= window_size):
+                # Pandas Dataframe
+                rr_df = pd.DataFrame(np.column_stack([rr_timestamp,
+                                                      rr_values]))
+                hrq_df = pd.DataFrame(np.column_stack([hrq_timestamp,
+                                                       hrq_values]))
+                rr_timestamp = []
+                rr_values = []
+                hrq_timestamp = []
+                hrq_values = []
+
+                start = int(len(rr_df) / 64)
+                end = int(len(rr_df) / 64) + 64
+                rr_df = rr_df[start:end]
+                rr_df.reset_index(drop=True, inplace=True)
+                # Call anomaly detection endpoint here
+                rr_df.columns = ["hexoskin_timestamps", "rr_int"]
+                hrq_df.columns = ["hexoskin_timestamps", "quality_ind"]
+
+                try:
+                    anomaly = func(rr_df, hrq_df[0:64])
+                    if anomaly == -1:
+                        print("No Anomaly")
+                    if anomaly != -1:
+                        db.add_af(anomaly)
+                except:
+                    continue
+    return
+
+
+def VT_realtime(auth, recordID, VTBD, datatypes=''):
     '''
     Param: auth token, record ID of the record/session and the datatype of the
     metric that needs to be measured.
@@ -291,13 +368,22 @@ def get_realtime_data(auth, recordID, func, window_size='64', datatypes=''):
         print("No realtime data available with this record. Already docked.")
         return -1
 
-    N = len(datatypes) * 2
-
     exitCounter = 5
-    lists_for_df = [[] for x in range(N)]
+
+    ecg_timestamp = []
+    ecg_values = []
+    rr_timestamp = []
+    rr_values = []
+    rrs_timestamp = []
+    rrs_values = []
+    hr_timestamp = []
+    hr_values = []
+    hrq_timestamp = []
+    hrq_values = []
+
+    beat_analyze_flag = 0
 
     for data in realtime_data_generator(auth, recordID, datatypes):
-
         if len(data[datatypes[0]]) == 0:
             exitCounter = exitCounter - 1
             if exitCounter == 0:
@@ -305,49 +391,62 @@ def get_realtime_data(auth, recordID, func, window_size='64', datatypes=''):
         else:
             exitCounter = 5
             for a in data[datatypes[0]]:
-                lists_for_df[0].append(a[0])
-                lists_for_df[1].append(a[1])
+                ecg_timestamp.append(int(a[0]))
+                ecg_values.append(int(a[1]))
 
             for a in data[datatypes[1]]:
-                lists_for_df[2].append(a[0])
-                lists_for_df[3].append(a[1])
+                rr_timestamp.append(int(a[0]))
+                rr_values.append(float(a[1]))
 
-            if (len(lists_for_df[0]) >= window_size and
-                    len(lists_for_df[2]) >= window_size):
-                # Pandas Dataframe
-                rr_df = pd.DataFrame(np.column_stack([lists_for_df[0],
-                                                      lists_for_df[1]]))
-                hrq_df = pd.DataFrame(np.column_stack([lists_for_df[2],
-                                                       lists_for_df[3]]))
-                lists_for_df = [[] for x in range(N)]
+            for a in data[datatypes[2]]:
+                rrs_timestamp.append(int(a[0]))
+                rrs_values.append(int(a[1]))
 
-                start = int(len(rr_df) / 64)
-                end = int(len(rr_df) / 64) + 64
-                rr_df = rr_df[start:end]
-                rr_df.reset_index(drop=True, inplace=True)
-                # Call anomaly detection endpoint here
-                print(func(rr_df, hrq_df[0:64]))
+            for a in data[datatypes[3]]:
+                hr_timestamp.append(int(a[0]))
+                hr_values.append(float(a[1]))
+
+            for a in data[datatypes[4]]:
+                hrq_timestamp.append(int(a[0]))
+                hrq_values.append(int(a[1]))
+
+            ecg_dict = dict(zip(ecg_timestamp, ecg_values))
+
+            rr_dict = {}
+            for time, rr, rrs in zip(rrs_timestamp, rr_values, rrs_values):
+                rr_dict[time] = (rr, rrs)
+
+            hr_dict = {}
+            for time, hr, hrq in zip(hr_timestamp, hr_values, hrq_values):
+                hr_dict[time] = (hr, hrq)
+
+            beat_analyze_timestamp = rr_timestamp[0]
+
+            ecg_timestamp = []
+            ecg_values = []
+            rr_timestamp = []
+            rr_values = []
+            rrs_timestamp = []
+            rrs_values = []
+            hr_timestamp = []
+            hr_values = []
+            hrq_timestamp = []
+            hrq_values = []
+
+            try:
+                th1 = Thread(target=VTBD.collect_data, args=[
+                             ecg_dict, rr_dict, hr_dict])
+                th1.start()
+
+                if beat_analyze_flag == 0:
+                    th2 = Thread(target=VTBD.beat_analyze,
+                        args=[beat_analyze_timestamp])
+                    th2.start()
+                    beat_analyze_flag = 1
+
+            except:
+                continue
     return
-
-
-def get_metric_helper(recordID, datatype):
-    '''
-    Param: auth token, record ID of the record/session and the datatype of the
-    metric that needs to be measured.
-
-    Along with the actual data from the hexoskin, metrics are also available.
-    Metrics are a way to summarize data in a single values or histograms.
-    A few example of metrics are heart rate average, max activity, minimum
-    breathing rate and so on.
-    '''
-    return NotImplementedError
-
-
-def get_gps_helper(userID):
-    '''
-    Param auth token, userID
-    '''
-    return NotImplementedError
 
 
 def main(argv):
