@@ -212,18 +212,6 @@ def user_account_info_helper(auth, userID):
     raise NotImplementedError
 
 
-def hexoskin_datatypes_helper():
-    '''
-    Returns all the datatypes that the hexoskin allows. Datatypes in Hexoskin
-    are the biometric resources it provides, such as Breathing rate, etc.
-
-    Useful for adding new biometric resource support to the project.
-        @return :       JSON response string containing datatypes and
-                        associated IDs
-    '''
-    not NotImplementedError
-
-
 def convertTimestamps(arr, format):
     '''
     Converts timestamps from hexoskin timestamp format to human readable format

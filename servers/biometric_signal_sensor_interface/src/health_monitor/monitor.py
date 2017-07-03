@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function
 from threading import Thread
 import sys
 import os
+import json
 import time
 sys.path.insert(0, '../hexoskin_helper')
 sys.path.insert(0, '../anomaly_detector')
@@ -80,6 +81,18 @@ def ventricular_tachycardia_helper(auth):
 
     # Successfully finished. Astronaut docked.
     return 1
+
+
+def get_user_name(auth):
+    # Returns the JSON response string with authenticated user information
+    user_info = util.account_info_helper(auth)
+    user_info = json.loads(user_info.text)
+    return user_info['objects'][0]['first_name']
+
+
+def get_auth_token():
+    # Returns the auth token to the tango device server
+    return util.auth_login()
 
 
 def main(argv):

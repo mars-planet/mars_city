@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""Health Monitor Tango Service"""
+from __future__ import division, print_function
+from PyTango import DeviceProxy
+from PyTango.server import Device, DeviceMeta, command, server_run
+import monitor as hm
+
+
+class Monitor(Device):
+	__metaclass__ = DeviceMeta
+
+    
+	def init_device(self):
+        Device.init_device(self)        
+        self.set_state(DevState.STANDBY)
+
+
+	@command
+	def start_monitoring(self):
+		auth = hm.get_auth_token()
+		user = get_user_name(auth)
+		self.log_function('Monitoring device...\nName: %s' % user)
+
+
+
+if __name__ == "__main__":
+    server_run([Monitor])
