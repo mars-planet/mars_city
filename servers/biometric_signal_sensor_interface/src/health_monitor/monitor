@@ -6,6 +6,7 @@ from __future__ import division, print_function
 from PyTango import DeviceProxy
 from PyTango.server import Device, DeviceMeta, command, server_run
 import monitor as hm
+import time
 
 
 class Monitor(Device):
@@ -13,17 +14,48 @@ class Monitor(Device):
 
     
 	def init_device(self):
-        Device.init_device(self)        
-        self.set_state(DevState.STANDBY)
+		Device.init_device(self)        
 
 
-	@command
+	@command(dtype_out=bool, doc_out="True if Real-time biometric session is active")
 	def start_monitoring(self):
+		self.log_function("\n")
+		self.log_function("-"*78)
+		self.log_function('Starting Biometric Health Monitor')
+		self.log_function(".")
+		self.log_function(".")
+		self.log_function("-"*78)
+
 		auth = hm.get_auth_token()
-		user = get_user_name(auth)
-		self.log_function('Monitoring device...\nName: %s' % user)
+		user = hm.get_user_name(auth)
+		record = hm.get_rrecordid(auth)
+		
+		self.log_function('Name: %s\n' % user)
+
+		if record == -1:
+			poll_counter = 10
+			self.log_function("Checking for real-time record of %s" % user)
+			while poll_counter > 0:
+				poll_counter -= 1
+				time.sleep(2)
+				if hm.get_rrecordid(auth) != -1:
+					record = hm.get_rrecordid(auth)
+					break
+
+			if record == -1:
+				self.log_function('\n%s is not in a live sesson!' % user)
+				self.log_function('Please connect the hexoskin device and try again')
+				self.log_function('-'*31 + 'X' + '-'*31)
+				return False		
+
+
+		self.log_function('Record ID of current real-time session: %s' % record)
+		
+		self.log_function('')
+		return True
 
 
 
 if __name__ == "__main__":
-    server_run([Monitor])
+	Monitor.log_function = print
+	server_run([Monitor])

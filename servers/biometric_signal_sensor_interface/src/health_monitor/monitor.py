@@ -95,8 +95,19 @@ def get_auth_token():
     return util.auth_login()
 
 
+def get_rrecordid(auth):
+    # Returns the real-time record id of the current session
+    try:
+        recordID = resource.get_active_record_list(auth)[0]
+    except:
+        return -1
+            
+    return recordID
+    
+
 def main(argv):
     auth = util.auth_login()
+    #print(util.all_users(auth).text)
     # af = Thread(target=atrial_fibrillation_helper, args=[auth])
     # af.start()
     # vt = Thread(target=ventricular_tachycardia_helper, args=[auth])
