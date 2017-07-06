@@ -5,6 +5,7 @@
 from __future__ import division, print_function
 from PyTango import DeviceProxy
 from PyTango.server import Device, DeviceMeta, command, server_run
+from threading import Thread
 import monitor as hm
 import time
 
@@ -14,18 +15,26 @@ class Monitor(Device):
 
     
 	def init_device(self):
+		'''
+		Monitor device server class constructor
+		'''
+		self.log_function("\n")
+		self.log_function("-"*78)
+		self.log_function('...Starting Biometric Health Monitor...')
+		self.log_function("-"*78)
+		self.start_monitoring()
 		Device.init_device(self)        
 
 
 	@command(dtype_out=bool, doc_out="True if Real-time biometric session is active")
 	def start_monitoring(self):
-		self.log_function("\n")
-		self.log_function("-"*78)
-		self.log_function('Starting Biometric Health Monitor')
-		self.log_function(".")
-		self.log_function(".")
-		self.log_function("-"*78)
+		'''
+		Device server command to start biometric monitoring
 
+			@return	-	TRUE if Real-time biometric session is active and
+						monitoring is being done
+						FALSE if astronaut not in real-time session
+		'''
 		auth = hm.get_auth_token()
 		user = hm.get_user_name(auth)
 		record = hm.get_rrecordid(auth)
@@ -51,9 +60,26 @@ class Monitor(Device):
 
 		self.log_function('Record ID of current real-time session: %s' % record)
 		
-		self.log_function('')
-		return True
+		# ****************** Atrial Fribillation *******************
+		self.log_function("Starting Atrial Fribillation Anomaly "
+			"Detection in background")
 
+		# Call to get Atrial Fribillation Anomaly Detection
+		th1 = Thread(target=hm.atrial_fibrillation_helper(auth),
+			args=[auth])
+		th1.start()
+
+		# ****************** Ventricular Tachycardia *******************
+		self.log_function("\n""-"*78)
+		self.log_function("Starting Ventricular Tachycardia Anomaly "
+			"Detection in background")
+
+		# Call to get Ventricular Tachycardia Anomaly Detection
+		th2 = Thread(target=hm.ventricular_tachycardia_helper(auth),
+			args=[auth])
+		th2.start()
+		
+		return True
 
 
 if __name__ == "__main__":
