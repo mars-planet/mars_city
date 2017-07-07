@@ -1,0 +1,105 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""Health Monitor Tango Service"""
+from __future__ import division, print_function
+from PyTango.server import Device, DeviceMeta, command, server_run
+from threading import Thread
+import monitor as hm
+import time
+
+
+class Monitor(Device):
+    __metaclass__ = DeviceMeta
+
+    def init_device(self):
+        '''
+        Monitor device server class constructor
+        '''
+        self.log_function("\n")
+        self.log_function("-" * 78)
+        self.log_function('...Starting Biometric Health Monitor...')
+        self.log_function("-" * 78)
+
+        Device.init_device(self)
+
+    def atrial_fribillation(self):
+        '''
+        Atrial Fribillation as a Thread
+        '''
+        self.log_function("\nStarting Atrial Fribillation Anomaly "
+                          "Detection in background")
+
+        # Call to get Atrial Fribillation Anomaly Detection
+        th1 = Thread(target=hm.atrial_fibrillation_helper,
+                     args=[auth])
+        th1.start()
+        self.log_function('Started\n')
+
+    def ventricular_tachycardia(self):
+        '''
+        Ventricular Tachycardia as a Thread
+        '''
+        self.log_function("-" * 78)
+        self.log_function("\nStarting Ventricular Tachycardia Anomaly "
+                          "Detection in background")
+
+        # Call to get Ventricular Tachycardia Anomaly Detection
+        th2 = Thread(target=hm.ventricular_tachycardia_helper,
+                     args=[auth])
+        th2.start()
+        self.log_function('Started\n')
+
+    @command(dtype_out=bool,
+             doc_out="True if Real-time biometric session is active")
+    def start_monitoring(self):
+        '''
+        Device server command to start biometric monitoring
+
+                @return	-	TRUE if Real-time biometric session is active and
+                            monitoring is being done
+                            FALSE if astronaut not in real-time session
+        '''
+        auth = hm.get_auth_token()
+        user = hm.get_user_name(auth)
+        record = hm.get_rrecordid(auth)
+
+        self.log_function('\nName: %s' % user)
+
+        if record == -1:
+            poll_counter = 10
+            self.log_function("Checking for real-time record of %s" % user)
+            while poll_counter > 0:
+                poll_counter -= 1
+                time.sleep(2)
+                if hm.get_rrecordid(auth) != -1:
+                    record = hm.get_rrecordid(auth)
+                    break
+
+            if record == -1:
+                self.log_function('\n%s is not in a live sesson!' % user)
+                self.log_function(
+                    'Please connect the hexoskin device and try again')
+                self.log_function('-' * 31 + 'X' + '-' * 31)
+                return False
+
+        self.log_function(
+            'Record ID of current real-time session: %s' % record)
+
+        self.log_function("-" * 78)
+
+        # ****************** Atrial Fribillation *******************
+        self.atrial_fribillation()
+
+        # ****************** Ventricular Tachycardia *******************
+        self.ventricular_tachycardia()
+
+        # ****************** ******************
+        self.log_function("-" * 78)
+
+        return True
+
+
+if __name__ == "__main__":
+    Monitor.log_function = print
+    server_run([Monitor])

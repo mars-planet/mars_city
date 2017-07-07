@@ -302,7 +302,8 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
     hrq_values = []
 
     for data in realtime_data_generator(auth, recordID, datatypes):
-
+        # For debugging
+        print(data)
         if len(data[datatypes[0]]) == 0:
             exitCounter = exitCounter - 1
             if exitCounter == 0:
@@ -310,12 +311,14 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
         else:
             exitCounter = 5
             for a in data[datatypes[0]]:
-                rr_timestamp.append(a[0])
-                rr_values.append(a[1])
+                if a[1] is not None:
+                    rr_timestamp.append(a[0])
+                    rr_values.append(a[1])
 
             for a in data[datatypes[1]]:
-                hrq_timestamp.append(a[0])
-                hrq_values.append(a[1])
+                if a[1] is not None:
+                    hrq_timestamp.append(a[0])
+                    hrq_values.append(a[1])
 
             print("Collected {} data points".format(len(rr_timestamp)))
             if (len(rr_timestamp) >= window_size and
@@ -384,6 +387,7 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
     beat_analyze_flag = 0
 
     for data in realtime_data_generator(auth, recordID, datatypes):
+        print(len(data[0]))
         if len(data[datatypes[0]]) == 0:
             exitCounter = exitCounter - 1
             if exitCounter == 0:
@@ -391,24 +395,29 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
         else:
             exitCounter = 5
             for a in data[datatypes[0]]:
-                ecg_timestamp.append(int(a[0]))
-                ecg_values.append(int(a[1]))
+                if a[1] is not None:
+                    ecg_timestamp.append(int(a[0]))
+                    ecg_values.append(int(a[1]))
 
             for a in data[datatypes[1]]:
-                rr_timestamp.append(int(a[0]))
-                rr_values.append(float(a[1]))
+                if a[1] is not None:
+                    rr_timestamp.append(int(a[0]))
+                    rr_values.append(float(a[1]))
 
             for a in data[datatypes[2]]:
-                rrs_timestamp.append(int(a[0]))
-                rrs_values.append(int(a[1]))
+                if a[1] is not None:
+                    rrs_timestamp.append(int(a[0]))
+                    rrs_values.append(int(a[1]))
 
             for a in data[datatypes[3]]:
-                hr_timestamp.append(int(a[0]))
-                hr_values.append(float(a[1]))
+                if a[1] is not None:
+                    hr_timestamp.append(int(a[0]))
+                    hr_values.append(float(a[1]))
 
             for a in data[datatypes[4]]:
-                hrq_timestamp.append(int(a[0]))
-                hrq_values.append(int(a[1]))
+                if a[1] is not None:
+                    hrq_timestamp.append(int(a[0]))
+                    hrq_values.append(int(a[1]))
 
             ecg_dict = dict(zip(ecg_timestamp, ecg_values))
 
@@ -434,9 +443,10 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
             hrq_values = []
 
             try:
-                th1 = Thread(target=VTBD.collect_data, args=[
-                             ecg_dict, rr_dict, hr_dict])
-                th1.start()
+                # th1 = Thread(target=VTBD.collect_data, args=[
+                #              ecg_dict, rr_dict, hr_dict])
+                # th1.start()
+                VTBD.collect_data(ecg_dict, rr_dict, hr_dict)
 
                 if beat_analyze_flag == 0:
                     th2 = Thread(target=VTBD.beat_analyze,

@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function
 from threading import Thread
 import sys
 import os
+import json
 import time
 sys.path.insert(0, '../hexoskin_helper')
 sys.path.insert(0, '../anomaly_detector')
@@ -60,7 +61,6 @@ def ventricular_tachycardia_helper(auth):
                  util.datatypes['rrintervalstatus'][0],
                  util.datatypes['heartrate'][0],
                  util.datatypes['hr_quality'][0]]
-
     # Call to get data
     th1 = Thread(target=resource.VT_realtime, args=[
                  auth, recordID, VTBD, datatypes])
@@ -73,17 +73,40 @@ def ventricular_tachycardia_helper(auth):
     # VTBD.ping_AD_dict()
 
     # Call to keep VT datastructure size under limit
-    time.sleep(120)
-    while(True):
-        VTBD.delete_data()
-        time.sleep(2)
+    # time.sleep(120)
+    # while(True):
+    #     VTBD.delete_data()
+    #     time.sleep(2)
 
     # Successfully finished. Astronaut docked.
     return 1
 
 
+def get_user_name(auth):
+    # Returns the JSON response string with authenticated user information
+    user_info = util.account_info_helper(auth)
+    user_info = json.loads(user_info.text)
+    return user_info['objects'][0]['first_name']
+
+
+def get_auth_token():
+    # Returns the auth token to the tango device server
+    return util.auth_login()
+
+
+def get_rrecordid(auth):
+    # Returns the real-time record id of the current session
+    try:
+        recordID = resource.get_active_record_list(auth)[0]
+    except:
+        return -1
+
+    return recordID
+
+
 def main(argv):
     auth = util.auth_login()
+    # print(util.all_users(auth).text)
     # af = Thread(target=atrial_fibrillation_helper, args=[auth])
     # af.start()
     # vt = Thread(target=ventricular_tachycardia_helper, args=[auth])

@@ -119,7 +119,6 @@ class SessionInfo:
             apiurl = 'https://dapi.hexoskin.com'
         else:
             raise NotImplementedError
-        print("Fetching...")
         self.api = hexoskin.client.HexoApi(
             publicKey, privateKey, base_url=apiurl, auth=username + ':' +
             password, api_version='3.3.x')
@@ -182,7 +181,7 @@ def all_users(auth):
                         of the users under authenticated user's account
     '''
     users = auth.api.user.list()
-    return users.response
+    return users.response.text
 
 
 def account_info_helper(auth):
@@ -210,18 +209,6 @@ def user_account_info_helper(auth, userID):
                         whose user-id is userID
     '''
     raise NotImplementedError
-
-
-def hexoskin_datatypes_helper():
-    '''
-    Returns all the datatypes that the hexoskin allows. Datatypes in Hexoskin
-    are the biometric resources it provides, such as Breathing rate, etc.
-
-    Useful for adding new biometric resource support to the project.
-        @return :       JSON response string containing datatypes and
-                        associated IDs
-    '''
-    not NotImplementedError
 
 
 def convertTimestamps(arr, format):
