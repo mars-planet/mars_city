@@ -19,3 +19,5 @@ class CactusArchiveScrapper(scrapy.Spider):
         yield{
             'data': data,
         }
+        links = response.css('li')[2:23]
+
