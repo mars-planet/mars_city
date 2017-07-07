@@ -5,7 +5,7 @@ class CactusArchiveScrapper(scrapy.Spider):
     name = "cactus"
 
     def start_requests(self):
-        url = 'http://www.sidc.oma.be/cactus/out/latestCMEs.html'
+        url = 'https://secchi.nrl.navy.mil/cactus/'
         yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
