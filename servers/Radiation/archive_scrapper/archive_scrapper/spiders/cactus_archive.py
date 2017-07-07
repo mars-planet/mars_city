@@ -3,6 +3,7 @@ import scrapy
 class CactusArchiveScrapper(scrapy.Spider):
 
     name = "cactus"
+    count = 0
 
     def start_requests(self):
         url = 'https://secchi.nrl.navy.mil/cactus/'
@@ -19,5 +20,9 @@ class CactusArchiveScrapper(scrapy.Spider):
         yield{
             'data': data,
         }
-        links = response.css('li')[2:23]
+        linkobj = response.css('li')[2:24]
+        links = linkobj.css("a::attr(href)").extract()
+        if self.count<len(links):
+        	self.count = self.count + 1
+        	yield response.follow(links[self.count], self.parse)
 

@@ -28,13 +28,7 @@ class MongoPipeline(object):
     def process_item(self, item, spider):
 
         if spider.name == "cactus":
-            if self.db['cactus'].count() == 0:
-                self.db['cactus'].insert(dict(item))
-                return item
-            for i in self.db['cactus'].find().sort('_id', -1).limit(1):
-                last_entry = i
-            if last_entry['data'][0][0] != item['data'][0][0]:
-                self.db['cactus'].insert(dict(item))
+            self.db['cactus'].insert(dict(item))
             return item
 
         if spider.name == "prediccs":
