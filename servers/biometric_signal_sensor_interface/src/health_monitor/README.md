@@ -10,10 +10,12 @@ Project Structure:
 ```
 /mars_city/servers/biometric_signal_sensor_interface/src/health_monitor
 |-- anomalies.db
+|-- client.py
 |-- data_model.py
 |-- login_config.cfg
 |-- monitor.py
 |-- README.md
+|-- register_monitor.py
 
 ```
 

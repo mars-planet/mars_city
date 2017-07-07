@@ -1,4 +1,11 @@
+from __future__ import absolute_import, division, print_function
 import PyTango
+
+__author__ = 'abhijith'
+
+'''
+Script to register the Biometric Monitor Tango Server
+'''
 
 dev_info = PyTango.DbDevInfo()
 dev_info.server = "Monitor/monitor"

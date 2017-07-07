@@ -61,7 +61,6 @@ def ventricular_tachycardia_helper(auth):
                  util.datatypes['rrintervalstatus'][0],
                  util.datatypes['heartrate'][0],
                  util.datatypes['hr_quality'][0]]
-
     # Call to get data
     th1 = Thread(target=resource.VT_realtime, args=[
                  auth, recordID, VTBD, datatypes])
@@ -74,10 +73,10 @@ def ventricular_tachycardia_helper(auth):
     # VTBD.ping_AD_dict()
 
     # Call to keep VT datastructure size under limit
-    time.sleep(120)
-    while(True):
-        VTBD.delete_data()
-        time.sleep(2)
+    # time.sleep(120)
+    # while(True):
+    #     VTBD.delete_data()
+    #     time.sleep(2)
 
     # Successfully finished. Astronaut docked.
     return 1
@@ -101,13 +100,13 @@ def get_rrecordid(auth):
         recordID = resource.get_active_record_list(auth)[0]
     except:
         return -1
-            
+
     return recordID
-    
+
 
 def main(argv):
     auth = util.auth_login()
-    #print(util.all_users(auth).text)
+    # print(util.all_users(auth).text)
     # af = Thread(target=atrial_fibrillation_helper, args=[auth])
     # af.start()
     # vt = Thread(target=ventricular_tachycardia_helper, args=[auth])
