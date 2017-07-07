@@ -387,7 +387,7 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
     beat_analyze_flag = 0
 
     for data in realtime_data_generator(auth, recordID, datatypes):
-        print(len(data))
+        print(len(data[0]))
         if len(data[datatypes[0]]) == 0:
             exitCounter = exitCounter - 1
             if exitCounter == 0:
@@ -449,7 +449,6 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
                 VTBD.collect_data(ecg_dict, rr_dict, hr_dict)
 
                 if beat_analyze_flag == 0:
-                    print("beat boom")
                     th2 = Thread(target=VTBD.beat_analyze,
                         args=[beat_analyze_timestamp])
                     th2.start()
