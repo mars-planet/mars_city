@@ -91,3 +91,4 @@ ITEM_PIPELINES = {
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 MONGO_URI = 'localhost'
 MONGO_DATABASE = 'ascrapper'
+ROBOTSTXT_OBEY=False

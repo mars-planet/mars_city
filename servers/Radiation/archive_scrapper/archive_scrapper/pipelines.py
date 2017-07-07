@@ -1,7 +1,7 @@
 import pymongo
 
 
-class ScrapperPipeline(object):
+class ArchiveScrapperPipeline(object):
     def process_item(self, item, spider):
         return item
 
