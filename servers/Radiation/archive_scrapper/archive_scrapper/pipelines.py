@@ -32,13 +32,7 @@ class MongoPipeline(object):
             return item
 
         if spider.name == "prediccs":
-            if self.db['prediccs'].count() == 0:
-                self.db['prediccs'].insert(dict(item))
-                return item
-            for i in self.db['prediccs'].find().sort('_id', -1).limit(1):
-                last_entry = i
-            if last_entry['data'][-1][0] != item['data'][-1][0]:
-                self.db['prediccs'].insert(dict(item))
+            self.db['prediccs'].insert(dict(item))
             return item
 
         if spider.name == "forspef":
