@@ -45,3 +45,7 @@ class MongoPipeline(object):
             if last_entry['date'] != item['date']:
                 self.db['forspef'].insert(dict(item))
             return item
+
+        if spider.name == 'NOAA':
+            self.db['noaa'].insert(dict(item))
+            return item 

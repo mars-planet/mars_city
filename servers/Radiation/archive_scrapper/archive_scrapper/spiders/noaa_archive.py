@@ -21,7 +21,7 @@ class FtpSpider(scrapy.Spider):
             i = i.split('\n')
             d = i
             data.append(d)
-        data = data[0][11:]
+        data = data[0][12:]
         for i,v in enumerate(data):
         	data[i] = data[i].split('  ')
         	#for idx,val in enumerate(data[i]):
@@ -29,7 +29,9 @@ class FtpSpider(scrapy.Spider):
         		#	del(data[i][idx])
         for idx,val in enumerate(data):
         	data[idx] = ' '.join(data[idx]).split()
-        print data
+        yield{
+            'data':data,       
+        } 
         if self.count < 2017:
         	self.count = self.count + 1
         	url = self.string + str(self.count) + '/' + str(self.count) + '_DPD.txt'
