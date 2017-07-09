@@ -161,6 +161,7 @@ def get_data(auth, recordID, start='', end='', datatypes='',
                 auth=auth, userID=record.user, start=record.start,
                 end=record.end, dataID=util.datatypes[dataID])
             final_dat[dataID] = data
+    print(final_dat)
     return final_dat
 
 
@@ -272,6 +273,26 @@ def realtime_data_generator(auth, recordID, datatypes):
         yield data
 
     return
+
+def get_all_data(auth, recordID, datatypes):
+    '''
+    Param: auth token, record ID of the record/session and the datatype of the
+    metric that needs to be measured.
+
+    Realtime data collector for all datatypes passed. Called by the Tango
+    server.
+
+    This function fetches the specified data range.
+        @param auth:        The authentication token to use for the call
+        @param recordID:    recordID ID of record
+        @param datatypes:   Datatypes to be fetched
+        @return :           Runs till the record is active and returns the
+                            data of the user regularly, adding to the record.
+                            -1, if data not being collected in realtime
+    '''
+    for data in realtime_data_generator(auth, recordID, datatypes):
+        # For debugging
+        print(data)
 
 
 def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):

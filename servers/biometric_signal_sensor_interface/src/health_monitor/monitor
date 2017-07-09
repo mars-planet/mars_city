@@ -50,6 +50,13 @@ class Monitor(Device):
         th2.start()
         self.log_function('Started\n')
 
+    @command(dtype_out=str,
+        doc_out="Atrial Fribillation anomaly output as JSON")
+    def af_to_gui():
+        
+        
+
+
     @command(dtype_out=bool,
              doc_out="True if Real-time biometric session is active")
     def start_monitoring(self):
@@ -89,14 +96,14 @@ class Monitor(Device):
         self.log_function("-" * 78)
 
         # ****************** Atrial Fribillation *******************
-        self.atrial_fribillation()
+        #self.atrial_fribillation()
 
         # ****************** Ventricular Tachycardia *******************
-        self.ventricular_tachycardia()
+        #self.ventricular_tachycardia()
 
         # ****************** ******************
         self.log_function("-" * 78)
-
+        hm.get_all_data(auth)
         return True
 
 

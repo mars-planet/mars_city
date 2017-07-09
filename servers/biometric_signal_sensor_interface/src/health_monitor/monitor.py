@@ -9,6 +9,7 @@ sys.path.insert(0, '../anomaly_detector')
 import utility_helper as util
 import resource_helper as resource
 import anomaly_detector as ad
+import anomaly_database_helper as db
 import vt_helper as vth
 import ConfigParser
 
@@ -104,6 +105,19 @@ def get_rrecordid(auth):
     return recordID
 
 
+def get_all_data(auth):
+    # Returns the required data in real-time for GUI
+    recordID = resource.get_active_record_list(auth)[0]
+    if recordID not in resource.get_active_record_list(auth):
+        # record not updated in realtime.
+        return -1
+
+    resource.get_all_data(auth, recordID, datatypes=[4113, 18])
+
+def af_from_db():
+    
+
+
 def main(argv):
     auth = util.auth_login()
     # print(util.all_users(auth).text)
@@ -115,6 +129,8 @@ def main(argv):
         atrial_fibrillation_helper(auth)
     elif argv[1] == 'vt':
         ventricular_tachycardia_helper(auth)
+    elif argv[1] == 'data':
+        resource.get_all_data(auth)
 
 
 if __name__ == "__main__":
