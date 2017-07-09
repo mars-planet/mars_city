@@ -51,11 +51,22 @@ class Monitor(Device):
         self.log_function('Started\n')
 
     @command(dtype_out=str,
-        doc_out="Atrial Fribillation anomaly output as JSON")
-    def af_to_gui():
-        
-        
+             doc_out="AF AD from DB as JSON")
+    def af_to_gui(self):
+        '''
+        To send the AF AD data to gui
+        '''
+        print(hm.af_from_db())
+        return hm.af_from_db()
 
+    @command(dtype_out=bool,
+             doc_out="VT AD from DB as JSON")
+    def vt_to_gui(self):
+        '''
+        To send the VT AD data to gui
+        '''
+        print(hm.vt_from_db())
+        return hm.vt_from_db()
 
     @command(dtype_out=bool,
              doc_out="True if Real-time biometric session is active")
@@ -103,7 +114,7 @@ class Monitor(Device):
 
         # ****************** ******************
         self.log_function("-" * 78)
-        hm.get_all_data(auth)
+        self.af_to_gui()
         return True
 
 

@@ -115,8 +115,24 @@ def get_all_data(auth):
     resource.get_all_data(auth, recordID, datatypes=[4113, 18])
 
 def af_from_db():
-    
+    # Retrieve AF AD data from DB
+    data = db.get_af()
+    return_json = {}
+    for _data in data:
+        _data[2] = _data[2].now().strftime('%Y-%m-%d %H:%M:%S')
+        return_json[_data[0]] = _data[1:]
 
+    return json.dumps((return_json))
+
+def vt_from_db():
+    # Retrieve VT AD data from DB
+    data = db.get_vt()
+    return_json = {}
+    for _data in data:
+        _data[2] = _data[2].now().strftime('%Y-%m-%d %H:%M:%S')
+        return_json[_data[0]] = _data[1:]
+
+    return json.dumps((return_json))
 
 def main(argv):
     auth = util.auth_login()

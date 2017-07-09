@@ -85,12 +85,14 @@ def get_af():
         query = s.query(AtrFibAlarms)
         result = query.all()
         for data in result:
-            return_data.append(data.start_hexo_timestamp)
-            return_data.append(data.end_hexo_timestamp)
-            return_data.append(data.doe)
-            return_data.append(data.num_of_NEC)
-            return_data.append(data.data_reliability)
-            return_data.append(data.window_size)
+            _return = []
+            _return.append(data.start_hexo_timestamp)
+            _return.append(data.end_hexo_timestamp)
+            _return.append(data.doe)
+            _return.append(data.num_of_NEC)
+            _return.append(data.data_reliability)
+            _return.append(data.window_size)
+            return_data.append(_return)
 
         s.close()
         return return_data
