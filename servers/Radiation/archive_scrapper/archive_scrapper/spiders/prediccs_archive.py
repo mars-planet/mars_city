@@ -25,7 +25,7 @@ class PrediccsArchiveScrapper(scrapy.Spider):
                 yield scrapy.Request(scrap_url, self.parse)
 
         datas = response.css("p::text").extract_first()
-        datas = datas.split("\n")[12:]
+        datas = datas.split("\n")[22:]
         data = []
         for i in datas:
             i = i.split('\t')
