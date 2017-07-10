@@ -45,6 +45,10 @@ class APC(object):
 		# anomalyDict - use popitem() to remove
 		self.anomaly_dict = OrderedDict()
 
+		# references for the above dicts
+		self.QRSarea_REF = None
+		self.vecg_REF = None
+
 	def print_func(self):
 		print(self.RRint_dict)
 		print(self.QRSwidth_dict)
@@ -58,21 +62,28 @@ class APC(object):
 					 3: self.vecg_dict}[in_dict]
 		
 		window = []
+		# timestamp is part of backward search
 		timestamp_copy = timestamp + 1
 
+		# look in backward direction
 		while len(window) < minus:
+			# start from the timestamp sent
 			if timestamp in localdict:
 				window.append((timestamp, localdict[timestamp]))
 			timestamp -= 1
+			# break if not found
 			if timestamp < timestamp_copy - (256 * 30):
 				break
 
+		# arrange the window in correct order
 		window.reverse()
 
+		# look in forward direction
 		while len(window) < (minus + plus):
 			if timestamp_copy in localdict:
 				window.append((timestamp_copy, localdict[timestamp_copy]))
 			timestamp_copy += 1
+			# look in forward direction
 			if timestamp_copy > timestamp + (256 * 50):
 				break
 
@@ -83,16 +94,60 @@ class APC(object):
 
 	def find_overlaps(self, window):
 		ocount = 0
+		# simple O(n^2) overlap check
 		for i in xrange(len(window)):
 			starti, endi = window[i][0], window[i][1]
 			
 			for j in xrange(i + 1, len(window)):
 				startj, endj = window[j][0], window[j][1]
-
+				# if starting point of either lies within
+				# the other window, then it is an overlap
 				if (startj <= starti <= endj) or\
 				   (starti <= startj <= endi):
 				   ocount += 1
 		return ocount
+
+	def supraventricular_tachycardia(self, timestamp):
+		# get rrint with this timestamp or previous to it
+		rrint = self.get_window(1, 0, timestamp, 0)
+		# if it is less than 0.5 seconds
+		if rrint[0][1] < 1 * 256:
+			if not (self.QRSarea_REF and self.vecg_REF):
+				# get previous 5 QRSarea
+				prev_five_QRSarea = self.get_window(5, 0, timestamp, 2)
+				prev_five_QRSarea = sorted(prev_five_QRSarea, key=lambda x: x[1])
+				median_QRSarea = prev_five_QRSarea[2][1]
+				# set the QRSarea_REF to be the median
+				self.QRSarea_REF = median_QRSarea
+				print(self.QRSarea_REF)
+
+				# get previous 5 vecg
+				prev_five_vecg = self.get_window(5, 0, timestamp, 3)
+				prev_five_vecg = sorted(prev_five_vecg, key=lambda x: x[1])
+				median_vecg = prev_five_vecg[2][1]
+				# set the vecg_REF to be the median
+				self.vecg_REF = median_vecg
+				print(self.vecg_REF)
+			else:
+				QRSarea = self.get_window(1, 0, timestamp, 2)[0][1]
+				QRSarea_DIFF = (abs(QRSarea - self.QRSarea_REF)/self.QRSarea_REF)*100
+
+				vecg = self.get_window(1, 0, timestamp, 3)[0][1]
+				vecgDIFF = abs(vecg - self.vecg_REF)
+
+				# if QRSArea difference less than 50% and angle less than 25 deg
+				if QRSarea_DIFF < 50 and vecgDIFF < 25:
+					# APC detected
+					print("APC")
+					pass
+				else:
+					# PVC detected
+					print("PVC")
+					pass
+		else:
+			pass
+
+		return
 
 	def absolute_arrhythmia(self):
 		# skip the initial 20 seconds
@@ -100,26 +155,42 @@ class APC(object):
 		next_timestamp = self.init_timestamp
 
 		while self.RRint_dict:
+			# get 10 seconds of RR interval - 5th is current
+			# if the indexing starts from 0
 			cur_window = self.get_window(6, 4, next_timestamp, 0)
 
+			# calculate mean of RR intervals
 			mean_RR = sum([i[1] for i in cur_window])/10
 
+			# find max RR interval to normalize the next
 			maxDiff = 0
 			for i in xrange(10):
 				curDiff = abs(cur_window[i][1] - mean_RR)
 				if curDiff > maxDiff:
 					maxDiff = curDiff
 
+			# calculate the +1% and -1% windows for each RR interval
 			RRwindows = []
 			one_percent = 0.01 * maxDiff
 			for i in xrange(10):
 				curDiff = abs(cur_window[i][1] - mean_RR)
 				RRwindows.append((curDiff - one_percent, curDiff + one_percent))
 
+			# find the number of overlaps
 			numofoverlaps = self.find_overlaps(RRwindows)
-			print(numofoverlaps)
+			# print(numofoverlaps)
 
+			if numofoverlaps <= 6:
+				# further check
+				self.supraventricular_tachycardia(next_timestamp)
+			else:
+				# fill in db entry
+				# might be N or V beat
+				pass
 
+			# move the window further
+			# since 5th is current in 0 based indexing,
+			# next is 6th, move it to that
 			next_timestamp = cur_window[6][0] + 1
 
 def main():
