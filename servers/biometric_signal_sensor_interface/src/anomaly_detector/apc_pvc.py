@@ -107,6 +107,65 @@ class APC(object):
 				   ocount += 1
 		return ocount
 
+	def checkAorV(self, temp_beatlist):
+		# the QRSarea_REF this time is the QRSarea of the first beat
+		# after the first pathological pause
+		QRSarea_REF = self.get_window(1, 0, temp_beatlist[0][0], 2)[0][1]
+		# the vecg_REF this time is the vecg of the first beat
+		# after the first pathological pause
+		vecg_REF = self.get_window(1, 0, temp_beatlist[0][0], 3)[0][1]
+		
+		# get the QRSareas
+		QRSarea_list = self.get_window(len(temp_beatlist), 0, temp_beatlist[len(temp_beatlist)-1][0] + 1, 2)
+		# get the vecg values
+		vecg_list = self.get_window(len(temp_beatlist), 0, temp_beatlist[len(temp_beatlist)-1][0] + 1, 3)
+
+		for i in xrange(len(temp_beatlist)):
+			QRSarea = QRSarea_list[i][1]
+			QRSarea_DIFF = (abs(QRSarea - QRSarea_REF)/QRSarea_REF)*100
+
+			vecg = vecg_list[i][1]
+			vecg_DIFF = abs(vecg - vecg_REF)
+
+			# if QRSArea difference less than 50% and angle less than 25 deg
+			if QRSarea_DIFF < 50 and vecg_DIFF < 25:
+				# APC detected
+				print("APC here")
+				pass
+			else:
+				# PVC detected
+				print("PVC here")
+				pass
+
+		print(QRSarea_list, vecg_list)
+		print(QRSarea_REF, len(temp_beatlist))
+		return
+
+	def pathologic_pause_test(self, timestamp):
+		# get rrint with this timestamp or previous to it
+		rrint = self.get_window(1, 0, timestamp, 0)
+		# if it is more than 1.5 seconds
+		if rrint[0][1] > 1.2 * 256:
+			# get next 25 RR intervals
+			# an approximation for next 15 seconds
+			rrint_list = self.get_window(0, 25, timestamp, 0)
+
+			temp_beatlist = []
+			for i in xrange(len(rrint_list)):
+				timestamp_cur = rrint_list[i][0]
+				# if is more than 1.5 seconds and
+				# lies within 15 second interval
+				if (rrint_list[i][1] > (1.1 * 256)) and\
+					((timestamp_cur - timestamp) < (15*256)) and\
+						len(temp_beatlist) > 0:
+					# label all beats in between
+					self.checkAorV(temp_beatlist)
+					break
+				else:
+					temp_beatlist.append(rrint_list[i])
+			print(rrint_list)
+			sys.exit()
+
 	def supraventricular_tachycardia(self, timestamp):
 		# get rrint with this timestamp or previous to it
 		rrint = self.get_window(1, 0, timestamp, 0)
@@ -133,10 +192,10 @@ class APC(object):
 				QRSarea_DIFF = (abs(QRSarea - self.QRSarea_REF)/self.QRSarea_REF)*100
 
 				vecg = self.get_window(1, 0, timestamp, 3)[0][1]
-				vecgDIFF = abs(vecg - self.vecg_REF)
+				vecg_DIFF = abs(vecg - self.vecg_REF)
 
 				# if QRSArea difference less than 50% and angle less than 25 deg
-				if QRSarea_DIFF < 50 and vecgDIFF < 25:
+				if QRSarea_DIFF < 50 and vecg_DIFF < 25:
 					# APC detected
 					print("APC")
 					pass
@@ -145,7 +204,7 @@ class APC(object):
 					print("PVC")
 					pass
 		else:
-			pass
+			self.pathologic_pause_test(timestamp)
 
 		return
 
