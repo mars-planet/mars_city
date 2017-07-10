@@ -107,6 +107,34 @@ class APC(object):
 				   ocount += 1
 		return ocount
 
+	def final_APC_test(self, timestamp):
+
+	def single_premature_heartbeat(self, timestamp):
+		seven_beats = self.get_window(7, 0, timestamp, 0)
+		ith_rr = seven_beats[6][1]
+		iminusone_rr = seven_beats[5][1]
+		avg_first_five_rr = sum([seven_beats[i][1] for i in xrange(5)])/5
+
+		# percentage difference averaged over previous intervals
+		RR_diff = (abs(ith_rr - iminusone_rr)/avg_first_five_rr)*100
+
+		# RR_diff is greater than 15% and additional conditions
+		if RR_diff > 15 and\
+			((iminusone_rr < (0.9*avg_first_five_rr)) or
+			 ((ith_rr > (1.1*avg_first_five_rr)) and
+			  (iminusone_rr <= avg_first_five_rr)) or
+			 ((ith_rr/iminusone_rr) > 1.2)):
+			print("further test needed")
+			self.final_APC_test(timestamp)
+		else:
+			if (iminusone_rr < (0.75*avg_first_five_rr)) and\
+			   (ith_rr < (0.75*avg_first_five_rr)):
+				print("most likely V")
+			else:
+				print("N or V beat")
+
+		print(ith_rr, avg_first_five_rr, RR_diff)
+
 	def checkAorV(self, temp_beatlist):
 		# the QRSarea_REF this time is the QRSarea of the first beat
 		# after the first pathological pause
@@ -137,15 +165,15 @@ class APC(object):
 				print("PVC here")
 				pass
 
-		print(QRSarea_list, vecg_list)
-		print(QRSarea_REF, len(temp_beatlist))
+		# print(QRSarea_list, vecg_list)
+		# print(QRSarea_REF, len(temp_beatlist))
 		return
 
 	def pathologic_pause_test(self, timestamp):
 		# get rrint with this timestamp or previous to it
 		rrint = self.get_window(1, 0, timestamp, 0)
 		# if it is more than 1.5 seconds
-		if rrint[0][1] > 1.2 * 256:
+		if rrint[0][1] > 1.5 * 256:
 			# get next 25 RR intervals
 			# an approximation for next 15 seconds
 			rrint_list = self.get_window(0, 25, timestamp, 0)
@@ -155,7 +183,7 @@ class APC(object):
 				timestamp_cur = rrint_list[i][0]
 				# if is more than 1.5 seconds and
 				# lies within 15 second interval
-				if (rrint_list[i][1] > (1.1 * 256)) and\
+				if (rrint_list[i][1] > (1.5 * 256)) and\
 					((timestamp_cur - timestamp) < (15*256)) and\
 						len(temp_beatlist) > 0:
 					# label all beats in between
@@ -164,7 +192,11 @@ class APC(object):
 				else:
 					temp_beatlist.append(rrint_list[i])
 			print(rrint_list)
+		else:
+			# check for single premature heartbeat
+			self.single_premature_heartbeat(timestamp)
 			sys.exit()
+		return
 
 	def supraventricular_tachycardia(self, timestamp):
 		# get rrint with this timestamp or previous to it
