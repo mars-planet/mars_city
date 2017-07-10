@@ -108,6 +108,35 @@ class APC(object):
 		return ocount
 
 	def final_APC_test(self, timestamp):
+		# get QRSwidth, QRSarea and vecg lists
+		QRSwidth_list = self.get_window(6, 0, timestamp, 1)
+		QRSarea_list = self.get_window(6, 0, timestamp, 2)
+		vecg_list = self.get_window(6, 0, timestamp, 3)
+
+		# get the current values
+		curQRSwidth = QRSwidth_list.pop()[1]
+		curQRSarea = QRSarea_list.pop()[1]
+		curvecg = vecg_list.pop()[1]
+
+		# sort to get median
+		QRSwidthREF = sorted(QRSwidth_list, key=lambda x: x[1])[2][1]
+		QRSareaREF = sorted(QRSarea_list, key=lambda x: x[1])[2][1]
+		vecgREF = sorted(vecg_list, key=lambda x: x[1])[2][1]
+
+		# calculate the DIFFS
+		QRSwidthDIFF = (abs(curQRSwidth - QRSwidthREF)/QRSwidthREF)*100
+		QRSareaDIFF = (abs(curQRSarea - QRSareaREF)/QRSareaREF)*100
+		vecgDIFF = abs(curvecg - vecgREF)
+
+		# classify
+		if (QRSwidthDIFF < 5) or\
+		   ((QRSwidthDIFF < 10) and (QRSareaDIFF < 25)) or\
+		   ((vecgDIFF < 25) and (QRSareaDIFF < 50)):
+		    print("APC apc test")
+		else:
+			print("PVC apc test")
+
+		return
 
 	def single_premature_heartbeat(self, timestamp):
 		seven_beats = self.get_window(7, 0, timestamp, 0)
@@ -124,16 +153,15 @@ class APC(object):
 			 ((ith_rr > (1.1*avg_first_five_rr)) and
 			  (iminusone_rr <= avg_first_five_rr)) or
 			 ((ith_rr/iminusone_rr) > 1.2)):
-			print("further test needed")
 			self.final_APC_test(timestamp)
 		else:
 			if (iminusone_rr < (0.75*avg_first_five_rr)) and\
 			   (ith_rr < (0.75*avg_first_five_rr)):
-				print("most likely V")
+				print("most likely V single premature heartbeat")
 			else:
-				print("N or V beat")
+				print("N or V beat single premature heartbeat")
 
-		print(ith_rr, avg_first_five_rr, RR_diff)
+		return
 
 	def checkAorV(self, temp_beatlist):
 		# the QRSarea_REF this time is the QRSarea of the first beat
@@ -158,15 +186,13 @@ class APC(object):
 			# if QRSArea difference less than 50% and angle less than 25 deg
 			if QRSarea_DIFF < 50 and vecg_DIFF < 25:
 				# APC detected
-				print("APC here")
+				print("APC pathologic pause")
 				pass
 			else:
 				# PVC detected
-				print("PVC here")
+				print("PVC pathologic pause")
 				pass
 
-		# print(QRSarea_list, vecg_list)
-		# print(QRSarea_REF, len(temp_beatlist))
 		return
 
 	def pathologic_pause_test(self, timestamp):
@@ -191,18 +217,16 @@ class APC(object):
 					break
 				else:
 					temp_beatlist.append(rrint_list[i])
-			print(rrint_list)
 		else:
 			# check for single premature heartbeat
 			self.single_premature_heartbeat(timestamp)
-			sys.exit()
 		return
 
 	def supraventricular_tachycardia(self, timestamp):
 		# get rrint with this timestamp or previous to it
 		rrint = self.get_window(1, 0, timestamp, 0)
 		# if it is less than 0.5 seconds
-		if rrint[0][1] < 1 * 256:
+		if rrint[0][1] < 0.5 * 256:
 			if not (self.QRSarea_REF and self.vecg_REF):
 				# get previous 5 QRSarea
 				prev_five_QRSarea = self.get_window(5, 0, timestamp, 2)
@@ -210,7 +234,7 @@ class APC(object):
 				median_QRSarea = prev_five_QRSarea[2][1]
 				# set the QRSarea_REF to be the median
 				self.QRSarea_REF = median_QRSarea
-				print(self.QRSarea_REF)
+				print(self.QRSarea_REF, "median QRS")
 
 				# get previous 5 vecg
 				prev_five_vecg = self.get_window(5, 0, timestamp, 3)
@@ -218,7 +242,7 @@ class APC(object):
 				median_vecg = prev_five_vecg[2][1]
 				# set the vecg_REF to be the median
 				self.vecg_REF = median_vecg
-				print(self.vecg_REF)
+				print(self.vecg_REF, "median vecg")
 			else:
 				QRSarea = self.get_window(1, 0, timestamp, 2)[0][1]
 				QRSarea_DIFF = (abs(QRSarea - self.QRSarea_REF)/self.QRSarea_REF)*100
@@ -229,11 +253,11 @@ class APC(object):
 				# if QRSArea difference less than 50% and angle less than 25 deg
 				if QRSarea_DIFF < 50 and vecg_DIFF < 25:
 					# APC detected
-					print("APC")
+					print("APC supraventricular tachycardia")
 					pass
 				else:
 					# PVC detected
-					print("PVC")
+					print("PVC supraventricular tachycardia")
 					pass
 		else:
 			self.pathologic_pause_test(timestamp)
@@ -269,7 +293,6 @@ class APC(object):
 
 			# find the number of overlaps
 			numofoverlaps = self.find_overlaps(RRwindows)
-			# print(numofoverlaps)
 
 			if numofoverlaps <= 6:
 				# further check
@@ -277,6 +300,7 @@ class APC(object):
 			else:
 				# fill in db entry
 				# might be N or V beat
+				print("N or V beat from absolute arrythmia")
 				pass
 
 			# move the window further
@@ -284,8 +308,4 @@ class APC(object):
 			# next is 6th, move it to that
 			next_timestamp = cur_window[6][0] + 1
 
-def main():
-	pass
-
-if __name__ == '__main__':
-	main()
+		return
