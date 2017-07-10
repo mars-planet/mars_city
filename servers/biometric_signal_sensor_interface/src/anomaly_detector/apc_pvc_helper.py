@@ -117,7 +117,7 @@ class APC_helper(object):
 				prev_index = int(line[1])
 
 	def popluate_aux_structures(self, init_timestamp):
-		
+		self.apcObj.init_timestamp = init_timestamp
 		ecg_buffer = []
 		# time.sleep(300)
 
@@ -155,6 +155,8 @@ def main():
 	apcHelperObj = APC_helper()
 	apcHelperObj.populate_DS()
 	apcHelperObj.popluate_aux_structures(383021266184)
+
+	apcHelperObj.apcObj.absolute_arrhythmia()
 
 	# apcHelperObj.apcObj.print_func()
 
