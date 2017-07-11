@@ -112,4 +112,38 @@ anomaly detection methods
         Spontaneous Ventricular Tachycardia Database'
         by Nemec et. al.
 
-        Refer to readme for more details
+---------------------------------------------------------------------------------------------------------------------------
+3) APC/PVC using Krasteva's paper:
+To execute:
+python apc_pvc_helper.py
+
+    Input:
+        timestamp:  the first timestamp
+
+    Output:
+        stores to the results dict of the APC class
+
+    Notes:
+        based on the following paper:
+
+        'Automatic detection of premature atrial
+        contractions in the electrocardiogram'
+        by Krasteva et. al.
+
+---------------------------------------------------------------------------------------------------------------------------
+4) PVC using Hamilton's beat detector:
+To execute:
+python pvc_hamilton.py
+
+    Input:
+        timestamp:  the first timestamp
+
+    Output:
+        stores to the results dict of the PVC class
+
+    Notes:
+        based on:
+
+        'Open Source ECG Analysis Software
+        Documentation'
+        by Patrick S. Hamilton
