@@ -10,6 +10,7 @@ import pandas as pd
 from atrial_fibrillation import AtrialFibrillation
 from ventricular_tachycardia import VentricularTachycardia
 from apc_pvc_helper import APC_helper
+from pvc_hamilton import PVC
 
 class AnomalyDetector(object):
     """
@@ -222,6 +223,29 @@ class AnomalyDetector(object):
 
         apcHelperObj.apcObj.absolute_arrhythmia()
 
+    def pvc_Hamilton(self, init_timestamp):
+        """
+        this is only for testing and reference purpose,
+        in actuality, create PVC object and call
+        directly - no need to create AD object for this
+        Input:
+            timestamp:  the first timestamp
+
+        Output:
+            stores to the results dict of the PVC class
+
+        Notes:
+            based on:
+
+            'Open Source ECG Analysis Software
+            Documentation'
+            by Patrick S. Hamilton
+
+            Refer to readme for more details
+        """
+        pvcObj = PVC()
+        pvcObj.populate_data()
+        pvcObj.beat_classf_analyzer(383021266184)
 
 def main():
     AD = AnomalyDetector()
@@ -281,7 +305,9 @@ def main():
     # call the Ventricular Tachycardia anomaly detection method
     # AD.vt_anomaly_detect(ecg, rr_intervals, rr_interval_status, 1400)
 
-    AD.apc_pvc(383021266184)
+    # AD.apc_pvc(383021266184)
+
+    # AD.pvc_Hamilton(383021266184)
 
 
 if __name__ == '__main__':

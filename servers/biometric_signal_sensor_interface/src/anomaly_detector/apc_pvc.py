@@ -43,6 +43,7 @@ class APC(object):
 		self.vecg_dict = OrderedDict()
 
 		# anomalyDict - use popitem() to remove
+		# key:value = timestamp:(RRintervalstatus, PVC_from)
 		self.anomaly_dict = OrderedDict()
 
 		# references for the above dicts
@@ -153,12 +154,12 @@ class APC(object):
 		    print("APC apc test")
 		    nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
 		    if nearestRR in self.rrint_status_dict:
-		    	self.anomaly_dict[timestamp] = (self.rrint_status_dict[nearestRR], 0)
+		    	self.anomaly_dict[nearestRR] = (self.rrint_status_dict[nearestRR], 0)
 		else:
 			print("PVC apc test")
 			nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
 			if nearestRR in self.rrint_status_dict:
-				self.anomaly_dict[timestamp] = (self.rrint_status_dict[nearestRR], 1)
+				self.anomaly_dict[nearestRR] = (self.rrint_status_dict[nearestRR], 1)
 
 		return
 
@@ -184,7 +185,7 @@ class APC(object):
 				print("most likely V single premature heartbeat")
 				nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
 				if nearestRR in self.rrint_status_dict:
-					self.anomaly_dict[timestamp] = (self.rrint_status_dict[nearestRR], 1)
+					self.anomaly_dict[nearestRR] = (self.rrint_status_dict[nearestRR], 1)
 			else:
 				print("N or V beat single premature heartbeat")
 
@@ -217,14 +218,14 @@ class APC(object):
 				timestamp = temp_beatlist[i][0]
 				nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
 				if nearestRR in self.rrint_status_dict:
-					self.anomaly_dict[timestamp] = (self.rrint_status_dict[nearestRR], 0)
+					self.anomaly_dict[nearestRR] = (self.rrint_status_dict[nearestRR], 0)
 			else:
 				# PVC detected
 				print("PVC pathologic pause")
 				timestamp = temp_beatlist[i][0]
 				nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
 				if nearestRR in self.rrint_status_dict:
-					self.anomaly_dict[timestamp] = (self.rrint_status_dict[nearestRR], 1)
+					self.anomaly_dict[nearestRR] = (self.rrint_status_dict[nearestRR], 1)
 
 		return
 
@@ -289,13 +290,13 @@ class APC(object):
 					print("APC supraventricular tachycardia")
 					nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
 					if nearestRR in self.rrint_status_dict:
-						self.anomaly_dict[timestamp] = (self.rrint_status_dict[nearestRR], 0)
+						self.anomaly_dict[nearestRR] = (self.rrint_status_dict[nearestRR], 0)
 				else:
 					# PVC detected
 					print("PVC supraventricular tachycardia")
 					nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
 					if nearestRR in self.rrint_status_dict:
-						self.anomaly_dict[timestamp] = (self.rrint_status_dict[nearestRR], 1)
+						self.anomaly_dict[nearestRR] = (self.rrint_status_dict[nearestRR], 1)
 		else:
 			self.pathologic_pause_test(timestamp)
 
