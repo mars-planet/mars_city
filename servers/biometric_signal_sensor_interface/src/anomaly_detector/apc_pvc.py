@@ -49,6 +49,24 @@ class APC(object):
 		self.QRSarea_REF = None
 		self.vecg_REF = None
 
+	def delete_method(self):
+		# method to maintain data structures' size
+
+		# initial wait time
+		time.sleep(60*10)
+		while rrint_status_dict:
+			for i in xrange(256):
+				self.ecg_dict.popitem(last=False)
+
+			self.rrint_status_dict.popitem(last=False)
+			self.RRint_dict.popitem(last=False)
+			self.QRSwidth_dict.popitem(last=False)
+			self.QRSarea_dict.popitem(last=False)
+			self.vecg_dict.popitem(last=False)
+			time.sleep(20)
+
+		return
+
 	def print_func(self):
 		print(self.RRint_dict)
 		print(self.QRSwidth_dict)
@@ -133,8 +151,14 @@ class APC(object):
 		   ((QRSwidthDIFF < 10) and (QRSareaDIFF < 25)) or\
 		   ((vecgDIFF < 25) and (QRSareaDIFF < 50)):
 		    print("APC apc test")
+		    nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
+		    if nearestRR in self.rrint_status_dict:
+		    	self.anomaly_dict[timestamp] = (self.rrint_status_dict[nearestRR], 0)
 		else:
 			print("PVC apc test")
+			nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
+			if nearestRR in self.rrint_status_dict:
+				self.anomaly_dict[timestamp] = (self.rrint_status_dict[nearestRR], 1)
 
 		return
 
@@ -158,6 +182,9 @@ class APC(object):
 			if (iminusone_rr < (0.75*avg_first_five_rr)) and\
 			   (ith_rr < (0.75*avg_first_five_rr)):
 				print("most likely V single premature heartbeat")
+				nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
+				if nearestRR in self.rrint_status_dict:
+					self.anomaly_dict[timestamp] = (self.rrint_status_dict[nearestRR], 1)
 			else:
 				print("N or V beat single premature heartbeat")
 
@@ -187,11 +214,17 @@ class APC(object):
 			if QRSarea_DIFF < 50 and vecg_DIFF < 25:
 				# APC detected
 				print("APC pathologic pause")
-				pass
+				timestamp = temp_beatlist[i][0]
+				nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
+				if nearestRR in self.rrint_status_dict:
+					self.anomaly_dict[timestamp] = (self.rrint_status_dict[nearestRR], 0)
 			else:
 				# PVC detected
 				print("PVC pathologic pause")
-				pass
+				timestamp = temp_beatlist[i][0]
+				nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
+				if nearestRR in self.rrint_status_dict:
+					self.anomaly_dict[timestamp] = (self.rrint_status_dict[nearestRR], 1)
 
 		return
 
@@ -254,17 +287,24 @@ class APC(object):
 				if QRSarea_DIFF < 50 and vecg_DIFF < 25:
 					# APC detected
 					print("APC supraventricular tachycardia")
-					pass
+					nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
+					if nearestRR in self.rrint_status_dict:
+						self.anomaly_dict[timestamp] = (self.rrint_status_dict[nearestRR], 0)
 				else:
 					# PVC detected
 					print("PVC supraventricular tachycardia")
-					pass
+					nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
+					if nearestRR in self.rrint_status_dict:
+						self.anomaly_dict[timestamp] = (self.rrint_status_dict[nearestRR], 1)
 		else:
 			self.pathologic_pause_test(timestamp)
 
 		return
 
 	def absolute_arrhythmia(self):
+		# initial wait time
+		# time.sleep(180)
+
 		# skip the initial 20 seconds
 		self.init_timestamp += 20*256
 		next_timestamp = self.init_timestamp
@@ -307,5 +347,6 @@ class APC(object):
 			# since 5th is current in 0 based indexing,
 			# next is 6th, move it to that
 			next_timestamp = cur_window[6][0] + 1
+			# time.sleep(15)
 
 		return

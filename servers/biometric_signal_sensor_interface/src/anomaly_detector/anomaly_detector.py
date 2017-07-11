@@ -9,6 +9,7 @@ import pandas as pd
 
 from atrial_fibrillation import AtrialFibrillation
 from ventricular_tachycardia import VentricularTachycardia
+from apc_pvc_helper import APC_helper
 
 class AnomalyDetector(object):
     """
@@ -195,6 +196,32 @@ class AnomalyDetector(object):
             print(vtvfres)
             self.vt_result = __zero_one_count
 
+    def apc_pvc(self, init_timestamp):
+        """
+        this is only for testing and reference purpose,
+        in actuality, create APC_helper object and call
+        directly - no need to create AD object for this
+        Input:
+            timestamp:  the first timestamp
+
+        Output:
+            stores to the results dict of the APC class
+
+        Notes:
+            based on the following paper:
+
+            'Automatic detection of premature atrial
+            contractions in the electrocardiogram'
+            by Krasteva et. al.
+
+            Refer to readme for more details
+        """
+        apcHelperObj = APC_helper()
+        apcHelperObj.populate_DS()
+        apcHelperObj.popluate_aux_structures(init_timestamp)
+
+        apcHelperObj.apcObj.absolute_arrhythmia()
+
 
 def main():
     AD = AnomalyDetector()
@@ -252,7 +279,9 @@ def main():
                                       names=["hexoskin_timestamps",
                                              "rr_status"]))
     # call the Ventricular Tachycardia anomaly detection method
-    AD.vt_anomaly_detect(ecg, rr_intervals, rr_interval_status, 1400)
+    # AD.vt_anomaly_detect(ecg, rr_intervals, rr_interval_status, 1400)
+
+    AD.apc_pvc(383021266184)
 
 
 if __name__ == '__main__':
