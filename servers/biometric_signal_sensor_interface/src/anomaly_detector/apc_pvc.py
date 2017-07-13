@@ -304,7 +304,7 @@ class APC(object):
 
 	def absolute_arrhythmia(self):
 		# initial wait time
-		# time.sleep(180)
+		time.sleep(180)
 
 		# skip the initial 20 seconds
 		self.init_timestamp += 20*256
@@ -348,6 +348,6 @@ class APC(object):
 			# since 5th is current in 0 based indexing,
 			# next is 6th, move it to that
 			next_timestamp = cur_window[6][0] + 1
-			# time.sleep(15)
+			time.sleep(15)
 
 		return

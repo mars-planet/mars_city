@@ -120,7 +120,7 @@ class APC_helper(object):
 	def popluate_aux_structures(self, init_timestamp):
 		self.apcObj.init_timestamp = init_timestamp
 		ecg_buffer = []
-		# time.sleep(120)
+		time.sleep(120)
 
 		try:
 			while self.apcObj.ecg_dict:
@@ -132,7 +132,7 @@ class APC_helper(object):
 				self.populate_dicts(ecg_cur_window)
 
 				# sleep for data collection
-				# time.sleep(120)
+				time.sleep(120)
 		except Exception as e:
 			print(len(self.apcObj.RRint_dict))
 			print(len(self.apcObj.QRSwidth_dict))
@@ -158,17 +158,17 @@ class APC_helper(object):
 def main():
 	apcHelperObj = APC_helper()
 
-	# th1 = Thread(target=apcHelperObj.populate_DS, args=[])
-	# th1.start()
-	apcHelperObj.populate_DS()
+	th1 = Thread(target=apcHelperObj.populate_DS, args=[])
+	th1.start()
+	# apcHelperObj.populate_DS()
 
-	# th2 = Thread(target=apcHelperObj.popluate_aux_structures, args=[383021266184])
-	# th2.start()
-	apcHelperObj.popluate_aux_structures(383021266184)
+	th2 = Thread(target=apcHelperObj.popluate_aux_structures, args=[383021266184])
+	th2.start()
+	# apcHelperObj.popluate_aux_structures(383021266184)
 
-	# th3 = Thread(target=apcHelperObj.apcObj.absolute_arrhythmia, args=[])
-	# th3.start()
-	apcHelperObj.apcObj.absolute_arrhythmia()
+	th3 = Thread(target=apcHelperObj.apcObj.absolute_arrhythmia, args=[])
+	th3.start()
+	# apcHelperObj.apcObj.absolute_arrhythmia()
 
 	# th4 = Thread(target=apcHelperObj.apcObj.delete_method, args=[])
 
