@@ -6,7 +6,8 @@ import ctypes
 import csv
 import time
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
+
 
 class BeatAnalyzer(object):
     # this is a slightly modified copy of the
@@ -74,6 +75,7 @@ class BeatAnalyzer(object):
             self.ot += self.m
         return int(self.rval), int(vout)
 
+
 class PVC(object):
     def __init__(self):
         # key:value = timestamp:ecg(4113)
@@ -91,7 +93,7 @@ class PVC(object):
 
         # initial wait time
         time.sleep(60*10)
-        while rrquality_dict:
+        while self.rrquality_dict:
             for i in xrange(256):
                 self.ecg_dict.popitem(last=False)
 
@@ -146,13 +148,17 @@ class PVC(object):
                 DetectionTime /= op_freq
 
                 # print(beatType, DetectionTime)
-                # detectionTimeList.append(self.get_nearest_Rpeak(init_hexo_time + int(DetectionTime)))
+                # detectionTimeList.\
+                #     append(self.get_nearest_Rpeak
+                #            (init_hexo_time + int(DetectionTime)))
 
                 # 5 is PVC beatType
                 if beatType == 5:
                     print("PVC", DetectionTime)
-                    timestamp = self.get_nearest_Rpeak(init_hexo_time + int(DetectionTime))
-                    self.anomaly_dict[timestamp] = (self.rrquality_dict[timestamp], 2)
+                    timestamp = self.\
+                        get_nearest_Rpeak(init_hexo_time + int(DetectionTime))
+                    self.anomaly_dict[timestamp] =\
+                        (self.rrquality_dict[timestamp], 2)
 
                 time.sleep(0.05)
 
@@ -182,11 +188,13 @@ class PVC(object):
                 self.rrquality_dict[int(i[0])] = int(i[1])
             f.close()
 
+
 def main():
     pvcObj = PVC()
     pvcObj.populate_data()
     pvcObj.beat_classf_analyzer(383021266184)
     # pvcObj.delete_method()
+
 
 if __name__ == '__main__':
     main()
