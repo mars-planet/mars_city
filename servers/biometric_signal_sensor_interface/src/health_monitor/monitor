@@ -77,7 +77,7 @@ class Monitor(Device):
         print(hm.af_from_db())
         return hm.af_from_db()
 
-    @command(dtype_out=bool,
+    @command(dtype_out=str,
              doc_out="VT AD from DB as JSON")
     def vt_to_gui(self):
         '''

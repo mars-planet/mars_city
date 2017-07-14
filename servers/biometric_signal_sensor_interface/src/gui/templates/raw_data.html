@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block mainHead %} 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+{% endblock %}
+
+{% block mainBody %}
+
+<div class="row">
+  <div class="col s12 m12" style="height: 100%">
+    <div>
+      <div class="row" style="margin-top: 30px;">
+        <div class="col s12">
+          <ul class="tabs .tabs-fixed-width">
+            <li class="tab col s3 offset-s3"><a href="#af">Atrial Fribillation</a></li>
+            <li class="tab col s3"><a href="#vt">Ventricular Tachycardia</a></li>
+          </ul>
+        </div>
+
+        <div id="af" class="col s12">
+          <table>
+            <thead>
+              <tr>
+                  <th>Start</th>
+                  <th>End</th>
+                  <th>Date of Event</th>
+                  <th>Num of NEC</th>
+                  <th>Data Reliability</th>
+                  <th>Window Size</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for record in AF %}
+              <tr>
+                <td>{{ record[0] }}</td>
+                <td>{{ record[1] }}</td>
+                <td>{{ record[2] }}</td>
+                <td>{{ record[3] }}</td>
+                <td>{{ record[4] }}</td>
+                <td>{{ record[5] }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div id="vt" class="col s12">
+          <table>
+            <thead>
+              <tr>
+                  <th>Start</th>
+                  <th>End</th>
+                  <th>Date of Event</th>
+                  <th>Data Reliability</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for record in VT %}
+              <tr>
+                <td>{{ record[0] }}</td>
+                <td>{{ record[1] }}</td>
+                <td>{{ record[2] }}</td>
+                <td>{{ record[3] }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>  
+    </div>
+  </div>
+</div>
+            
+{% endblock %}

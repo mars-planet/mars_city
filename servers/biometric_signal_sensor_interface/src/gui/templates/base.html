@@ -17,9 +17,12 @@
 </head>
 
 <body>
-     <nav class="light-blue lighten-1" role="navigation">
-        <div class="nav-wrapper container"><a id="logo-container" href="/" class="brand-logo" style="display: inline;">Biometric Signal Sensor's Dashboard</a>
-
+    <nav class="light-blue lighten-1" role="navigation">
+        <div class="nav-wrapper container"><a id="logo-container" href="/" class="brand-logo">Biometric Signal Sensor's Dashboard</a>
+            <ul class="right hide-on-med-and-down">
+                <li><a href="/anomaly"><strong>ANOMALY</strong></a></li>
+                <li><a href="/raw_data"><strong>RAW DATA</strong></a></li>
+            </ul>
             {% block navBar %} {% endblock %}
             
             <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
@@ -27,6 +30,14 @@
     </nav>
 
     {% block mainBody %} {% endblock %}
+
+    <footer class="page-footer orange" style="position: fixed; bottom: 0; width: 100%">
+        <div class="footer-copyright">
+          <div class="container">
+            <a class="white-text" href="http://www.marsplanet.org/"><strong>The Italian Mars Society</strong></a>
+          </div>
+        </div>
+    </footer>
 
     <!--  Scripts-->
     <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
