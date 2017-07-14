@@ -22,8 +22,10 @@ def get_AF_anomaly():
 	_af_anomaly = []
 	for key, value in af_anomaly_json.items():
 		_record = []
-		_record.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(float(key)/256)))
-		_record.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(float(value[0])/256)))
+		_record.append(time.strftime('%Y-%m-%d %H:%M:%S',
+			time.localtime(float(key)/256)))
+		_record.append(time.strftime('%Y-%m-%d %H:%M:%S',
+			time.localtime(float(value[0])/256)))
 		_record.append(value[1])
 		_record.append(value[2])
 		_record.append(value[3])
@@ -36,8 +38,10 @@ def get_VT_anomaly():
 	_vt_anomaly = []
 	for key, value in vt_anomaly_json.items():
 		_record = []
-		_record.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(float(key)/256)))
-		_record.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(float(value[0])/256)))
+		_record.append(time.strftime('%Y-%m-%d %H:%M:%S',
+			time.localtime(float(key)/256)))
+		_record.append(time.strftime('%Y-%m-%d %H:%M:%S',
+			time.localtime(float(value[0])/256)))
 		_record.append(value[1])
 		_record.append(value[2])
 		_vt_anomaly.append(_record)
@@ -58,8 +62,8 @@ def anomaly():
 
 @app.route("/raw_data")
 def raw_data():
-	_af_anomaly = get_AF_anomaly()
-	_vt_anomaly = get_VT_anomaly()
+	_af_anomaly = []
+	_vt_anomaly = []
 	return render_template('raw_data.html', AF=_af_anomaly, VT=_vt_anomaly)
 
 
