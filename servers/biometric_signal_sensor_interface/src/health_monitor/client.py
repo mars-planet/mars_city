@@ -10,6 +10,7 @@ Client side program for starting the Biometric Tango Device Server
 bm = PyTango.DeviceProxy("C3/biometric_monitor/1")
 
 try:
-    bm.start_monitoring()
+    # bm.start_monitoring()
+    print(bm.username)
 except:
     pass
