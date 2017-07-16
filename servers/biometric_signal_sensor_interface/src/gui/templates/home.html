@@ -2,6 +2,8 @@
 
 {% block mainHead %} 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- Plotly.js -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 {% endblock %}
 
 {% block mainBody %}
@@ -10,24 +12,41 @@
   <div class="col s12 m3">
     {% if safe %}
       <div class="card green darken-1">
-      <div class="card-content white-text">
-        <span><strong>Astronaut is healthy</strong></span>
-        <hr>
+        <div class="card-content white-text">
+          <span><strong>Astronaut is healthy</strong></span>
+          <hr>
     {% else %}
-      <div class="card red darken-1">
-      <div class="card-content white-text">
-        <span><strong>Astronaut is not healthy!</strong></span>
-        <br>
-        <span><strong>Anomaly Detected</strong></span>
-        <hr>
+          <div class="card red darken-1">
+            <div class="card-content white-text">
+              <span><strong>Astronaut is not healthy!</strong></span>
+              <br>
+              <span><strong>Anomaly Detected</strong></span>
+              <hr>
     {% endif %}
-
-        <span>Username: {{ username }}
-        <br>
-        <span>RecordID: {{ recordID }}</span>
+              <span>Username: {{ username }}</span>
+              <br>
+              <span>RecordID: {{ recordID }}</span>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
   </div>
-</div>      
+</div>
+{% for id in ids %}
+<div class="row">
+   <div class="col s12 m12">
+      <div id="{{ id }}"></div>
+   </div>
+</div>    
+{% endfor %}
+
+
+<script>
+  var graphs = {{graphJSON | safe}};
+  var ids = {{ids | safe}};
+  for(var i in graphs) {
+      Plotly.plot(ids[i], graphs[i].data,
+        graphs[i].layout || {});
+  }
+</script>
 {% endblock %}

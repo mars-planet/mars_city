@@ -5,7 +5,9 @@ import PyTango
 import json
 import time
 import os
-
+import pandas as pd
+import numpy as np
+import plotly
 '''
 Python Flask GUI Dashboard for the Biometric Signal Sensor's system
 '''
@@ -55,6 +57,44 @@ def get_VT_anomaly():
 
 @app.route("/")
 def home():
+	rng = pd.date_range('1/1/2011', periods=7500, freq='H')
+	ts = pd.Series(np.random.randn(len(rng)), index=rng)
+
+	graphs = [
+	    dict(
+            data=[
+                dict(
+                    x=ts.index,  # Can use the pandas data structures directly
+                    y=ts
+				),
+            ],
+            layout=dict(
+                title='ECG'
+            )
+		),
+		dict(
+            data=[
+                dict(
+                    x=ts.index,  # Can use the pandas data structures directly
+                    y=ts
+				),
+            ],
+            layout=dict(
+                title='Heart Rate'
+            )
+		)
+	]
+
+
+	# Add "ids" to each of the graphs to pass up to the client
+	# for templating
+	ids = ['graph-{}'.format(i) for i, _ in enumerate(graphs)]
+
+	# Convert the figures to JSON
+	# PlotlyJSONEncoder appropriately converts pandas, datetime, etc
+	# objects to their JSON equivalents
+	graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
+
 	username = biometric_monitor.username
 	recordID = biometric_monitor.recordID
 	_af_anomaly = get_AF_anomaly()[::-1]
@@ -73,7 +113,7 @@ def home():
 		pass
 
 	return render_template('home.html', username=username, recordID=recordID,
-		safe=safe)
+		safe=safe, ids=ids, graphJSON=graphJSON)
 
 @app.route("/anomaly")
 def anomaly():
