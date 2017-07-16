@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function
 from flask import Flask, flash, redirect, render_template, url_for
+import datetime
 import PyTango
 import json
 import time
@@ -30,6 +31,8 @@ def get_AF_anomaly():
 		_record.append(value[2])
 		_record.append(value[3])
 		_record.append(value[4])
+		# For other processing
+		_record.append(float(key)/256)
 		_af_anomaly.append(_record)
 	return _af_anomaly
 
@@ -44,6 +47,8 @@ def get_VT_anomaly():
 			time.localtime(float(value[0])/256)))
 		_record.append(value[1])
 		_record.append(value[2])
+		# For other processing
+		_record.append(float(key)/256)
 		_vt_anomaly.append(_record)
 	return _vt_anomaly
 
@@ -52,12 +57,28 @@ def get_VT_anomaly():
 def home():
 	username = biometric_monitor.username
 	recordID = biometric_monitor.recordID
-	return render_template('home.html', username=username, recordID=recordID)
+	_af_anomaly = get_AF_anomaly()[::-1]
+	today = datetime.datetime.today()
+	week_ago = today - datetime.timedelta(days=7)
+	today = ((today - datetime.datetime(1970,1,1)).total_seconds())
+	week_ago = ((week_ago - datetime.datetime(1970,1,1)).total_seconds())
+	
+	safe = True
+	try:
+		if week_ago > _af_anomaly[0][6]:
+			safe = True
+		else:
+			safe = False
+	except:
+		pass
+
+	return render_template('home.html', username=username, recordID=recordID,
+		safe=safe)
 
 @app.route("/anomaly")
 def anomaly():
-	_af_anomaly = get_AF_anomaly()
-	_vt_anomaly = get_VT_anomaly()
+	_af_anomaly = get_AF_anomaly()[::-1]
+	_vt_anomaly = get_VT_anomaly()[::-1]
 	return render_template('anomaly.html', AF=_af_anomaly, VT=_vt_anomaly)
 
 @app.route("/raw_data")
