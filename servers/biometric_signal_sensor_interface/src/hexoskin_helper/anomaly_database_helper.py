@@ -77,19 +77,42 @@ def add_vt(data):
     finally:
         s.close()
 
-# def get(address):
-#     return_data = []
+def get_af():
+    return_data = []
 
-#     s = Session()
-#     try:
-#         query = s.query(PlanActors).filter(PlanActors.address.in_([address]))
-#         result = query.first()
-#         return_data.append(result.address)
-#         return_data.append(result.actor_type)
-#         return_data.append(result.avail_start)
-#         return_data.append(result.avail_end)
-#         return_data.append(result.capabilities)
-#         s.close()
-#         return return_data
-#     except:
-#         return -1
+    s = Session()
+    try:
+        query = s.query(AtrFibAlarms)
+        result = query.all()
+        for data in result:
+            _return = []
+            _return.append(data.start_hexo_timestamp)
+            _return.append(data.end_hexo_timestamp)
+            _return.append(data.doe)
+            _return.append(data.num_of_NEC)
+            _return.append(data.data_reliability)
+            _return.append(data.window_size)
+            return_data.append(_return)
+
+        s.close()
+        return return_data
+    except:
+        return -1
+
+def get_vt():
+    return_data = []
+
+    s = Session()
+    try:
+        query = s.query(VenTacAlarms)
+        result = query.all()
+        for data in result:
+            return_data.append(data.start_hexo_timestamp)
+            return_data.append(data.end_hexo_timestamp)
+            return_data.append(data.doe)
+            return_data.append(data.data_reliability)
+
+        s.close()
+        return return_data
+    except:
+        return -1

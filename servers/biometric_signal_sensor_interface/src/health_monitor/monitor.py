@@ -9,6 +9,7 @@ sys.path.insert(0, '../anomaly_detector')
 import utility_helper as util
 import resource_helper as resource
 import anomaly_detector as ad
+import anomaly_database_helper as db
 import vt_helper as vth
 import ConfigParser
 
@@ -82,11 +83,11 @@ def ventricular_tachycardia_helper(auth):
     return 1
 
 
-def get_user_name(auth):
+def get_user_info(auth):
     # Returns the JSON response string with authenticated user information
     user_info = util.account_info_helper(auth)
-    user_info = json.loads(user_info.text)
-    return user_info['objects'][0]['first_name']
+    user_info = user_info.text
+    return user_info
 
 
 def get_auth_token():
@@ -104,6 +105,35 @@ def get_rrecordid(auth):
     return recordID
 
 
+def get_all_data(auth):
+    # Returns the required data in real-time for GUI
+    recordID = resource.get_active_record_list(auth)[0]
+    if recordID not in resource.get_active_record_list(auth):
+        # record not updated in realtime.
+        return -1
+
+    resource.get_all_data(auth, recordID, datatypes=[4113, 18])
+
+def af_from_db():
+    # Retrieve AF AD data from DB
+    data = db.get_af()
+    return_json = {}
+    for _data in data:
+        _data[2] = _data[2].now().strftime('%Y-%m-%d %H:%M:%S')
+        return_json[_data[0]] = _data[1:]
+
+    return json.dumps((return_json))
+
+def vt_from_db():
+    # Retrieve VT AD data from DB
+    data = db.get_vt()
+    return_json = {}
+    for _data in data:
+        _data[2] = _data[2].now().strftime('%Y-%m-%d %H:%M:%S')
+        return_json[_data[0]] = _data[1:]
+
+    return json.dumps((return_json))
+
 def main(argv):
     auth = util.auth_login()
     # print(util.all_users(auth).text)
@@ -115,6 +145,8 @@ def main(argv):
         atrial_fibrillation_helper(auth)
     elif argv[1] == 'vt':
         ventricular_tachycardia_helper(auth)
+    elif argv[1] == 'data':
+        resource.get_all_data(auth)
 
 
 if __name__ == "__main__":

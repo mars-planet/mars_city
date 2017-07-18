@@ -4,24 +4,55 @@
 """Health Monitor Tango Service"""
 from __future__ import division, print_function
 from PyTango.server import Device, DeviceMeta, command, server_run
+from PyTango.server import attribute
+from PyTango import AttrWriteType
 from threading import Thread
 import monitor as hm
 import time
+import json
 
 
 class Monitor(Device):
     __metaclass__ = DeviceMeta
 
+    username = attribute(label="Username", dtype=str,
+        doc="Username of the astronaut",
+        access=AttrWriteType.READ)
+
+    recordID = attribute(label="Record ID", dtype=int,
+        doc="Record ID of the current live session",
+        access=AttrWriteType.READ)
+
+    userinfo = attribute(label="User Info", dtype=str,
+        doc="Astronaut account information in JSON",
+        access=AttrWriteType.READ)
+
     def init_device(self):
         '''
         Monitor device server class constructor
         '''
+        Device.init_device(self)
+        auth = hm.get_auth_token()
+
+        self._user_info = hm.get_user_info(auth)
+        user_name_t = json.loads(self._user_info)
+        self._username = user_name_t['objects'][0]['first_name']
+        self._username = self._username + " " + user_name_t['objects'][0]['last_name']
+        self._recordid = hm.get_rrecordid(auth)
+
         self.log_function("\n")
         self.log_function("-" * 78)
         self.log_function('...Starting Biometric Health Monitor...')
         self.log_function("-" * 78)
 
-        Device.init_device(self)
+    def read_username(self):
+        return self._username
+
+    def read_recordID(self):
+        return self._recordid
+
+    def read_userinfo(self):
+        return self._user_info
 
     def atrial_fribillation(self):
         '''
@@ -50,6 +81,23 @@ class Monitor(Device):
         th2.start()
         self.log_function('Started\n')
 
+    @command(dtype_out=str,
+             doc_out="AF AD from DB as JSON")
+    def af_to_gui(self):
+        '''
+        To send the AF AD data to gui
+        '''
+        return hm.af_from_db()
+
+    @command(dtype_out=str,
+             doc_out="VT AD from DB as JSON")
+    def vt_to_gui(self):
+        '''
+        To send the VT AD data to gui
+        '''
+        return hm.vt_from_db()
+
+
     @command(dtype_out=bool,
              doc_out="True if Real-time biometric session is active")
     def start_monitoring(self):
@@ -60,43 +108,39 @@ class Monitor(Device):
                             monitoring is being done
                             FALSE if astronaut not in real-time session
         '''
-        auth = hm.get_auth_token()
-        user = hm.get_user_name(auth)
-        record = hm.get_rrecordid(auth)
+        self.log_function('\nName: %s' % _username)
 
-        self.log_function('\nName: %s' % user)
-
-        if record == -1:
+        if _recordid == -1:
             poll_counter = 10
-            self.log_function("Checking for real-time record of %s" % user)
+            self.log_function("Checking for real-time record of %s" % _username)
             while poll_counter > 0:
                 poll_counter -= 1
                 time.sleep(2)
                 if hm.get_rrecordid(auth) != -1:
-                    record = hm.get_rrecordid(auth)
+                    _recordid = hm.get_rrecordid(auth)
                     break
 
-            if record == -1:
-                self.log_function('\n%s is not in a live sesson!' % user)
+            if _recordid == -1:
+                self.log_function('\n%s is not in a live sesson!' % _username)
                 self.log_function(
                     'Please connect the hexoskin device and try again')
                 self.log_function('-' * 31 + 'X' + '-' * 31)
                 return False
 
         self.log_function(
-            'Record ID of current real-time session: %s' % record)
+            'Record ID of current real-time session: %s' % _recordid)
 
         self.log_function("-" * 78)
 
         # ****************** Atrial Fribillation *******************
-        self.atrial_fribillation()
+        #self.atrial_fribillation()
 
         # ****************** Ventricular Tachycardia *******************
-        self.ventricular_tachycardia()
+        #self.ventricular_tachycardia()
 
         # ****************** ******************
         self.log_function("-" * 78)
-
+        
         return True
 
 

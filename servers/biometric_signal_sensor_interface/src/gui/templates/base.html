@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
+    <title>Biometric Signal Sensor's Dashboard</title>
+    <!-- CSS  -->
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.99.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.99.0/js/materialize.min.js"></script>
+          
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="/static/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+    <link href="/static/css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+
+    {% block mainHead %} {% endblock %}
+</head>
+
+<body>
+    <nav class="light-blue lighten-1" role="navigation">
+        <div class="nav-wrapper container"><a id="logo-container" href="/" class="brand-logo">Biometric Signal Sensor's Dashboard</a>
+            <ul class="right hide-on-med-and-down">
+                <li><a href="/anomaly"><strong>ANOMALY</strong></a></li>
+                <li><a href="/raw_data"><strong>RAW DATA</strong></a></li>
+            </ul>
+            {% block navBar %} {% endblock %}
+            
+            <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+        </div>
+    </nav>
+    <div style="margin-bottom: 60px">
+        {% block mainBody %} {% endblock %}
+    </div>
+    <footer class="page-footer orange" style="position: relative; bottom: 0; width: 100%; height:75px;">
+        <div class="footer-copyright">
+          <div class="container">
+            <a class="white-text" href="http://www.marsplanet.org/"><strong>The Italian Mars Society</strong></a>
+          </div>
+        </div>
+    </footer>
+
+    <!--  Scripts-->
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="/static/js/materialize.js"></script>
+    <script src="/static/js/init.js"></script>
+
+</body>
+
+</html>
