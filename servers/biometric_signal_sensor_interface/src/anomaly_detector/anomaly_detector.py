@@ -155,52 +155,49 @@ class AnomalyDetector(object):
 
             Refer to readme for more details
         """
-        try:
-            __zero_one_count = True
- 
-            VTobj = VentricularTachycardia(ecg, rr_intervals,
-                                           rr_interval_status, self.config)
+        __zero_one_count = True
 
-            further_analyze = VTobj.analyze_six_second()
-            # if initial analysis indicates that further analysis
-            # is not required
-            if not further_analyze:
-                __zero_one_count = False
-                self.vt_result = __zero_one_count
+        VTobj = VentricularTachycardia(ecg, rr_intervals,
+                                       rr_interval_status, self.config)
 
-            # the print can be commented out
-            print("Doing further analysis")
+        further_analyze = VTobj.analyze_six_second()
+        # if initial analysis indicates that further analysis
+        # is not required
+        if not further_analyze:
+            __zero_one_count = False
+            self.vt_result = __zero_one_count
 
-            # perform the preprocessing
-            VTobj.signal_preprocess()
+        # the print can be commented out
+        print("Doing further analysis")
 
-            # call the DangerousHeartActivity detector
-            cur_ampl, stop_cur = VTobj.DHA_detect(prev_ampl)
+        # perform the preprocessing
+        VTobj.signal_preprocess()
 
-            # whatever be the results of the following stages,
-            # we necessarily have to analyze the next six second epoch
+        # call the DangerousHeartActivity detector
+        cur_ampl, stop_cur = VTobj.DHA_detect(prev_ampl)
 
-            # if further analysis is not required
-            if stop_cur is True:
-                self.vt_result = __zero_one_count
+        # whatever be the results of the following stages,
+        # we necessarily have to analyze the next six second epoch
 
-            # asystole detector
-            vtvfres = VTobj.asystole_detector(cur_ampl)
+        # if further analysis is not required
+        if stop_cur is True:
+            self.vt_result = __zero_one_count
 
-            # to analyze next six second epoch
-            if vtvfres == 'VT/VF' or vtvfres == 'Unknown':
-                # A VT episode has been found
-                # the print can be omitted
-                print(vtvfres, "HSDOFIJOIANFODSNFOSDNFOSIDNFAFDNLAINFOSDIFN")
-                __zero_one_count = VTobj.zero_one_count
-                self.vt_result = __zero_one_count
-            else:
-                # not a VT episode
-                # the print can be omitted
-                print(vtvfres)
-                self.vt_result = __zero_one_count
-        except Exception as e:
-            print("IN HERE", e)
+        # asystole detector
+        vtvfres = VTobj.asystole_detector(cur_ampl)
+
+        # to analyze next six second epoch
+        if vtvfres == 'VT/VF':
+            # A VT episode has been found
+            # the print can be omitted
+            print(vtvfres)
+            __zero_one_count = VTobj.zero_one_count
+            self.vt_result = __zero_one_count
+        else:
+            # not a VT episode
+            # the print can be omitted
+            print(vtvfres)
+            self.vt_result = __zero_one_count
 
     def apc_pvc(self, init_timestamp):
         """

@@ -185,6 +185,36 @@ class VTBeatDetector(object):
         print("DELETE called")
         return
 
+        limit = 1000
+
+        if len(self.ecg_dict) > limit:
+            ecg_lim = 200
+            for key in sorted(self.ecg_dict):
+                if ecg_lim != 0:
+                    del self.ecg_dict[key]
+                    ecg_lim = ecg_lim - 1
+                else:
+                    break
+
+        if len(self.rr_dict) > limit:
+            rr_lim = 200
+            for key in sorted(self.ecg_dict):
+                if rr_lim != 0:
+                    del self.ecg_dict[key]
+                    rr_lim = rr_lim - 1
+                else:
+                    break
+
+        if len(self.hr_dict) > limit:
+            hr_lim = 200
+            for key in sorted(self.ecg_dict):
+                if hr_lim != 0:
+                    del self.ecg_dict[key]
+                    hr_lim = hr_lim - 1
+                else:
+                    break
+        return
+
     def __get_key(self, rr_flag, hexo_time, flag):
         try:
             # look in rr_dict
