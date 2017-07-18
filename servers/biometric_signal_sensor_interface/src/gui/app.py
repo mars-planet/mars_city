@@ -1,6 +1,9 @@
 from __future__ import absolute_import, division, print_function
 from flask import Flask, flash, redirect, render_template, url_for
+from threading import Thread
+import ConfigParser
 import datetime
+import requests
 import PyTango
 import json
 import time
@@ -8,6 +11,10 @@ import os
 import pandas as pd
 import numpy as np
 import plotly
+import sys
+sys.path.insert(0, '../hexoskin_helper')
+import resource_helper as resource
+
 '''
 Python Flask GUI Dashboard for the Biometric Signal Sensor's system
 '''
@@ -18,7 +25,31 @@ app.secret_key = os.urandom(24)
 app.config.from_object(__name__)
 DEBUG = True
 
-biometric_monitor = PyTango.DeviceProxy("C3/biometric_monitor/1")
+requests.packages.urllib3.disable_warnings()
+config = ConfigParser.ConfigParser()
+config.read("../health_monitor/config.cfg")
+
+def config_helper(section):
+    '''
+    Returns a dictonary of the configuration stored in
+    ../biometric_monitor/config.cfg
+        @param section: configuration section from the config file that,
+                        has to be read
+    '''
+    dict_config = {}
+    options = config.options(section)
+    for option in options:
+        try:
+            dict_config[option] = config.get(section, option)
+        except:
+            print("exception on %s!" % option)
+            dict_config[option] = None
+    return dict_config
+
+
+biometric_monitor = PyTango.DeviceProxy(
+	config_helper("BiometricMonitor")['name'])
+
 
 def get_AF_anomaly():
 	af_anomaly_json = json.loads(biometric_monitor.af_to_gui())
@@ -54,13 +85,7 @@ def get_VT_anomaly():
 		_vt_anomaly.append(_record)
 	return _vt_anomaly
 
-
-@app.route("/")
-def home():
-	name = biometric_monitor.username
-	recordID = biometric_monitor.recordID
-	user_info = json.loads(biometric_monitor.userinfo)
-	user_info = user_info['objects'][0]
+def get_initial_data(user_info):
 	details = {}
 	# ------ User details
 	details['email'] = user_info['email']
@@ -86,6 +111,17 @@ def home():
 	details['vo2_max_desc'] = user_info['profile']['fitness'][8]['zone_description']
 	details['resp_val'] = user_info['profile']['fitness'][9]['value']
 
+	return details
+
+@app.route("/")
+def home():
+	name = biometric_monitor.username
+	recordID = biometric_monitor.recordID
+	user_info = json.loads(biometric_monitor.userinfo)
+	user_info = user_info['objects'][0]
+
+	details = get_initial_data(user_info)
+	
 	_af_anomaly = get_AF_anomaly()[::-1]
 	today = datetime.datetime.today()
 	week_ago = today - datetime.timedelta(days=7)
@@ -108,13 +144,58 @@ def home():
 def anomaly():
 	_af_anomaly = get_AF_anomaly()[::-1]
 	_vt_anomaly = get_VT_anomaly()[::-1]
-	return render_template('anomaly.html', AF=_af_anomaly, VT=_vt_anomaly)
+
+	x_af = []
+	y_af = []
+	for d in _af_anomaly:
+		y_af.append(d[3])
+		x_af.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(d[6])))
+
+	x_vt = []
+	y_vt = []
+	for d in _vt_anomaly:
+		y_vt.append(d[3])
+		x_vt.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(d[4])))
+
+	graphs = [
+	    dict(
+            data=[
+                dict(
+                    x=x_af,  # Can use the pandas data structures directly
+                    y=y_af,
+                    type='scatter'
+				)
+            ]
+		),
+		dict(
+            data=[
+                dict(
+                    x=x_vt,  # Can use the pandas data structures directly
+                    y=y_vt
+				),
+            ]
+		)
+	]
+
+
+	# Add "ids" to each of the graphs to pass up to the client
+	# for templating
+	ids = ['graph-{}'.format(i) for i, _ in enumerate(graphs)]
+
+	# Convert the figures to JSON
+	# PlotlyJSONEncoder appropriately converts pandas, datetime, etc
+	# objects to their JSON equivalents
+	graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
+
+
+	return render_template('anomaly.html', AF=_af_anomaly[:15], VT=_vt_anomaly[:15],
+		ids=ids, graphJSON=graphJSON)
 
 @app.route("/raw_data")
 def raw_data():
 	_af_anomaly = []
 	_vt_anomaly = []
-	rng = pd.date_range('1/1/2011', periods=7500, freq='H')
+	rng = pd.date_range('1/1/2011', periods=10, freq='H')
 	ts = pd.Series(np.random.randn(len(rng)), index=rng)
 
 	graphs = [
@@ -122,7 +203,8 @@ def raw_data():
             data=[
                 dict(
                     x=ts.index,  # Can use the pandas data structures directly
-                    y=ts
+                    y=ts,
+                    type='line'
 				),
             ],
             layout=dict(
@@ -151,8 +233,9 @@ def raw_data():
 	# PlotlyJSONEncoder appropriately converts pandas, datetime, etc
 	# objects to their JSON equivalents
 	graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
+
 	return render_template('raw_data.html', AF=_af_anomaly, VT=_vt_anomaly,
-		safe=safe, ids=ids, graphJSON=graphJSON)
+		ids=ids, graphJSON=graphJSON)
 
 
 if __name__ == "__main__":

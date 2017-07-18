@@ -28,10 +28,10 @@
             <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
         </div>
     </nav>
-
-    {% block mainBody %} {% endblock %}
-
-    <footer class="page-footer orange" style="position: fixed; bottom: 0; width: 100%">
+    <div style="margin-bottom: 60px">
+        {% block mainBody %} {% endblock %}
+    </div>
+    <footer class="page-footer orange" style="position: relative; bottom: 0; width: 100%; height:75px;">
         <div class="footer-copyright">
           <div class="container">
             <a class="white-text" href="http://www.marsplanet.org/"><strong>The Italian Mars Society</strong></a>

@@ -87,7 +87,6 @@ class Monitor(Device):
         '''
         To send the AF AD data to gui
         '''
-        print(hm.af_from_db())
         return hm.af_from_db()
 
     @command(dtype_out=str,
@@ -96,7 +95,6 @@ class Monitor(Device):
         '''
         To send the VT AD data to gui
         '''
-        print(hm.vt_from_db())
         return hm.vt_from_db()
 
 
