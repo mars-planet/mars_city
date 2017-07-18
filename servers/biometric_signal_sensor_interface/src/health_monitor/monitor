@@ -9,6 +9,7 @@ from PyTango import AttrWriteType
 from threading import Thread
 import monitor as hm
 import time
+import json
 
 
 class Monitor(Device):
@@ -22,14 +23,23 @@ class Monitor(Device):
         doc="Record ID of the current live session",
         access=AttrWriteType.READ)
 
+    userinfo = attribute(label="User Info", dtype=str,
+        doc="Astronaut account information in JSON",
+        access=AttrWriteType.READ)
+
     def init_device(self):
         '''
         Monitor device server class constructor
         '''
         Device.init_device(self)
         auth = hm.get_auth_token()
-        self._username = hm.get_user_name(auth)
+
+        self._user_info = hm.get_user_info(auth)
+        user_name_t = json.loads(self._user_info)
+        self._username = user_name_t['objects'][0]['first_name']
+        self._username = self._username + " " + user_name_t['objects'][0]['last_name']
         self._recordid = hm.get_rrecordid(auth)
+
         self.log_function("\n")
         self.log_function("-" * 78)
         self.log_function('...Starting Biometric Health Monitor...')
@@ -40,6 +50,9 @@ class Monitor(Device):
 
     def read_recordID(self):
         return self._recordid
+
+    def read_userinfo(self):
+        return self._user_info
 
     def atrial_fribillation(self):
         '''
@@ -80,16 +93,6 @@ class Monitor(Device):
     @command(dtype_out=str,
              doc_out="VT AD from DB as JSON")
     def vt_to_gui(self):
-        '''
-        To send the VT AD data to gui
-        '''
-        print(hm.vt_from_db())
-        return hm.vt_from_db()
-
-
-    @command(dtype_out=bool,
-             doc_out="VT AD from DB as JSON")
-    def get_user(self):
         '''
         To send the VT AD data to gui
         '''

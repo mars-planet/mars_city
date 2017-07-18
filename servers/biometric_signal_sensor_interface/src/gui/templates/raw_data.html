@@ -5,6 +5,14 @@
 {% endblock %}
 
 {% block mainBody %}
+{% for id in ids %}
+<div class="row">
+   <div class="col s12 m12">
+      <div id="{{ id }}"></div>
+   </div>
+</div>    
+{% endfor %}         
+
 
 <div class="row">
   <div class="col s12 m12" style="height: 100%">
@@ -72,5 +80,12 @@
     </div>
   </div>
 </div>
-            
+<script>
+  var graphs = {{graphJSON | safe}};
+  var ids = {{ids | safe}};
+  for(var i in graphs) {
+      Plotly.plot(ids[i], graphs[i].data,
+        graphs[i].layout || {});
+  }
+</script>
 {% endblock %}

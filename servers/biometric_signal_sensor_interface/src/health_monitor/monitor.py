@@ -83,11 +83,11 @@ def ventricular_tachycardia_helper(auth):
     return 1
 
 
-def get_user_name(auth):
+def get_user_info(auth):
     # Returns the JSON response string with authenticated user information
     user_info = util.account_info_helper(auth)
-    user_info = json.loads(user_info.text)
-    return user_info['objects'][0]['first_name']
+    user_info = user_info.text
+    return user_info
 
 
 def get_auth_token():

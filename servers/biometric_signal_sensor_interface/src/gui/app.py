@@ -57,6 +57,63 @@ def get_VT_anomaly():
 
 @app.route("/")
 def home():
+	name = biometric_monitor.username
+	recordID = biometric_monitor.recordID
+	user_info = json.loads(biometric_monitor.userinfo)
+	user_info = user_info['objects'][0]
+	details = {}
+	# ------ User details
+	details['email'] = user_info['email']
+	details['id'] = user_info['id']
+	details['dob'] = user_info['profile']['date_of_birth']
+	details['gender'] = user_info['profile']['gender']
+	details['username'] = user_info['username']
+	details['hid'] = user_info['profile']['preferences']['deviceId']
+	#------- User health details
+	details['hr_rest_val'] = user_info['profile']['fitness'][0]['value']
+	details['hr_rest_desc'] = user_info['profile']['fitness'][0]['zone_description']
+	details['bmi_val'] = user_info['profile']['fitness'][1]['value']
+	details['height'] = user_info['profile']['fitness'][2]['value']
+	details['weight'] = user_info['profile']['fitness'][3]['value']
+	details['weight_desc'] = user_info['profile']['fitness'][3]['zone_description']
+	details['hr_max_val'] = user_info['profile']['fitness'][4]['value']
+	details['hr_max_desc'] = user_info['profile']['fitness'][4]['zone_description']
+	details['sleep_val'] = user_info['profile']['fitness'][5]['value']
+	details['sleep_desc'] = user_info['profile']['fitness'][5]['zone_description']
+	details['hr_rec_val'] = user_info['profile']['fitness'][7]['value']
+	details['hr_rec_desc'] = user_info['profile']['fitness'][7]['zone_description']
+	details['vo2_max_val'] = user_info['profile']['fitness'][8]['value']
+	details['vo2_max_desc'] = user_info['profile']['fitness'][8]['zone_description']
+	details['resp_val'] = user_info['profile']['fitness'][9]['value']
+
+	_af_anomaly = get_AF_anomaly()[::-1]
+	today = datetime.datetime.today()
+	week_ago = today - datetime.timedelta(days=7)
+	today = ((today - datetime.datetime(1970,1,1)).total_seconds())
+	week_ago = ((week_ago - datetime.datetime(1970,1,1)).total_seconds())
+	
+	safe = True
+	try:
+		if week_ago > _af_anomaly[0][6]:
+			safe = True
+		else:
+			safe = False
+	except:
+		pass
+
+	return render_template('home.html', name=name, recordID=recordID,
+		details=details)
+
+@app.route("/anomaly")
+def anomaly():
+	_af_anomaly = get_AF_anomaly()[::-1]
+	_vt_anomaly = get_VT_anomaly()[::-1]
+	return render_template('anomaly.html', AF=_af_anomaly, VT=_vt_anomaly)
+
+@app.route("/raw_data")
+def raw_data():
+	_af_anomaly = []
+	_vt_anomaly = []
 	rng = pd.date_range('1/1/2011', periods=7500, freq='H')
 	ts = pd.Series(np.random.randn(len(rng)), index=rng)
 
@@ -94,38 +151,8 @@ def home():
 	# PlotlyJSONEncoder appropriately converts pandas, datetime, etc
 	# objects to their JSON equivalents
 	graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
-
-	username = biometric_monitor.username
-	recordID = biometric_monitor.recordID
-	_af_anomaly = get_AF_anomaly()[::-1]
-	today = datetime.datetime.today()
-	week_ago = today - datetime.timedelta(days=7)
-	today = ((today - datetime.datetime(1970,1,1)).total_seconds())
-	week_ago = ((week_ago - datetime.datetime(1970,1,1)).total_seconds())
-	
-	safe = True
-	try:
-		if week_ago > _af_anomaly[0][6]:
-			safe = True
-		else:
-			safe = False
-	except:
-		pass
-
-	return render_template('home.html', username=username, recordID=recordID,
+	return render_template('raw_data.html', AF=_af_anomaly, VT=_vt_anomaly,
 		safe=safe, ids=ids, graphJSON=graphJSON)
-
-@app.route("/anomaly")
-def anomaly():
-	_af_anomaly = get_AF_anomaly()[::-1]
-	_vt_anomaly = get_VT_anomaly()[::-1]
-	return render_template('anomaly.html', AF=_af_anomaly, VT=_vt_anomaly)
-
-@app.route("/raw_data")
-def raw_data():
-	_af_anomaly = []
-	_vt_anomaly = []
-	return render_template('raw_data.html', AF=_af_anomaly, VT=_vt_anomaly)
 
 
 if __name__ == "__main__":
