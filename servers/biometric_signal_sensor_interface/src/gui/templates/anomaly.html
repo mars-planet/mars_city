@@ -13,8 +13,9 @@
         <div class="row" style="margin-top: 30px;">
           <div class="col s12">
             <ul class="tabs .tabs-fixed-width">
-              <li class="tab col s3 offset-s3"><a href="#af">Atrial Fribillation</a></li>
+              <li class="tab col s3"><a href="#af">Atrial Fribillation</a></li>
               <li class="tab col s3"><a href="#vt">Ventricular Tachycardia</a></li>
+              <li class="tab col s3"><a href="#apc">APC-PVC/PVC-Hamilton</a></li>
             </ul>
           </div>
 
@@ -79,6 +80,36 @@
               </tbody>
             </table>
           </div>
+
+          <div id="apc" class="col s12">
+            <div class="row">
+               <div class="col s12 m12">
+                  <div id="graph-2"></div>
+               </div>
+            </div> 
+            <table>
+              <thead>
+                <tr>
+                    <th>RR Peak</th>
+                    <th>RR Quality</th>
+                    <th>Date of Event</th>
+                    <th>PVC From</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% for record in APC %}
+                <tr>
+                  <td>{{ record[0] }}</td>
+                  <td>{{ record[1] }}</td>
+                  <td>{{ record[2] }}</td>
+                  <td>{{ record[3] }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
         </div>  
       </div>
     </div>

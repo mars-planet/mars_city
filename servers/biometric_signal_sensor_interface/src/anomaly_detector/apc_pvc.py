@@ -4,7 +4,8 @@ from collections import OrderedDict
 import sys
 import csv
 import time
-
+sys.path.insert(0, '../hexoskin_helper')
+import anomaly_database_helper as db
 import matplotlib.pyplot as plt
 
 
@@ -360,6 +361,15 @@ class APC(object):
             # since 5th is current in 0 based indexing,
             # next is 6th, move it to that
             next_timestamp = cur_window[6][0] + 1
+            # Anomaly is detected
+            while self.anomaly_dict:
+                k, v = self.anomaly_dict.popitem()
+                anomaly = {}
+                anomaly['RRPeak_hexo_timestamp'] = k 
+                anomaly['RR_Quality'] = v[0]
+                anomaly['PVC_from'] = v[1]
+
+                db.add_apc(anomaly)
             time.sleep(15)
 
         return

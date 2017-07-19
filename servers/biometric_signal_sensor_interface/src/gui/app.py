@@ -51,6 +51,21 @@ biometric_monitor = PyTango.DeviceProxy(
 	config_helper("BiometricMonitor")['name'])
 
 
+def get_APC_anomaly():
+	apc_anomaly_json = json.loads(biometric_monitor.apc_to_gui())
+	_apc_anomaly = []
+	for key, value in apc_anomaly_json.items():
+		_record = []
+		_record.append(time.strftime('%Y-%m-%d %H:%M:%S',
+			time.localtime(float(key)/256)))
+		_record.append(value[1])
+		_record.append(value[2])
+		_record.append(value[3])
+		# For other processing
+		_record.append(float(key)/256)
+		_apc_anomaly.append(_record)
+	return _apc_anomaly
+
 def get_AF_anomaly():
 	af_anomaly_json = json.loads(biometric_monitor.af_to_gui())
 	_af_anomaly = []
@@ -138,12 +153,13 @@ def home():
 		pass
 
 	return render_template('home.html', name=name, recordID=recordID,
-		details=details)
+		safe=safe, details=details)
 
 @app.route("/anomaly")
 def anomaly():
 	_af_anomaly = get_AF_anomaly()[::-1]
 	_vt_anomaly = get_VT_anomaly()[::-1]
+	_apc_anomaly = get_APC_anomaly()[::-1]
 
 	x_af = []
 	y_af_nec = []
@@ -158,6 +174,12 @@ def anomaly():
 	for d in _vt_anomaly:
 		y_vt.append(d[3])
 		x_vt.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(d[4])))
+
+	x_apc = []
+	y_apc = []
+	for d in _apc_anomaly:
+		y_apc.append(d[3])
+		x_apc.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(d[4])))
 
 	graphs = [
 	    dict(
@@ -183,6 +205,14 @@ def anomaly():
                     y=y_vt
 				),
             ]
+		),
+		dict(
+            data=[
+                dict(
+                    x=x_apc,  # Can use the pandas data structures directly
+                    y=y_apc
+				),
+            ]
 		)
 	]
 
@@ -197,8 +227,9 @@ def anomaly():
 	graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
 
 
-	return render_template('anomaly.html', AF=_af_anomaly[:15], VT=_vt_anomaly[:15],
-		ids=ids, graphJSON=graphJSON)
+	return render_template('anomaly.html', AF=_af_anomaly[:15],
+		VT=_vt_anomaly[:15], APC=_apc_anomaly[:15], ids=ids,
+		graphJSON=graphJSON)
 
 @app.route("/raw_data")
 def raw_data():

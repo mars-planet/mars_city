@@ -52,16 +52,18 @@ class VenTacAlarms(Base):
         self.end_hexo_timestamp = end_hexo_timestamp
         self.doe = datetime.now()
         self.data_reliability = data_reliability
+# ----------------------------------------------------------------------------
+
 
 class APCAlarms(Base):
-    __tablename__ = 'VenTacAlarms'
-    RRPeak_hexo_timestamp = Column(Integer, primary_key=True, nullable=False)
-    RR_Quality = Column(SmallInteger, nullable=False)
+    __tablename__ = 'APCAlarms'
+    RRPeak_hexo_timestamp = Column(Integer, primary_key=True, nullable=False, default=datetime.now())
+    RR_Quality = Column(SmallInteger, nullable=False, default=datetime.now())
     doe = Column(DateTime, nullable=False, default=datetime.now())
-    PVC_from = Column(SmallInteger, nullable=False)
+    PVC_from = Column(SmallInteger, nullable=False, default=datetime.now())
 
     def __repr__(self):
-        return ("<AtrFibAlarms('%s', '%s', '%s', '%s')>"
+        return ("<APCAlarms('%s', '%s', '%s', '%s')>"
                 % (self.RRPeak_hexo_timestamp, self.RR_Quality,
                    self.doe, self.PVC_from))
 
