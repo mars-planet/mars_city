@@ -146,9 +146,11 @@ def anomaly():
 	_vt_anomaly = get_VT_anomaly()[::-1]
 
 	x_af = []
-	y_af = []
+	y_af_nec = []
+	y_af_dr = []
 	for d in _af_anomaly:
-		y_af.append(d[3])
+		y_af_nec.append(d[3])
+		y_af_dr.append(d[4])
 		x_af.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(d[6])))
 
 	x_vt = []
@@ -162,8 +164,15 @@ def anomaly():
             data=[
                 dict(
                     x=x_af,  # Can use the pandas data structures directly
-                    y=y_af,
-                    type='scatter'
+                    y=y_af_nec,
+                    type='scatter',
+                    name="Num of NEC"
+				),
+				dict(
+                    x=x_af,  # Can use the pandas data structures directly
+                    y=y_af_dr,
+                    type='scatter',
+                    name="Data Reliability"
 				)
             ]
 		),
