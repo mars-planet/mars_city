@@ -5,12 +5,14 @@ from fractions import gcd
 # import matplotlib.pyplot as plt
 from anomaly_detector import AnomalyDetector
 from ventricular_tachycardia import get_Ampl
+import anomaly_database_helper as db
+
 import ctypes
 import pandas as pd
 import numbers
 import sys
 sys.path.insert(0, '../hexoskin_helper')
-import anomaly_database_helper as db
+
 is_py2 = sys.version[0] == '2'
 if is_py2:
     import Queue as queue
@@ -324,8 +326,8 @@ class VTBeatDetector(object):
                     thr1 = Thread(target=self.analyze_six_second,
                                   args=[self.vt_dict[counter][1] + 256 * 6])
                     thr1.start()
-                elif isinstance(
-                    self.vt_dict[counter][0].vt_result, numbers.Integral):
+                elif isinstance(self.vt_dict[counter][0].vt_result,
+                                numbers.Integral):
                     # Anomaly is detected
                     anomaly_dict = {}
                     anomaly_dict['start_hexo_timestamp'] = \

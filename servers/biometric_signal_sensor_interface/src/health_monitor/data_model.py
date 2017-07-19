@@ -38,7 +38,7 @@ class VenTacAlarms(Base):
     __tablename__ = 'VenTacAlarms'
     start_hexo_timestamp = Column(Integer, primary_key=True, nullable=False)
     end_hexo_timestamp = Column(Integer, nullable=False)
-    doe = Column(DateTime, nullable=False, default=datetime.now)
+    doe = Column(DateTime, nullable=False, default=datetime.now())
     data_reliability = Column(SmallInteger, nullable=False)
 
     def __repr__(self):
@@ -53,6 +53,24 @@ class VenTacAlarms(Base):
         self.doe = datetime.now()
         self.data_reliability = data_reliability
 
+class APCAlarms(Base):
+    __tablename__ = 'VenTacAlarms'
+    RRPeak_hexo_timestamp = Column(Integer, primary_key=True, nullable=False)
+    RR_Quality = Column(SmallInteger, nullable=False)
+    doe = Column(DateTime, nullable=False, default=datetime.now())
+    PVC_from = Column(SmallInteger, nullable=False)
+
+    def __repr__(self):
+        return ("<AtrFibAlarms('%s', '%s', '%s', '%s')>"
+                % (self.RRPeak_hexo_timestamp, self.RR_Quality,
+                   self.doe, self.PVC_from))
+
+    def __init__(self, start_hexo_timestamp, end_hexo_timestamp,
+                 data_reliability):
+        self.RRPeak_hexo_timestamp = RRPeak_hexo_timestamp
+        self.RR_Quality = RR_Quality
+        self.doe = datetime.now()
+        self.PVC_from = PVC_from
 
 # create tables
 Base.metadata.create_all(engine)
