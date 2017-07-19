@@ -217,6 +217,101 @@ class RespiratoryAD(object):
 		# plt.show()
 		# print(timestamp)
 
+	def get_cur_window(self, init):
+		# inspiration and expiration windows
+		window_insp, window_exp = [], []
+		# last value
+		ending_val = None
+		
+		while not (window_insp and window_exp):
+			# get the first inspiration or expiration 'including' the passed timestamp
+			# flag is True if key found, False if not
+			startinsp, startexp = init, init
+			# flags to find the starting point which will be used as prev
+			startinspflag, startexpflag = False, False
+			for count in xrange(256*20):
+				# inspiration
+				if (not startinspflag) and ((startinsp + count) in self.inspiration_dict):
+					# insp val found
+					startinsp += count
+					startinspflag = True
+				# expiration
+				if (not startexpflag) and ((startexp + count) in self.expiration_dict):
+					# exp val found
+					startexp += count
+					startexpflag = True
+
+			window_insp, window_exp = [], []
+			# if the flags are set, it indicates that prev values can be set
+			if (startinspflag and startexpflag):
+				previnsp, prevexp = startinsp, startexp
+				loopflag = True
+				while loopflag:
+					count = 1
+					# flags to indicate that the current values have been found
+					inspinner, expinner = False, False
+					while count <= (256*40):
+						# inspiration
+						if (not inspinner) and ((previnsp + count) in self.inspiration_dict):
+							curinsp = previnsp + count
+							# the threshold
+							percent = 0.003 * self.inspiration_dict[previnsp]
+							if (self.inspiration_dict[previnsp] - percent < self.inspiration_dict[curinsp] < self.inspiration_dict[previnsp] + percent):
+								# in the threshold
+								window_insp.append((curinsp, self.inspiration_dict[curinsp]))
+							else:
+								# outside threshold
+								ending_val = curinsp
+								loopflag = False
+								init = curinsp + 1
+								inspinner = True
+								expinner = True
+								break
+							previnsp = curinsp
+							inspinner = True
+						# expiration
+						if (not expinner) and (prevexp + count) in self.expiration_dict:
+							curexp = prevexp + count
+							# the threshold
+							percent = 0.003 * self.expiration_dict[prevexp]
+							if (self.expiration_dict[prevexp] - percent < self.expiration_dict[curexp] < self.expiration_dict[prevexp] + percent):
+								# in the threshold
+								window_exp.append((curexp, self.expiration_dict[curexp]))
+							else:
+								# outside threshold
+								ending_val = curexp
+								loopflag = False
+								init = curexp + 1
+								inspinner = True
+								expinner = True
+								break
+							prevexp = curexp
+							expinner = True
+
+						count += 1
+					# current values not found, end of OrderedDict
+					if not (inspinner and expinner):
+						return -1
+			# flags haven't been set, so there is no prev
+			# basically, it means reached end of OrderedDict
+			else:
+				return -1
+
+		# print(window_insp)
+		# plt.plot([i[0] for i in window_insp], [i[1] for i in window_insp])
+		# print(window_exp)
+		# plt.plot([i[0] for i in window_exp], [i[1] for i in window_exp])
+		# print(ending_val)
+		return ending_val
+
+
+	def resp_classf(self):
+		ending_val = self.init_val
+		while ending_val != -1:
+			ending_val = self.get_cur_window(ending_val)
+		# plt.show()
+		sys.exit()
+
 	def populate_DS(self):
 		with open('vt.txt', 'r') as f:
 			testip = list(csv.reader(f, delimiter='\t'))
@@ -280,9 +375,11 @@ def main():
 	# th3 = Thread(target=respObj.minute_ventilation_anomaly, args=[])
 	# th3.start()
 
-	th4 = Thread(target=respObj.resp_variation, args=[])
-	th4.start()
+	# th4 = Thread(target=respObj.resp_variation, args=[])
+	# th4.start()
 
+	th5 = Thread(target=respObj.resp_classf, args=[])
+	th5.start()
 
 if __name__ == '__main__':
 	main()
