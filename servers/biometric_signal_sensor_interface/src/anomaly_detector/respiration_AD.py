@@ -11,7 +11,10 @@ import ConfigParser
 import matplotlib.pyplot as plt
 
 class RespiratoryAD(object):
-	def __init__(self, config):
+	def __init__(self, config, init_val):
+		# the first val of the resp data
+		self.init_val = init_val
+
 		# get the tidal volume deltas
 		self.tidal_volume_delta = config.getfloat('Respiratory AD', 'tidal_volume_delta')
 		self.tidal_volume_window_delta = config.getfloat('Respiratory AD', 'tidal_volume_window_delta')
@@ -20,9 +23,32 @@ class RespiratoryAD(object):
 		self.minute_ventilation_delta = config.getfloat('Respiratory AD', 'minute_ventilation_delta')
 		self.minute_ventilation_window_delta = config.getfloat('Respiratory AD', 'minute_ventilation_window_delta')
 
+		# get resp up and down thresholds - in raw units from the baseline
+		self.up_thresh = config.getint('Respiratory AD', 'up_thresh')
+		self.down_thresh = config.getint('Respiratory AD', 'down_thresh')
+
+		# get respiratory variation threshold for resp_variation() method
+		self.resp_variation_thresh = config.getint('Respiratory AD', 'resp_variation_thresh')
+
 		# raw respiratory data as an OrderedDict
 		# key:value = timestamp:(thoracic, abdominal)
 		self.raw_resp_dict = OrderedDict()
+
+		# breathing rate dict
+		# key:value = timestamp:breathing rate
+		self.breathing_rate_dict = OrderedDict()
+
+		# breathing rate status dict
+		# key:value = timestamp:breathing rate quality
+		self.breathing_rate_status_dict = OrderedDict()
+
+		# inspiration dict
+		# key:value = timestamp:inspiration
+		self.inspiration_dict = OrderedDict()
+
+		# expiration dict
+		# key:value = timestamp:expiration
+		self.expiration_dict = OrderedDict()
 
 		# tidal volume (vt) dict
 		# key:value = timestamp:tidal volume
@@ -33,12 +59,13 @@ class RespiratoryAD(object):
 		self.minute_ventilation_dict = OrderedDict()
 
 		# dict of tidal volume anomalies
-		# key:value = timestamp:'window'/'not_window'
-		self.tidal_volume_anomaly_dict = OrderedDict()
-
-		# dict of minute ventilation anomalies
-		# key:value = timestamp:'window'/'not_window'
-		self.minute_ventilation_anomaly_dict = OrderedDict()
+		# in general Key:value = timestamp:(int(breathing rate status mode), 'string')
+		# -1 for breathing rate status if not applicable
+		# mode is most frequently occuring breathing rate status
+		# key:value = timestamp:(-1, 'tidal_window'/'tidal_not_window')
+		# key:value = timestamp:(-1, 'minute_vent_window'/'minute_vent_not_window')
+		# key:value = timestamp:(-1, 'insp-exp'/'exp-inp')
+		self.resp_anomaly_dict = OrderedDict()
 
 	def delete_DS(self):
 		pass
@@ -72,13 +99,13 @@ class RespiratoryAD(object):
 				# check for non window delta
 				percent = (self.minute_ventilation_delta/100) * prev
 				if not ((prev - percent) < cur < (prev + percent)):
-					self.minute_ventilation_anomaly_dict[begin] = 'not_window'
+					self.resp_anomaly_dict[begin] = (-1, 'minute_vent_not_window')
 
 				# check for window delta
 				windowmean = sum([i[1] for i in window])/len(window)
 				percent = (self.minute_ventilation_window_delta/100) * windowmean
 				if not ((windowmean - percent) < cur < (windowmean + percent)):
-					self.minute_ventilation_anomaly_dict[begin] = 'window'
+					self.resp_anomaly_dict[begin] = (-1, 'minute_vent_window')
 				
 				# update window
 				window.pop(0)
@@ -89,8 +116,8 @@ class RespiratoryAD(object):
 			# update begin
 			begin += 1
 
-			if begin == 383021389273:
-				print(self.minute_ventilation_anomaly_dict)
+			# if begin == 383021389273:
+			# 	print(self.minute_ventilation_anomaly_dict)
 
 		return
 
@@ -123,13 +150,13 @@ class RespiratoryAD(object):
 				# check for non window delta
 				percent = (self.tidal_volume_delta/100) * prev
 				if not ((prev - percent) < cur < (prev + percent)):
-					self.tidal_volume_anomaly_dict[begin] = 'not_window'
+					self.resp_anomaly_dict[begin] = (-1, 'tidal_volume_not_window')
 
 				# check for window delta
 				windowmean = sum([i[1] for i in window])/len(window)
 				percent = (self.tidal_volume_window_delta/100) * windowmean
 				if not ((windowmean - percent) < cur < (windowmean + percent)):
-					self.tidal_volume_anomaly_dict[begin] = 'window'
+					self.resp_anomaly_dict[begin] = (-1, 'tidal_volume_window')
 				
 				# update window
 				window.pop(0)
@@ -145,6 +172,51 @@ class RespiratoryAD(object):
 
 		return
 
+	def resp_variation(self):
+		# finds gap between inspiration and expiration
+		inspiration = self.init_val
+		while True:
+			if inspiration in self.inspiration_dict:
+				break
+			inspiration += 1
+
+		timestamp = []
+		while len(self.inspiration_dict) > 100 and len(self.expiration_dict) > 100:
+			expiration = inspiration
+			# find expiration
+			while True:
+				if expiration in self.expiration_dict:
+					break
+				expiration += 1
+
+			# if gap is greater than 3 seconds
+			if (expiration - inspiration) > (256*self.resp_variation_thresh):
+				print('exp, insp')
+				self.resp_anomaly_dict[inspiration] = (-1, 'exp-insp')
+				timestamp.append(inspiration)
+
+			# find inspiration
+			inspiration = expiration
+			while True:
+				if inspiration in self.inspiration_dict:
+					break
+				inspiration += 1
+
+			# if gap is greater than 3 seconds
+			if (inspiration - expiration) > (256*self.resp_variation_thresh):
+				print('insp, exp')
+				self.resp_anomaly_dict[expiration] = (-1, 'insp-exp')
+				timestamp.append(expiration)
+
+			# if inspiration == 383021388517:
+			# 	break
+
+		# dicts = dict(zip(list(self.raw_resp_dict.keys()), [i[0] for i in list(self.raw_resp_dict.values())]))
+		# plt.plot(list(self.raw_resp_dict.keys()), [i[0] for i in list(self.raw_resp_dict.values())])
+		# plt.plot(timestamp, [self.raw_resp_dict[i][0] for i in list(self.raw_resp_dict.keys()) if i in timestamp], 'ro')
+		# plt.show()
+		# print(timestamp)
+
 	def populate_DS(self):
 		with open('vt.txt', 'r') as f:
 			testip = list(csv.reader(f, delimiter='\t'))
@@ -158,6 +230,36 @@ class RespiratoryAD(object):
 				self.minute_ventilation_dict[int(float(i[0]))] = float(i[1])
 			f.close()
 
+		with open('resp.txt', 'r') as f:
+			testip = list(csv.reader(f, delimiter='\t'))
+			for i in testip:
+				self.raw_resp_dict[int(i[0])] = (int(i[1]), int(i[2]))
+			f.close()
+
+		with open('breathingrate.txt', 'r') as f:
+			testip = list(csv.reader(f, delimiter='\t'))
+			for i in testip:
+				self.breathing_rate_dict[int(i[0])] = int(i[1])
+			f.close()
+
+		with open('br_quality.txt', 'r') as f:
+			testip = list(csv.reader(f, delimiter='\t'))
+			for i in testip:
+				self.breathing_rate_status_dict[int(i[0])] = int(i[1])
+			f.close()
+
+		with open('inspiration.txt', 'r') as f:
+			testip = list(csv.reader(f, delimiter='\t'))
+			for i in testip:
+				self.inspiration_dict[int(i[0])] = int(i[1])
+			f.close()
+
+		with open('expiration.txt', 'r') as f:
+			testip = list(csv.reader(f, delimiter='\t'))
+			for i in testip:
+				self.expiration_dict[int(i[0])] = int(i[1])
+			f.close()
+
 
 def main():
 	config = ConfigParser.RawConfigParser()
@@ -165,18 +267,21 @@ def main():
 	cfg_filename = os.path.join(dirname, 'anomaly_detector.cfg')
 	config.read(cfg_filename)
 
-	respObj = RespiratoryAD(config)
+	respObj = RespiratoryAD(config, 383021140185)
 
 	th1 = Thread(target=respObj.populate_DS, args=[])
 	th1.start()
 
 	th1.join()
 
-	th2 = Thread(target=respObj.tidal_volume_anomaly, args=[])
-	th2.start()
+	# th2 = Thread(target=respObj.tidal_volume_anomaly, args=[])
+	# th2.start()
 
-	th3 = Thread(target=respObj.minute_ventilation_anomaly, args=[])
-	th3.start()
+	# th3 = Thread(target=respObj.minute_ventilation_anomaly, args=[])
+	# th3.start()
+
+	th4 = Thread(target=respObj.resp_variation, args=[])
+	th4.start()
 
 
 if __name__ == '__main__':
