@@ -77,7 +77,23 @@ class RespiratoryAD(object):
 		self.resp_anomaly_dict = OrderedDict()
 
 	def delete_DS(self):
-		pass
+		# method to maintain data structures' size
+
+		# initial wait time
+		time.sleep(60*10)
+		while self.raw_resp_dict:
+			for i in xrange(200):
+				self.raw_resp_dict.popitem(last=False)
+
+			self.breathing_rate_dict.popitem(last=False)
+			self.breathing_rate_status_dict.popitem(last=False)
+			self.inspiration_dict.popitem(last=False)
+			self.expiration_dict.popitem(last=False)
+			self.tidal_volume_dict.popitem(last=False)
+			self.minute_ventilation_dict.popitem(last=False)
+			time.sleep(20)
+
+		return
 
 	def minute_ventilation_anomaly(self):
 		# check if i+1 is out of (ith +/- delta) range
@@ -102,6 +118,7 @@ class RespiratoryAD(object):
 		begin += 1
 
 		while len(self.minute_ventilation_dict) > 100:
+			time.sleep(20)
 			if begin in self.minute_ventilation_dict:
 				cur = self.minute_ventilation_dict[begin]
 
@@ -153,6 +170,7 @@ class RespiratoryAD(object):
 		begin += 1
 
 		while len(self.tidal_volume_dict) > 100:
+			time.sleep(20)
 			if begin in self.tidal_volume_dict:
 				cur = self.tidal_volume_dict[begin]
 
@@ -191,6 +209,7 @@ class RespiratoryAD(object):
 
 		timestamp = []
 		while len(self.inspiration_dict) > 100 and len(self.expiration_dict) > 100:
+			time.sleep(20)
 			expiration = inspiration
 			# find expiration
 			while True:
@@ -225,6 +244,7 @@ class RespiratoryAD(object):
 		# plt.plot(timestamp, [self.raw_resp_dict[i][0] for i in list(self.raw_resp_dict.keys()) if i in timestamp], 'ro')
 		# plt.show()
 		# print(timestamp)
+		return
 
 	def get_cur_window(self, init):
 		# inspiration and expiration windows
@@ -353,6 +373,7 @@ class RespiratoryAD(object):
 	def resp_classf(self):
 		ending_val = self.init_val
 		while ending_val != -1:
+			time.sleep(400)
 			ending_val, window_insp, window_exp = self.get_cur_window(ending_val)
 
 			# end reached
@@ -560,6 +581,7 @@ class RespiratoryAD(object):
 				self.expiration_dict[int(i[0])] = int(i[1])
 			f.close()
 
+		return
 
 def main():
 	config = ConfigParser.RawConfigParser()
@@ -574,17 +596,20 @@ def main():
 
 	th1.join()
 
-	# th2 = Thread(target=respObj.tidal_volume_anomaly, args=[])
-	# th2.start()
+	th2 = Thread(target=respObj.tidal_volume_anomaly, args=[])
+	th2.start()
 
-	# th3 = Thread(target=respObj.minute_ventilation_anomaly, args=[])
-	# th3.start()
+	th3 = Thread(target=respObj.minute_ventilation_anomaly, args=[])
+	th3.start()
 
-	# th4 = Thread(target=respObj.resp_variation, args=[])
-	# th4.start()
+	th4 = Thread(target=respObj.resp_variation, args=[])
+	th4.start()
 
 	th5 = Thread(target=respObj.resp_classf, args=[])
 	th5.start()
+
+	# th6 = Thread(target=respObj.delete_DS, args=[])
+	# th6.start()
 
 	# print(respObj.resp_anomaly_dict)
 
