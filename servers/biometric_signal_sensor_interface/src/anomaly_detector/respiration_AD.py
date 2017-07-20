@@ -12,6 +12,11 @@ import matplotlib.pyplot as plt
 
 class RespiratoryAD(object):
 	def __init__(self, config, init_val):
+		# set the percent change for get_window
+		self.window_delta = 0.003
+		# the size of the window to be used in the classifier
+		self.resp_classf_win_size = 2
+
 		# the first val of the resp data
 		self.init_val = init_val
 
@@ -24,8 +29,12 @@ class RespiratoryAD(object):
 		self.minute_ventilation_window_delta = config.getfloat('Respiratory AD', 'minute_ventilation_window_delta')
 
 		# get resp up and down thresholds - in raw units from the baseline
+		# upper bounds
 		self.up_thresh = config.getint('Respiratory AD', 'up_thresh')
 		self.down_thresh = config.getint('Respiratory AD', 'down_thresh')
+		# lower bounds
+		self.up_low = config.getint('Respiratory AD', 'up_low')
+		self.down_low = config.getint('Respiratory AD', 'down_low')
 
 		# get respiratory variation threshold for resp_variation() method
 		self.resp_variation_thresh = config.getint('Respiratory AD', 'resp_variation_thresh')
@@ -59,9 +68,9 @@ class RespiratoryAD(object):
 		self.minute_ventilation_dict = OrderedDict()
 
 		# dict of tidal volume anomalies
-		# in general Key:value = timestamp:(int(breathing rate status mode), 'string')
+		# in general Key:value = timestamp:(int(breathing rate status mean), 'string')
 		# -1 for breathing rate status if not applicable
-		# mode is most frequently occuring breathing rate status
+		# mean is mean of breathing rate status in that period
 		# key:value = timestamp:(-1, 'tidal_window'/'tidal_not_window')
 		# key:value = timestamp:(-1, 'minute_vent_window'/'minute_vent_not_window')
 		# key:value = timestamp:(-1, 'insp-exp'/'exp-inp')
@@ -255,7 +264,7 @@ class RespiratoryAD(object):
 						if (not inspinner) and ((previnsp + count) in self.inspiration_dict):
 							curinsp = previnsp + count
 							# the threshold
-							percent = 0.003 * self.inspiration_dict[previnsp]
+							percent = self.window_delta * self.inspiration_dict[previnsp]
 							if (self.inspiration_dict[previnsp] - percent < self.inspiration_dict[curinsp] < self.inspiration_dict[previnsp] + percent):
 								# in the threshold
 								window_insp.append((curinsp, self.inspiration_dict[curinsp]))
@@ -273,7 +282,7 @@ class RespiratoryAD(object):
 						if (not expinner) and (prevexp + count) in self.expiration_dict:
 							curexp = prevexp + count
 							# the threshold
-							percent = 0.003 * self.expiration_dict[prevexp]
+							percent = self.window_delta * self.expiration_dict[prevexp]
 							if (self.expiration_dict[prevexp] - percent < self.expiration_dict[curexp] < self.expiration_dict[prevexp] + percent):
 								# in the threshold
 								window_exp.append((curexp, self.expiration_dict[curexp]))
@@ -291,26 +300,222 @@ class RespiratoryAD(object):
 						count += 1
 					# current values not found, end of OrderedDict
 					if not (inspinner and expinner):
-						return -1
+						return (-1, -1, -1)
 			# flags haven't been set, so there is no prev
 			# basically, it means reached end of OrderedDict
 			else:
-				return -1
+				return (-1, -1, -1)
 
 		# print(window_insp)
 		# plt.plot([i[0] for i in window_insp], [i[1] for i in window_insp])
 		# print(window_exp)
 		# plt.plot([i[0] for i in window_exp], [i[1] for i in window_exp])
 		# print(ending_val)
-		return ending_val
+		return (ending_val, window_insp, window_exp)
 
+	def get_breathing_rate(self, first, last):
+		# get the breathing rate and breathing rate status
+		# includes first and last
+		breathing_rate = []
+		breathing_rate_status = []
+		for i in xrange(first, last + 1):
+			if i in self.breathing_rate_dict:
+				breathing_rate.append(self.breathing_rate_dict[i])
+				breathing_rate_status.append(self.breathing_rate_status_dict[i])
+
+		return breathing_rate, breathing_rate_status
+
+	def get_closest_breathing_rate(self, first, last):
+		# closest - min(distance from first, distance from last)
+		minus = None
+		counter = first - 1
+		while counter >= (counter - (256*20)):
+			if counter in self.breathing_rate_dict:
+				minus = counter
+				break
+			counter -= 1
+		plus = None
+		counter = last + 1
+		while counter <= (counter + (256*20)):
+			if counter in self.breathing_rate_dict:
+				plus = counter
+				break
+			counter += 1
+
+		if (minus and plus):
+			if (first - minus) < (plus - last):
+				return [self.breathing_rate_dict[minus]], [self.breathing_rate_status_dict[minus]]
+			else:
+				return [self.breathing_rate_dict[plus]], [self.breathing_rate_status_dict[plus]]
+		else:
+			return [self.breathing_rate_dict[minus]], [self.breathing_rate_status_dict[minus]]
 
 	def resp_classf(self):
 		ending_val = self.init_val
 		while ending_val != -1:
-			ending_val = self.get_cur_window(ending_val)
+			ending_val, window_insp, window_exp = self.get_cur_window(ending_val)
+
+			# end reached
+			if ending_val == -1:
+				break
+
+			# set up which is first and which is second
+			# set up upper bounds and lower bounds
+			first, second = [], []
+			firstbound, secondbound = None, None
+			firstlow, secondlow = None, None
+			if window_insp[0][0] < window_exp[0][0]:
+				first, second = window_insp, window_exp
+				firstbound, secondbound = self.up_thresh, self.down_thresh
+				firstlow, secondlow = self.up_low, self. down_low
+			else:
+				first, second = window_exp, window_insp
+				firstbound, secondbound = self.down_thresh, self.up_thresh
+				firstlow, secondlow = self.down_low, self.up_low
+
+			# make both of them to be of equal length
+			if len(first) > len(second):
+				first.pop()
+			if len(second) > len(first):
+				second.pop()
+			
+			# calculate the mean of this particular window
+			mean = (sum([i[1] for i in first]) + sum([i[1] for i in second]))/(len(first) + len(second))
+
+			i = 0
+			while i < len(first):
+				valuefirst, valuesecond = first[i][1], second[i][1]
+				
+				# anomaly window of self.resp_classf_win_size
+				anomaly_window = []
+				
+				# classifier
+				if abs(valuefirst - mean) > firstbound and abs(valuesecond - mean) > secondbound:
+					# peaks and troughs are of above average size
+					j = i
+					# check if the trend continues
+					while j < min(len(first), i + self.resp_classf_win_size):
+						valfirst, valsecond = first[j][1], second[j][1]
+						if abs(valfirst - mean) > firstbound and abs(valsecond - mean) > secondbound:
+							anomaly_window.append(first[j][0])
+						else:
+							break
+						j += 1
+					# check if there are sufficient waves of the same type
+					if len(anomaly_window) == self.resp_classf_win_size:
+						begin, end = anomaly_window[0], anomaly_window[len(anomaly_window) - 1]
+						breathing_rate, breathing_rate_status = [], []
+						breathing_rate, breathing_rate_status = self.get_breathing_rate(begin, end)
+
+						if not (breathing_rate and breathing_rate_status):
+							breathing_rate, breathing_rate_status = self.get_closest_breathing_rate(begin, end)
+
+						mean_br = sum(breathing_rate)/len(breathing_rate)
+						print("Above limits")
+						if mean_br > 20:
+							print("possible Hyperventilation", begin)
+							mean_br_status = sum(breathing_rate_status)/len(breathing_rate_status)
+							self.resp_anomaly_dict[begin] = (mean_br_status, 'possible Hyperventilation')
+							# if anomaly_window[0] in self.inspiration_dict:
+							# 	plt.plot(anomaly_window, [self.inspiration_dict[i] for i in anomaly_window])
+							# else:
+							# 	plt.plot(anomaly_window, [self.expiration_dict[i] for i in anomaly_window])
+						if mean_br < 10:
+							print("possible Slow deep breathing", begin)
+							mean_br_status = sum(breathing_rate_status)/len(breathing_rate_status)
+							self.resp_anomaly_dict[begin] = (mean_br_status, 'possible Slow deep breathing')
+							# if anomaly_window[0] in self.inspiration_dict:
+							# 	plt.plot(anomaly_window, [self.inspiration_dict[i] for i in anomaly_window])
+							# else:
+							# 	plt.plot(anomaly_window, [self.expiration_dict[i] for i in anomaly_window])
+
+				if abs(valuefirst - mean) < firstlow and abs(valuesecond - mean) < secondlow:
+					# peaks and troughs are of below average size
+					j = i
+					# check if the trend continues
+					while j < min(len(first), i + self.resp_classf_win_size):
+						valfirst, valsecond = first[j][1], second[j][1]
+						if abs(valfirst - mean) < firstlow and abs(valsecond - mean) < secondlow:
+							anomaly_window.append(first[j][0])
+						else:
+							break
+						j += 1
+					# check if there are sufficient waves of the same type
+					if len(anomaly_window) == self.resp_classf_win_size:
+						begin, end = anomaly_window[0], anomaly_window[len(anomaly_window) - 1]
+						breathing_rate, breathing_rate_status = [], []
+						breathing_rate, breathing_rate_status = self.get_breathing_rate(begin, end)
+
+						if not (breathing_rate and breathing_rate_status):
+							breathing_rate, breathing_rate_status = self.get_closest_breathing_rate(begin, end)
+
+						mean_br = sum(breathing_rate)/len(breathing_rate)
+						print("Under limits")
+						if mean_br > 20:
+							print("possible Tachypnea", begin)
+							mean_br_status = sum(breathing_rate_status)/len(breathing_rate_status)
+							self.resp_anomaly_dict[begin] = (mean_br_status, 'possible Tachypnea')
+							# if anomaly_window[0] in self.inspiration_dict:
+							# 	plt.plot(anomaly_window, [self.inspiration_dict[i] for i in anomaly_window])
+							# else:
+							# 	plt.plot(anomaly_window, [self.expiration_dict[i] for i in anomaly_window])
+						if mean_br < 10:
+							print("possible Hypoventilation", begin)
+							mean_br_status = sum(breathing_rate_status)/len(breathing_rate_status)
+							self.resp_anomaly_dict[begin] = (mean_br_status, 'possible Hypoventilation')
+							# if anomaly_window[0] in self.inspiration_dict:
+							# 	plt.plot(anomaly_window, [self.inspiration_dict[i] for i in anomaly_window])
+							# else:
+							# 	plt.plot(anomaly_window, [self.expiration_dict[i] for i in anomaly_window])
+				if (firstlow < abs(valuefirst - mean) < firstbound) and\
+					(secondlow < abs(valuesecond - mean) < secondbound):
+					# peaks and troughs are of regular size
+					j = i
+					# check if the trend continues
+					while j < min(len(first), i + self.resp_classf_win_size):
+						valfirst, valsecond = first[j][1], second[j][1]
+						if (firstlow < abs(valfirst - mean) < firstbound) and (secondlow < abs(valsecond - mean) < secondbound):
+							anomaly_window.append(first[j][0])
+						else:
+							break
+						j += 1
+					# check if there are sufficient waves of the same type
+					if len(anomaly_window) == self.resp_classf_win_size:
+						begin, end = anomaly_window[0], anomaly_window[len(anomaly_window) - 1]
+						breathing_rate, breathing_rate_status = [], []
+						breathing_rate, breathing_rate_status = self.get_breathing_rate(begin, end)
+
+						if not (breathing_rate and breathing_rate_status):
+							breathing_rate, breathing_rate_status = self.get_closest_breathing_rate(begin, end)
+
+						mean_br = sum(breathing_rate)/len(breathing_rate)
+						print("Within limits")
+						if mean_br > 20:
+							print("possible rapid breathing", begin)
+							mean_br_status = sum(breathing_rate_status)/len(breathing_rate_status)
+							self.resp_anomaly_dict[begin] = (mean_br_status, 'possible rapid breathing')
+							# if anomaly_window[0] in self.inspiration_dict:
+							# 	plt.plot(anomaly_window, [self.inspiration_dict[i] for i in anomaly_window])
+							# else:
+							# 	plt.plot(anomaly_window, [self.expiration_dict[i] for i in anomaly_window])
+						if mean_br < 10:
+							print("possible slow breathing", begin)
+							mean_br_status = sum(breathing_rate_status)/len(breathing_rate_status)
+							self.resp_anomaly_dict[begin] = (mean_br_status, 'possible slow breathing')
+							# if anomaly_window[0] in self.inspiration_dict:
+							# 	plt.plot(anomaly_window, [self.inspiration_dict[i] for i in anomaly_window])
+							# else:
+							# 	plt.plot(anomaly_window, [self.expiration_dict[i] for i in anomaly_window])
+
+				# if anomaly window is full, it means anomaly is detected
+				if len(anomaly_window) == self.resp_classf_win_size:
+					i += self.resp_classf_win_size
+				else:
+					i += 1
+
+		# this call for show() is for plots in get_window()
 		# plt.show()
-		sys.exit()
+		return
 
 	def populate_DS(self):
 		with open('vt.txt', 'r') as f:
@@ -380,6 +585,8 @@ def main():
 
 	th5 = Thread(target=respObj.resp_classf, args=[])
 	th5.start()
+
+	# print(respObj.resp_anomaly_dict)
 
 if __name__ == '__main__':
 	main()
