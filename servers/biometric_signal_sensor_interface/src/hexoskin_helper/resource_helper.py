@@ -406,7 +406,7 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
     beat_analyze_flag = 0
 
     for data in realtime_data_generator(auth, recordID, datatypes):
-        print(len(data[0]))
+        print(len(data))
         if len(data[datatypes[0]]) == 0:
             exitCounter = exitCounter - 1
             if exitCounter == 0:
@@ -507,7 +507,7 @@ def APC_PVC_realtime(auth, recordID, obj, datatypes=''):
 
 
     for data in realtime_data_generator(auth, recordID, datatypes):
-        print((data))
+        print(len(data[0]))
 
         if len(data[datatypes[0]]) == 0:
             exitCounter = exitCounter - 1

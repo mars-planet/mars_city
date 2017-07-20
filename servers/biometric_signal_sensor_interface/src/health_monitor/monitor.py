@@ -154,7 +154,6 @@ def vt_from_db():
     # Retrieve VT AD data from DB
     data = db.get_vt()
     return_json = {}
-    print(type(data))
     for _data in data:
         _data[2] = _data[2].now().strftime('%Y-%m-%d %H:%M:%S')
         return_json[_data[0]] = _data[1:]
@@ -165,7 +164,6 @@ def apc_from_db():
     # Retrieve APC AD data from DB
     data = db.get_apc()
     return_json = {}
-    print((data))
     for _data in data:
         _data[2] = _data[2].now().strftime('%Y-%m-%d %H:%M:%S')
         return_json[_data[0]] = _data[1:]

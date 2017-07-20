@@ -4,6 +4,7 @@ sys.path.insert(0, '../health_monitor')
 from data_model import AtrFibAlarms, VenTacAlarms, APCAlarms
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from datetime import datetime
 
 # Connecting to the database
 engine = create_engine('sqlite:///../health_monitor/anomalies.db', echo=False)
@@ -16,6 +17,7 @@ Session = sessionmaker(bind=engine)
 def add_af(data):
     start_hexo_timestamp = data['start_hexo_timestamp']
     end_hexo_timestamp = data['end_hexo_timestamp']
+    doe = datetime.now()
     num_of_NEC = data['num_of_NEC']
     data_reliability = data['data_reliability']
     window_size = data['window_size']
@@ -31,7 +33,7 @@ def add_af(data):
         if result:
             return -1
         else:
-            af = AtrFibAlarms(start_hexo_timestamp, end_hexo_timestamp,
+            af = AtrFibAlarms(start_hexo_timestamp, end_hexo_timestamp, doe,
                               num_of_NEC, data_reliability, window_size)
             s.add(af)
 
@@ -52,6 +54,7 @@ def add_vt(data):
     start_hexo_timestamp = data['start_hexo_timestamp']
     end_hexo_timestamp = data['end_hexo_timestamp']
     data_reliability = data['data_reliability']
+    doe = datetime.now()
 
     # Create session
     s = Session()
@@ -65,7 +68,7 @@ def add_vt(data):
             return -1
         else:
             vt = VenTacAlarms(start_hexo_timestamp, end_hexo_timestamp,
-                              data_reliability)
+                              doe, data_reliability)
             s.add(vt)
 
             # commit the record the database
@@ -84,6 +87,7 @@ def add_apc(data):
     RRPeak_hexo_timestamp = data['RRPeak_hexo_timestamp']
     RR_Quality = data['RR_Quality']
     PVC_from = data['PVC_from']
+    doe = datetime.now()
 
     # Create session
     s = Session()
@@ -97,7 +101,7 @@ def add_apc(data):
             return -1
         else:
             apc = APCAlarms(RRPeak_hexo_timestamp, RR_Quality,
-                              PVC_from)
+                              doe, PVC_from)
             s.add(apc)
 
             # commit the record the database
