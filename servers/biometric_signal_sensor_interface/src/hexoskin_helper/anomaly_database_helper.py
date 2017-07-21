@@ -10,9 +10,10 @@ from datetime import datetime
 engine = create_engine('sqlite:///../health_monitor/anomalies.db', echo=False)
 Session = sessionmaker(bind=engine)
 
-# 
+#
 #
 # Anomaly ADD functions
+
 
 def add_af(data):
     start_hexo_timestamp = data['start_hexo_timestamp']
@@ -83,6 +84,7 @@ def add_vt(data):
     finally:
         s.close()
 
+
 def add_apc(data):
     RRPeak_hexo_timestamp = data['RRPeak_hexo_timestamp']
     RR_Quality = data['RR_Quality']
@@ -101,7 +103,7 @@ def add_apc(data):
             return -1
         else:
             apc = APCAlarms(RRPeak_hexo_timestamp, RR_Quality,
-                              doe, PVC_from)
+                            doe, PVC_from)
             s.add(apc)
 
             # commit the record the database
@@ -116,9 +118,10 @@ def add_apc(data):
     finally:
         s.close()
 
-# 
+#
 #
 # Anomaly GET functions
+
 
 def get_af():
     return_data = []
@@ -142,6 +145,7 @@ def get_af():
     except:
         return -1
 
+
 def get_vt():
     return_data = []
 
@@ -159,6 +163,7 @@ def get_vt():
         return return_data
     except:
         return -1
+
 
 def get_apc():
     return_data = []

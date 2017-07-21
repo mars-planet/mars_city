@@ -16,16 +16,16 @@ class Monitor(Device):
     __metaclass__ = DeviceMeta
 
     username = attribute(label="Username", dtype=str,
-        doc="Username of the astronaut",
-        access=AttrWriteType.READ)
+                         doc="Username of the astronaut",
+                         access=AttrWriteType.READ)
 
     recordID = attribute(label="Record ID", dtype=int,
-        doc="Record ID of the current live session",
-        access=AttrWriteType.READ)
+                         doc="Record ID of the current live session",
+                         access=AttrWriteType.READ)
 
     userinfo = attribute(label="User Info", dtype=str,
-        doc="Astronaut account information in JSON",
-        access=AttrWriteType.READ)
+                         doc="Astronaut account information in JSON",
+                         access=AttrWriteType.READ)
 
     def init_device(self):
         '''
@@ -37,7 +37,8 @@ class Monitor(Device):
         self._user_info = hm.get_user_info(self.auth)
         user_name_t = json.loads(self._user_info)
         self._username = user_name_t['objects'][0]['first_name']
-        self._username = self._username + " " + user_name_t['objects'][0]['last_name']
+        self._username = self._username + " "
+        self._username += user_name_t['objects'][0]['last_name']
         self._recordid = hm.get_rrecordid(self.auth)
 
         self.log_function("\n")
@@ -120,7 +121,6 @@ class Monitor(Device):
         '''
         return hm.apc_from_db()
 
-
     @command(dtype_out=bool,
              doc_out="True if Real-time biometric session is active")
     def start_monitoring(self):
@@ -135,16 +135,18 @@ class Monitor(Device):
 
         if self._recordid == -1:
             poll_counter = 10
-            self.log_function("Checking for real-time record of %s" % self._username)
+            self.log_function(
+                "Checking for real-time record of %s" % self._username)
             while poll_counter > 0:
                 poll_counter -= 1
                 time.sleep(2)
-                if hm.get_rrecordid(auth) != -1:
-                    self._recordid = hm.get_rrecordid(auth)
+                if hm.get_rrecordid(self.auth) != -1:
+                    self._recordid = hm.get_rrecordid(self.auth)
                     break
 
             if self._recordid == -1:
-                self.log_function('\n%s is not in a live sesson!' % self._username)
+                self.log_function(
+                    '\n%s is not in a live sesson!' % self._username)
                 self.log_function(
                     'Please connect the hexoskin device and try again')
                 self.log_function('-' * 31 + 'X' + '-' * 31)
@@ -166,7 +168,7 @@ class Monitor(Device):
 
         # ****************** ******************
         self.log_function("-" * 78)
-        
+
         return True
 
 

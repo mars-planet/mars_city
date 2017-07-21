@@ -57,7 +57,8 @@ class VenTacAlarms(Base):
 
 class APCAlarms(Base):
     __tablename__ = 'APCAlarms'
-    RRPeak_hexo_timestamp = Column(Integer, primary_key=True, nullable=False, default=datetime.now())
+    RRPeak_hexo_timestamp = Column(Integer, primary_key=True,
+                                   nullable=False, default=datetime.now())
     RR_Quality = Column(SmallInteger, nullable=False)
     doe = Column(DateTime, nullable=False)
     PVC_from = Column(SmallInteger, nullable=False)
@@ -67,12 +68,13 @@ class APCAlarms(Base):
                 % (self.RRPeak_hexo_timestamp, self.RR_Quality,
                    self.doe, self.PVC_from))
 
-    def __init__(self, start_hexo_timestamp, end_hexo_timestamp,
-                 doe, data_reliability):
+    def __init__(self, RRPeak_hexo_timestamp, RR_Quality,
+                 doe, PVC_from):
         self.RRPeak_hexo_timestamp = RRPeak_hexo_timestamp
         self.RR_Quality = RR_Quality
         self.doe = doe
         self.PVC_from = PVC_from
+
 
 # create tables
 Base.metadata.create_all(engine)

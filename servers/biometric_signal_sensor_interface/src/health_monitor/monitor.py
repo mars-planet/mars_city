@@ -1,9 +1,7 @@
 from __future__ import absolute_import, division, print_function
 from threading import Thread
 import sys
-import os
 import json
-import time
 sys.path.insert(0, '../hexoskin_helper')
 sys.path.insert(0, '../anomaly_detector')
 import utility_helper as util
@@ -80,6 +78,7 @@ def ventricular_tachycardia_helper(auth):
     # Successfully finished. Astronaut docked.
     return 1
 
+
 def _apc_pvc_helper(auth):
     '''
             @param auth:        Authentication token
@@ -140,6 +139,7 @@ def get_all_data(auth):
 
     resource.get_all_data(auth, recordID, datatypes=[4113, 18])
 
+
 def af_from_db():
     # Retrieve AF AD data from DB
     data = db.get_af()
@@ -149,6 +149,7 @@ def af_from_db():
         return_json[_data[0]] = _data[1:]
 
     return json.dumps((return_json))
+
 
 def vt_from_db():
     # Retrieve VT AD data from DB
@@ -160,6 +161,7 @@ def vt_from_db():
 
     return json.dumps((return_json))
 
+
 def apc_from_db():
     # Retrieve APC AD data from DB
     data = db.get_apc()
@@ -169,6 +171,7 @@ def apc_from_db():
         return_json[_data[0]] = _data[1:]
 
     return json.dumps((return_json))
+
 
 def main(argv):
     auth = util.auth_login()
