@@ -52,17 +52,43 @@ data_reliability - Integer
 3) **doe** : Date of Entry
 4) **data_reliability** : Data reliability (Anomaly Measure)
 
+### APCAlarms
+> APC/PVC & PVC-hamilton Anomaly Database 
+```
+RRPeak_hexo_timestamp - Primary key - Integer
+RR_Quality - Integer
+doe - DateTime
+PVC_from - Integer
+```
+
+1) **RRPeak_hexo_timestamp** : Starting hexoskin timestamp
+2) **RR_Quality** :  RR quality signal
+3) **doe** : Date of Entry
+4) **PVC_from** : 
+
 
 # Usage
 
-####To execute monitor.py
+#### To start the biometric Tango Device Server
 
-First copy the osea.so from the anomaly_detector directory into **/usr/local/lib**
+- First copy the osea.so from the anomaly_detector directory into **/usr/local/lib**
 Then, export the environment variable.
+
 ```
-export LD_LIBRARY_PATH='/usr/local/lib'
+$ export LD_LIBRARY_PATH='/usr/local/lib'
 ```
- -  **python monitor.py af** :- This is to run the  Atrial Fribillation 
- -  **python monitor.py vt** :- This is to run the Ventricular Tachycardia
+
+- Register the device and create the databases.
+
+```
+$ python data_model.py
+$ python register_monitor.py
+```
+
+- To start the Tango Device Server
+
+```
+$ python monitor monitor
+```
  
- > Note: Run the above in two separate terminals to do the analysis concurrently
+Proceed to starting the Flask server for starting the web dashboard.
