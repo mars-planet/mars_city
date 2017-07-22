@@ -32,9 +32,10 @@ class AtrialFibrillation(object):
                 rr_intervals['hexoskin_timestamps'][len(rr_intervals)-1] <=
                 hr_quality_indices
                 ['hexoskin_timestamps'][len(hr_quality_indices)-1]):
-                raise ValueError("first rr_interval timestamp\
-                 and last rr_interval timestamp must lie within first \
-                 and last timestamp of hr_quality")
+                pass
+                # raise ValueError("first rr_interval timestamp\
+                #  and last rr_interval timestamp must lie within first \
+                #  and last timestamp of hr_quality")
 
     def __calc_hr_quality(self):
         """

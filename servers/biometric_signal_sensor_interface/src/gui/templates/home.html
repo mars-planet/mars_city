@@ -6,7 +6,21 @@
 
 {% block mainBody %}
 
-<div class="row" style="margin-top: 40px;">
+<div class="row card grey lighten-1" style="margin-right: 10px; margin-left: 10px;">
+  <div class="col m12">
+    <div class="card grey darken-1">
+      <div class="card-content white-text">
+        <span><h5>Device Used</h5></span>
+        <hr>
+        <strong><a class="white-text" href="http://hexoskin.com/">Hexoskin Smart Shirt</a></strong>
+        <br>
+        Model: hexoskin
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row card grey lighten-1" style="margin-right: 10px; margin-left: 10px;">
   <div class="col m6">
     <div class="card grey darken-1">
       <div class="card-content white-text">
@@ -37,7 +51,7 @@
             <div class="card-content white-text">
               <span><strong>Astronaut is not healthy!</strong></span>
               <br>
-              <span><strong>Anomaly Detected</strong></span>
+              <span><strong>Anomaly Detected in Last 7 Days</strong></span>
               <hr>
     {% endif %}
               <span>Name: {{ name }}</span>
@@ -49,35 +63,33 @@
               {% else %}
                 <span>RecordID: {{ recordID }}</span>
               {% endif %}
-              <br><br><br>
+              <br><br><br><br>
             </div>
           </div>
         </div>
       </div>
   </div>
-
-
 </div>
 
-<div class="row">
+<div class="row card grey lighten-1" style="margin-right: 10px; margin-left: 10px;">
  <div class="col m6">
-      <div class="card  brown lighten-2">
+      <div class="card  grey darken-1">
         <div class="card-content white-text">
-          <span><h5>Resting Heart Rate: {{ details['hr_rest_val'] }} ({{ details['hr_rest_desc'] }})</h5></span>
-          <span><h5>BMI: {{ details['bmi_val'] }}</h5></span>
-          <span><h5>Height: {{ details['height'] }}</h5></span>
-          <span><h5>Weight: {{ details['weight'] }} ({{ details['weight_desc'] }})</h5></span>
-          <span><h5>HR Max: {{ details['hr_max_val'] }} ({{ details['hr_max_desc'] }})</h5></span>
-        </div>
+          <span><strong>Resting Heart Rate: {{ details['hr_rest_val'] }} ({{ details['hr_rest_desc'] }})</strong></span><br>
+          <span><strong>BMI: {{ details['bmi_val'] }}</strong></span><br>
+          <span><strong>Height: {{ details['height'] }}</strong></span><br>
+          <span><strong>Weight: {{ details['weight'] }} ({{ details['weight_desc'] }})</strong></span><br>
+          <span><strong>HR Max: {{ details['hr_max_val'] }} ({{ details['hr_max_desc'] }})</strong></span><br>
+        </div>  
       </div>
   </div> 
   <div class="col m6">
-      <div class="card  brown lighten-2">
+      <div class="card  grey darken-1">
         <div class="card-content white-text">
-          <span><h5>Total Sleep Time: {{ details['sleep_val'] }} ({{ details['sleep_desc'] }})</h5></span>
-          <span><h5>Heart Rate Recovery: {{ details['hr_rec_val'] }} ({{ details['hr_rec_desc'] }})</h5></span>
-          <span><h5>VO2 Max: {{ details['vo2_max_val'] }} ({{ details['vo2_max_desc'] }})</h5></span>
-          <span><h5>Respiration Coefficient: {{ details['resp_val'] }}</h5></span>
+          <span><strong>Total Sleep Time: {{ details['sleep_val'] }} ({{ details['sleep_desc'] }})</strong></span><br>
+          <span><strong>Heart Rate Recovery: {{ details['hr_rec_val'] }} ({{ details['hr_rec_desc'] }})</strong></span><br>
+          <span><strong>VO2 Max: {{ details['vo2_max_val'] }} ({{ details['vo2_max_desc'] }})</strong></span><br>
+          <span><strong>Respiration Coefficient: {{ details['resp_val'] }}</strong></span><br>
           <br>
         </div>
       </div>

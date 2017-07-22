@@ -28,7 +28,7 @@ def config_helper(section):
     
 requests.packages.urllib3.disable_warnings()
 config = ConfigParser.ConfigParser()
-config.read("../config.cfg")
+config.read("config.cfg")
 
 dev_info = PyTango.DbDevInfo()
 dev_info.server = config_helper("BiometricMonitor")['server_name']

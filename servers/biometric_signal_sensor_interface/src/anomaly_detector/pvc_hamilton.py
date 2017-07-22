@@ -5,6 +5,9 @@ from fractions import gcd
 import ctypes
 import csv
 import time
+import sys
+sys.path.insert(0, '../hexoskin_helper')
+import anomaly_database_helper as db
 
 # import matplotlib.pyplot as plt
 
@@ -162,6 +165,16 @@ class PVC(object):
 
                 time.sleep(0.05)
 
+            # Anomaly is detected
+            while self.anomaly_dict:
+                k, v = self.anomaly_dict.popitem()
+                anomaly = {}
+                anomaly['RRPeak_hexo_timestamp'] = k 
+                anomaly['RR_Quality'] = v[0]
+                anomaly['PVC_from'] = v[1]
+
+                db.add_apc(anomaly)
+
         # print(len(detectionTimeList))
         # # uncomment to visualize
         # with open('ecg_APC.txt', 'r') as f:
@@ -175,18 +188,20 @@ class PVC(object):
         #     plt.plot(newtemparr, ycoordinates, 'ro')
         #     plt.show()
 
-    def populate_data(self):
-        with open('ecg_APC.txt', 'r') as f:
-            testip = list(csv.reader(f, delimiter='\t'))
-            for i in testip:
-                self.ecg_dict[int(i[0])] = int(i[1])
-            f.close()
+    def populate_data(self, ecg, rrs):
+        self.ecg_dict = ecg
+        self.rrquality_dict = rrs
+        # with open('ecg_APC.txt', 'r') as f:
+        #     testip = list(csv.reader(f, delimiter='\t'))
+        #     for i in testip:
+        #         self.ecg_dict[int(i[0])] = int(i[1])
+        #     f.close()
 
-        with open('rrinterval_status_APC.txt', 'r') as f:
-            testip = list(csv.reader(f, delimiter='\t'))
-            for i in testip:
-                self.rrquality_dict[int(i[0])] = int(i[1])
-            f.close()
+        # with open('rrinterval_status_APC.txt', 'r') as f:
+        #     testip = list(csv.reader(f, delimiter='\t'))
+        #     for i in testip:
+        #         self.rrquality_dict[int(i[0])] = int(i[1])
+        #     f.close()
 
 
 def main():
