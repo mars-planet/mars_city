@@ -118,6 +118,39 @@ def add_apc(data):
     finally:
         s.close()
 
+def apc():
+    RRPeak_hexo_timestamp = 3452352354
+    RR_Quality = 54
+    PVC_from = 34
+    doe = datetime.now()
+
+    # Create session
+    s = Session()
+
+    try:
+        query = s.query(APCAlarms).filter(
+            APCAlarms.RRPeak_hexo_timestamp.in_([RRPeak_hexo_timestamp]))
+        result = query.first()
+
+        if result:
+            return -1
+        else:
+            apc = APCAlarms(RRPeak_hexo_timestamp, RR_Quality,
+                            doe, PVC_from)
+            s.add(apc)
+
+            # commit the record the database
+            s.commit()
+            print("Inserted row successfully")
+            return 0
+
+    except:
+        s.rollback()
+        return -1
+
+    finally:
+        s.close()
+
 #
 #
 # Anomaly GET functions
@@ -154,10 +187,12 @@ def get_vt():
         query = s.query(VenTacAlarms)
         result = query.all()
         for data in result:
-            return_data.append(data.start_hexo_timestamp)
-            return_data.append(data.end_hexo_timestamp)
-            return_data.append(data.doe)
-            return_data.append(data.data_reliability)
+            _return = []
+            _return.append(data.start_hexo_timestamp)
+            _return.append(data.end_hexo_timestamp)
+            _return.append(data.doe)
+            _return.append(data.data_reliability)
+            return_data.append(_return)
 
         s.close()
         return return_data
@@ -173,12 +208,22 @@ def get_apc():
         query = s.query(APCAlarms)
         result = query.all()
         for data in result:
-            return_data.append(data.RRPeak_hexo_timestamp)
-            return_data.append(data.RR_Quality)
-            return_data.append(data.doe)
-            return_data.append(data.PVC_from)
+            _return = []
+            _return.append(data.RRPeak_hexo_timestamp)
+            _return.append(data.RR_Quality)
+            _return.append(data.doe)
+            _return.append(data.PVC_from)
+            return_data.append(_return)
 
         s.close()
         return return_data
     except:
         return -1
+
+
+def main(argv):
+    apc()
+
+
+if __name__ == "__main__":
+    main(sys.argv)

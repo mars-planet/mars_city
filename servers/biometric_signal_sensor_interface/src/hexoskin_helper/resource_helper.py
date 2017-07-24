@@ -324,7 +324,7 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
 
     for data in realtime_data_generator(auth, recordID, datatypes):
         # For debugging
-        print(data)
+        print(len(data), "AF")
         if len(data[datatypes[0]]) == 0:
             exitCounter = exitCounter - 1
             if exitCounter == 0:
@@ -507,7 +507,7 @@ def APC_PVC_realtime(auth, recordID, obj, datatypes=''):
 
 
     for data in realtime_data_generator(auth, recordID, datatypes):
-        print(len(data[0]))
+        print(len(data[4113]), len(data[1004]))
 
         if len(data[datatypes[0]]) == 0:
             exitCounter = exitCounter - 1
@@ -528,7 +528,10 @@ def APC_PVC_realtime(auth, recordID, obj, datatypes=''):
             ecg_dict = dict(zip(ecg_timestamp, ecg_values))
             rrs_dict = dict(zip(rrs_timestamp, rrs_values))
 
-            first_analyze_timestamp = rrs_timestamp[0]
+            try:
+                first_analyze_timestamp = rrs_timestamp[0]
+            except:
+                continue
 
             ecg_timestamp = []
             ecg_values = []
@@ -539,11 +542,13 @@ def APC_PVC_realtime(auth, recordID, obj, datatypes=''):
                 # th1 = Thread(target=VTBD.collect_data, args=[
                 #              ecg_dict, rr_dict, hr_dict])
                 # th1.start()
-                obj[0].populate_DS(ecg_dict, rr_dict)
-                obj[1].populate_data(ecg_dict, rr_dict)
+                obj[0].populate_DS(ecg_dict, rrs_dict)
+
+                obj[1].populate_data(ecg_dict, rrs_dict)
 
                 if first_analyze_flag == 0:
-                    sleep(5)
+                    print("Starting APC_PVC and PVC_Hamilton")
+                    time.sleep(5)
                     th2 = Thread(target=obj[0].popluate_aux_structures,
                         args=[first_analyze_timestamp])
                     th2.start()
@@ -557,9 +562,10 @@ def APC_PVC_realtime(auth, recordID, obj, datatypes=''):
                         args=[])
                     th3.start()
 
-                    beat_analyze_flag = 1
+                    first_analyze_flag = 1
 
-            except:
+            except Exception as e:
+                print(e)
                 continue
     return
 

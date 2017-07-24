@@ -143,6 +143,7 @@ def get_all_data(auth):
 def af_from_db():
     # Retrieve AF AD data from DB
     data = db.get_af()
+    # print(data, "AF")
     return_json = {}
     for _data in data:
         _data[2] = _data[2].now().strftime('%Y-%m-%d %H:%M:%S')
@@ -165,6 +166,7 @@ def vt_from_db():
 def apc_from_db():
     # Retrieve APC AD data from DB
     data = db.get_apc()
+    # print(data, "DATA")
     return_json = {}
     for _data in data:
         _data[2] = _data[2].now().strftime('%Y-%m-%d %H:%M:%S')
