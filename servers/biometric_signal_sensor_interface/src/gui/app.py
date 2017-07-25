@@ -60,7 +60,7 @@ def get_APC_anomaly():
                                      time.localtime(float(key) / 256)))
         _record.append(value[1])
         _record.append(value[2])
-        _record.append(value[3])
+        _record.append(value[2])
         # For other processing
         _record.append(float(key) / 256)
         _apc_anomaly.append(_record)
