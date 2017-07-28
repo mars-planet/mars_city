@@ -2,6 +2,8 @@ from __future__ import absolute_import, division, print_function
 from threading import Thread
 import sys
 import json
+import time
+import collections
 sys.path.insert(0, '../hexoskin_helper')
 sys.path.insert(0, '../anomaly_detector')
 import utility_helper as util
@@ -16,6 +18,8 @@ import ConfigParser
 
 __author__ = 'abhijith'
 
+
+RT_DATA_GUI = collections.OrderedDict()
 
 def atrial_fibrillation_helper(auth):
     '''
@@ -129,6 +133,25 @@ def get_rrecordid(auth):
 
     return recordID
 
+def rt_to_gui():
+    while RT_DATA_GUI:
+        yield RT_DATA_GUI.popitem()
+
+def get_rt():
+    print("trying to get the yields ")
+    while True:
+        for d in rt_to_gui():
+            print(d)
+        
+
+def realtime_data(data):
+    # Consumed by gui
+    print("extending")
+    #print(type(data))
+    RT_DATA_GUI.update(data)
+    #print(RT_DATA_GUI)
+    print(len(RT_DATA_GUI))
+
 
 def get_all_data(auth):
     # Returns the required data in real-time for GUI
@@ -137,7 +160,7 @@ def get_all_data(auth):
         # record not updated in realtime.
         return -1
 
-    resource.get_all_data(auth, recordID, datatypes=[4113, 18])
+    resource.get_all_data(auth, recordID, realtime_data, datatypes=[4113, 18])
 
 
 def af_from_db():
@@ -190,7 +213,11 @@ def main(argv):
     elif argv[1] == 'apc':
         _apc_pvc_helper(auth)
     elif argv[1] == 'data':
-        resource.get_all_data(auth)
+        th2 = Thread(target=get_all_data, args=[auth])
+        th2.start()
+
+        time.sleep(4)
+        get_rt()
 
 
 if __name__ == "__main__":

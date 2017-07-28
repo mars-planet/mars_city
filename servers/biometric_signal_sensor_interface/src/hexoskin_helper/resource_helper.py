@@ -274,7 +274,7 @@ def realtime_data_generator(auth, recordID, datatypes):
 
     return
 
-def get_all_data(auth, recordID, datatypes):
+def get_all_data(auth, recordID, func, datatypes):
     '''
     Param: auth token, record ID of the record/session and the datatype of the
     metric that needs to be measured.
@@ -292,7 +292,7 @@ def get_all_data(auth, recordID, datatypes):
     '''
     for data in realtime_data_generator(auth, recordID, datatypes):
         # For debugging
-        print(data)
+        func(data)
 
 
 def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
