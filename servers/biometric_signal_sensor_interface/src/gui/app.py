@@ -64,7 +64,7 @@ def get_APC_anomaly():
         # For other processing
         _record.append(float(key) / 256)
         _apc_anomaly.append(_record)
-    _apc_anomaly = sorted(_apc_anomaly, key=lambda x: (x[1]))
+    _apc_anomaly = sorted(_apc_anomaly, key=lambda x: (x[0]))
     return _apc_anomaly
 
 
@@ -84,7 +84,7 @@ def get_AF_anomaly():
         # For other processing
         _record.append(float(key) / 256)
         _af_anomaly.append(_record)
-    _af_anomaly = sorted(_af_anomaly, key=lambda x: (x[1]))
+    _af_anomaly = sorted(_af_anomaly, key=lambda x: (x[0]))
     return _af_anomaly
 
 
@@ -102,7 +102,7 @@ def get_VT_anomaly():
         # For other processing
         _record.append(float(key) / 256)
         _vt_anomaly.append(_record)
-    _vt_anomaly = sorted(_vt_anomaly, key=lambda x: (x[1]))
+    _vt_anomaly = sorted(_vt_anomaly, key=lambda x: (x[0]))
     return _vt_anomaly
 
 
