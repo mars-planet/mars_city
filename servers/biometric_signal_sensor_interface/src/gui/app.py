@@ -10,9 +10,9 @@ import os
 import pandas as pd
 import numpy as np
 import plotly
-# import sys
-# sys.path.insert(0, '../hexoskin_helper')
-# import resource_helper as resource
+import sys
+sys.path.insert(0, '../health_monitor')
+import monitor
 
 '''
 Python Flask GUI Dashboard for the Biometric Signal Sensor's system
@@ -27,7 +27,6 @@ DEBUG = True
 requests.packages.urllib3.disable_warnings()
 config = ConfigParser.ConfigParser()
 config.read("../health_monitor/config.cfg")
-
 
 def config_helper(section):
     '''
@@ -246,8 +245,7 @@ def anomaly():
 
 @app.route("/raw_data")
 def raw_data():
-    _af_anomaly = []
-    _vt_anomaly = []
+
     rng = pd.date_range('1/1/2011', periods=10, freq='H')
     ts = pd.Series(np.random.randn(len(rng)), index=rng)
 
@@ -286,9 +284,24 @@ def raw_data():
     # objects to their JSON equivalents
     graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
 
-    return render_template('raw_data.html', AF=_af_anomaly, VT=_vt_anomaly,
+    return render_template('raw_data.html',
                            ids=ids, graphJSON=graphJSON)
+
+@app.route('/raw_data/fetch', methods=['GET'])
+def fetch_realtime_data():
+    rt_data =  biometric_monitor.rt_to_gui()
+    #rt_data = json.loads(rt_data)
+    print(rt_data)
+    return rt_data
 
 
 if __name__ == "__main__":
+    biometric_monitor = PyTango.DeviceProxy(
+    config_helper("BiometricMonitor")['name'])
+
+    biometric_monitor.poll_command("rt_to_gui", 50000)
+    biometric_monitor.poll_command("af_to_gui", 50000)
+    biometric_monitor.poll_command("vt_to_gui", 50000)
+    biometric_monitor.poll_command("apc_to_gui", 50000)
+
     app.run(threaded=True, debug=DEBUG)

@@ -274,7 +274,7 @@ def realtime_data_generator(auth, recordID, datatypes):
 
     return
 
-def get_all_data(auth, recordID, func, datatypes):
+def get_all_data(auth, recordID, datatypes):
     '''
     Param: auth token, record ID of the record/session and the datatype of the
     metric that needs to be measured.
@@ -290,9 +290,16 @@ def get_all_data(auth, recordID, func, datatypes):
                             data of the user regularly, adding to the record.
                             -1, if data not being collected in realtime
     '''
-    for data in realtime_data_generator(auth, recordID, datatypes):
-        # For debugging
-        func(data)
+    record = auth.api.record.get(recordID)
+    user = record.user
+    start_epoch = calendar.timegm(time.gmtime())
+    start_epoch = start_epoch - (10)
+    start = (start_epoch) * 256
+    end = (calendar.timegm(time.gmtime()) - 5) * 256
+
+    data = get_realtime_data_helper(auth, user, start, end, datatypes)
+
+    return data
 
 
 def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
@@ -340,6 +347,19 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
                 if a[1] is not None:
                     hrq_timestamp.append(a[0])
                     hrq_values.append(a[1])
+
+            db.add_data(rr_timestamp[0], rr_values[0], datatypes[0])
+            db.add_data(rr_timestamp[int(len(rr_timestamp)/2)],
+                rr_values[int(len(rr_timestamp)/2)], datatypes[0])
+            db.add_data(rr_timestamp[len(rr_timestamp)-2],
+                rr_values[len(rr_timestamp)-2], datatypes[0])
+
+            db.add_data(hrq_timestamp[0], hrq_values[0], datatypes[1])
+            db.add_data(hrq_timestamp[int(len(hrq_timestamp)/2)],
+                hrq_values[int(len(hrq_timestamp)/2)], datatypes[1])
+            db.add_data(hrq_timestamp[len(hrq_timestamp)-2],
+                hrq_values[len(hrq_timestamp)-2], datatypes[1])
+            print("Added raw data to db")
 
             print("Collected {} data points".format(len(rr_timestamp)))
             if (len(rr_timestamp) >= window_size and
@@ -438,6 +458,19 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
                     hrq_timestamp.append(int(a[0]))
                     hrq_values.append(int(a[1]))
 
+            db.add_data(ecg_timestamp[0], ecg_values[0], datatypes[0])
+            db.add_data(ecg_timestamp[int(len(ecg_timestamp)/2)],
+                ecg_values[int(len(ecg_timestamp)/2)], datatypes[0])
+            db.add_data(ecg_timestamp[len(ecg_timestamp)-2],
+                ecg_values[len(ecg_timestamp)-2], datatypes[0])
+
+            db.add_data(hr_timestamp[0], hr_values[0], datatypes[3])
+            db.add_data(hr_timestamp[int(len(hr_timestamp)/2)],
+                hr_values[int(len(hr_timestamp)/2)], datatypes[3])
+            db.add_data(hr_timestamp[len(hr_timestamp)-2],
+                hr_values[len(hr_timestamp)-2], datatypes[3])
+
+            print("Added raw data to db")
             ecg_dict = dict(zip(ecg_timestamp, ecg_values))
 
             rr_dict = {}

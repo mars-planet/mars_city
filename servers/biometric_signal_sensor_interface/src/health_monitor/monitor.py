@@ -3,7 +3,6 @@ from threading import Thread
 import sys
 import json
 import time
-import collections
 sys.path.insert(0, '../hexoskin_helper')
 sys.path.insert(0, '../anomaly_detector')
 import utility_helper as util
@@ -18,8 +17,6 @@ import ConfigParser
 
 __author__ = 'abhijith'
 
-
-RT_DATA_GUI = collections.OrderedDict()
 
 def atrial_fibrillation_helper(auth):
     '''
@@ -133,34 +130,29 @@ def get_rrecordid(auth):
 
     return recordID
 
-def rt_to_gui():
-    while RT_DATA_GUI:
-        yield RT_DATA_GUI.popitem()
 
-def get_rt():
-    print("trying to get the yields ")
-    while True:
-        for d in rt_to_gui():
-            print(d)
-        
-
-def realtime_data(data):
-    # Consumed by gui
-    print("extending")
-    #print(type(data))
-    RT_DATA_GUI.update(data)
-    #print(RT_DATA_GUI)
-    print(len(RT_DATA_GUI))
-
-
-def get_all_data(auth):
+def get_all_data(auth=""):
+    auth = util.auth_login()
     # Returns the required data in real-time for GUI
     recordID = resource.get_active_record_list(auth)[0]
     if recordID not in resource.get_active_record_list(auth):
         # record not updated in realtime.
         return -1
 
-    resource.get_all_data(auth, recordID, realtime_data, datatypes=[4113, 18])
+    datatypes = [4113, 18]
+    data = resource.get_all_data(auth, recordID, datatypes=datatypes)
+
+    return_data = {}
+
+    for i in range(0,len(datatypes)):
+        _data = []
+        _data.append(data[datatypes[i]][0])
+        _data.append(data[datatypes[i]][int(len(data[datatypes[i]])/2)])
+        _data.append(data[datatypes[i]][len(data[datatypes[i]])-1])
+        
+        return_data[datatypes[i]] = _data
+
+    return json.dumps(return_data)
 
 
 def af_from_db():
@@ -197,6 +189,15 @@ def apc_from_db():
 
     return json.dumps((return_json))
 
+def data_from_db():
+    # Retrieve APC AD data from DB
+    data = db.get_data()
+    # return_json = {}
+    # for _data in data:
+    #     return_json[_data[2]] = _data[1:]
+
+    return json.dumps((data))
+
 
 def main(argv):
     auth = util.auth_login()
@@ -213,11 +214,8 @@ def main(argv):
     elif argv[1] == 'apc':
         _apc_pvc_helper(auth)
     elif argv[1] == 'data':
-        th2 = Thread(target=get_all_data, args=[auth])
-        th2.start()
+        print(data_from_db())
 
-        time.sleep(4)
-        get_rt()
 
 
 if __name__ == "__main__":

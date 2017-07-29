@@ -8,6 +8,22 @@ Base = declarative_base()
 
 ########################################################################
 
+class Data(Base):
+    __tablename__ = 'Data'
+    hexo_timestamp = Column(Integer, primary_key=True, nullable=False)
+    data = Column(Integer, nullable=False)
+    datatype = Column(Integer, nullable=False)
+
+    def __repr__(self):
+        return ("<Data('%s', '%s' ,'%s')>"
+                % (self.hexo_timestamp, self.data, self.datatype))
+
+    def __init__(self, hexo_timestamp, data,
+                 datatype):
+        self.hexo_timestamp = hexo_timestamp
+        self.data = data
+        self.datatype = datatype
+# ----------------------------------------------------------------------------
 
 class AtrFibAlarms(Base):
     __tablename__ = 'AtrFibAlarms'

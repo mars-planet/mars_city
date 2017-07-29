@@ -121,13 +121,16 @@ class Monitor(Device):
         '''
         return hm.apc_from_db()
 
-    # @command(dtype_out=str,
-    #          doc_out="AF AD from DB as JSON")
-    # def af_to_gui(self):
-    #     '''
-    #     To send the AF AD data to gui
-    #     '''
-    #     return hm.af_from_db()
+    
+    @command(dtype_out=str,
+             doc_out="Realtime data as JSON",
+             )
+    def rt_to_gui(self):
+        '''
+        Data to GUI
+        '''
+        return hm.data_from_db()
+
 
     @command(dtype_out=bool,
              doc_out="True if Real-time biometric session is active")

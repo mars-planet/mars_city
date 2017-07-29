@@ -10,17 +10,70 @@
   {% for id in ids %}
   <div class="row">
      <div class="col s12 m12">
-        <div id="{{ id }}"></div>
+        <div id="graph"></div>
      </div>
   </div>    
   {% endfor %}         
 
   <script>
+    function rand() {
+     return Math.random();
+    }
     var graphs = {{graphJSON | safe}};
     var ids = {{ids | safe}};
-    for(var i in graphs) {
-        Plotly.plot(ids[i], graphs[i].data,
-          graphs[i].layout || {});
-    }
+
+    Plotly.plot('graph', [{
+      x: [0],
+      y: [1].map(rand)
+    }, {
+      x: [0],
+      y: [1].map(rand)
+    }]);
+
+    var cnt = 0;
+
+    var interval = setInterval(function() {
+        var ecg_t = [];
+        var ecg_v = [];
+        var hr_t = [];
+        var hr_v = [];
+        var hrq_t = [];
+        var hrq_v = [];
+        var rr_t = [];
+        var rr_v = [];
+        $.get("/raw_data/fetch", function(data) {
+            var J = $.parseJSON(data)
+            var ecg = J['4113']
+            var hr = J['19']
+            var hrq = J['1000']
+            var rr = J['18']
+
+            for (var i=0;i<ecg.length;i++){
+              ecg_t.push(ecg[i][0]);
+              ecg_v.push(ecg[i][1]);
+            }
+            for (var i=0;i<hrq.length;i++){
+              hrq_t.push(hrq[i][0]);
+              hrq_v.push(hrq[i][1]);
+            }
+            for (var i=0;i<hr.length;i++){
+              hr_t.push(hr[i][0]);
+              hr_v.push(hr[i][1]);
+            }
+            for (var i=0;i<rr.length;i++){
+              rr_t.push(rr[i][0]);
+              rr_v.push(rr[i][1]);
+            }
+            
+        });
+        Plotly.extendTraces(ids[i], {
+          x: [[cnt], [cnt]],
+          y: [[rand()], [rand()]]
+        }, [0, 1], 10)
+
+        cnt++
+        if(cnt === 10) clearInterval(interval);
+      }, 5000);
+
   </script>
 {% endblock %}

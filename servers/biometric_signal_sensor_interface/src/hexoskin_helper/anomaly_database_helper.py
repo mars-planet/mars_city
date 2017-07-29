@@ -1,7 +1,7 @@
 from __future__ import division, print_function
 import sys
 sys.path.insert(0, '../health_monitor')
-from data_model import AtrFibAlarms, VenTacAlarms, APCAlarms
+from data_model import AtrFibAlarms, VenTacAlarms, APCAlarms, Data
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -221,8 +221,71 @@ def get_apc():
         return -1
 
 
+#-------------------------------------------------------------------
+def add_data(time, data, _type):
+    hexo_timestamp = time
+    data = data
+    datatype = _type
+
+    # Create session
+    s = Session()
+
+    try:
+        query = s.query(Data).filter(
+            Data.hexo_timestamp.in_([hexo_timestamp]))
+        result = query.first()
+
+        if result:
+            return -1
+        else:
+            af = Data(hexo_timestamp, data,
+                              datatype)
+            s.add(af)
+
+            # commit the record the database
+            s.commit()
+            print("Inserted row successfully")
+            return 0
+
+    except:
+        s.rollback()
+        return -1
+
+    finally:
+        s.close()
+
+def get_data():
+    return_data = {'18':[], '4113': [], '1000': [], '19':[]}
+
+    s = Session()
+
+    query = s.query(Data).order_by(Data.datatype)
+    result = query.all()
+    for data in result:
+        _return = []
+        _return.append(data.hexo_timestamp)
+        _return.append(data.data)
+        return_data[str(data.datatype)].append(_return)
+
+    s.close()
+    return return_data
+
+
+def delete_data():
+    s = Session()
+
+    query = s.query(Data)
+    
+    query.delete()
+    s.commit()
+    s.close()
+
+
+# -------------------------------------------------------------
+
+
 def main(argv):
-    apc()
+    print(delete_data())
 
 
 if __name__ == "__main__":
