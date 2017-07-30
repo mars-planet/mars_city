@@ -1,5 +1,6 @@
 from __future__ import division, print_function
 import sys
+import time
 sys.path.insert(0, '../health_monitor')
 from data_model import AtrFibAlarms, VenTacAlarms, APCAlarms, Data
 from sqlalchemy import create_engine
@@ -263,7 +264,7 @@ def get_data():
     result = query.all()
     for data in result:
         _return = []
-        _return.append(data.hexo_timestamp)
+        _return.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(data.hexo_timestamp/256))))
         _return.append(data.data)
         return_data[str(data.datatype)].append(_return)
 
@@ -285,7 +286,7 @@ def delete_data():
 
 
 def main(argv):
-    print(delete_data())
+    print(get_data())
 
 
 if __name__ == "__main__":

@@ -2,46 +2,121 @@
 
 {% block mainHead %} 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
   <!-- Plotly.js -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 {% endblock %}
 
 {% block mainBody %}
-  {% for id in ids %}
   <div class="row">
-     <div class="col s12 m12">
-        <div id="graph"></div>
-     </div>
+    <div class="col s12 m12">
+      <div id="graph-1"></div>
+    </div>
   </div>    
-  {% endfor %}         
+  <div class="row">
+    <div class="col s12 m12">
+      <div id="graph-2"></div>
+    </div>
+  </div>      
+  <div class="row">
+    <div class="col s12 m12">
+      <div id="graph-3"></div>
+    </div>
+  </div> 
 
   <script>
     function rand() {
      return Math.random();
     }
+
     var graphs = {{graphJSON | safe}};
     var ids = {{ids | safe}};
 
-    Plotly.plot('graph', [{
-      x: [0],
-      y: [1].map(rand)
-    }, {
-      x: [0],
-      y: [1].map(rand)
-    }]);
-
+    
     var cnt = 0;
 
+    var ecg_t = [];
+    var ecg_v = [];
+    var hr_t = [];
+    var hr_v = [];
+    var hrq_t = [];
+    var hrq_v = [];
+    var rr_t = [];
+    var rr_v = [];
+
+    $.get("/raw_data/fetch", function(data) {
+        var J = $.parseJSON(data)
+        var ecg = J['4113']
+        var hr = J['19']
+        var hrq = J['1000']
+        var rr = J['18']
+
+        for (var i=0;i<ecg.length;i++){
+          ecg_t.push(ecg[i][0]);
+          ecg_v.push(ecg[i][1]);
+        }
+        for (var i=0;i<hrq.length;i++){
+          hrq_t.push(hrq[i][0]);
+          hrq_v.push(hrq[i][1]);
+        }
+        for (var i=0;i<hr.length;i++){
+          hr_t.push(hr[i][0]);
+          hr_v.push(hr[i][1]);
+        }
+        for (var i=0;i<rr.length;i++){
+          rr_t.push(rr[i][0]);
+          rr_v.push(rr[i][1]);
+        }
+        console.log(rr_t.length);
+      });
+
+    console.log(ecg_t[cnt]);
+    Plotly.plot('graph-1', [{
+      x: [ecg_t[cnt]],
+      y: [ecg_v[cnt]]
+    }]);
+    Plotly.plot('graph-3', [{
+      x: [hr_t[cnt]],
+      y: [hr_v[cnt]]
+    }]);
+    Plotly.plot('graph-2', [{
+      x: [hrq_t[cnt]],
+      y: [hrq_v[cnt]]
+    },{
+      x: [hr_t[cnt]],
+      y: [hr_v[cnt]]
+    }]);
+
     var interval = setInterval(function() {
-        var ecg_t = [];
-        var ecg_v = [];
-        var hr_t = [];
-        var hr_v = [];
-        var hrq_t = [];
-        var hrq_v = [];
-        var rr_t = [];
-        var rr_v = [];
-        $.get("/raw_data/fetch", function(data) {
+          
+        Plotly.extendTraces("graph-1", {
+          x: [[ecg_t[cnt]]],
+          y: [[ecg_v[cnt]]]
+        }, [0], 50);
+
+        Plotly.extendTraces("graph-3", {
+          x: [[rr_t[cnt]]],
+          y: [[rr_v[cnt]]]
+        }, [0], 50);
+
+        Plotly.extendTraces("graph-2", {
+          x: [[hrq_t[cnt]], [hr_t[cnt]]],
+          y: [[hrq_v[cnt]], [hr_v[cnt]]]
+        }, [0, 1], 50);
+
+        cnt++
+
+        if(cnt === 50 || cnt === 0 || ecg_t.length < 50 || rr_v.length < 50){
+            clearInterval(interval);
+            ecg_t = [];
+            ecg_v = [];
+            hr_t = [];
+            hr_v = [];
+            hrq_t = [];
+            hrq_v = [];
+            rr_t = [];
+            rr_v = [];
+            $.get("/raw_data/fetch", function(data) {
             var J = $.parseJSON(data)
             var ecg = J['4113']
             var hr = J['19']
@@ -65,15 +140,9 @@
               rr_v.push(rr[i][1]);
             }
             
-        });
-        Plotly.extendTraces(ids[i], {
-          x: [[cnt], [cnt]],
-          y: [[rand()], [rand()]]
-        }, [0, 1], 10)
-
-        cnt++
-        if(cnt === 10) clearInterval(interval);
-      }, 5000);
+          });
+          }
+      }, 1000);
 
   </script>
 {% endblock %}
