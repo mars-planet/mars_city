@@ -267,6 +267,19 @@ class RespiratoryAD(object):
         # print(timestamp)
         return
 
+    def get_breathing_rate(self, first, last):
+        # get the breathing rate and breathing rate status
+        # includes first and last
+        breathing_rate = []
+        breathing_rate_status = []
+        for i in xrange(first, last + 1):
+            if i in self.breathing_rate_dict:
+                breathing_rate.append(self.breathing_rate_dict[i])
+                breathing_rate_status.append(self.breathing_rate_status_dict
+                                             [i])
+
+        return breathing_rate, breathing_rate_status
+
     def populate_DS(self):
         with open('vt.txt', 'r') as f:
             testip = list(csv.reader(f, delimiter='\t'))
