@@ -245,11 +245,13 @@ def anomaly():
 
 @app.route("/raw_data")
 def raw_data():
+    #biometric_monitor.delete_from_db()
     return render_template('raw_data.html')
 
 @app.route('/raw_data/fetch', methods=['GET'])
 def fetch_realtime_data():
     rt_data =  biometric_monitor.rt_to_gui()
+    biometric_monitor.delete_from_db()
     print(rt_data)
     return rt_data
  

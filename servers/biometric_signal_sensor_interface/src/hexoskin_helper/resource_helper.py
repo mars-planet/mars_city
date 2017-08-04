@@ -343,18 +343,16 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
                 if a[1] is not None:
                     rr_timestamp.append(a[0])
                     rr_values.append(a[1])
-                    if skipFlag%5 == 0:
-                        db.add_data(a[0], a[1], datatypes[0])
-                    skipFlag += 1
+                    db.add_data(a[0], a[1], datatypes[0])
+
 
             skipFlag = 0
             for a in data[datatypes[1]]:
                 if a[1] is not None:
                     hrq_timestamp.append(a[0])
                     hrq_values.append(a[1])
-                    if skipFlag%5 == 0:
-                        db.add_data(a[0], a[1], datatypes[1])
-                    skipFlag += 1
+                    db.add_data(a[0], a[1], datatypes[1])
+
 
             # db.add_data(rr_timestamp[0], rr_values[0], datatypes[0])
             # db.add_data(rr_timestamp[int(len(rr_timestamp)/2)],
@@ -473,9 +471,8 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
                 if a[1] is not None:
                     hr_timestamp.append(int(a[0]))
                     hr_values.append(float(a[1]))
-                    if skipFlag%2 == 0:
-                        db.add_data(int(a[0]), float(a[1]), datatypes[3])
-                    skipFlag += 1
+                    db.add_data(int(a[0]), float(a[1]), datatypes[3])
+
 
             for a in data[datatypes[4]]:
                 if a[1] is not None:

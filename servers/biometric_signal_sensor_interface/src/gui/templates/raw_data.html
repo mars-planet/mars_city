@@ -43,6 +43,7 @@
 
     $.get("/raw_data/fetch", function(data) {
         var J = $.parseJSON(data)
+
         var ecg = J['4113']
         var hr = J['19']
         var hrq = J['1000']
@@ -84,60 +85,31 @@
       y: [hr_v[cnt]]
     }]);
 
-    setInterval(function() {
+    var interval = setInterval(function() {
           
         Plotly.extendTraces("graph-1", {
           x: [[ecg_t[cnt]]],
           y: [[ecg_v[cnt]]]
         }, [0], 50);
 
-        Plotly.extendTraces("graph-3", {
-          x: [[rr_t[cnt]]],
-          y: [[rr_v[cnt]]]
-        }, [0], 50);
+        if(cnt < rr_t.length){
+          Plotly.extendTraces("graph-3", {
+            x: [[rr_t[cnt]]],
+            y: [[rr_v[cnt]]]
+          }, [0], 50);
+        }
 
-        Plotly.extendTraces("graph-2", {
-          x: [[hrq_t[cnt]], [hr_t[cnt]]],
-          y: [[hrq_v[cnt]], [hr_v[cnt]]]
-        }, [0, 1], 20);
+        if(vnt < hrq_t.length){
+          Plotly.extendTraces("graph-2", {
+            x: [[hrq_t[cnt]], [hr_t[cnt]]],
+            y: [[hrq_v[cnt]], [hr_v[cnt]]]
+          }, [0, 1], 15);
+        }
 
         cnt++
-
-        if(cnt === 20 || cnt === 0 || ecg_t.length < 10 || rr_v.length < 10){
-            clearInterval(interval);
-            ecg_t = [];
-            ecg_v = [];
-            hr_t = [];
-            hr_v = [];
-            hrq_t = [];
-            hrq_v = [];
-            rr_t = [];
-            rr_v = [];
-            $.get("/raw_data/fetch", function(data) {
-            var J = $.parseJSON(data)
-            var ecg = J['4113']
-            var hr = J['19']
-            var hrq = J['1000']
-            var rr = J['18']
-
-            for (var i=0;i<ecg.length;i++){
-              ecg_t.push(ecg[i][0]);
-              ecg_v.push(ecg[i][1]);
-            }
-            for (var i=0;i<hrq.length;i++){
-              hrq_t.push(hrq[i][0]);
-              hrq_v.push(hrq[i][1]);
-            }
-            for (var i=0;i<hr.length;i++){
-              hr_t.push(hr[i][0]);
-              hr_v.push(hr[i][1]);
-            }
-            for (var i=0;i<rr.length;i++){
-              rr_t.push(rr[i][0]);
-              rr_v.push(rr[i][1]);
-            }
-            
-          });
+console.log(cnt);
+        if(cnt > Math.max(ecg_t.length, hr_t.length, hrq_t.length, rr_t.length)){
+            location.reload();
           }
       }, 2500);
 

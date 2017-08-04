@@ -192,7 +192,7 @@ def apc_from_db():
 def data_from_db():
     # Retrieve APC AD data from DB
     data = db.get_data()
-    db._delete_data()
+    # db._delete_data()
 
     return json.dumps((data))
 
