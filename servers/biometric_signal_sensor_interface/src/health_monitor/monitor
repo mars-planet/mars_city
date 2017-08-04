@@ -131,6 +131,14 @@ class Monitor(Device):
         '''
         return hm.data_from_db()
 
+    @command
+    def delete_from_db(self):
+        '''
+        Data to GUI
+        '''
+        hm.delete_from_db()
+
+
 
     @command(dtype_out=bool,
              doc_out="True if Real-time biometric session is active")

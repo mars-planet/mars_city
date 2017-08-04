@@ -3,7 +3,7 @@ import sys
 import time
 sys.path.insert(0, '../health_monitor')
 from data_model import AtrFibAlarms, VenTacAlarms, APCAlarms, Data
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 
@@ -41,7 +41,7 @@ def add_af(data):
 
             # commit the record the database
             s.commit()
-            print("Inserted row successfully")
+            print("Inserted AF row successfully")
             return 0
 
     except:
@@ -75,7 +75,7 @@ def add_vt(data):
 
             # commit the record the database
             s.commit()
-            print("Inserted row successfully")
+            print("Inserted VT row successfully")
             return 0
 
     except:
@@ -109,7 +109,7 @@ def add_apc(data):
 
             # commit the record the database
             s.commit()
-            print("Inserted row successfully")
+            print("Inserted APC row successfully")
             return 0
 
     except:
@@ -119,38 +119,7 @@ def add_apc(data):
     finally:
         s.close()
 
-def apc():
-    RRPeak_hexo_timestamp = 3452352354
-    RR_Quality = 54
-    PVC_from = 34
-    doe = datetime.now()
 
-    # Create session
-    s = Session()
-
-    try:
-        query = s.query(APCAlarms).filter(
-            APCAlarms.RRPeak_hexo_timestamp.in_([RRPeak_hexo_timestamp]))
-        result = query.first()
-
-        if result:
-            return -1
-        else:
-            apc = APCAlarms(RRPeak_hexo_timestamp, RR_Quality,
-                            doe, PVC_from)
-            s.add(apc)
-
-            # commit the record the database
-            s.commit()
-            print("Inserted row successfully")
-            return 0
-
-    except:
-        s.rollback()
-        return -1
-
-    finally:
-        s.close()
 
 #
 #
@@ -245,7 +214,7 @@ def add_data(time, data, _type):
 
             # commit the record the database
             s.commit()
-            print("Inserted row successfully")
+            print("Inserted Data row successfully")
             return 0
 
     except:
@@ -272,11 +241,17 @@ def get_data():
     return return_data
 
 
+def _delete_data():
+    s = Session()
+    if s.query(func.count(Data.hexo_timestamp)).scalar() > 1000:
+        query = s.query(Data)
+        query.delete()
+        s.commit()
+    s.close()
+
 def delete_data():
     s = Session()
-
     query = s.query(Data)
-    
     query.delete()
     s.commit()
     s.close()

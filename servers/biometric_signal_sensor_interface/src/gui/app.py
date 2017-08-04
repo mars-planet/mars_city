@@ -245,55 +245,14 @@ def anomaly():
 
 @app.route("/raw_data")
 def raw_data():
-
-    rng = pd.date_range('1/1/2011', periods=10, freq='H')
-    ts = pd.Series(np.random.randn(len(rng)), index=rng)
-
-    graphs = [
-        dict(
-            data=[
-                dict(
-                    x=ts.index,  # Can use the pandas data structures directly
-                    y=ts,
-                    type='line'
-                ),
-            ],
-            layout=dict(
-                title='ECG'
-            )
-        ),
-        dict(
-            data=[
-                dict(
-                    x=ts.index,  # Can use the pandas data structures directly
-                    y=ts
-                ),
-            ],
-            layout=dict(
-                title='Heart Rate'
-            )
-        )
-    ]
-
-    # Add "ids" to each of the graphs to pass up to the client
-    # for templating
-    ids = ['graph-{}'.format(i) for i, _ in enumerate(graphs)]
-
-    # Convert the figures to JSON
-    # PlotlyJSONEncoder appropriately converts pandas, datetime, etc
-    # objects to their JSON equivalents
-    graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
-
-    return render_template('raw_data.html',
-                           ids=ids, graphJSON=graphJSON)
+    return render_template('raw_data.html')
 
 @app.route('/raw_data/fetch', methods=['GET'])
 def fetch_realtime_data():
     rt_data =  biometric_monitor.rt_to_gui()
-    #rt_data = json.loads(rt_data)
     print(rt_data)
     return rt_data
-
+ 
 
 if __name__ == "__main__":
     biometric_monitor = PyTango.DeviceProxy(

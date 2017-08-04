@@ -29,10 +29,7 @@
      return Math.random();
     }
 
-    var graphs = {{graphJSON | safe}};
-    var ids = {{ids | safe}};
-
-    
+   
     var cnt = 0;
 
     var ecg_t = [];
@@ -87,7 +84,7 @@
       y: [hr_v[cnt]]
     }]);
 
-    var interval = setInterval(function() {
+    setInterval(function() {
           
         Plotly.extendTraces("graph-1", {
           x: [[ecg_t[cnt]]],
@@ -102,11 +99,11 @@
         Plotly.extendTraces("graph-2", {
           x: [[hrq_t[cnt]], [hr_t[cnt]]],
           y: [[hrq_v[cnt]], [hr_v[cnt]]]
-        }, [0, 1], 50);
+        }, [0, 1], 20);
 
         cnt++
 
-        if(cnt === 50 || cnt === 0 || ecg_t.length < 50 || rr_v.length < 50){
+        if(cnt === 20 || cnt === 0 || ecg_t.length < 10 || rr_v.length < 10){
             clearInterval(interval);
             ecg_t = [];
             ecg_v = [];
@@ -142,7 +139,7 @@
             
           });
           }
-      }, 1000);
+      }, 2500);
 
   </script>
 {% endblock %}

@@ -338,27 +338,43 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
                 break
         else:
             exitCounter = 5
+            skipFlag = 0
             for a in data[datatypes[0]]:
                 if a[1] is not None:
                     rr_timestamp.append(a[0])
                     rr_values.append(a[1])
+                    if skipFlag%5 == 0:
+                        db.add_data(a[0], a[1], datatypes[0])
+                    skipFlag += 1
 
+            skipFlag = 0
             for a in data[datatypes[1]]:
                 if a[1] is not None:
                     hrq_timestamp.append(a[0])
                     hrq_values.append(a[1])
+                    if skipFlag%5 == 0:
+                        db.add_data(a[0], a[1], datatypes[1])
+                    skipFlag += 1
 
-            db.add_data(rr_timestamp[0], rr_values[0], datatypes[0])
-            db.add_data(rr_timestamp[int(len(rr_timestamp)/2)],
-                rr_values[int(len(rr_timestamp)/2)], datatypes[0])
-            db.add_data(rr_timestamp[len(rr_timestamp)-2],
-                rr_values[len(rr_timestamp)-2], datatypes[0])
+            # db.add_data(rr_timestamp[0], rr_values[0], datatypes[0])
+            # db.add_data(rr_timestamp[int(len(rr_timestamp)/2)],
+            #     rr_values[int(len(rr_timestamp)/2)], datatypes[0])
+            # db.add_data(rr_timestamp[int(len(rr_timestamp)/2)-1],
+            #     rr_values[int(len(rr_timestamp)/2)-1], datatypes[0])
+            # db.add_data(rr_timestamp[int(len(rr_timestamp)/2)+1],
+            #     rr_values[int(len(rr_timestamp)/2)+1], datatypes[0])
+            # db.add_data(rr_timestamp[len(rr_timestamp)-2],
+            #     rr_values[len(rr_timestamp)-2], datatypes[0])
 
-            db.add_data(hrq_timestamp[0], hrq_values[0], datatypes[1])
-            db.add_data(hrq_timestamp[int(len(hrq_timestamp)/2)],
-                hrq_values[int(len(hrq_timestamp)/2)], datatypes[1])
-            db.add_data(hrq_timestamp[len(hrq_timestamp)-2],
-                hrq_values[len(hrq_timestamp)-2], datatypes[1])
+            # db.add_data(hrq_timestamp[0], hrq_values[0], datatypes[1])
+            # db.add_data(hrq_timestamp[int(len(hrq_timestamp)/2)],
+            #     hrq_values[int(len(hrq_timestamp)/2)], datatypes[1])
+            # db.add_data(hrq_timestamp[int(len(hrq_timestamp)/2)-1],
+            #     hrq_values[int(len(hrq_timestamp)/2)-1], datatypes[1])
+            # db.add_data(hrq_timestamp[int(len(hrq_timestamp)/2)+1],
+            #     hrq_values[int(len(hrq_timestamp)/2)+1], datatypes[1])
+            # db.add_data(hrq_timestamp[len(hrq_timestamp)-2],
+            #     hrq_values[len(hrq_timestamp)-2], datatypes[1])
             print("Added raw data to db")
 
             print("Collected {} data points".format(len(rr_timestamp)))
@@ -433,10 +449,14 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
                 break
         else:
             exitCounter = 5
+            skipFlag = 0
             for a in data[datatypes[0]]:
                 if a[1] is not None:
                     ecg_timestamp.append(int(a[0]))
                     ecg_values.append(int(a[1]))
+                    if skipFlag%300 == 0:
+                        db.add_data(int(a[0]), int(a[1]), datatypes[0])
+                    skipFlag += 1
 
             for a in data[datatypes[1]]:
                 if a[1] is not None:
@@ -448,27 +468,39 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
                     rrs_timestamp.append(int(a[0]))
                     rrs_values.append(int(a[1]))
 
+            skipFlag = 0
             for a in data[datatypes[3]]:
                 if a[1] is not None:
                     hr_timestamp.append(int(a[0]))
                     hr_values.append(float(a[1]))
+                    if skipFlag%2 == 0:
+                        db.add_data(int(a[0]), float(a[1]), datatypes[3])
+                    skipFlag += 1
 
             for a in data[datatypes[4]]:
                 if a[1] is not None:
                     hrq_timestamp.append(int(a[0]))
                     hrq_values.append(int(a[1]))
 
-            db.add_data(ecg_timestamp[0], ecg_values[0], datatypes[0])
-            db.add_data(ecg_timestamp[int(len(ecg_timestamp)/2)],
-                ecg_values[int(len(ecg_timestamp)/2)], datatypes[0])
-            db.add_data(ecg_timestamp[len(ecg_timestamp)-2],
-                ecg_values[len(ecg_timestamp)-2], datatypes[0])
+            # db.add_data(ecg_timestamp[0], ecg_values[0], datatypes[0])
+            # db.add_data(ecg_timestamp[int(len(ecg_timestamp)/2)],
+            #     ecg_values[int(len(ecg_timestamp)/2)], datatypes[0])
+            # db.add_data(ecg_timestamp[int(len(ecg_timestamp)/2)-1],
+            #     ecg_values[int(len(ecg_timestamp)/2)-1], datatypes[0])
+            # db.add_data(ecg_timestamp[int(len(ecg_timestamp)/2)+1],
+            #     ecg_values[int(len(ecg_timestamp)/2)+1], datatypes[0])
+            # db.add_data(ecg_timestamp[len(ecg_timestamp)-2],
+            #     ecg_values[len(ecg_timestamp)-2], datatypes[0])
 
-            db.add_data(hr_timestamp[0], hr_values[0], datatypes[3])
-            db.add_data(hr_timestamp[int(len(hr_timestamp)/2)],
-                hr_values[int(len(hr_timestamp)/2)], datatypes[3])
-            db.add_data(hr_timestamp[len(hr_timestamp)-2],
-                hr_values[len(hr_timestamp)-2], datatypes[3])
+            # db.add_data(hr_timestamp[0], hr_values[0], datatypes[3])
+            # db.add_data(hr_timestamp[int(len(hr_timestamp)/2)],
+            #     hr_values[int(len(hr_timestamp)/2)], datatypes[3])
+            # db.add_data(hr_timestamp[int(len(hr_timestamp)/2)-1],
+            #     hr_values[int(len(hr_timestamp)/2)-1], datatypes[3])
+            # db.add_data(hr_timestamp[int(len(hr_timestamp)/2)+1],
+            #     hr_values[int(len(hr_timestamp)/2)+1], datatypes[3])
+            # db.add_data(hr_timestamp[len(hr_timestamp)-2],
+            #     hr_values[len(hr_timestamp)-2], datatypes[3])
 
             print("Added raw data to db")
             ecg_dict = dict(zip(ecg_timestamp, ecg_values))
