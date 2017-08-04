@@ -85,7 +85,7 @@ class Monitor(Device):
 
     def apc_pvc(self):
         '''
-        APC_VPC as a Thread
+        APC_PVC as a Thread
         '''
         self.log_function("-" * 78)
         self.log_function("\nStarting APC PVC Anomaly "

@@ -250,10 +250,31 @@ def raw_data():
 
 @app.route('/raw_data/fetch', methods=['GET'])
 def fetch_realtime_data():
+    to_gui = {}
+    _af_anomaly = get_AF_anomaly()[::-1]
+    _vt_anomaly = get_VT_anomaly()[::-1]
+    _apc_anomaly = get_APC_anomaly()[::-1]
     rt_data =  biometric_monitor.rt_to_gui()
+
+    to_gui['1'] = rt_data
+    try:
+        to_gui['2'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(_af_anomaly[0][6]))
+    except:
+        to_gui['2'] = 0
+
+    try:
+        to_gui['3'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(_vt_anomaly[0][4]))
+    except:
+        to_gui['3'] = 0
+
+    try:
+        to_gui['4'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(_apc_anomaly[0][4]))
+    except:
+        to_gui['4'] = 0
+
     biometric_monitor.delete_from_db()
-    print(rt_data)
-    return rt_data
+    print(to_gui)
+    return json.dumps(to_gui)
  
 
 if __name__ == "__main__":
