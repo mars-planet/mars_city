@@ -52,6 +52,16 @@
         vt_time = res['3']
         apc_time = res['4']
 
+        if(vt_time == 0){
+          vt_time = '';
+        }
+        if(af_time == 0){
+          af_time = '';
+        }
+        if(apc_time == 0){
+          apc_time = '';
+        }
+
         var J = $.parseJSON(res['1'])
         var ecg = J['4113']
         var hr = J['19']
@@ -256,7 +266,7 @@
         if(cnt > Math.max(ecg_t.length, hr_t.length, hrq_t.length, rr_t.length)){
             location.reload();
           }
-      }, 1000);
+      }, 1500);
 
   </script>
 {% endblock %}

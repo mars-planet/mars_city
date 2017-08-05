@@ -261,7 +261,13 @@ def delete_data():
 
 
 def main(argv):
-    print(get_data())
+    data = {}
+    data['start_hexo_timestamp'] = 384487857152
+    data['end_hexo_timestamp'] = 635463456
+    data['num_of_NEC'] =49
+    data['data_reliability']=34
+    data['window_size']=64
+    add_af(data)
 
 
 if __name__ == "__main__":
