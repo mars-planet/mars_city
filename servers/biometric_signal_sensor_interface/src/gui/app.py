@@ -7,12 +7,7 @@ import PyTango
 import json
 import time
 import os
-import pandas as pd
-import numpy as np
 import plotly
-import sys
-sys.path.insert(0, '../health_monitor')
-import monitor
 
 '''
 Python Flask GUI Dashboard for the Biometric Signal Sensor's system
@@ -27,6 +22,7 @@ DEBUG = True
 requests.packages.urllib3.disable_warnings()
 config = ConfigParser.ConfigParser()
 config.read("../health_monitor/config.cfg")
+
 
 def config_helper(section):
     '''
@@ -245,8 +241,9 @@ def anomaly():
 
 @app.route("/raw_data")
 def raw_data():
-    #biometric_monitor.delete_from_db()
+    # biometric_monitor.delete_from_db()
     return render_template('raw_data.html')
+
 
 @app.route('/raw_data/fetch', methods=['GET'])
 def fetch_realtime_data():
@@ -254,32 +251,35 @@ def fetch_realtime_data():
     _af_anomaly = get_AF_anomaly()[::-1]
     _vt_anomaly = get_VT_anomaly()[::-1]
     _apc_anomaly = get_APC_anomaly()[::-1]
-    rt_data =  biometric_monitor.rt_to_gui()
+    rt_data = biometric_monitor.rt_to_gui()
 
     to_gui['1'] = rt_data
     try:
-        to_gui['2'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(_af_anomaly[0][6]))
+        to_gui['2'] = time.strftime(
+            '%Y-%m-%d %H:%M:%S', time.localtime(_af_anomaly[0][6]))
     except:
         to_gui['2'] = 0
 
     try:
-        to_gui['3'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(_vt_anomaly[0][4]))
+        to_gui['3'] = time.strftime(
+            '%Y-%m-%d %H:%M:%S', time.localtime(_vt_anomaly[0][4]))
     except:
         to_gui['3'] = 0
 
     try:
-        to_gui['4'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(_apc_anomaly[0][4]))
+        to_gui['4'] = time.strftime(
+            '%Y-%m-%d %H:%M:%S', time.localtime(_apc_anomaly[0][4]))
     except:
         to_gui['4'] = 0
 
     biometric_monitor.delete_from_db()
     print(to_gui)
     return json.dumps(to_gui)
- 
+
 
 if __name__ == "__main__":
     biometric_monitor = PyTango.DeviceProxy(
-    config_helper("BiometricMonitor")['name'])
+        config_helper("BiometricMonitor")['name'])
 
     biometric_monitor.poll_command("rt_to_gui", 50000)
     biometric_monitor.poll_command("af_to_gui", 50000)

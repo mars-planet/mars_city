@@ -121,7 +121,6 @@ class Monitor(Device):
         '''
         return hm.apc_from_db()
 
-    
     @command(dtype_out=str,
              doc_out="Realtime data as JSON",
              )
@@ -137,8 +136,6 @@ class Monitor(Device):
         Data to GUI
         '''
         hm.delete_from_db()
-
-
 
     @command(dtype_out=bool,
              doc_out="True if Real-time biometric session is active")

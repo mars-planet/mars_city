@@ -2,7 +2,6 @@ from __future__ import absolute_import, division, print_function
 from threading import Thread
 import sys
 import json
-import time
 sys.path.insert(0, '../hexoskin_helper')
 sys.path.insert(0, '../anomaly_detector')
 import utility_helper as util
@@ -144,12 +143,12 @@ def get_all_data(auth=""):
 
     return_data = {}
 
-    for i in range(0,len(datatypes)):
+    for i in range(0, len(datatypes)):
         _data = []
         _data.append(data[datatypes[i]][0])
-        _data.append(data[datatypes[i]][int(len(data[datatypes[i]])/2)])
-        _data.append(data[datatypes[i]][len(data[datatypes[i]])-1])
-        
+        _data.append(data[datatypes[i]][int(len(data[datatypes[i]]) / 2)])
+        _data.append(data[datatypes[i]][len(data[datatypes[i]]) - 1])
+
         return_data[datatypes[i]] = _data
 
     return json.dumps(return_data)
@@ -189,12 +188,14 @@ def apc_from_db():
 
     return json.dumps((return_json))
 
+
 def data_from_db():
     # Retrieve APC AD data from DB
     data = db.get_data()
     # db._delete_data()
 
     return json.dumps((data))
+
 
 def delete_from_db():
     db.delete_data()
@@ -216,7 +217,6 @@ def main(argv):
         _apc_pvc_helper(auth)
     elif argv[1] == 'data':
         print(data_from_db())
-
 
 
 if __name__ == "__main__":
