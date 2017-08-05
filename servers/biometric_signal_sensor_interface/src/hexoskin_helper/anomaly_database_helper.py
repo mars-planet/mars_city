@@ -262,7 +262,7 @@ def delete_data():
 
 def main(argv):
     data = {}
-    data['start_hexo_timestamp'] = 384487857152
+    data['start_hexo_timestamp'] = 384497026560
     data['end_hexo_timestamp'] = 635463456
     data['num_of_NEC'] =49
     data['data_reliability']=34

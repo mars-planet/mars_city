@@ -104,14 +104,16 @@
     var update = {
       opacity: 1.4,
       'marker.color': 'red',
-      'marker.size' : 15
+      'marker.size' : 10,
+      'marker.symbol' : 'triangle-down'
     };
     Plotly.restyle("graph-1", update, 1);
 
     var update = {
       opacity: 1.4,
       'marker.color': 'black',
-      'marker.size' : 15
+      'marker.size' : 10,
+      'marker.symbol' : 'triangle-down'
     };
     Plotly.restyle("graph-1", update, 2);
 
@@ -144,14 +146,16 @@
     var update = {
       opacity: 1.4,
       'marker.color': 'purple',
-      'marker.size' : 15
+      'marker.size' : 10,
+      'marker.symbol' : 'triangle-down'
     };
     Plotly.restyle("graph-2", update, 2);
 
     var update = {
       opacity: 1.4,
       'marker.color': 'red',
-      'marker.size' : 15
+      'marker.size' : 10,
+      'marker.symbol' : 'triangle-down'
     };
     Plotly.restyle("graph-2", update, 3);
 
@@ -174,14 +178,16 @@
     var update = {
       opacity: 1.4,
       'marker.color': 'purple',
-      'marker.size' : 15
+      'marker.size' : 10,
+      'marker.symbol' : 'triangle-down'
     };
     Plotly.restyle("graph-3", update, 1);
 
     var update = {
       opacity: 1.4,
       'marker.color': 'red',
-      'marker.size' : 15
+      'marker.size' : 10,
+      'marker.symbol' : 'triangle-down'
     };
     Plotly.restyle("graph-3", update, 2);
 
@@ -204,12 +210,12 @@
         if(f1 == 0 && af_time > ecg_t[0] && af_time < ecg_t[ecg_t.length - 1]){
           Plotly.extendTraces("graph-1", {
             x: [[vt_time]],
-            y: [[ecg_v[cnt]]]
+            y: [[ecg_v[cnt]+50]]
           }, [1], 50);
 
           Plotly.extendTraces("graph-1", {
             x: [[apc_time]],
-            y: [[ecg_v[cnt]-50]]
+            y: [[ecg_v[cnt]+50]]
           }, [2], 50);
           f1 = 1;
         }
@@ -227,11 +233,11 @@
         if(f3 == 0 && (af_time > ecg_t[0] || vt_time > ecg_t[0])){
           Plotly.extendTraces("graph-2", {
             x: [[af_time]],
-            y: [[hrq_v[cnt]]]
+            y: [[hr_v[cnt]+5]]
           }, [2], 50);
           Plotly.extendTraces("graph-2", {
             x: [[vt_time]],
-            y: [[hr_v[cnt]]]
+            y: [[hr_v[cnt]+5]]
           }, [3], 50);
           f3 = 1;
         }
@@ -248,12 +254,12 @@
         if(f2 == 0 && (af_time > ecg_t[0] || vt_time > ecg_t[0])){
           Plotly.extendTraces("graph-3", {
             x: [[af_time]],
-            y: [[ecg_v[cnt]]]
+            y: [[rr_v[cnt]+0.2]]
           }, [1], 50);
 
           Plotly.extendTraces("graph-3", {
             x: [[vt_time]],
-            y: [[ecg_v[cnt]]]
+            y: [[rr_v[cnt]+0.2]]
           }, [2], 50);
           f2 = 1;
         }
