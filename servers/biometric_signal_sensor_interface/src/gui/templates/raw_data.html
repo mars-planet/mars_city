@@ -99,7 +99,10 @@
       x: [apc_time],
       y: [ecg_v[cnt]],
       name: 'APC_PVC'
-    }], {title: 'ECG'});
+    }], {
+      title: 'ECG',
+      yaxis: {range: [1000, 2000]}
+    });
 
     var update = {
       opacity: 1.4,
@@ -135,7 +138,10 @@
       x: [vt_time],
       y: [hrq_v[cnt]],
       name: 'Ventricular Tachycardia'
-    }], {title: 'Heart Rate Quality and Heart Rate'});
+    }], {
+      title: 'Heart Rate Quality and Heart Rate',
+      yaxis: {range: [30, 220]}
+    });
 
     var update = {
       opacity: 1.4,
@@ -173,7 +179,10 @@
       x: [vt_time],
       y: [rr_v[cnt]],
       name: 'Ventricular Tachycardia '
-    }], {title: 'RR Interval'});
+    }], {
+      title: 'RR Interval',
+      yaxis: {range: [0.265, 4]}
+    });
 
     var update = {
       opacity: 1.4,
