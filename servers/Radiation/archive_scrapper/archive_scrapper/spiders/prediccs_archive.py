@@ -8,12 +8,18 @@ class PrediccsArchiveScrapper(scrapy.Spider):
     string = 'bryn/31daysMars.plot'
     name = "prediccs"
     links = []
+    handle_httpstatus_list = [404]
 
     def start_requests(self):
         url = 'http://prediccs.sr.unh.edu/data/goesPlots/archive/'
         yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
+
+        if response.status == 404:
+            self.count = self.count + 1
+            scrap_url = 'http://prediccs.sr.unh.edu/data/goesPlots/archive/' + self.links[0][self.count] + self.string
+            yield scrapy.Request(scrap_url, self.parse)
 
         if not self.flag:
             self.flag = 1
@@ -30,12 +36,11 @@ class PrediccsArchiveScrapper(scrapy.Spider):
         for i in datas:
             i = i.split('\t')
             d = i[:6]
-            d.append(i[-1])
+            d.append(i[-2])
             data.append(d)
         yield{
             'data': data,
         }
-
         if self.count<len(self.links[0]):
             self.count = self.count + 1
             scrap_url = 'http://prediccs.sr.unh.edu/data/goesPlots/archive/' + self.links[0][self.count] + self.string
