@@ -75,7 +75,7 @@ class RespiratoryAD(object):
         # key:value = timestamp:minute ventilation
         self.minute_ventilation_dict = OrderedDict()
 
-        # dict of tidal volume anomalies
+        # dict of resp anomalies
         # in general Key:value =\
         #     timestamp:(int(breathing rate status mean), 'string')
         # -1 for breathing rate status if not applicable
@@ -597,7 +597,7 @@ class RespiratoryAD(object):
                                 self.get_closest_breathing_rate(begin, end)
 
                         mean_br = sum(breathing_rate)/len(breathing_rate)
-                        print("Within limits")
+                        # print("Within limits")
                         if mean_br > 20:
                             print("possible rapid breathing", begin)
                             mean_br_status =\
@@ -707,11 +707,11 @@ def main():
     th4 = Thread(target=respObj.resp_variation, args=[])
     th4.start()
 
-    # th5 = Thread(target=respObj.resp_classf, args=[])
-    # th5.start()
+    th5 = Thread(target=respObj.resp_classf, args=[])
+    th5.start()
 
-    # th6 = Thread(target=respObj.delete_DS, args=[])
-    # th6.start()
+    th6 = Thread(target=respObj.delete_DS, args=[])
+    th6.start()
 
     # print(respObj.resp_anomaly_dict)
 
