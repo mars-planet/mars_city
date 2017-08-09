@@ -153,20 +153,28 @@ class APC_helper(object):
             print(e)
 
     # method to populate ecg and rrint_status dicts for testing
-    def populate_DS(self):
-        with open('ecg_APC.txt', 'r') as f:
-            testip = list(csv.reader(f, delimiter='\t'))
-            for i in testip:
-                self.apcObj.ecg_dict[int(i[0])] =\
-                    ((int(i[1]) - self.ecg_baseline)/self.ecg_halfrange,
-                     (int(i[1]) - self.ecg_baseline)/self.ecg_halfrange)
-            f.close()
+    def populate_DS(self, ecg, rrs):
+        # print("populate_ds")
+        self.apcObj.rrint_status_dict.update(rrs)
 
-        with open('rrinterval_status_APC.txt', 'r') as f:
-            testip = list(csv.reader(f, delimiter='\t'))
-            for i in testip:
-                self.apcObj.rrint_status_dict[int(i[0])] = int(i[1])
-            f.close()
+        for i in ecg:
+            self.apcObj.ecg_dict[i] =\
+                ((int(ecg[i]) - self.ecg_baseline)/self.ecg_halfrange,
+                    (int(ecg[i]) - self.ecg_baseline)/self.ecg_halfrange)
+
+        # with open('ecg_APC.txt', 'r') as f:
+        #     testip = list(csv.reader(f, delimiter='\t'))
+        #     for i in testip:
+        #         self.apcObj.ecg_dict[int(i[0])] =\
+        #             ((int(i[1]) - self.ecg_baseline)/self.ecg_halfrange,
+        #              (int(i[1]) - self.ecg_baseline)/self.ecg_halfrange)
+        #     f.close()
+
+        # with open('rrinterval_status_APC.txt', 'r') as f:
+        #     testip = list(csv.reader(f, delimiter='\t'))
+        #     for i in testip:
+        #         self.apcObj.rrint_status_dict[int(i[0])] = int(i[1])
+        #     f.close()
 
 
 def main():

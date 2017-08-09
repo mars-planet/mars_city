@@ -16,34 +16,36 @@ class Monitor(Device):
     __metaclass__ = DeviceMeta
 
     username = attribute(label="Username", dtype=str,
-        doc="Username of the astronaut",
-        access=AttrWriteType.READ)
+                         doc="Username of the astronaut",
+                         access=AttrWriteType.READ)
 
     recordID = attribute(label="Record ID", dtype=int,
-        doc="Record ID of the current live session",
-        access=AttrWriteType.READ)
+                         doc="Record ID of the current live session",
+                         access=AttrWriteType.READ)
 
     userinfo = attribute(label="User Info", dtype=str,
-        doc="Astronaut account information in JSON",
-        access=AttrWriteType.READ)
+                         doc="Astronaut account information in JSON",
+                         access=AttrWriteType.READ)
 
     def init_device(self):
         '''
         Monitor device server class constructor
         '''
         Device.init_device(self)
-        auth = hm.get_auth_token()
+        self.auth = hm.get_auth_token()
 
-        self._user_info = hm.get_user_info(auth)
+        self._user_info = hm.get_user_info(self.auth)
         user_name_t = json.loads(self._user_info)
         self._username = user_name_t['objects'][0]['first_name']
-        self._username = self._username + " " + user_name_t['objects'][0]['last_name']
-        self._recordid = hm.get_rrecordid(auth)
+        self._username = self._username + " "
+        self._username += user_name_t['objects'][0]['last_name']
+        self._recordid = hm.get_rrecordid(self.auth)
 
         self.log_function("\n")
         self.log_function("-" * 78)
         self.log_function('...Starting Biometric Health Monitor...')
         self.log_function("-" * 78)
+        self.start_monitoring()
 
     def read_username(self):
         return self._username
@@ -63,7 +65,7 @@ class Monitor(Device):
 
         # Call to get Atrial Fribillation Anomaly Detection
         th1 = Thread(target=hm.atrial_fibrillation_helper,
-                     args=[auth])
+                     args=[self.auth])
         th1.start()
         self.log_function('Started\n')
 
@@ -77,8 +79,22 @@ class Monitor(Device):
 
         # Call to get Ventricular Tachycardia Anomaly Detection
         th2 = Thread(target=hm.ventricular_tachycardia_helper,
-                     args=[auth])
+                     args=[self.auth])
         th2.start()
+        self.log_function('Started\n')
+
+    def apc_pvc(self):
+        '''
+        APC_VPC as a Thread
+        '''
+        self.log_function("-" * 78)
+        self.log_function("\nStarting APC PVC Anomaly "
+                          "Detection in background")
+
+        # Call to get Ventricular Tachycardia Anomaly Detection
+        th3 = Thread(target=hm._apc_pvc_helper,
+                     args=[self.auth])
+        th3.start()
         self.log_function('Started\n')
 
     @command(dtype_out=str,
@@ -97,6 +113,13 @@ class Monitor(Device):
         '''
         return hm.vt_from_db()
 
+    @command(dtype_out=str,
+             doc_out="APC AD from DB as JSON")
+    def apc_to_gui(self):
+        '''
+        To send the VT AD data to gui
+        '''
+        return hm.apc_from_db()
 
     @command(dtype_out=bool,
              doc_out="True if Real-time biometric session is active")
@@ -108,39 +131,44 @@ class Monitor(Device):
                             monitoring is being done
                             FALSE if astronaut not in real-time session
         '''
-        self.log_function('\nName: %s' % _username)
+        self.log_function('\nName: %s' % self._username)
 
-        if _recordid == -1:
+        if self._recordid == -1:
             poll_counter = 10
-            self.log_function("Checking for real-time record of %s" % _username)
+            self.log_function(
+                "Checking for real-time record of %s" % self._username)
             while poll_counter > 0:
                 poll_counter -= 1
                 time.sleep(2)
-                if hm.get_rrecordid(auth) != -1:
-                    _recordid = hm.get_rrecordid(auth)
+                if hm.get_rrecordid(self.auth) != -1:
+                    self._recordid = hm.get_rrecordid(self.auth)
                     break
 
-            if _recordid == -1:
-                self.log_function('\n%s is not in a live sesson!' % _username)
+            if self._recordid == -1:
+                self.log_function(
+                    '\n%s is not in a live sesson!' % self._username)
                 self.log_function(
                     'Please connect the hexoskin device and try again')
                 self.log_function('-' * 31 + 'X' + '-' * 31)
                 return False
 
         self.log_function(
-            'Record ID of current real-time session: %s' % _recordid)
+            'Record ID of current real-time session: %s' % self._recordid)
 
         self.log_function("-" * 78)
 
         # ****************** Atrial Fribillation *******************
-        #self.atrial_fribillation()
+        self.atrial_fribillation()
 
         # ****************** Ventricular Tachycardia *******************
-        #self.ventricular_tachycardia()
+        self.ventricular_tachycardia()
+
+        # ****************** APC PVC *******************
+        self.apc_pvc()
 
         # ****************** ******************
         self.log_function("-" * 78)
-        
+
         return True
 
 

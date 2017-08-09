@@ -201,7 +201,7 @@ def get_unsubsampled_data_helper(auth, userID, start, end, dataID):
             a = min(a + sampPerIter, end)
             b = min(b + sampPerIter, end)
             # Rate limiting to stay below 5 requests per second
-            time.sleep(0.2)
+            time.sleep(1)
     else:
         dat = auth.api.data.list(start=start, end=end,
                                  user=userID, datatype=dataID)
@@ -269,7 +269,7 @@ def realtime_data_generator(auth, recordID, datatypes):
         record = auth.api.record.get(recordID)
         start = end
         end = (calendar.timegm(time.gmtime()) - 10) * 256
-        time.sleep(5)
+        time.sleep(6)
         yield data
 
     return
@@ -324,7 +324,7 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
 
     for data in realtime_data_generator(auth, recordID, datatypes):
         # For debugging
-        print(data)
+        print(len(data), "AF")
         if len(data[datatypes[0]]) == 0:
             exitCounter = exitCounter - 1
             if exitCounter == 0:
@@ -362,14 +362,12 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
                 rr_df.columns = ["hexoskin_timestamps", "rr_int"]
                 hrq_df.columns = ["hexoskin_timestamps", "quality_ind"]
 
-                try:
-                    anomaly = func(rr_df, hrq_df[0:64])
-                    if anomaly == -1:
-                        print("No Anomaly")
-                    if anomaly != -1:
-                        db.add_af(anomaly)
-                except:
-                    continue
+                anomaly = func(rr_df, hrq_df[0:64])
+                if anomaly == -1:
+                    print("No Anomaly")
+                if anomaly != -1:
+                    db.add_af(anomaly)
+
     return
 
 
@@ -408,7 +406,7 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
     beat_analyze_flag = 0
 
     for data in realtime_data_generator(auth, recordID, datatypes):
-        print(len(data[0]))
+        print(len(data))
         if len(data[datatypes[0]]) == 0:
             exitCounter = exitCounter - 1
             if exitCounter == 0:
@@ -479,6 +477,97 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
                 continue
     return
 
+def APC_PVC_realtime(auth, recordID, obj, datatypes=''):
+    '''
+    Param: auth token, record ID of the record/session and the datatype of the
+    metric that needs to be measured.
+
+
+    This function fetches the specified data range.
+        @param auth:        The authentication token to use for the call
+        @param recordID:    recordID ID of record
+        @param datatypes:   Datatypes to be fetched
+        @return :           Runs till the record is active and returns the
+                            data of the user regularly, adding to the record.
+                            -1, if data not being collected in realtime
+    '''
+    record = auth.api.record.get(recordID)
+    if record.status != 'realtime':
+        print("No realtime data available with this record. Already docked.")
+        return -1
+
+    exitCounter = 5
+
+    ecg_timestamp = []
+    ecg_values = []
+    rrs_timestamp = []
+    rrs_values = []
+
+    first_analyze_flag = 0
+
+
+    for data in realtime_data_generator(auth, recordID, datatypes):
+        print(len(data[4113]), len(data[1004]))
+
+        if len(data[datatypes[0]]) == 0:
+            exitCounter = exitCounter - 1
+            if exitCounter == 0:
+                break
+        else:
+            exitCounter = 5
+            for a in data[datatypes[0]]:
+                if a[1] is not None:
+                    ecg_timestamp.append(int(a[0]))
+                    ecg_values.append(int(a[1]))
+
+            for a in data[datatypes[1]]:
+                if a[1] is not None:
+                    rrs_timestamp.append(int(a[0]))
+                    rrs_values.append(int(a[1]))
+
+            ecg_dict = dict(zip(ecg_timestamp, ecg_values))
+            rrs_dict = dict(zip(rrs_timestamp, rrs_values))
+
+            try:
+                first_analyze_timestamp = rrs_timestamp[0]
+            except:
+                continue
+
+            ecg_timestamp = []
+            ecg_values = []
+            rrs_timestamp = []
+            rrs_values = []
+
+            try:
+                # th1 = Thread(target=VTBD.collect_data, args=[
+                #              ecg_dict, rr_dict, hr_dict])
+                # th1.start()
+                obj[0].populate_DS(ecg_dict, rrs_dict)
+
+                obj[1].populate_data(ecg_dict, rrs_dict)
+
+                if first_analyze_flag == 0:
+                    print("Starting APC_PVC and PVC_Hamilton")
+                    time.sleep(5)
+                    th2 = Thread(target=obj[0].popluate_aux_structures,
+                        args=[first_analyze_timestamp])
+                    th2.start()
+
+                    th4 = Thread(target=obj[1].beat_classf_analyzer,
+                        args=[first_analyze_timestamp])
+                    th4.start()
+
+                    th3 = Thread(
+                        target=obj[0].apcObj.absolute_arrhythmia,
+                        args=[])
+                    th3.start()
+
+                    first_analyze_flag = 1
+
+            except Exception as e:
+                print(e)
+                continue
+    return
 
 def main(argv):
     pass
