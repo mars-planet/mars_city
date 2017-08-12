@@ -274,6 +274,7 @@ def realtime_data_generator(auth, recordID, datatypes):
 
     return
 
+
 def get_all_data(auth, recordID, datatypes):
     '''
     Param: auth token, record ID of the record/session and the datatype of the
@@ -290,9 +291,16 @@ def get_all_data(auth, recordID, datatypes):
                             data of the user regularly, adding to the record.
                             -1, if data not being collected in realtime
     '''
-    for data in realtime_data_generator(auth, recordID, datatypes):
-        # For debugging
-        print(data)
+    record = auth.api.record.get(recordID)
+    user = record.user
+    start_epoch = calendar.timegm(time.gmtime())
+    start_epoch = start_epoch - (10)
+    start = (start_epoch) * 256
+    end = (calendar.timegm(time.gmtime()) - 5) * 256
+
+    data = get_realtime_data_helper(auth, user, start, end, datatypes)
+
+    return data
 
 
 def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
@@ -331,15 +339,21 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
                 break
         else:
             exitCounter = 5
+            skipFlag = 0
             for a in data[datatypes[0]]:
                 if a[1] is not None:
                     rr_timestamp.append(a[0])
                     rr_values.append(a[1])
+                    db.add_data(a[0], a[1], datatypes[0])
 
+            skipFlag = 0
             for a in data[datatypes[1]]:
                 if a[1] is not None:
                     hrq_timestamp.append(a[0])
                     hrq_values.append(a[1])
+                    db.add_data(a[0], a[1], datatypes[1])
+
+            print("Added raw data to db")
 
             print("Collected {} data points".format(len(rr_timestamp)))
             if (len(rr_timestamp) >= window_size and
@@ -413,10 +427,14 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
                 break
         else:
             exitCounter = 5
+            skipFlag = 0
             for a in data[datatypes[0]]:
                 if a[1] is not None:
                     ecg_timestamp.append(int(a[0]))
                     ecg_values.append(int(a[1]))
+                    if skipFlag % 300 == 0:
+                        db.add_data(int(a[0]), int(a[1]), datatypes[0])
+                    skipFlag += 1
 
             for a in data[datatypes[1]]:
                 if a[1] is not None:
@@ -428,16 +446,19 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
                     rrs_timestamp.append(int(a[0]))
                     rrs_values.append(int(a[1]))
 
+            skipFlag = 0
             for a in data[datatypes[3]]:
                 if a[1] is not None:
                     hr_timestamp.append(int(a[0]))
                     hr_values.append(float(a[1]))
+                    db.add_data(int(a[0]), float(a[1]), datatypes[3])
 
             for a in data[datatypes[4]]:
                 if a[1] is not None:
                     hrq_timestamp.append(int(a[0]))
                     hrq_values.append(int(a[1]))
 
+            print("Added raw data to db")
             ecg_dict = dict(zip(ecg_timestamp, ecg_values))
 
             rr_dict = {}
@@ -469,13 +490,14 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
 
                 if beat_analyze_flag == 0:
                     th2 = Thread(target=VTBD.beat_analyze,
-                        args=[beat_analyze_timestamp])
+                                 args=[beat_analyze_timestamp])
                     th2.start()
                     beat_analyze_flag = 1
 
             except:
                 continue
     return
+
 
 def APC_PVC_realtime(auth, recordID, obj, datatypes=''):
     '''
@@ -504,7 +526,6 @@ def APC_PVC_realtime(auth, recordID, obj, datatypes=''):
     rrs_values = []
 
     first_analyze_flag = 0
-
 
     for data in realtime_data_generator(auth, recordID, datatypes):
         print(len(data[4113]), len(data[1004]))
@@ -550,11 +571,11 @@ def APC_PVC_realtime(auth, recordID, obj, datatypes=''):
                     print("Starting APC_PVC and PVC_Hamilton")
                     time.sleep(5)
                     th2 = Thread(target=obj[0].popluate_aux_structures,
-                        args=[first_analyze_timestamp])
+                                 args=[first_analyze_timestamp])
                     th2.start()
 
                     th4 = Thread(target=obj[1].beat_classf_analyzer,
-                        args=[first_analyze_timestamp])
+                                 args=[first_analyze_timestamp])
                     th4.start()
 
                     th3 = Thread(
@@ -569,7 +590,11 @@ def APC_PVC_realtime(auth, recordID, obj, datatypes=''):
                 continue
     return
 
+
 def main(argv):
+    '''
+    Main Function
+    '''
     pass
 
 

@@ -160,7 +160,8 @@ def test_auth(api):
     Tests whether the login to hexoskin servers was successful or not.
     Called by auth_login()
     Requires the credentials mentioned below.
-        @return : empty string (if valid) or 'login_invalid'
+        @param api :    auth token    
+        @return :       empty string (if valid) or 'login_invalid'
     '''
     try:
         api.account.list()
@@ -251,8 +252,10 @@ def config_helper(section):
     '''
     Returns a dictonary of the configuration stored in
     ../biometric_monitor/config.cfg
-        @param section: configuration section from the config file that,
-                        has to be read
+        @param section:     configuration section from the config file that,
+                            has to be read
+        @return :           Dictionary containing the values from the config
+                            file 
     '''
     dict_config = {}
     options = config.options(section)
@@ -266,6 +269,9 @@ def config_helper(section):
 
 
 def main(argv):
+    '''
+    Main function
+    '''
     pass
 
 

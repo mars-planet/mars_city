@@ -109,19 +109,28 @@ def _apc_pvc_helper(auth):
 
 
 def get_user_info(auth):
-    # Returns the JSON response string with authenticated user information
+    '''
+            @param auth :       Authentication token
+            @return :           JSON response string with authenticated
+                                user information
+    '''
     user_info = util.account_info_helper(auth)
     user_info = user_info.text
     return user_info
 
 
 def get_auth_token():
-    # Returns the auth token to the tango device server
+    '''
+        @return :               The auth token to the tango device server
+    '''
     return util.auth_login()
 
 
 def get_rrecordid(auth):
-    # Returns the real-time record id of the current session
+    '''
+            @param auth :       Authentication token
+            @return :           The real-time record id of the current session
+    '''
     try:
         recordID = resource.get_active_record_list(auth)[0]
     except:
@@ -130,20 +139,39 @@ def get_rrecordid(auth):
     return recordID
 
 
-def get_all_data(auth):
+def get_all_data(auth=""):
+    '''
+            @param auth :       Authentication token
+            @return :           The real-time record id of the current session
+    '''
+    auth = util.auth_login()
     # Returns the required data in real-time for GUI
     recordID = resource.get_active_record_list(auth)[0]
     if recordID not in resource.get_active_record_list(auth):
         # record not updated in realtime.
         return -1
 
-    resource.get_all_data(auth, recordID, datatypes=[4113, 18])
+    datatypes = [4113, 18]
+    data = resource.get_all_data(auth, recordID, datatypes=datatypes)
+
+    return_data = {}
+
+    for i in range(0, len(datatypes)):
+        _data = []
+        _data.append(data[datatypes[i]][0])
+        _data.append(data[datatypes[i]][int(len(data[datatypes[i]]) / 2)])
+        _data.append(data[datatypes[i]][len(data[datatypes[i]]) - 1])
+
+        return_data[datatypes[i]] = _data
+
+    return json.dumps(return_data)
 
 
 def af_from_db():
-    # Retrieve AF AD data from DB
+    '''
+            @return :           Retrieve AF AD data from DB
+    '''
     data = db.get_af()
-    # print(data, "AF")
     return_json = {}
     for _data in data:
         _data[2] = _data[2].now().strftime('%Y-%m-%d %H:%M:%S')
@@ -153,7 +181,9 @@ def af_from_db():
 
 
 def vt_from_db():
-    # Retrieve VT AD data from DB
+    '''
+            @return :           Retrieve VT AD data from DB
+    '''
     data = db.get_vt()
     return_json = {}
     for _data in data:
@@ -164,7 +194,9 @@ def vt_from_db():
 
 
 def apc_from_db():
-    # Retrieve APC AD data from DB
+    '''
+            @return :           Retrieve APC/PVC AD data from DB
+    '''
     data = db.get_apc()
     # print(data, "DATA")
     return_json = {}
@@ -175,13 +207,27 @@ def apc_from_db():
     return json.dumps((return_json))
 
 
+def data_from_db():
+    '''
+            @return :           Retrieve Biometric data from DB
+    '''
+    data = db.get_data()
+    return json.dumps((data))
+
+
+def delete_from_db():
+    '''
+    Delete the biometric data database
+    '''
+    db.delete_data()
+
+
 def main(argv):
+    ''''
+    Main function
+    '''
     auth = util.auth_login()
-    # print(util.all_users(auth).text)
-    # af = Thread(target=atrial_fibrillation_helper, args=[auth])
-    # af.start()
-    # vt = Thread(target=ventricular_tachycardia_helper, args=[auth])
-    # vt.start()
+
     if argv[1] == 'af':
         th1 = Thread(target=atrial_fibrillation_helper, args=[auth])
         th1.start()
@@ -190,7 +236,7 @@ def main(argv):
     elif argv[1] == 'apc':
         _apc_pvc_helper(auth)
     elif argv[1] == 'data':
-        resource.get_all_data(auth)
+        print(data_from_db())
 
 
 if __name__ == "__main__":
