@@ -147,3 +147,20 @@ python pvc_hamilton.py
         'Open Source ECG Analysis Software
         Documentation'
         by Patrick S. Hamilton
+
+---------------------------------------------------------------------------------------------------------------------------
+5) Respiratory AD
+To execute:
+python respiration_AD.py
+ 
+    Input:
+        timestamp:  the first timestamp
+
+    Output:
+        stores to the results dict of the RespiratoryAD class
+
+    Notes:
+        based on:
+
+        'http://wps.prenhall.com/wps/media/objects\
+        /2791/2858109/toolbox/Box15_1.pdf'

@@ -1,4 +1,5 @@
 from __future__ import division, print_function
+from threading import Thread
 
 import os
 import sys
@@ -11,6 +12,7 @@ from atrial_fibrillation import AtrialFibrillation
 from ventricular_tachycardia import VentricularTachycardia
 from apc_pvc_helper import APC_helper
 from pvc_hamilton import PVC
+from respiration_AD import RespiratoryAD
 
 
 class AnomalyDetector(object):
@@ -248,7 +250,46 @@ class AnomalyDetector(object):
         """
         pvcObj = PVC()
         pvcObj.populate_data()
-        pvcObj.beat_classf_analyzer(383021266184)
+        pvcObj.beat_classf_analyzer(init_timestamp)
+
+    def resp_AD(self, init_timestamp):
+        """
+        this is only for testing and reference purpose,
+        in actuality, create RespiratoryAD object and call
+        directly - no need to create AD object for this
+        Input:
+            timestamp:  the first timestamp
+
+        Output:
+            stores to the results dict of the RespiratoryAD class
+
+        Notes:
+            based on:
+
+            'http://wps.prenhall.com/wps/media/objects\
+            /2791/2858109/toolbox/Box15_1.pdf'
+
+            Refer to readme for more details
+        """
+        respObj = RespiratoryAD(self.config, init_timestamp)
+        th1 = Thread(target=respObj.populate_DS, args=[])
+        th1.start()
+        th1.join()
+
+        th2 = Thread(target=respObj.tidal_volume_anomaly, args=[])
+        th2.start()
+
+        th3 = Thread(target=respObj.minute_ventilation_anomaly, args=[])
+        th3.start()
+
+        th4 = Thread(target=respObj.resp_variation, args=[])
+        th4.start()
+
+        th5 = Thread(target=respObj.resp_classf, args=[])
+        th5.start()
+
+        th6 = Thread(target=respObj.delete_DS, args=[])
+        th6.start()
 
 
 def main():
@@ -312,6 +353,8 @@ def main():
     # AD.apc_pvc(383021266184)
 
     # AD.pvc_Hamilton(383021266184)
+
+    # AD.resp_AD(383021140185)
 
 
 if __name__ == '__main__':

@@ -1,7 +1,8 @@
 from __future__ import division, print_function
 from datetime import datetime
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, DateTime, Integer, SmallInteger, create_engine
+from sqlalchemy import Column, DateTime, Integer, SmallInteger,\
+    String, create_engine
 
 engine = create_engine('sqlite:///anomalies.db', echo=False)
 Base = declarative_base()
@@ -58,7 +59,7 @@ class VenTacAlarms(Base):
     data_reliability = Column(SmallInteger, nullable=False)
 
     def __repr__(self):
-        return ("<AtrFibAlarms('%s', '%s', '%s', '%s')>"
+        return ("<VenTacAlarms('%s', '%s', '%s', '%s')>"
                 % (self.start_hexo_timestamp, self.end_hexo_timestamp,
                    self.doe, self.data_reliability))
 
@@ -85,12 +86,32 @@ class APCAlarms(Base):
                    self.doe, self.PVC_from))
 
     def __init__(self, RRPeak_hexo_timestamp, RR_Quality,
-                 doe, PVC_from):
+                 PVC_from):
         self.RRPeak_hexo_timestamp = RRPeak_hexo_timestamp
         self.RR_Quality = RR_Quality
         self.doe = doe
         self.PVC_from = PVC_from
 # ----------------------------------------------------------------------------
+
+
+class RespAlarms(Base):
+    __tablename__ = 'RespAlarms'
+    Resp_hexo_timestamp = Column(Integer, primary_key=True, nullable=False)
+    BRstatus_mean = Column(Integer, nullable=False)
+    Anomaly_type = Column(String(20), nullable=False)
+    doe = Column(DateTime, nullable=False, default=datetime.now())
+
+    def __repr__(self):
+        return ("<RespAlarms('%s', '%s', '%s', '%s')>"
+                % (self.Resp_hexo_timestamp, self.BRstatus_mean,
+                   self.Anomaly_type, self.doe))
+
+    def __init__(self, Resp_hexo_timestamp, BRstatus_mean,
+                 Anomaly_type):
+        self.Resp_hexo_timestamp = Resp_hexo_timestamp
+        self.BRstatus_mean = BRstatus_mean
+        self.Anomaly_type = Anomaly_type
+        self.doe = datetime.now()
 
 
 # create tables
