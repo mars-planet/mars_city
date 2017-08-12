@@ -2,7 +2,7 @@ from __future__ import division, print_function
 import sys
 import time
 sys.path.insert(0, '../health_monitor')
-from data_model import AtrFibAlarms, VenTacAlarms, APCAlarms, Data
+from data_model import AtrFibAlarms, VenTacAlarms, APCAlarms, Data, RespAlarms
 from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -119,7 +119,38 @@ def add_apc(data):
     finally:
         s.close()
 
+def add_resp(data):
+    Resp_hexo_timestamp = data['Resp_hexo_timestamp']
+    BRstatus_mean = data['BRstatus_mean']
+    Anomaly_type = data['Anomaly_type']
+    doe = datetime.now()
 
+    # Create session
+    s = Session()
+
+    try:
+        query = s.query(RespAlarms).filter(
+            RespAlarms.Resp_hexo_timestamp.in_([Resp_hexo_timestamp]))
+        result = query.first()
+
+        if result:
+            return -1
+        else:
+            resp = RespAlarms(Resp_hexo_timestamp, BRstatus_mean,
+                            doe, Anomaly_type)
+            s.add(resp)
+
+            # commit the record the database
+            s.commit()
+            print("Inserted Resp row successfully")
+            return 0
+
+    except:
+        s.rollback()
+        return -1
+
+    finally:
+        s.close()
 
 #
 #
@@ -189,6 +220,27 @@ def get_apc():
         return return_data
     except:
         return -1
+
+ def get_resp():
+    return_data = []
+
+    s = Session()
+    try:
+        query = s.query(RespAlarms)
+        result = query.all()
+        for data in result:
+            _return = []
+            _return.append(data.Resp_hexo_timestamp)
+            _return.append(data.BRstatus_mean)
+            _return.append(data.doe)
+            _return.append(data.Anomaly_type)
+            return_data.append(_return)
+
+        s.close()
+        return return_data
+    except:
+        return -1
+       
 
 
 #-------------------------------------------------------------------

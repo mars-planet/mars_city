@@ -2,11 +2,14 @@ from __future__ import absolute_import, division, print_function
 from threading import Thread
 import sys
 import time
+import ConfigParser
 import calendar
 import utility_helper as util
 import pandas as pd
 import numpy as np
 import anomaly_database_helper as db
+sys.path.insert(0, '../anomaly_detector')
+import respiration_AD as respiration
 
 __author__ = 'abhijith'
 
@@ -582,6 +585,156 @@ def APC_PVC_realtime(auth, recordID, obj, datatypes=''):
                         target=obj[0].apcObj.absolute_arrhythmia,
                         args=[])
                     th3.start()
+
+                    first_analyze_flag = 1
+
+            except Exception as e:
+                print(e)
+                continue
+    return
+
+
+def resp_realtime(auth, recordID, obj, datatypes=''):
+    '''
+    Param: auth token, record ID of the record/session and the datatype of the
+    metric that needs to be measured.
+
+
+    This function fetches the specified data range.
+        @param auth:        The authentication token to use for the call
+        @param recordID:    recordID ID of record
+        @param datatypes:   Datatypes to be fetched
+        @return :           Runs till the record is active and returns the
+                            data of the user regularly, adding to the record.
+                            -1, if data not being collected in realtime
+    '''
+    record = auth.api.record.get(recordID)
+    if record.status != 'realtime':
+        print("No realtime data available with this record. Already docked.")
+        return -1
+
+    exitCounter = 5
+
+    tidal_v_timestamp = []
+    tidal_v_values = []
+    minv_timestamp = []
+    minv_values = []
+    resp_timestamp = []
+    resp_values = []
+    br_timestamp = []
+    br_values = []
+    brq_timestamp = []
+    brq_values = []
+    insp_timestamp = []
+    insp_values = []
+    exp_timestamp = []
+    exp_values = []
+
+    config = ConfigParser.RawConfigParser()
+    config.read('../anomaly_detector/anomaly_detector.cfg')
+
+    first_analyze_flag = 0
+
+    for data in realtime_data_generator(auth, recordID, datatypes):
+
+        if len(data[datatypes[0]]) == 0:
+            exitCounter = exitCounter - 1
+            if exitCounter == 0:
+                break
+        else:
+            exitCounter = 5
+            for a in data[datatypes[0]]:
+                if a[1] is not None:
+                    tidal_v_timestamp.append(int(a[0]))
+                    tidal_v_values.append(int(a[1]))
+
+            for a in data[datatypes[1]]:
+                if a[1] is not None:
+                    minv_timestamp.append(int(a[0]))
+                    minv_values.append(int(a[1]))
+
+            for a in data[datatypes[2]]:
+                if a[1] is not None:
+                    resp_timestamp.append(int(a[0]))
+                    resp_values.append(int(a[1]))
+
+            for a in data[datatypes[3]]:
+                if a[1] is not None:
+                    br_timestamp.append(int(a[0]))
+                    br_values.append(int(a[1]))
+
+            for a in data[datatypes[4]]:
+                if a[1] is not None:
+                    brq_timestamp.append(int(a[0]))
+                    brq_values.append(int(a[1]))
+
+            for a in data[datatypes[5]]:
+                if a[1] is not None:
+                    insp_timestamp.append(int(a[0]))
+                    insp_values.append(int(a[1]))
+
+            for a in data[datatypes[6]]:
+                if a[1] is not None:
+                    exp_timestamp.append(int(a[0]))
+                    exp_values.append(int(a[1]))
+
+            tidalv_dict = dict(zip(tidal_v_timestamp, tidal_v_values))
+            minv_dict = dict(zip(minv_timestamp, minv_values))
+            resp_dict = dict(zip(resp_timestamp, resp_values))
+            br_dict = dict(zip(br_timestamp, br_values))
+            brq_dict = dict(zip(brq_timestamp, brq_values))
+            insp_dict = dict(zip(insp_timestamp, insp_values))
+            exp_dict = dict(zip(exp_timestamp, exp_values))
+
+            try:
+                first_analyze_timestamp = tidal_v_timestamp[0]
+            except:
+                continue
+
+            tidal_v_timestamp = []
+            tidal_v_values = []
+            minv_timestamp = []
+            minv_values = []
+            resp_timestamp = []
+            resp_values = []
+            br_timestamp = []
+            br_values = []
+            brq_timestamp = []
+            brq_values = []
+            insp_timestamp = []
+            insp_values = []
+            exp_timestamp = []
+            exp_values = []
+
+            try:
+                if first_analyze_flag == 0:
+                    print("Starting Respiration AD")
+
+                    respObj = respiration.RespiratoryAD(config,
+                        first_analyze_timestamp)
+
+                    th1 = Thread(target=respObj.populate_DS,
+                        args=[tidalv_dict, minv_dict, resp_dict, br_dict,
+                        brq_dict, insp_dict, exp_dict])
+                    th1.start()
+
+                    th1.join()
+
+                    th2 = Thread(target=respObj.tidal_volume_anomaly, args=[])
+                    th2.start()
+
+                    th3 = Thread(target=respObj.minute_ventilation_anomaly,
+                     args=[])
+                    th3.start()
+
+                    th4 = Thread(target=respObj.resp_variation, args=[])
+                    th4.start()
+
+                    th5 = Thread(target=respObj.resp_classf, args=[])
+                    th5.start()
+
+                    th6 = Thread(target=respObj.delete_DS, args=[])
+                    th6.start()
 
                     first_analyze_flag = 1
 

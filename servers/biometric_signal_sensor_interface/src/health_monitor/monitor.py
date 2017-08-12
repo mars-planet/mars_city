@@ -11,6 +11,7 @@ import anomaly_database_helper as db
 import vt_helper as vth
 import apc_pvc_helper as apc_pvc
 import pvc_hamilton as pvc_h
+import respiration_AD as respiration
 import ConfigParser
 
 
@@ -103,6 +104,30 @@ def _apc_pvc_helper(auth):
 
     th5 = Thread(target=PVCH.delete_method, args=[])
     th5.start()
+
+    # Successfully finished. Astronaut docked.
+    return 1
+
+
+def resp_helper(auth):
+    '''
+            @param auth:        Authentication token
+    '''
+    recordID = resource.get_active_record_list(auth)[0]
+    if recordID not in resource.get_active_record_list(auth):
+        # record not updated in realtime.
+        return -1
+
+    config = ConfigParser.RawConfigParser()
+    config.read('../anomaly_detector/anomaly_detector.cfg')
+
+    datatypes = [util.datatypes['vt'][0],
+                 util.datatypes['minuteventilation'][0],
+                 util.raw_datatypes['resp'][0],
+                 util.datatypes['breathingrate'][0],
+                 util.datatypes['br_quality'][0],
+                 util.datatypes['inspiration'][0],
+                 util.datatypes['expiration'][0]]
 
     # Successfully finished. Astronaut docked.
     return 1

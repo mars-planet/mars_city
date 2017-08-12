@@ -639,48 +639,64 @@ class RespiratoryAD(object):
         # plt.show()
         return
 
-    def populate_DS(self):
-        with open('vt.txt', 'r') as f:
-            testip = list(csv.reader(f, delimiter='\t'))
-            for i in testip:
-                self.tidal_volume_dict[int(float(i[0]))] = float(i[1])
-            f.close()
+    def populate_DS(self, tidalv_dict, minv_dict, resp_dict, br_dict,
+                        brq_dict, insp_dict, exp_dict):
+        # with open('vt.txt', 'r') as f:
+        #     testip = list(csv.reader(f, delimiter='\t'))
+        #     for i in testip:
+        #         self.tidal_volume_dict[int(float(i[0]))] = float(i[1])
+        #     f.close()
 
-        with open('minuteventilation.txt', 'r') as f:
-            testip = list(csv.reader(f, delimiter='\t'))
-            for i in testip:
-                self.minute_ventilation_dict[int(float(i[0]))] = float(i[1])
-            f.close()
+        self.tidal_volume_dict = tidalv_dict
 
-        with open('resp.txt', 'r') as f:
-            testip = list(csv.reader(f, delimiter='\t'))
-            for i in testip:
-                self.raw_resp_dict[int(i[0])] = (int(i[1]), int(i[2]))
-            f.close()
+        # with open('minuteventilation.txt', 'r') as f:
+        #     testip = list(csv.reader(f, delimiter='\t'))
+        #     for i in testip:
+        #         self.minute_ventilation_dict[int(float(i[0]))] = float(i[1])
+        #     f.close()
 
-        with open('breathingrate.txt', 'r') as f:
-            testip = list(csv.reader(f, delimiter='\t'))
-            for i in testip:
-                self.breathing_rate_dict[int(i[0])] = int(i[1])
-            f.close()
+        self.minute_ventilation_dict = minv_dict
 
-        with open('br_quality.txt', 'r') as f:
-            testip = list(csv.reader(f, delimiter='\t'))
-            for i in testip:
-                self.breathing_rate_status_dict[int(i[0])] = int(i[1])
-            f.close()
+        # with open('resp.txt', 'r') as f:
+        #     testip = list(csv.reader(f, delimiter='\t'))
+        #     for i in testip:
+        #         self.raw_resp_dict[int(i[0])] = (int(i[1]), int(i[2]))
+        #     f.close()
 
-        with open('inspiration.txt', 'r') as f:
-            testip = list(csv.reader(f, delimiter='\t'))
-            for i in testip:
-                self.inspiration_dict[int(i[0])] = int(i[1])
-            f.close()
+        self.raw_resp_dict = resp_dict
 
-        with open('expiration.txt', 'r') as f:
-            testip = list(csv.reader(f, delimiter='\t'))
-            for i in testip:
-                self.expiration_dict[int(i[0])] = int(i[1])
-            f.close()
+        # with open('breathingrate.txt', 'r') as f:
+        #     testip = list(csv.reader(f, delimiter='\t'))
+        #     for i in testip:
+        #         self.breathing_rate_dict[int(i[0])] = int(i[1])
+        #     f.close()
+
+        self.breathing_rate_dict = br_dict
+
+        # with open('br_quality.txt', 'r') as f:
+        #     testip = list(csv.reader(f, delimiter='\t'))
+        #     for i in testip:
+        #         self.breathing_rate_status_dict[int(i[0])] = int(i[1])
+        #     f.close()
+
+        self.breathing_rate_status_dict = brq_dict
+
+        # with open('inspiration.txt', 'r') as f:
+        #     testip = list(csv.reader(f, delimiter='\t'))
+        #     for i in testip:
+        #         self.inspiration_dict[int(i[0])] = int(i[1])
+        #     f.close()
+
+        self.inspiration_dict = insp_dict
+
+        # with open('expiration.txt', 'r') as f:
+        #     testip = list(csv.reader(f, delimiter='\t'))
+        #     for i in testip:
+        #         self.expiration_dict[int(i[0])] = int(i[1])
+        #     f.close()
+
+        self.expiration_dict = exp_dict
+
 
         return
 
