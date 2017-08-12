@@ -48,12 +48,21 @@ class Monitor(Device):
         self.start_monitoring()
 
     def read_username(self):
+        '''
+            @return :       Username
+        '''
         return self._username
 
     def read_recordID(self):
+        '''
+            @return :       RecordID
+        '''
         return self._recordid
 
     def read_userinfo(self):
+        '''
+            @return :       User Info
+        '''
         return self._user_info
 
     def atrial_fribillation(self):
@@ -142,10 +151,9 @@ class Monitor(Device):
     def start_monitoring(self):
         '''
         Device server command to start biometric monitoring
-
-                @return	-	TRUE if Real-time biometric session is active and
-                            monitoring is being done
-                            FALSE if astronaut not in real-time session
+            @return	-	TRUE if Real-time biometric session is active and
+                        monitoring is being done
+                        FALSE if astronaut not in real-time session
         '''
         self.log_function('\nName: %s' % self._username)
 

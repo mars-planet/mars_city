@@ -90,6 +90,7 @@ class APCAlarms(Base):
         self.RR_Quality = RR_Quality
         self.doe = doe
         self.PVC_from = PVC_from
+# ----------------------------------------------------------------------------
 
 
 # create tables

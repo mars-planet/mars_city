@@ -20,16 +20,23 @@ app.config.from_object(__name__)
 DEBUG = True
 
 requests.packages.urllib3.disable_warnings()
+
+# Config file
 config = ConfigParser.ConfigParser()
 config.read("../health_monitor/config.cfg")
+
+# Biometriv Tango Device Client
+biometric_monitor = PyTango.DeviceProxy(
+    config_helper("BiometricMonitor")['name'])
 
 
 def config_helper(section):
     '''
-    Returns a dictonary of the configuration stored in
-    ../biometric_monitor/config.cfg
-        @param section: configuration section from the config file that,
-                        has to be read
+    Helper function to read the config file passed
+        @param section :    Section name of the desired value in the config
+                            file
+        @return :           Dictionary containing the values from the config
+                            file
     '''
     dict_config = {}
     options = config.options(section)
@@ -42,28 +49,12 @@ def config_helper(section):
     return dict_config
 
 
-biometric_monitor = PyTango.DeviceProxy(
-    config_helper("BiometricMonitor")['name'])
-
-
-def get_APC_anomaly():
-    apc_anomaly_json = json.loads(biometric_monitor.apc_to_gui())
-    _apc_anomaly = []
-    for key, value in apc_anomaly_json.items():
-        _record = []
-        _record.append(time.strftime('%Y-%m-%d %H:%M:%S',
-                                     time.localtime(float(key) / 256)))
-        _record.append(value[1])
-        _record.append(value[2])
-        _record.append(value[2])
-        # For other processing
-        _record.append(float(key) / 256)
-        _apc_anomaly.append(_record)
-    _apc_anomaly = sorted(_apc_anomaly, key=lambda x: (x[0]))
-    return _apc_anomaly
-
-
 def get_AF_anomaly():
+    '''
+    Calls the Tango device server command to access the Database for the
+    APC-PVC anomalies
+        @return :           A list containing rows from the database
+    '''
     af_anomaly_json = json.loads(biometric_monitor.af_to_gui())
     _af_anomaly = []
     for key, value in af_anomaly_json.items():
@@ -84,6 +75,11 @@ def get_AF_anomaly():
 
 
 def get_VT_anomaly():
+    '''
+    Calls the Tango device server command to access the Database for the
+    APC-PVC anomalies
+        @return :           A list containing rows from the database
+    '''
     vt_anomaly_json = json.loads(biometric_monitor.vt_to_gui())
     _vt_anomaly = []
     for key, value in vt_anomaly_json.items():
@@ -100,8 +96,36 @@ def get_VT_anomaly():
     _vt_anomaly = sorted(_vt_anomaly, key=lambda x: (x[0]))
     return _vt_anomaly
 
+def get_APC_anomaly():
+    '''
+    Calls the Tango device server command to access the Database for the
+    APC-PVC anomalies
+        @return :           A list containing rows from the database
+    '''
+    apc_anomaly_json = json.loads(biometric_monitor.apc_to_gui())
+    _apc_anomaly = []
+    for key, value in apc_anomaly_json.items():
+        _record = []
+        _record.append(time.strftime('%Y-%m-%d %H:%M:%S',
+                                     time.localtime(float(key) / 256)))
+        _record.append(value[1])
+        _record.append(value[2])
+        _record.append(value[2])
+        # For other processing
+        _record.append(float(key) / 256)
+        _apc_anomaly.append(_record)
+    _apc_anomaly = sorted(_apc_anomaly, key=lambda x: (x[0]))
+    return _apc_anomaly
+
 
 def get_initial_data(user_info):
+    '''
+    Helper function to cleanly retrieve the user_info JSON object as a 
+    dictionary
+        @param user_info :  JSON object of the user info
+        @return :           Dictionary containing the necessary items from 
+                            the JSON
+    '''
     details = {}
     # ------ User details
     details['email'] = user_info['email']
@@ -138,6 +162,9 @@ def get_initial_data(user_info):
 
 @app.route("/")
 def home():
+    '''
+    Route function called for localhost:5000/
+    '''
     name = biometric_monitor.username
     recordID = biometric_monitor.recordID
     user_info = json.loads(biometric_monitor.userinfo)
@@ -166,6 +193,9 @@ def home():
 
 @app.route("/anomaly")
 def anomaly():
+    '''
+    Route function called for localhost:5000/anomaly
+    '''
     _af_anomaly = get_AF_anomaly()[::-1]
     _vt_anomaly = get_VT_anomaly()[::-1]
     _apc_anomaly = get_APC_anomaly()[::-1]
@@ -190,17 +220,18 @@ def anomaly():
         y_apc.append(d[3])
         x_apc.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(d[4])))
 
+    # For the Plot.ly/javascript graphs
     graphs = [
         dict(
             data=[
                 dict(
-                    x=x_af,  # Can use the pandas data structures directly
+                    x=x_af,  
                     y=y_af_nec,
                     type='scatter',
                     name="Num of NEC"
                 ),
                 dict(
-                    x=x_af,  # Can use the pandas data structures directly
+                    x=x_af,  
                     y=y_af_dr,
                     type='scatter',
                     name="Data Reliability"
@@ -210,7 +241,7 @@ def anomaly():
         dict(
             data=[
                 dict(
-                    x=x_vt,  # Can use the pandas data structures directly
+                    x=x_vt,  
                     y=y_vt
                 ),
             ]
@@ -218,7 +249,7 @@ def anomaly():
         dict(
             data=[
                 dict(
-                    x=x_apc,  # Can use the pandas data structures directly
+                    x=x_apc,  
                     y=y_apc
                 ),
             ]
@@ -241,12 +272,20 @@ def anomaly():
 
 @app.route("/raw_data")
 def raw_data():
+    '''
+    Route function called for localhost:5000/raw_data
+    '''
     # biometric_monitor.delete_from_db()
     return render_template('raw_data.html')
 
 
 @app.route('/raw_data/fetch', methods=['GET'])
 def fetch_realtime_data():
+    '''
+    Helper function called from the GUI for real-time update of the
+    plots.
+        @return :   All the real-time data
+    '''
     to_gui = {}
     _af_anomaly = get_AF_anomaly()[::-1]
     _vt_anomaly = get_VT_anomaly()[::-1]
@@ -273,11 +312,14 @@ def fetch_realtime_data():
         to_gui['4'] = 0
 
     biometric_monitor.delete_from_db()
-    print(to_gui)
+    
     return json.dumps(to_gui)
 
 
 if __name__ == "__main__":
+    '''
+    Main Function
+    '''
     biometric_monitor = PyTango.DeviceProxy(
         config_helper("BiometricMonitor")['name'])
 

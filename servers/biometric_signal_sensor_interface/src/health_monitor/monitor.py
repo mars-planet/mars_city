@@ -109,19 +109,28 @@ def _apc_pvc_helper(auth):
 
 
 def get_user_info(auth):
-    # Returns the JSON response string with authenticated user information
+    '''
+            @param auth :       Authentication token
+            @return :           JSON response string with authenticated
+                                user information
+    '''
     user_info = util.account_info_helper(auth)
     user_info = user_info.text
     return user_info
 
 
 def get_auth_token():
-    # Returns the auth token to the tango device server
+    '''
+        @return :               The auth token to the tango device server
+    '''
     return util.auth_login()
 
 
 def get_rrecordid(auth):
-    # Returns the real-time record id of the current session
+    '''
+            @param auth :       Authentication token
+            @return :           The real-time record id of the current session
+    '''
     try:
         recordID = resource.get_active_record_list(auth)[0]
     except:
@@ -131,6 +140,10 @@ def get_rrecordid(auth):
 
 
 def get_all_data(auth=""):
+    '''
+            @param auth :       Authentication token
+            @return :           The real-time record id of the current session
+    '''
     auth = util.auth_login()
     # Returns the required data in real-time for GUI
     recordID = resource.get_active_record_list(auth)[0]
@@ -155,9 +168,10 @@ def get_all_data(auth=""):
 
 
 def af_from_db():
-    # Retrieve AF AD data from DB
+    '''
+            @return :           Retrieve AF AD data from DB
+    '''
     data = db.get_af()
-    # print(data, "AF")
     return_json = {}
     for _data in data:
         _data[2] = _data[2].now().strftime('%Y-%m-%d %H:%M:%S')
@@ -167,7 +181,9 @@ def af_from_db():
 
 
 def vt_from_db():
-    # Retrieve VT AD data from DB
+    '''
+            @return :           Retrieve VT AD data from DB
+    '''
     data = db.get_vt()
     return_json = {}
     for _data in data:
@@ -178,7 +194,9 @@ def vt_from_db():
 
 
 def apc_from_db():
-    # Retrieve APC AD data from DB
+    '''
+            @return :           Retrieve APC/PVC AD data from DB
+    '''
     data = db.get_apc()
     # print(data, "DATA")
     return_json = {}
@@ -190,24 +208,26 @@ def apc_from_db():
 
 
 def data_from_db():
-    # Retrieve APC AD data from DB
+    '''
+            @return :           Retrieve Biometric data from DB
+    '''
     data = db.get_data()
-    # db._delete_data()
-
     return json.dumps((data))
 
 
 def delete_from_db():
+    '''
+    Delete the biometric data database
+    '''
     db.delete_data()
 
 
 def main(argv):
+    ''''
+    Main function
+    '''
     auth = util.auth_login()
-    # print(util.all_users(auth).text)
-    # af = Thread(target=atrial_fibrillation_helper, args=[auth])
-    # af.start()
-    # vt = Thread(target=ventricular_tachycardia_helper, args=[auth])
-    # vt.start()
+
     if argv[1] == 'af':
         th1 = Thread(target=atrial_fibrillation_helper, args=[auth])
         th1.start()
