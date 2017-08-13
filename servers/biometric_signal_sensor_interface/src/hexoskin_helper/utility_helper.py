@@ -34,7 +34,7 @@ TIMESTAMP_FORMAT = '%Y:%m:%d\t%H:%M:%S:%f'
 if MODEL == 'Hexoskin':
     raw_datatypes = {'acc': [4145, 4146, 4147],
                      'ecg': [4113],
-                     'resp': [4129, 4130]}
+                     'resp': [4129]}
     datatypes = {'activity': [49],
                  'cadence': [53],
                  'heartrate': [19],

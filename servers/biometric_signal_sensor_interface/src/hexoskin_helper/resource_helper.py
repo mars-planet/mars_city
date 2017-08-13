@@ -636,7 +636,7 @@ def resp_realtime(auth, recordID, obj, datatypes=''):
     first_analyze_flag = 0
 
     for data in realtime_data_generator(auth, recordID, datatypes):
-
+        print(len(data[4129]), len(data[35]))
         if len(data[datatypes[0]]) == 0:
             exitCounter = exitCounter - 1
             if exitCounter == 0:
@@ -647,16 +647,22 @@ def resp_realtime(auth, recordID, obj, datatypes=''):
                 if a[1] is not None:
                     tidal_v_timestamp.append(int(a[0]))
                     tidal_v_values.append(int(a[1]))
+                    db.add_data(int(a[0]), int(a[1]), datatypes[0])
 
             for a in data[datatypes[1]]:
                 if a[1] is not None:
                     minv_timestamp.append(int(a[0]))
                     minv_values.append(int(a[1]))
+                    db.add_data(int(a[0]), int(a[1]), datatypes[1])
 
+            skipFlag = 0
             for a in data[datatypes[2]]:
                 if a[1] is not None:
                     resp_timestamp.append(int(a[0]))
                     resp_values.append(int(a[1]))
+                    if skipFlag % 100 == 0:
+                        db.add_data(int(a[0]), int(a[1]), datatypes[2])
+                    skipFlag += 1
 
             for a in data[datatypes[3]]:
                 if a[1] is not None:
@@ -672,11 +678,13 @@ def resp_realtime(auth, recordID, obj, datatypes=''):
                 if a[1] is not None:
                     insp_timestamp.append(int(a[0]))
                     insp_values.append(int(a[1]))
+                    db.add_data(int(a[0]), int(a[1]), datatypes[5])
 
             for a in data[datatypes[6]]:
                 if a[1] is not None:
                     exp_timestamp.append(int(a[0]))
                     exp_values.append(int(a[1]))
+                    db.add_data(int(a[0]), int(a[1]), datatypes[6])
 
             tidalv_dict = dict(zip(tidal_v_timestamp, tidal_v_values))
             minv_dict = dict(zip(minv_timestamp, minv_values))
@@ -706,19 +714,15 @@ def resp_realtime(auth, recordID, obj, datatypes=''):
             exp_timestamp = []
             exp_values = []
 
+            respObj = respiration.RespiratoryAD(config,
+                        first_analyze_timestamp)
+
+            respObj.populate_DS(tidalv_dict, minv_dict, resp_dict, br_dict,
+                brq_dict, insp_dict, exp_dict)
+
             try:
                 if first_analyze_flag == 0:
                     print("Starting Respiration AD")
-
-                    respObj = respiration.RespiratoryAD(config,
-                        first_analyze_timestamp)
-
-                    th1 = Thread(target=respObj.populate_DS,
-                        args=[tidalv_dict, minv_dict, resp_dict, br_dict,
-                        brq_dict, insp_dict, exp_dict])
-                    th1.start()
-
-                    th1.join()
 
                     th2 = Thread(target=respObj.tidal_volume_anomaly, args=[])
                     th2.start()
@@ -748,7 +752,17 @@ def main(argv):
     '''
     Main Function
     '''
-    pass
+    auth = util.auth_login()
+    datatypes = [util.datatypes['vt'][0],
+                 util.datatypes['minuteventilation'][0],
+                 util.raw_datatypes['resp'][0],
+                 util.datatypes['breathingrate'][0],
+                 util.datatypes['br_quality'][0],
+                 util.datatypes['inspiration'][0],
+                 util.datatypes['expiration'][0]]
+    resp_realtime(auth, get_active_record_list(auth)[0], "",
+        datatypes)
+
 
 
 if __name__ == "__main__":

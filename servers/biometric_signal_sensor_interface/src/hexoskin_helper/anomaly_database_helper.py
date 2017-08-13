@@ -221,7 +221,7 @@ def get_apc():
     except:
         return -1
 
- def get_resp():
+def get_resp():
     return_data = []
 
     s = Session()
@@ -277,7 +277,10 @@ def add_data(time, data, _type):
         s.close()
 
 def get_data():
-    return_data = {'18':[], '4113': [], '1000': [], '19':[]}
+    return_data = {
+    '18':[], '4113': [], '1000': [], '19':[], '4129':[], '36':[],
+    '37':[], '33':[], '1001':[], '34':[], '35':[]
+    }
 
     s = Session()
 

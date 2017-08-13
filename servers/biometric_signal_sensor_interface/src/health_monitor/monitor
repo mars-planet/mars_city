@@ -106,6 +106,20 @@ class Monitor(Device):
         th3.start()
         self.log_function('Started\n')
 
+    def resp_ad(self):
+        '''
+        Respiration AD as a Thread
+        '''
+        self.log_function("-" * 78)
+        self.log_function("\nStarting Respiration Anomaly "
+                          "Detection in background")
+
+        # Call to get Ventricular Tachycardia Anomaly Detection
+        th4 = Thread(target=hm.resp_helper,
+                     args=[self.auth])
+        th4.start()
+        self.log_function('Started\n')
+
     @command(dtype_out=str,
              doc_out="AF AD from DB as JSON")
     def af_to_gui(self):
@@ -129,6 +143,14 @@ class Monitor(Device):
         To send the VT AD data to gui
         '''
         return hm.apc_from_db()
+
+    @command(dtype_out=str,
+             doc_out="Respiration AD from DB as JSON")
+    def resp_to_gui(self):
+        '''
+        To send the VT AD data to gui
+        '''
+        return hm.resp_from_db()
 
     @command(dtype_out=str,
              doc_out="Realtime data as JSON",
@@ -189,6 +211,9 @@ class Monitor(Device):
 
         # ****************** APC PVC *******************
         self.apc_pvc()
+
+        # ****************** Respiration *******************
+        self.resp_ad()
 
         # ****************** ******************
         self.log_function("-" * 78)

@@ -9,20 +9,29 @@
 
 {% block mainBody %}
   <div class="row">
-    <div class="col s12 m12">
+    <div class="col s6 m6">
       <div id="graph-1"></div>
+    </div>
+    <div class="col s6 m6">
+      <div id="graph-2"></div>
     </div>
   </div>    
   <hr>
   <div class="row">
-    <div class="col s12 m12">
-      <div id="graph-2"></div>
+    <div class="col s6 m6">
+      <div id="graph-3"></div>
+    </div>
+    <div class="col s6 m6">
+      <div id="graph-4"></div>
     </div>
   </div>
   <hr>      
   <div class="row">
-    <div class="col s12 m12">
-      <div id="graph-3"></div>
+    <div class="col s6 m6">
+      <div id="graph-5"></div>
+    </div>
+    <div class="col s6 m6">
+      <div id="graph-6"></div>
     </div>
   </div> 
 
@@ -42,15 +51,28 @@
     var hrq_v = [];
     var rr_t = [];
     var rr_v = [];
+    var resp_t = [];
+    var resp_v = [];
+    var insp_t = [];
+    var insp_v = [];
+    var exp_t = [];
+    var exp_v = [];
+    var min_t = [];
+    var min_v = [];
+    var tv_t = [];
+    var tv_v = [];
+
     var af_time;
     var vt_time;
     var apc_time;
+    var resp_time;
 
     $.get("/raw_data/fetch", function(data) {
         var res = $.parseJSON(data)
         af_time = res['2']
         vt_time = res['3']
         apc_time = res['4']
+        resp_time = res['5']
 
         if(vt_time == 0){
           vt_time = '';
@@ -61,12 +83,20 @@
         if(apc_time == 0){
           apc_time = '';
         }
+        if(resp_time == 0){
+          resp_time = '';
+        }
 
         var J = $.parseJSON(res['1'])
         var ecg = J['4113']
         var hr = J['19']
         var hrq = J['1000']
         var rr = J['18']
+        var resp = J['4129']
+        var insp = J['34']
+        var exp = J['35']
+        var min = J['36']
+        var tv = J['37']
 
         for (var i=0;i<ecg.length;i++){
           ecg_t.push(ecg[i][0]);
@@ -84,7 +114,28 @@
           rr_t.push(rr[i][0]);
           rr_v.push(rr[i][1]);
         }
-        console.log(rr_t.length);
+        for (var i=0;i<resp.length;i++){
+          resp_t.push(resp[i][0]);
+          resp_v.push(resp[i][1]);
+        }
+        for (var i=0;i<insp.length;i++){
+          insp_t.push(insp[i][0]);
+          insp_v.push(insp[i][1]);
+        }
+        for (var i=0;i<exp.length;i++){
+          exp_t.push(exp[i][0]);
+          exp_v.push(exp[i][1]);
+                    console.log(exp_v)
+        }
+        for (var i=0;i<min.length;i++){
+          min_t.push(min[i][0]);
+          min_v.push(min[i][1]);
+        }
+        for (var i=0;i<tv.length;i++){
+          tv_t.push(tv[i][0]);
+          tv_v.push(tv[i][1]);
+        }
+
       });
 
     Plotly.plot('graph-1', [{
@@ -200,6 +251,44 @@
     };
     Plotly.restyle("graph-3", update, 2);
 
+    //--------------------------------------------------------
+
+    Plotly.plot('graph-4', [{
+      x: [resp_t[cnt]],
+      y: [resp_v[cnt]],
+      name: 'Respiration'
+    }], {
+      title: 'Respiration',
+      yaxis: {range: [22000, 28000]}
+    });
+
+    //--------------------------------------------------------
+
+    Plotly.plot('graph-5', [{
+      x: [insp_t[cnt]],
+      y: [insp_v[cnt]],
+      name: 'Inspiration'
+    },{
+      x: [exp_t[cnt]],
+      y: [exp_v[cnt]],
+      name: 'Expiration'
+    }], {
+      title: 'Inspiration and Expiration'
+    });
+
+    //--------------------------------------------------------
+
+    Plotly.plot('graph-6', [{
+      x: [min_t[cnt]],
+      y: [min_v[cnt]],
+      name: 'Minute Ventilation'
+    },{
+      x: [tv_t[cnt]],
+      y: [tv_v[cnt]],
+      name: 'Tidal Volume'
+    }], {
+      title: 'Minute Ventilation and Tidal Volume'
+    });
 
     //--------------------------------------------------------
 
@@ -273,12 +362,38 @@
           f2 = 1;
         }
 
+        //--------------------------------------------------------
+
+        if(cnt < resp_t.length){
+          Plotly.extendTraces("graph-4", {
+            x: [[resp_t[cnt]]],
+            y: [[resp_v[cnt]]]
+          }, [0], 50);
+        }
+
+        //--------------------------------------------------------
+
+        if(cnt < insp_v.length){
+          Plotly.extendTraces("graph-5", {
+            x: [[insp_t[cnt]], [exp_t[cnt]]],
+            y: [[insp_v[cnt]], [exp_v[cnt]]]
+          }, [0, 1], 50);
+        }
+
+        //--------------------------------------------------------
+
+        if(cnt < min_v.length){
+          Plotly.extendTraces("graph-6", {
+            x: [[min_t[cnt]], [tv_t[cnt]]],
+            y: [[min_v[cnt]], [tv_v[cnt]]]
+          }, [0, 1], 50);
+        }
 
         //--------------------------------------------------------
 
         cnt++;
 
-        if(cnt > Math.max(ecg_t.length, hr_t.length, hrq_t.length, rr_t.length)){
+        if(cnt > Math.max(ecg_t.length, hr_t.length, hrq_t.length, rr_t.length, resp_t.length)){
             location.reload();
           }
       }, 1500);

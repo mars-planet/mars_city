@@ -129,6 +129,9 @@ def resp_helper(auth):
                  util.datatypes['inspiration'][0],
                  util.datatypes['expiration'][0]]
 
+    resource.resp_realtime(auth, recordID, "",
+        datatypes)
+
     # Successfully finished. Astronaut docked.
     return 1
 
@@ -223,6 +226,19 @@ def apc_from_db():
             @return :           Retrieve APC/PVC AD data from DB
     '''
     data = db.get_apc()
+    # print(data, "DATA")
+    return_json = {}
+    for _data in data:
+        _data[2] = _data[2].now().strftime('%Y-%m-%d %H:%M:%S')
+        return_json[_data[0]] = _data[1:]
+
+    return json.dumps((return_json))
+
+def resp_from_db():
+    '''
+            @return :           Retrieve Respiration AD data from DB
+    '''
+    data = db.get_resp()
     # print(data, "DATA")
     return_json = {}
     for _data in data:

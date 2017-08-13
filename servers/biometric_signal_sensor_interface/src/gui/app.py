@@ -25,11 +25,6 @@ requests.packages.urllib3.disable_warnings()
 config = ConfigParser.ConfigParser()
 config.read("../health_monitor/config.cfg")
 
-# Biometriv Tango Device Client
-biometric_monitor = PyTango.DeviceProxy(
-    config_helper("BiometricMonitor")['name'])
-
-
 def config_helper(section):
     '''
     Helper function to read the config file passed
@@ -48,6 +43,9 @@ def config_helper(section):
             dict_config[option] = None
     return dict_config
 
+# Biometriv Tango Device Client
+biometric_monitor = PyTango.DeviceProxy(
+    config_helper("BiometricMonitor")['name'])
 
 def get_AF_anomaly():
     '''
@@ -108,14 +106,35 @@ def get_APC_anomaly():
         _record = []
         _record.append(time.strftime('%Y-%m-%d %H:%M:%S',
                                      time.localtime(float(key) / 256)))
+        _record.append(value[0])
         _record.append(value[1])
-        _record.append(value[2])
         _record.append(value[2])
         # For other processing
         _record.append(float(key) / 256)
         _apc_anomaly.append(_record)
     _apc_anomaly = sorted(_apc_anomaly, key=lambda x: (x[0]))
     return _apc_anomaly
+
+def get_Resp_anomaly():
+    '''
+    Calls the Tango device server command to access the Database for the
+    Respiration anomalies
+        @return :           A list containing rows from the database
+    '''
+    resp_anomaly_json = json.loads(biometric_monitor.resp_to_gui())
+    _resp_anomaly = []
+    for key, value in resp_anomaly_json.items():
+        _record = []
+        _record.append(time.strftime('%Y-%m-%d %H:%M:%S',
+                                     time.localtime(float(key) / 256)))
+        _record.append(value[1])
+        _record.append(value[2])
+        _record.append(value[3])
+        # For other processing
+        _record.append(float(key) / 256)
+        _resp_anomaly.append(_record)
+    _resp_anomaly = sorted(_resp_anomaly, key=lambda x: (x[0]))
+    return _resp_anomaly
 
 
 def get_initial_data(user_info):
@@ -199,6 +218,7 @@ def anomaly():
     _af_anomaly = get_AF_anomaly()[::-1]
     _vt_anomaly = get_VT_anomaly()[::-1]
     _apc_anomaly = get_APC_anomaly()[::-1]
+    _resp_anomaly = get_Resp_anomaly()[::-1]
 
     x_af = []
     y_af_nec = []
@@ -219,6 +239,12 @@ def anomaly():
     for d in _apc_anomaly:
         y_apc.append(d[3])
         x_apc.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(d[4])))
+
+    x_resp = []
+    y_resp = []
+    for d in _resp_anomaly:
+        y_resp.append(d[1])
+        x_resp.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(d[4])))
 
     # For the Plot.ly/javascript graphs
     graphs = [
@@ -253,6 +279,14 @@ def anomaly():
                     y=y_apc
                 ),
             ]
+        ),
+        dict(
+            data=[
+                dict(
+                    x=x_resp,  
+                    y=y_resp
+                ),
+            ]
         )
     ]
 
@@ -266,8 +300,8 @@ def anomaly():
     graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
 
     return render_template('anomaly.html', AF=_af_anomaly[:15],
-                           VT=_vt_anomaly[:15], APC=_apc_anomaly[:15], ids=ids,
-                           graphJSON=graphJSON)
+                           VT=_vt_anomaly[:15], APC=_apc_anomaly[:15],
+                           RESP=_resp_anomaly, ids=ids, graphJSON=graphJSON)
 
 
 @app.route("/raw_data")
@@ -290,6 +324,7 @@ def fetch_realtime_data():
     _af_anomaly = get_AF_anomaly()[::-1]
     _vt_anomaly = get_VT_anomaly()[::-1]
     _apc_anomaly = get_APC_anomaly()[::-1]
+    _resp_anomaly = get_Resp_anomaly()[::-1]
     rt_data = biometric_monitor.rt_to_gui()
 
     to_gui['1'] = rt_data
@@ -311,6 +346,12 @@ def fetch_realtime_data():
     except:
         to_gui['4'] = 0
 
+    try:
+        to_gui['5'] = time.strftime(
+            '%Y-%m-%d %H:%M:%S', time.localtime(_resp_anomaly[0][4]))
+    except:
+        to_gui['5'] = 0
+
     biometric_monitor.delete_from_db()
     
     return json.dumps(to_gui)
@@ -327,5 +368,6 @@ if __name__ == "__main__":
     biometric_monitor.poll_command("af_to_gui", 50000)
     biometric_monitor.poll_command("vt_to_gui", 50000)
     biometric_monitor.poll_command("apc_to_gui", 50000)
+    biometric_monitor.poll_command("resp_to_gui", 50000)
 
     app.run(threaded=True, debug=DEBUG)
