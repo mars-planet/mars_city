@@ -135,7 +135,7 @@ Overview
 :ref:`Section 1 <sec_1>` deals with the choice of communication channels.
 Sections :ref:`2 <sec_2>`, :ref:`3 <sec_3>`, :ref:`4 <sec_4>` and
 :ref:`5 <sec_5>` explain implementation restrictions and considerations of
-the Planning, Operations, Configurations, Telemetry and Commands subsystems,
+the Planning, Operations, Resources, Telemetry and Commands subsystems,
 respectively. :ref:`Section 6. <sec_6>` covers the validation and verification
 procedures. Finally, :ref:`Section 7. <sec_7>` deals with miscellaneous factors
 that need to be addressed or acknowledged when implementing the :term:`MOCC`.
@@ -268,7 +268,7 @@ global status.
 
 .. _sec_4:
 
-4. Configurations Subsystem
+4. Resources Subsystem
 ---------------------------
 
 4.1. Devices
@@ -370,7 +370,7 @@ structure.
 .. figure:: images/MOCC_Telemetry-Commands_Implementation.png
   :name: Figure 2
 
-  Figure 2. Telemetry and Commands‘ Modules Implementation
+  Figure 2. Telemetry and Commandsï¿½ Modules Implementation
 
 All commands received should be both stored in the Commands Database and
 delivered to the appropriate external recipient (if needed).
