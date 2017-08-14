@@ -25,6 +25,7 @@ requests.packages.urllib3.disable_warnings()
 config = ConfigParser.ConfigParser()
 config.read("../health_monitor/config.cfg")
 
+
 def config_helper(section):
     '''
     Helper function to read the config file passed
@@ -43,9 +44,11 @@ def config_helper(section):
             dict_config[option] = None
     return dict_config
 
+
 # Biometriv Tango Device Client
 biometric_monitor = PyTango.DeviceProxy(
     config_helper("BiometricMonitor")['name'])
+
 
 def get_AF_anomaly():
     '''
@@ -94,6 +97,7 @@ def get_VT_anomaly():
     _vt_anomaly = sorted(_vt_anomaly, key=lambda x: (x[0]))
     return _vt_anomaly
 
+
 def get_APC_anomaly():
     '''
     Calls the Tango device server command to access the Database for the
@@ -115,6 +119,7 @@ def get_APC_anomaly():
     _apc_anomaly = sorted(_apc_anomaly, key=lambda x: (x[0]))
     return _apc_anomaly
 
+
 def get_Resp_anomaly():
     '''
     Calls the Tango device server command to access the Database for the
@@ -127,9 +132,9 @@ def get_Resp_anomaly():
         _record = []
         _record.append(time.strftime('%Y-%m-%d %H:%M:%S',
                                      time.localtime(float(key) / 256)))
+        _record.append(value[0])
         _record.append(value[1])
         _record.append(value[2])
-        _record.append(value[3])
         # For other processing
         _record.append(float(key) / 256)
         _resp_anomaly.append(_record)
@@ -139,10 +144,10 @@ def get_Resp_anomaly():
 
 def get_initial_data(user_info):
     '''
-    Helper function to cleanly retrieve the user_info JSON object as a 
+    Helper function to cleanly retrieve the user_info JSON object as a
     dictionary
         @param user_info :  JSON object of the user info
-        @return :           Dictionary containing the necessary items from 
+        @return :           Dictionary containing the necessary items from
                             the JSON
     '''
     details = {}
@@ -251,13 +256,13 @@ def anomaly():
         dict(
             data=[
                 dict(
-                    x=x_af,  
+                    x=x_af,
                     y=y_af_nec,
                     type='scatter',
                     name="Num of NEC"
                 ),
                 dict(
-                    x=x_af,  
+                    x=x_af,
                     y=y_af_dr,
                     type='scatter',
                     name="Data Reliability"
@@ -267,7 +272,7 @@ def anomaly():
         dict(
             data=[
                 dict(
-                    x=x_vt,  
+                    x=x_vt,
                     y=y_vt
                 ),
             ]
@@ -275,7 +280,7 @@ def anomaly():
         dict(
             data=[
                 dict(
-                    x=x_apc,  
+                    x=x_apc,
                     y=y_apc
                 ),
             ]
@@ -283,7 +288,7 @@ def anomaly():
         dict(
             data=[
                 dict(
-                    x=x_resp,  
+                    x=x_resp,
                     y=y_resp
                 ),
             ]
@@ -353,7 +358,7 @@ def fetch_realtime_data():
         to_gui['5'] = 0
 
     biometric_monitor.delete_from_db()
-    
+
     return json.dumps(to_gui)
 
 

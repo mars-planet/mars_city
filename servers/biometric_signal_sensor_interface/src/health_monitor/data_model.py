@@ -106,12 +106,12 @@ class RespAlarms(Base):
                 % (self.Resp_hexo_timestamp, self.BRstatus_mean,
                    self.Anomaly_type, self.doe))
 
-    def __init__(self, Resp_hexo_timestamp, BRstatus_mean,
+    def __init__(self, Resp_hexo_timestamp, BRstatus_mean, doe,
                  Anomaly_type):
         self.Resp_hexo_timestamp = Resp_hexo_timestamp
         self.BRstatus_mean = BRstatus_mean
         self.Anomaly_type = Anomaly_type
-        self.doe = datetime.now()
+        self.doe = doe
 
 
 # create tables

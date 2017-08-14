@@ -125,11 +125,13 @@
         for (var i=0;i<exp.length;i++){
           exp_t.push(exp[i][0]);
           exp_v.push(exp[i][1]);
-                    console.log(exp_v)
+                    
         }
         for (var i=0;i<min.length;i++){
           min_t.push(min[i][0]);
           min_v.push(min[i][1]);
+          console.log(min_v)
+          console.log("MIN")
         }
         for (var i=0;i<tv.length;i++){
           tv_t.push(tv[i][0]);
@@ -257,10 +259,22 @@
       x: [resp_t[cnt]],
       y: [resp_v[cnt]],
       name: 'Respiration'
+    },{
+      x: [resp_time],
+      y: [resp_v[cnt]-200],
+      name: 'Respiration AD'
     }], {
       title: 'Respiration',
-      yaxis: {range: [22000, 28000]}
+      yaxis: {range: [23000, 26000]}
     });
+
+    var update = {
+      opacity: 1.4,
+      'marker.color': 'pink',
+      'marker.size' : 10,
+      'marker.symbol' : 'triangle-down'
+    };
+    Plotly.restyle("graph-4", update, 1);
 
     //--------------------------------------------------------
 
@@ -273,7 +287,8 @@
       y: [exp_v[cnt]],
       name: 'Expiration'
     }], {
-      title: 'Inspiration and Expiration'
+      title: 'Inspiration and Expiration',
+      yaxis: {range: [20000, 23000]}
     });
 
     //--------------------------------------------------------
@@ -292,11 +307,10 @@
 
     //--------------------------------------------------------
 
-
-
     var f1=0;
     var f2=0;
     var f3=0;
+    var f4=0;
 
     var interval = setInterval(function() {
           
@@ -317,8 +331,7 @@
           }, [2], 50);
           f1 = 1;
         }
-
-        
+   
         //--------------------------------------------------------
 
         if(cnt < hrq_t.length){
@@ -364,11 +377,18 @@
 
         //--------------------------------------------------------
 
-        if(cnt < resp_t.length){
-          Plotly.extendTraces("graph-4", {
-            x: [[resp_t[cnt]]],
-            y: [[resp_v[cnt]]]
-          }, [0], 50);
+        if(f4 == 0 && (resp_time > resp_t[0])){
+          if(cnt < resp_t.length){
+            Plotly.extendTraces("graph-4", {
+              x: [[resp_t[cnt]]],
+              y: [[resp_v[cnt]]]
+            }, [0], 50);
+            Plotly.extendTraces("graph-4", {
+              x: [[resp_time]],
+              y: [[resp_v[cnt]+500]]
+            }, [1], 50);
+            f4 = 1;
+          }
         }
 
         //--------------------------------------------------------
