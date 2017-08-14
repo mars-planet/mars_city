@@ -16,6 +16,7 @@
               <li class="tab col s3"><a href="#af">Atrial Fribillation</a></li>
               <li class="tab col s3"><a href="#vt">Ventricular Tachycardia</a></li>
               <li class="tab col s3"><a href="#apc">APC-PVC/PVC-Hamilton</a></li>
+              <li class="tab col s3"><a href="#resp">Respiration</a></li>
             </ul>
           </div>
 
@@ -94,6 +95,33 @@
 
               <tbody>
                 {% for record in APC %}
+                <tr>
+                  <td>{{ record[0] }}</td>
+                  <td>{{ record[1] }}</td>
+                  <td>{{ record[3] }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <div id="resp" class="col s12">
+            <div class="row">
+               <div class="col s12 m12">
+                  <div id="graph-3"></div>
+               </div>
+            </div> 
+            <table>
+              <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>BR Status Mean</th>
+                    <th>Anomaly Type</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% for record in RESP %}
                 <tr>
                   <td>{{ record[0] }}</td>
                   <td>{{ record[1] }}</td>

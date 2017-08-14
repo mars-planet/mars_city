@@ -11,6 +11,7 @@ import anomaly_database_helper as db
 import vt_helper as vth
 import apc_pvc_helper as apc_pvc
 import pvc_hamilton as pvc_h
+import respiration_AD as respiration
 import ConfigParser
 
 
@@ -108,6 +109,33 @@ def _apc_pvc_helper(auth):
     return 1
 
 
+def resp_helper(auth):
+    '''
+            @param auth:        Authentication token
+    '''
+    recordID = resource.get_active_record_list(auth)[0]
+    if recordID not in resource.get_active_record_list(auth):
+        # record not updated in realtime.
+        return -1
+
+    config = ConfigParser.RawConfigParser()
+    config.read('../anomaly_detector/anomaly_detector.cfg')
+
+    datatypes = [util.datatypes['vt'][0],
+                 util.datatypes['minuteventilation'][0],
+                 util.raw_datatypes['resp'][0],
+                 util.datatypes['breathingrate'][0],
+                 util.datatypes['br_quality'][0],
+                 util.datatypes['inspiration'][0],
+                 util.datatypes['expiration'][0]]
+
+    resource.resp_realtime(auth, recordID, "",
+        datatypes)
+
+    # Successfully finished. Astronaut docked.
+    return 1
+
+
 def get_user_info(auth):
     '''
             @param auth :       Authentication token
@@ -198,6 +226,19 @@ def apc_from_db():
             @return :           Retrieve APC/PVC AD data from DB
     '''
     data = db.get_apc()
+    # print(data, "DATA")
+    return_json = {}
+    for _data in data:
+        _data[2] = _data[2].now().strftime('%Y-%m-%d %H:%M:%S')
+        return_json[_data[0]] = _data[1:]
+
+    return json.dumps((return_json))
+
+def resp_from_db():
+    '''
+            @return :           Retrieve Respiration AD data from DB
+    '''
+    data = db.get_resp()
     # print(data, "DATA")
     return_json = {}
     for _data in data:

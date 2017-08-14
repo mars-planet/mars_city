@@ -139,6 +139,18 @@ class RespiratoryAD(object):
                 if not ((prev - percent) < cur < (prev + percent)):
                     self.resp_anomaly_dict[begin] =\
                         (-1, 'minute_vent_not_window')
+                    # Anomaly is detected
+                    anomaly_dict = {}
+                    anomaly_dict['Resp_hexo_timestamp'] = begin
+
+                    anomaly_dict['BRstatus_mean'] = \
+                        self.resp_anomaly_dict[begin][0]
+
+                    anomaly_dict['Anomaly_type'] = \
+                        self.resp_anomaly_dict[begin][1]
+
+                    db.add_resp(anomaly_dict)
+                    print(anomaly_dict)
 
                 # check for window delta
                 windowmean = sum([i[1] for i in window])/len(window)
@@ -146,6 +158,18 @@ class RespiratoryAD(object):
                     (self.minute_ventilation_window_delta/100) * windowmean
                 if not ((windowmean - percent) < cur < (windowmean + percent)):
                     self.resp_anomaly_dict[begin] = (-1, 'minute_vent_window')
+                    # Anomaly is detected
+                    anomaly_dict = {}
+                    anomaly_dict['Resp_hexo_timestamp'] = begin
+
+                    anomaly_dict['BRstatus_mean'] = \
+                        self.resp_anomaly_dict[begin][0]
+
+                    anomaly_dict['Anomaly_type'] = \
+                        self.resp_anomaly_dict[begin][1]
+
+                    db.add_resp(anomaly_dict)
+                    print(anomaly_dict)
 
                 # update window
                 window.pop(0)
@@ -193,12 +217,36 @@ class RespiratoryAD(object):
                 if not ((prev - percent) < cur < (prev + percent)):
                     self.resp_anomaly_dict[begin] =\
                         (-1, 'tidal_volume_not_window')
+                    # Anomaly is detected
+                    anomaly_dict = {}
+                    anomaly_dict['Resp_hexo_timestamp'] = begin
+
+                    anomaly_dict['BRstatus_mean'] = \
+                        self.resp_anomaly_dict[begin][0]
+
+                    anomaly_dict['Anomaly_type'] = \
+                        self.resp_anomaly_dict[begin][1]
+
+                    db.add_resp(anomaly_dict)
+                    print(anomaly_dict)
 
                 # check for window delta
                 windowmean = sum([i[1] for i in window])/len(window)
                 percent = (self.tidal_volume_window_delta/100) * windowmean
                 if not ((windowmean - percent) < cur < (windowmean + percent)):
                     self.resp_anomaly_dict[begin] = (-1, 'tidal_volume_window')
+                    # Anomaly is detected
+                    anomaly_dict = {}
+                    anomaly_dict['Resp_hexo_timestamp'] = begin
+
+                    anomaly_dict['BRstatus_mean'] = \
+                        self.resp_anomaly_dict[begin][0]
+
+                    anomaly_dict['Anomaly_type'] = \
+                        self.resp_anomaly_dict[begin][1]
+
+                    db.add_resp(anomaly_dict)
+                    print(anomaly_dict)
 
                 # update window
                 window.pop(0)
@@ -237,6 +285,18 @@ class RespiratoryAD(object):
             if (expiration - inspiration) > (256*self.resp_variation_thresh):
                 print('exp, insp')
                 self.resp_anomaly_dict[inspiration] = (-1, 'exp-insp')
+                # Anomaly is detected
+                anomaly_dict = {}
+                anomaly_dict['Resp_hexo_timestamp'] = inspiration
+
+                anomaly_dict['BRstatus_mean'] = \
+                    self.resp_anomaly_dict[inspiration][0]
+
+                anomaly_dict['Anomaly_type'] = \
+                    self.resp_anomaly_dict[inspiration][1]
+
+                db.add_resp(anomaly_dict)
+                print(anomaly_dict)
                 timestamp.append(inspiration)
 
             # find inspiration
@@ -250,6 +310,18 @@ class RespiratoryAD(object):
             if (inspiration - expiration) > (256*self.resp_variation_thresh):
                 print('insp, exp')
                 self.resp_anomaly_dict[expiration] = (-1, 'insp-exp')
+                # Anomaly is detected
+                anomaly_dict = {}
+                anomaly_dict['Resp_hexo_timestamp'] = expiration
+
+                anomaly_dict['BRstatus_mean'] = \
+                    self.resp_anomaly_dict[expiration][0]
+
+                anomaly_dict['Anomaly_type'] = \
+                    self.resp_anomaly_dict[expiration][1]
+
+                db.add_resp(anomaly_dict)
+                print(anomaly_dict)
                 timestamp.append(expiration)
 
             # if inspiration == 383021388517:
@@ -488,6 +560,18 @@ class RespiratoryAD(object):
                                 len(breathing_rate_status)
                             self.resp_anomaly_dict[begin] =\
                                 (mean_br_status, 'possible Hyperventilation')
+                            # Anomaly is detected
+                            anomaly_dict = {}
+                            anomaly_dict['Resp_hexo_timestamp'] = begin
+
+                            anomaly_dict['BRstatus_mean'] = \
+                                self.resp_anomaly_dict[begin][0]
+
+                            anomaly_dict['Anomaly_type'] = \
+                                self.resp_anomaly_dict[begin][1]
+
+                            db.add_resp(anomaly_dict)
+                            print(anomaly_dict)
                             # if anomaly_window[0] in self.inspiration_dict:
                             #     plt.plot(anomaly_window,
                             #              [self.inspiration_dict[i]
@@ -504,6 +588,18 @@ class RespiratoryAD(object):
                             self.resp_anomaly_dict[begin] =\
                                 (mean_br_status,
                                  'possible Slow deep breathing')
+                            # Anomaly is detected
+                            anomaly_dict = {}
+                            anomaly_dict['Resp_hexo_timestamp'] = begin
+
+                            anomaly_dict['BRstatus_mean'] = \
+                                self.resp_anomaly_dict[begin][0]
+
+                            anomaly_dict['Anomaly_type'] = \
+                                self.resp_anomaly_dict[begin][1]
+
+                            db.add_resp(anomaly_dict)
+                            print(anomaly_dict)
                             # if anomaly_window[0] in self.inspiration_dict:
                             #     plt.plot(anomaly_window,
                             #              [self.inspiration_dict[i]
@@ -547,6 +643,18 @@ class RespiratoryAD(object):
                                 len(breathing_rate_status)
                             self.resp_anomaly_dict[begin] =\
                                 (mean_br_status, 'possible Tachypnea')
+                            # Anomaly is detected
+                            anomaly_dict = {}
+                            anomaly_dict['Resp_hexo_timestamp'] = begin
+
+                            anomaly_dict['BRstatus_mean'] = \
+                                self.resp_anomaly_dict[begin][0]
+
+                            anomaly_dict['Anomaly_type'] = \
+                                self.resp_anomaly_dict[begin][1]
+
+                            db.add_resp(anomaly_dict)
+                            print(anomaly_dict)
                             # if anomaly_window[0] in self.inspiration_dict:
                             #     plt.plot(anomaly_window,
                             #              [self.inspiration_dict[i]
@@ -562,6 +670,18 @@ class RespiratoryAD(object):
                                 len(breathing_rate_status)
                             self.resp_anomaly_dict[begin] =\
                                 (mean_br_status, 'possible Hypoventilation')
+                            # Anomaly is detected
+                            anomaly_dict = {}
+                            anomaly_dict['Resp_hexo_timestamp'] = begin
+
+                            anomaly_dict['BRstatus_mean'] = \
+                                self.resp_anomaly_dict[begin][0]
+
+                            anomaly_dict['Anomaly_type'] = \
+                                self.resp_anomaly_dict[begin][1]
+
+                            db.add_resp(anomaly_dict)
+                            print(anomaly_dict)
                             # if anomaly_window[0] in self.inspiration_dict:
                             #     plt.plot(anomaly_window,
                             #              [self.inspiration_dict[i]
@@ -605,6 +725,18 @@ class RespiratoryAD(object):
                                 len(breathing_rate_status)
                             self.resp_anomaly_dict[begin] =\
                                 (mean_br_status, 'possible rapid breathing')
+                            # Anomaly is detected
+                            anomaly_dict = {}
+                            anomaly_dict['Resp_hexo_timestamp'] = begin
+
+                            anomaly_dict['BRstatus_mean'] = \
+                                self.resp_anomaly_dict[begin][0]
+
+                            anomaly_dict['Anomaly_type'] = \
+                                self.resp_anomaly_dict[begin][1]
+
+                            db.add_resp(anomaly_dict)
+                            print(anomaly_dict)
                             # if anomaly_window[0] in self.inspiration_dict:
                             #     plt.plot(anomaly_window,
                             #              [self.inspiration_dict[i]
@@ -620,6 +752,18 @@ class RespiratoryAD(object):
                                 len(breathing_rate_status)
                             self.resp_anomaly_dict[begin] =\
                                 (mean_br_status, 'possible slow breathing')
+                            # Anomaly is detected
+                            anomaly_dict = {}
+                            anomaly_dict['Resp_hexo_timestamp'] = begin
+
+                            anomaly_dict['BRstatus_mean'] = \
+                                self.resp_anomaly_dict[begin][0]
+
+                            anomaly_dict['Anomaly_type'] = \
+                                self.resp_anomaly_dict[begin][1]
+
+                            db.add_resp(anomaly_dict)
+                            print(anomaly_dict)
                             # if anomaly_window[0] in self.inspiration_dict:
                             #     plt.plot(anomaly_window,
                             #              [self.inspiration_dict[i]
@@ -639,48 +783,64 @@ class RespiratoryAD(object):
         # plt.show()
         return
 
-    def populate_DS(self):
-        with open('vt.txt', 'r') as f:
-            testip = list(csv.reader(f, delimiter='\t'))
-            for i in testip:
-                self.tidal_volume_dict[int(float(i[0]))] = float(i[1])
-            f.close()
+    def populate_DS(self, tidalv_dict, minv_dict, resp_dict, br_dict,
+                        brq_dict, insp_dict, exp_dict):
+        # with open('vt.txt', 'r') as f:
+        #     testip = list(csv.reader(f, delimiter='\t'))
+        #     for i in testip:
+        #         self.tidal_volume_dict[int(float(i[0]))] = float(i[1])
+        #     f.close()
 
-        with open('minuteventilation.txt', 'r') as f:
-            testip = list(csv.reader(f, delimiter='\t'))
-            for i in testip:
-                self.minute_ventilation_dict[int(float(i[0]))] = float(i[1])
-            f.close()
+        self.tidal_volume_dict.update(OrderedDict(tidalv_dict))
 
-        with open('resp.txt', 'r') as f:
-            testip = list(csv.reader(f, delimiter='\t'))
-            for i in testip:
-                self.raw_resp_dict[int(i[0])] = (int(i[1]), int(i[2]))
-            f.close()
+        # with open('minuteventilation.txt', 'r') as f:
+        #     testip = list(csv.reader(f, delimiter='\t'))
+        #     for i in testip:
+        #         self.minute_ventilation_dict[int(float(i[0]))] = float(i[1])
+        #     f.close()
 
-        with open('breathingrate.txt', 'r') as f:
-            testip = list(csv.reader(f, delimiter='\t'))
-            for i in testip:
-                self.breathing_rate_dict[int(i[0])] = int(i[1])
-            f.close()
+        self.minute_ventilation_dict.update(OrderedDict(minv_dict))
 
-        with open('br_quality.txt', 'r') as f:
-            testip = list(csv.reader(f, delimiter='\t'))
-            for i in testip:
-                self.breathing_rate_status_dict[int(i[0])] = int(i[1])
-            f.close()
+        # with open('resp.txt', 'r') as f:
+        #     testip = list(csv.reader(f, delimiter='\t'))
+        #     for i in testip:
+        #         self.raw_resp_dict[int(i[0])] = (int(i[1]), int(i[2]))
+        #     f.close()
 
-        with open('inspiration.txt', 'r') as f:
-            testip = list(csv.reader(f, delimiter='\t'))
-            for i in testip:
-                self.inspiration_dict[int(i[0])] = int(i[1])
-            f.close()
+        self.raw_resp_dict.update(OrderedDict(resp_dict))
 
-        with open('expiration.txt', 'r') as f:
-            testip = list(csv.reader(f, delimiter='\t'))
-            for i in testip:
-                self.expiration_dict[int(i[0])] = int(i[1])
-            f.close()
+        # with open('breathingrate.txt', 'r') as f:
+        #     testip = list(csv.reader(f, delimiter='\t'))
+        #     for i in testip:
+        #         self.breathing_rate_dict[int(i[0])] = int(i[1])
+        #     f.close()
+
+        self.breathing_rate_dict.update(OrderedDict(br_dict))
+
+        # with open('br_quality.txt', 'r') as f:
+        #     testip = list(csv.reader(f, delimiter='\t'))
+        #     for i in testip:
+        #         self.breathing_rate_status_dict[int(i[0])] = int(i[1])
+        #     f.close()
+
+        self.breathing_rate_status_dict.update(OrderedDict(brq_dict))
+
+        # with open('inspiration.txt', 'r') as f:
+        #     testip = list(csv.reader(f, delimiter='\t'))
+        #     for i in testip:
+        #         self.inspiration_dict[int(i[0])] = int(i[1])
+        #     f.close()
+
+        self.inspiration_dict.update(OrderedDict(insp_dict))
+
+        # with open('expiration.txt', 'r') as f:
+        #     testip = list(csv.reader(f, delimiter='\t'))
+        #     for i in testip:
+        #         self.expiration_dict[int(i[0])] = int(i[1])
+        #     f.close()
+
+        self.expiration_dict.update(OrderedDict(exp_dict))
+
 
         return
 
