@@ -182,6 +182,7 @@ Notes:
 ```
 
 **NOTES**  
+- Since the code has been integrated with the real time module created by Abhijith, for most of the above mentioned `To execute` to work, one has to modify the methods where the data structures of the respective AD algos are populated. To execute each AD from this directory only, one has to have the respective text files as input and modify the relevant method. For eg. one has to have `vt.txt`, `minuteventilation.txt`, `resp.txt`, `breathingrate.txt`, `br_quality.txt`, `inspiration.txt` and `expiration.txt` and modify the `populate_DS` method to read from files (uncomment) for `python respiration_AD.py` to work.  
 - `anomaly_detector.cfg` - This is the configuration file which contains various customizable variable values for the various Anomaly Detection algorithms.  
 - `bdac.py` - This file is a Python implementation of the file `easytest.c` from the open source ECG analysis software from EPLimited by Patrick Hamilton. Please read the top of the file for more info.  
 - `detect_peaks.py` - Detect peaks in data based on their amplitude and other features by Marcos Duarte.  
@@ -189,4 +190,6 @@ Notes:
 - Some of the text files used are: `breathingrate.txt`, `br_quality.txt`, `ecg.txt`, `expiration.txt`, `heartrate.txt`, `hr_quality.txt`, `inspiration.txt`, `minuteventilation.txt`, `qrs.txt`, `resp.txt`, `rrinterval.txt`, `vt.txt` are the files downloaded directly from Hexoskin.`rrinterval_status.txt`, `sleepphase.txt`, `sleepposition.txt` were created using data extracted from the Hexoskin API.  
 - Some of the algorithms will create multiple intermediate files in the working directory.  
 - Refer to `../health_monitor/data_model.py` for the DB schema used to store the various anomalies.  
+- For a broad overview of things, look at `anomaly_detectory.py` - though it doesn't call many of the AD methods, there is placeholder code to get you up to speed with how things work.  
+- There are a lot of places where code for plotting graphs have been commented out. Uncomment them to visualize things.  
 
