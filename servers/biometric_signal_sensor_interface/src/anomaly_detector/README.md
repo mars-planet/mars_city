@@ -5,22 +5,50 @@
 To execute `python anomaly_detector.py` (NOTE: This is the only AD algo for which an `AnomalyDetector` object has to be created)  
 One can also uncomment the call to `__plot_map()` in the `get_anomaly()` of `atrial_fibrillation.py`  
 *executes the Atrial Fibrillation Anomaly Detection*  
-    - **Input**  
-       - `rr_intervals:` a 2D pandas dataframe - (refer `rrinterval.txt` from Hexoskin record) 	first column named `hexoskin_timestamps` - contains `int` timestamps second column named as `rr_int` - contains `double` interval data  
-       - `hr_quality_indices:` a 2D pandas dataframe - (refer `hr_quality.txt` from Hexoskin record) first column named `hexoskin_timestamps` - containts `int` timestamps second column named as `quality_ind` - contains `int` quality indices, with max value 127  
-    - **Output**  
-	+ **returns**:  
-	+ `if anomaly:`  
-	+ `dict` with follwing keys:  
-	+ - `start_hexo_timestamp:` an integer denoting timestamp of the first record  
-       - `end_hexo_timestamp:` an integer denoting timestamp of 32/64/128 - last record  
-       - `num_of_NEC:` a small integer, higher the number, more severe the anomaly here  
-       - `data_reliability:` a small integer, which denotes as a percentage, the quality of the data in this window the higher the percentage, worse the quality  
-       - `window_size:` a small integer, takes 32/64/128 as values  
-       `else:`  
-       - None  
-    - **Notes**  
-       - based on 'A Simple Method to Detect Atrial Fibrillation Using RR Intervals' by Jie Lian et. al.  
-       - Note the return value (if not 'None') and check with the data_reliability and previous data timestamps to set AFAlarmAttribute at the health_monitor server  
+```
+Input:
+	rr_intervals:           a 2D pandas dataframe -
+		                (refer rrinterval.txt from Hexoskin record)
+		                first column named "hexoskin_timestamps" -
+		                contains 'int' timestamps
+		                second column named as "rr_int" -
+		                contains 'double' interval data
+	hr_quality_indices:     a 2D pandas dataframe -
+		                (refer hr_quality.txt from Hexoskin record)
+		                first column named "hexoskin_timestamps" -
+		                containts 'int' timestamps
+		                second column named as "quality_ind" -
+		                contains 'int' quality indices,
+		                with max value 127
+
+Output:
+	returns:
+	if anomaly:
+	    'dict' with follwing keys:
+		start_hexo_timestamp:   an integer denoting timestamp of
+		                        the first record
+		end_hexo_timestamp:     an integer denoting timestamp of
+		                        32/64/128 - last record
+		num_of_NEC:             a small integer, higher the number,
+		                        more severe the anomaly here
+		data_reliability:       a small integer, which denotes as a
+		                        percentage, the quality of the data
+		                        in this window
+		                        the higher the percentage, worse
+		                        the quality
+		window_size:            a small integer, takes 32/64/128
+		                        as values
+	else:
+	    None
+
+	Notes:
+	based on 'A Simple Method to Detect
+	Atrial Fibrillation Using RR Intervals'
+	by Jie Lian et. al.
+	Note the return value (if not 'None') and
+	check with the data_reliability and previous
+	data timestamps to set AFAlarmAttribute at
+	the health_monitor server
+```
 
 
