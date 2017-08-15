@@ -266,7 +266,7 @@ def add_data(time, data, _type):
 
             # commit the record the database
             s.commit()
-            print("Inserted Data row successfully")
+            # print("Inserted Data row successfully")
             return 0
 
     except:
