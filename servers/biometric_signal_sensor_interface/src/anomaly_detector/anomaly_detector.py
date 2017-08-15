@@ -343,7 +343,7 @@ def main():
                                       names=["hexoskin_timestamps",
                                              "quality_ind"]))
     # call the Atrial Fibrillation anomaly detection method
-    # print(AD.af_anomaly_detect(rr_intervals, hr_quality_indices))
+    print(AD.af_anomaly_detect(rr_intervals, hr_quality_indices))
 
     ecg = (pd.read_csv('ecg.txt',
                        sep="\t",
