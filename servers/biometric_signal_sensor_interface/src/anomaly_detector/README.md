@@ -180,3 +180,13 @@ Notes:
         'https://api.hexoskin.com/docs/resource/sleepposition/''
         'https://api.hexoskin.com/docs/resource/metric/'
 ```
+
+**NOTES**  
+- `anomaly_detector.cfg` - This is the configuration file which contains various customizable variable values for the various Anomaly Detection algorithms.  
+- `bdac.py` - This file is a Python implementation of the file `easytest.c` from the open source ECG analysis software from EPLimited by Patrick Hamilton. Please read the top of the file for more info.  
+- `detect_peaks.py` - Detect peaks in data based on their amplitude and other features by Marcos Duarte.  
+- `osea.so` - Shared library object file - refer `bdac.py`  
+- Some of the text files used are: `breathingrate.txt`, `br_quality.txt`, `ecg.txt`, `expiration.txt`, `heartrate.txt`, `hr_quality.txt`, `inspiration.txt`, `minuteventilation.txt`, `qrs.txt`, `resp.txt`, `rrinterval.txt`, `vt.txt` are the files downloaded directly from Hexoskin.`rrinterval_status.txt`, `sleepphase.txt`, `sleepposition.txt` were created using data extracted from the Hexoskin API.  
+- Some of the algorithms will create multiple intermediate files in the working directory.  
+- Refer to `../health_monitor/data_model.py` for the DB schema used to store the various anomalies.  
+
