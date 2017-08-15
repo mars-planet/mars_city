@@ -164,3 +164,26 @@ python respiration_AD.py
 
         'http://wps.prenhall.com/wps/media/objects\
         /2791/2858109/toolbox/Box15_1.pdf'
+
+---------------------------------------------------------------------------------------------------------------------------
+6) Sleep AD
+To execute:
+python sleep_AD.py
+
+    Input:
+        None
+
+    Output:
+        stores to the anomaly_dict of the SleepAD class
+
+    Notes:
+        based on:
+
+        'https://www.sleepcycle.com/how-it-works/'
+        'http://blog.doctoroz.com/oz-experts/calculating-your-
+        perfect-bedtime-and-sleep-efficiency'
+        'https://api.hexoskin.com/docs/resource/sleepphase/'
+        'https://api.hexoskin.com/docs/resource/sleepposition/''
+        'https://api.hexoskin.com/docs/resource/metric/'
+
+---------------------------------------------------------------------------------------------------------------------------
