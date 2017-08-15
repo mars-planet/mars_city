@@ -1,9 +1,10 @@
 from __future__ import division, print_function
 from collections import OrderedDict
 from threading import Thread
-
 import os
 import sys
+sys.path.insert(0, '../hexoskin_helper')
+import anomaly_database_helper as db
 import csv
 import time
 import ConfigParser

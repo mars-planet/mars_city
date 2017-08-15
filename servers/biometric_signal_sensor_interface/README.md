@@ -65,7 +65,7 @@ Once this installation is done sucessfully, JIVE which is an application provide
 This should install all necessary dependencies and set up the environment for the Biometric Signal Sensor's Interface project.
 
 # Running
-####Follow the instructions in this order.
+#### Follow the instructions in this order.
 
  - First, wear the Hexoskin Smart Shirt and connect the Hexoskin device with the shirt.
  - Connect the device with a smart phone over blue-tooth to communicate with the application.
@@ -84,8 +84,8 @@ We use [GitHub](http://github.com/) for versioning.
 
 ## Authors
 
-* **Abhijith C** - [abhijith0505](https://github.com/abhijith0505)
-* **Dipankar Niranjan** - [Ras-al-Ghul](https://github.com/Ras-al-Ghul)
+* **Abhijith C** - [abhijith0505](https://github.com/abhijith0505) (Tango deivce server and GUI)
+* **Dipankar Niranjan** - [Ras-al-Ghul](https://github.com/Ras-al-Ghul) (Anomaly Detection)
 
 
 ## License

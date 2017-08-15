@@ -104,6 +104,9 @@ doe - DateTime
 2) **cycle_time** :  Sleep cycle time
 3) **doe** : Date of entry
 
+# Configurations
+
+Edit the **config.cfg** and add the hexoskin credentials.
 
 # Usage
 

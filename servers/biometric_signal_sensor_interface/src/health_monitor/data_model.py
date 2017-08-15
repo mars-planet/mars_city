@@ -85,7 +85,7 @@ class APCAlarms(Base):
                 % (self.RRPeak_hexo_timestamp, self.RR_Quality,
                    self.doe, self.PVC_from))
 
-    def __init__(self, RRPeak_hexo_timestamp, RR_Quality,
+    def __init__(self, RRPeak_hexo_timestamp, RR_Quality, doe,
                  PVC_from):
         self.RRPeak_hexo_timestamp = RRPeak_hexo_timestamp
         self.RR_Quality = RR_Quality
