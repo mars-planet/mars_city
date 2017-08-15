@@ -9,10 +9,10 @@ One can also uncomment the call to `__plot_map()` in the `get_anomaly()` of `atr
        - `rr_intervals:` a 2D pandas dataframe - (refer `rrinterval.txt` from Hexoskin record) 	first column named `hexoskin_timestamps` - contains `int` timestamps second column named as `rr_int` - contains `double` interval data  
        - `hr_quality_indices:` a 2D pandas dataframe - (refer `hr_quality.txt` from Hexoskin record) first column named `hexoskin_timestamps` - containts `int` timestamps second column named as `quality_ind` - contains `int` quality indices, with max value 127  
     - **Output**  
-       **returns**:  
-       `if anomaly:`  
-       `dict` with follwing keys:  
-       - `start_hexo_timestamp:` an integer denoting timestamp of the first record  
+	+ **returns**:  
+	+ `if anomaly:`  
+	+ `dict` with follwing keys:  
+	+ - `start_hexo_timestamp:` an integer denoting timestamp of the first record  
        - `end_hexo_timestamp:` an integer denoting timestamp of 32/64/128 - last record  
        - `num_of_NEC:` a small integer, higher the number, more severe the anomaly here  
        - `data_reliability:` a small integer, which denotes as a percentage, the quality of the data in this window the higher the percentage, worse the quality  
