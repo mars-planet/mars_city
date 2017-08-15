@@ -1,8 +1,9 @@
 # Anomaly Detection Algorithms  
 **NOTE: Please ensure that all the requirements from requirements.txt have been met**  
 
-1. Atrial Fibrillation (Heart Related)  
-To execute `python anomaly_detector.py` (NOTE: This is the only AD algo for which an `AnomalyDetector` object has to be created)  
+1. **Atrial Fibrillation (Heart Related)**  
+To execute `python anomaly_detector.py`  
+(NOTE: This is the only AD algo for which an `AnomalyDetector` object has to be created)  
 One can also uncomment the call to `__plot_map()` in the `get_anomaly()` of `atrial_fibrillation.py`  
 *executes the Atrial Fibrillation Anomaly Detection*  
 ```
@@ -50,5 +51,63 @@ Output:
 	data timestamps to set AFAlarmAttribute at
 	the health_monitor server
 ```
+2. **Ventricular Tachycardia**  
+To execute `python vt_helper.py`  
+creates an object and calls the Ventricular Tachycardia anomaly detection methods  
+```
+Input:
+        ecg:                    a 2D pandas dataframe -
+                                (refer ecg.txt from Hexoskin record)
+                                first column named "hexoskin_timestamps" -
+                                contains 'int' timestamps
+                                second column named as "ecg_val" -
+                                contains 'int' raw ecg data
+        rr_intervals:           a 2D pandas dataframe -
+                                (refer rrinterval.txt from Hexoskin record)
+                                first column named "hexoskin_timestamps" -
+                                contains 'int' timestamps
+                                second column named as "rr_int" -
+                                contains 'double' interval data
+        rr_intervals_status:    a 2D pandas dataframe -
+                                (refer rrintervalstatus from Hexoskin API)
+                                first column named "hexoskin_timestamps" -
+                                containts 'int' timestamps
+                                second column named as "rr_status" -
+                                contains 'int' quality indices.
 
+Output:
+        sets:
+        vt_result:  this is an attribute of an object of this
+                    (Anomaly Detector) class. Its value can
+                    be read from the caller method. Its value
+                    is set to __zero_one_count which is
+                    described next.
 
+        __zero_one_count    -   if it is the string True, it means
+                                that analysis of next 6 seconds is
+                                required
+                            -   if it is False, it means that next 6
+                                second analysis is not required
+                            -   if it has an integer value then it
+                                means that a VT event has been detected
+                                and it has to be stored in the anomaly
+                                database and of course next 6 second
+                                analysis is required
+
+    Notes:
+        based on the following three papers:
+
+        'Ventricular Tachycardia/Fibrillation Detection
+        Algorithm for 24/7 Personal Wireless Heart Monitoring'
+        by Fokkenrood et. al.
+
+        'Real Time detection of ventricular fibrillation
+        and tachycardia' by Jekova et. al.
+
+        'Increase in Heart Rate Precedes Episodes of
+        Ventricular Tachycardia and Ventricular
+        Fibrillation in Patients with Implantahle
+        Cardioverter Defihrillators: Analysis of
+        Spontaneous Ventricular Tachycardia Database'
+        by Nemec et. al.
+```
