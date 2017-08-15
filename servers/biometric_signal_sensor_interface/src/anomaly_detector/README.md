@@ -1,5 +1,6 @@
 # Anomaly Detection Algorithms  
-**NOTE: Please ensure that all the requirements from requirements.txt have been met**  
+NOTE: Please ensure that all the requirements from requirements.txt have been met.  
+Refer to [Google Summer of Code blog post links](https://medium.com/@dipankar1995/) for more context.  
 
 1. **Atrial Fibrillation (Heart Related)**  
 To execute `python anomaly_detector.py`  
@@ -42,7 +43,7 @@ Output:
 	else:
 	    None
 
-	Notes:
+Notes:
 	based on 'A Simple Method to Detect
 	Atrial Fibrillation Using RR Intervals'
 	by Jie Lian et. al.
@@ -51,9 +52,9 @@ Output:
 	data timestamps to set AFAlarmAttribute at
 	the health_monitor server
 ```
-2. **Ventricular Tachycardia**  
+2. **Ventricular Tachycardia (Heart Related)**  
 To execute `python vt_helper.py`  
-creates an object and calls the Ventricular Tachycardia anomaly detection methods  
+creates a helper object and calls the `VentricularTachycardia` anomaly detection methods  
 ```
 Input:
         ecg:                    a 2D pandas dataframe -
@@ -94,7 +95,7 @@ Output:
                                 database and of course next 6 second
                                 analysis is required
 
-    Notes:
+Notes:
         based on the following three papers:
 
         'Ventricular Tachycardia/Fibrillation Detection
@@ -110,4 +111,72 @@ Output:
         Cardioverter Defihrillators: Analysis of
         Spontaneous Ventricular Tachycardia Database'
         by Nemec et. al.
+```
+3. **APC/PVC using Krasteva's paper (Heart Related)**  
+To execute `python apc_pvc_helper.py`  
+creates a helper object and calls the `APC` anomaly detection methods  
+```
+Input:
+        timestamp:  the first timestamp
+
+Output:
+        stores to the results dict of the APC class
+
+Notes:
+        based on the following paper:
+
+        'Automatic detection of premature atrial
+        contractions in the electrocardiogram'
+        by Krasteva et. al.
+```
+4. **PVC using Hamilton's beat detector (Heart Related)**  
+To execute `python pvc_hamilton.py`  
+creates a `PVC` object to detect PVCs  
+```
+Input:
+        timestamp:  the first timestamp
+
+Output:
+        stores to the results dict of the PVC class
+
+Notes:
+        based on:
+
+        'Open Source ECG Analysis Software
+        Documentation'
+        by Patrick S. Hamilton
+```
+5. **Respiratory AD (Breathing Related)**  
+To execute `python respiration_AD.py`  
+creates a `RespiratoryAD` object and performs Respiratory data related Anomaly Detection  
+```
+Input:
+        timestamp:  the first timestamp
+
+Output:
+        stores to the results dict of the RespiratoryAD class
+
+Notes:
+        based on:
+
+        'http://wps.prenhall.com/wps/media/objects/2791/2858109/toolbox/Box15_1.pdf'
+```
+6. **Sleep AD (Sleep Related)**  
+To execute `python sleep_AD.py`  
+creates a `SleepAD` object and performs Sleep data related Anomaly Detection  
+```
+Input:
+        None
+
+Output:
+        stores to the anomaly_dict of the SleepAD class
+
+Notes:
+        based on:
+
+        'https://www.sleepcycle.com/how-it-works/'
+        'http://blog.doctoroz.com/oz-experts/calculating-your-perfect-bedtime-and-sleep-efficiency'
+        'https://api.hexoskin.com/docs/resource/sleepphase/'
+        'https://api.hexoskin.com/docs/resource/sleepposition/''
+        'https://api.hexoskin.com/docs/resource/metric/'
 ```
