@@ -7,8 +7,6 @@ Project Structure:
 
 ```
 /mars_city/servers/biometric_signal_sensor_interface/
-|-- docs
-    `-- 
 |-- src
     `-- anomaly_detector (Anomaly Detection Module)
     `-- gui
@@ -18,6 +16,7 @@ Project Structure:
     `-- hexoskin_helper (Hexoskin Helper Module)
         `-- hexoskin (Hexoskin Python Client)
 |-- README.md
+|-- requirements.txt
 
 ```
 # Architecture
@@ -34,6 +33,65 @@ Device Used :- [Hexoskin Smart Shirt](http://hexoskin.com/)
 
 # Getting started
 
-Refer [this](https://github.com/mars-planet/mars_city/blob/master/servers/body_tracker_v2/src/win/PyTango%20Setup/PyTango%20Installation%20Instructions/Instructions.txt) to set up Tango Controls on your system.
+### Prerequisities
+
+##### Hardware requirements.
+
+- 64-bit (x64) processor
+- 4 GB Memory (or more)
+- Physical dual-core 3.1 GHz (2 logical cores per physical) or faster processor
+- USB 3.0 controller for synchronising the Hexoskin Smart Shirt
+- [Hexoskin Smart Shirt](http://hexoskin.com/)
+- A smart phone to run the Hexoskin Android Application 
+
+##### Software requirements.
+
+- [Ubuntu 14.04](http://releases.ubuntu.com/14.04/)
+> The required Tango Controls did not install properly on other Ubuntu releases
+
+- [Tango controls](http://www.tango-controls.org/downloads/binary/) (The TANGO control system is a free open source device-oriented controls toolkit for controlling any kind of hardware or software and building SCADA systems)
+- [Flask](http://flask.pocoo.org/) (Flask is a microframework for Python based on Werkzeug and Jinja 2. Used for the web application to support Graphical User Interface for the system)
+- [Hexoskin Android Application](https://play.google.com/store/apps/details?id=com.hexoskin.hexoskin&hl=en)
 
 
+
+### Installing
+
+- Install all the dependencies mentioned above.
+- For Tango installation follow [this](http://marscity.readthedocs.io/en/latest/doc/setup.html) link since the default installation guide by tango is outdated and dosen't work with newer MySQL versions.
+Once this installation is done sucessfully, JIVE which is an application provided by tango should open sucessfully.
+- Install the python dependencies using ``` pip install -r requirements.txt```, present in this directory.
+
+This should install all necessary dependencies and set up the environment for the Biometric Signal Sensor's Interface project.
+
+# Running
+####Follow the instructions in this order.
+
+ - First, wear the Hexoskin Smart Shirt and connect the Hexoskin device with the shirt.
+ - Connect the device with a smart phone over blue-tooth to communicate with the application.
+> Refer [here](https://www.hexoskin.com/pages/start) for more Hexoskin related instructions for getting started  
+
+ - Start the Tango Device Server to start the data collection and the anomaly detection (Refer [here](https://github.com/mars-planet/mars_city/blob/master/servers/biometric_signal_sensor_interface/src/health_monitor/README.md) for more details)
+ - Start the Python Flask Graphical User Interface (Refer [here](https://github.com/mars-planet/mars_city/blob/master/servers/biometric_signal_sensor_interface/src/gui/README.md))
+
+## Contributing
+
+Please read [Software Engineering Guidelines](http://eras.readthedocs.io/en/latest/doc/guidelines.html) for details on our code of conduct, and the process for submitting pull requests to us.
+
+## Versioning
+
+We use [GitHub](http://github.com/) for versioning.
+
+## Authors
+
+* **Abhijith C** - [abhijith0505](https://github.com/abhijith0505)
+* **Dipankar Niranjan** - [Ras-al-Ghul](https://github.com/Ras-al-Ghul)
+
+
+## License
+
+This project is licensed under the Mars City License - see the [LICENSE.md](https://github.com/mars-planet/mars_city/blob/master/LICENSE) file for details
+
+## Acknowledgments
+
+* [Antonio](https://github.com/aldebran), [Mario](https://github.com/mtambos) and [Ambar](https://github.com/coder006).
