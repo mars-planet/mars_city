@@ -1,15 +1,14 @@
 from __future__ import division, print_function
 from collections import OrderedDict
 from copy import deepcopy
-# from threading import Thread
 
 import os
 import sys
 import csv
 import time
-# import ConfigParser
 
 import matplotlib.pyplot as plt
+
 
 class SleepAD(object):
 	def __init__(self):
@@ -70,14 +69,12 @@ class SleepAD(object):
 		# number of times sleep_phase is 6
 		self.woke_up_count = 0
 
-	def calc_woke_up_count(self):
-		__total_times = 0
-		__sleep_phase_dict = deepcopy(self.sleep_phase_dict)
-		while __sleep_phase_dict:
-			temp = __sleep_phase_dict.popitem(last=False)
-			if temp[1] == 6:
-				__total_times += 1
-		self.woke_up_count = __total_times;
+		# anomaly is calculated as time between
+		# sleep onset to next sleep onset
+		# if this time is not within 70<time<110 minutes
+		# then it is a possible irregular/disturbed sleep cycle
+		# key:value = start_hexo_timestamp:duration (in minutes)
+		self.anomaly_dict = OrderedDict()
 		return
 
 	def get_metrics(self):
@@ -94,7 +91,40 @@ class SleepAD(object):
 		# self.sleep_wake_time
 		pass
 
+	def calc_woke_up_count(self):
+		__total_times = 0
+		__sleep_phase_dict = deepcopy(self.sleep_phase_dict)
+		while __sleep_phase_dict:
+			temp = __sleep_phase_dict.popitem(last=False)
+			if temp[1] == 6:
+				__total_times += 1
+		self.woke_up_count = __total_times;
+		return
+
+	def get_possible_anomaly(self):
+		# here we calculate it for sleep onset = 2
+		# can be calculated for REM onset = 5 too
+		# just change
+		# if temp[1] == 2
+		# to
+		# if temp[1] == 5
+		__sleep_phase_dict = deepcopy(self.sleep_phase_dict)
+		prev = None
+		while __sleep_phase_dict:
+			temp = __sleep_phase_dict.popitem(last=False)
+			if temp[1] == 2:
+				if prev:
+					# in minutes
+					time_gap = ((temp[0] - prev[0])/256.0)/60
+					if not 70 <= time_gap <= 110:
+						self.anomaly_dict[prev[0]] = time_gap
+				prev = temp
+		print(self.anomaly_dict)
+		return
+
 	def populate_DS(self):
+		# cannot filter by activity = sleep
+		# hence get record where activity was sleep
 		with open('sleepphase.txt', 'r') as f:
 			testip = list(csv.reader(f, delimiter=','))
 			flag = False
@@ -122,12 +152,15 @@ class SleepAD(object):
 					self.sleep_posn_dict[int(float(i[0]))] = float(i[1])
 			f.close()
 		# print(self.sleep_posn_dict)
+		return
 
 def main():
 	SleepObj = SleepAD()
 	SleepObj.populate_DS()
 	SleepObj.get_metrics()
 	SleepObj.calc_woke_up_count()
+	SleepObj.get_possible_anomaly()
+	return
 
 if __name__ == '__main__':
 	main()
