@@ -695,7 +695,8 @@ def resp_realtime(auth, recordID, obj, datatypes=''):
             exp_dict = dict(zip(exp_timestamp, exp_values))
 
             try:
-                first_analyze_timestamp = tidal_v_timestamp[0]
+                # first_analyze_timestamp = tidal_v_timestamp[0]
+                first_analyze_timestamp = resp_timestamp[0]
             except:
                 continue
 
@@ -714,8 +715,9 @@ def resp_realtime(auth, recordID, obj, datatypes=''):
             exp_timestamp = []
             exp_values = []
 
-            respObj = respiration.RespiratoryAD(config,
-                        first_analyze_timestamp)
+            if not first_analyze_flag:
+                respObj = respiration.RespiratoryAD(config,
+                            first_analyze_timestamp)
 
             respObj.populate_DS(tidalv_dict, minv_dict, resp_dict, br_dict,
                 brq_dict, insp_dict, exp_dict)
