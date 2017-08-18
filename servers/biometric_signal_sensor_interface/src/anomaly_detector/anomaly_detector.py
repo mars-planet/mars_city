@@ -13,6 +13,7 @@ from ventricular_tachycardia import VentricularTachycardia
 from apc_pvc_helper import APC_helper
 from pvc_hamilton import PVC
 from respiration_AD import RespiratoryAD
+from sleep_AD import SleepAD
 
 
 class AnomalyDetector(object):
@@ -291,6 +292,35 @@ class AnomalyDetector(object):
         th6 = Thread(target=respObj.delete_DS, args=[])
         th6.start()
 
+    def sleep_AD(self):
+        """
+        this is only for testing and reference purpose,
+        in actuality, create SleepAD object and call
+        directly - no need to create AD object for this
+        Input:
+            None
+
+        Output:
+            stores to the anomaly_dict of the SleepAD class
+
+        Notes:
+            based on:
+
+            'https://www.sleepcycle.com/how-it-works/'
+            'http://blog.doctoroz.com/oz-experts/calculating-your-
+            perfect-bedtime-and-sleep-efficiency'
+            'https://api.hexoskin.com/docs/resource/sleepphase/'
+            'https://api.hexoskin.com/docs/resource/sleepposition/''
+            'https://api.hexoskin.com/docs/resource/metric/'
+
+            Refer to readme for more details
+        """
+        SleepObj = SleepAD()
+        SleepObj.populate_DS()
+        SleepObj.get_metrics()
+        SleepObj.calc_woke_up_count()
+        SleepObj.get_possible_anomaly()
+
 
 def main():
     AD = AnomalyDetector()
@@ -313,7 +343,7 @@ def main():
                                       names=["hexoskin_timestamps",
                                              "quality_ind"]))
     # call the Atrial Fibrillation anomaly detection method
-    # print(AD.af_anomaly_detect(rr_intervals, hr_quality_indices))
+    print(AD.af_anomaly_detect(rr_intervals, hr_quality_indices))
 
     ecg = (pd.read_csv('ecg.txt',
                        sep="\t",
@@ -355,6 +385,8 @@ def main():
     # AD.pvc_Hamilton(383021266184)
 
     # AD.resp_AD(383021140185)
+
+    # AD.sleep_AD()
 
 
 if __name__ == '__main__':

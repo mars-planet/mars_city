@@ -2,12 +2,13 @@ from __future__ import division, print_function
 from datetime import datetime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, DateTime, Integer, SmallInteger,\
-    String, create_engine
+    String, Float, create_engine
 
 engine = create_engine('sqlite:///anomalies.db', echo=False)
 Base = declarative_base()
 
 ########################################################################
+
 
 class Data(Base):
     __tablename__ = 'Data'
@@ -25,6 +26,7 @@ class Data(Base):
         self.data = data
         self.datatype = datatype
 # ----------------------------------------------------------------------------
+
 
 class AtrFibAlarms(Base):
     __tablename__ = 'AtrFibAlarms'
@@ -85,7 +87,7 @@ class APCAlarms(Base):
                 % (self.RRPeak_hexo_timestamp, self.RR_Quality,
                    self.doe, self.PVC_from))
 
-    def __init__(self, RRPeak_hexo_timestamp, RR_Quality,
+    def __init__(self, RRPeak_hexo_timestamp, RR_Quality, doe,
                  PVC_from):
         self.RRPeak_hexo_timestamp = RRPeak_hexo_timestamp
         self.RR_Quality = RR_Quality
@@ -111,6 +113,24 @@ class RespAlarms(Base):
         self.Resp_hexo_timestamp = Resp_hexo_timestamp
         self.BRstatus_mean = BRstatus_mean
         self.Anomaly_type = Anomaly_type
+        self.doe = doe
+# ----------------------------------------------------------------------------
+
+
+class SleepAlarms(Base):
+    __tablename__ = 'SleepAlarms'
+    start_hexo_timestamp = Column(Integer, primary_key=True, nullable=False)
+    cycle_time = Column(Float, nullable=False)
+    doe = Column(DateTime, nullable=False, default=datetime.now())
+
+    def __repr__(self):
+        return ("<SleepAlarms('%s', '%s', '%s')>"
+                % (self.start_hexo_timestamp, self.cycle_time,
+                   self.doe))
+
+    def __init__(self, start_hexo_timestamp, cycle_time, doe):
+        self.start_hexo_timestamp = start_hexo_timestamp
+        self.cycle_time = cycle_time
         self.doe = doe
 
 
