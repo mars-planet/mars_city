@@ -30,11 +30,10 @@ warning in case of an expected SEP event,to prevent the radiation exposure for t
 Reference Documents
 -------------------
 
-- [1] -- `PREDICCS. <http://prediccs.sr.unh.edu/data/goesPlots/bryn/plotdata/dose/5daysMars.plot>`_
-- [2] -- `CACTUS. <http://www.sidc.oma.be/cactus/out/latestCMEs.html>`_
-- [3] -- `Space Weather Prediction Center. <http://www.swpc.noaa.gov/index.html>`_
+- [1] -- `PREDICCS. <http://prediccs.sr.unh.edu/index.html#what>`_
+- [2] -- `CACTUS. <http://www.sidc.oma.be/cactus/>`_
+- [3] -- `FORSPEF. <http://tromos.space.noa.gr/forspef/main/>`_
 - [4] -- `Software Engineering Practices Guidelines. <https://eras.readthedocs.org/en/latest/doc/guidelines.html>`_
-- [5] -- `FORSPEF. <http://tromos.space.noa.gr/forspef/modules/>`_
 
 Glossary
 --------
@@ -47,18 +46,9 @@ Glossary
     ``IMS``
         Italian Mars Society
 
-    ``GOES``
-        Geostationary Operational Environmental Satellite
+    ``FORSPEF``
+        FORecasting Solar Particle Events and Flares TOOL
 
-    ``NGDC``
-		National Geophysical Data Center
-
-    ``SDO``
-        Solar Dynamics Observatory
-
-    ``SWPC``
-		Space Weather Prediction Center
-    
     ``SEP``
         Solar Energy Particles
 
@@ -98,6 +88,11 @@ The module can be divided into five main sections
     2) Alarm unit 
     3) All-Clear signal Unit
     4) REST service 
+    5) Web based GUI
+
+A brief software architecture diagram is presented here :
+
+.. image:: restapi.png
 
 
 Software Design
@@ -250,3 +245,23 @@ Uses/Interactions
 -----------------
 
 The module takes inputs from the Alarm and the All-Clear units.
+
+Unit 5 : Web based GUI
+-----------------------
+
+Definition
+----------
+
+GUI interface for the package
+
+Responsibilities
+----------------
+
+The responsibility of the module is to give a streaming data plot 
+and issue alarm information as given by the REST Service.
+
+Composition
+-----------
+
+Plotly.js library is used for the plots and flask for hosting the service.
+
