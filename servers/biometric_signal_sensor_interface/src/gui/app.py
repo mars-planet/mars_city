@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function
 from flask import Flask, render_template
 import ConfigParser
 import datetime
+import logging
 import requests
 import PyTango
 import json
@@ -18,6 +19,9 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.config.from_object(__name__)
 DEBUG = True
+
+# Logging config
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 requests.packages.urllib3.disable_warnings()
 
@@ -40,7 +44,7 @@ def config_helper(section):
         try:
             dict_config[option] = config.get(section, option)
         except:
-            print("exception on %s!" % option)
+            logging.exception("exception on %s!" % option)
             dict_config[option] = None
     return dict_config
 
@@ -425,6 +429,14 @@ if __name__ == "__main__":
     '''
     Main Function
     '''
+    logging.warning('Warning')
+    logging.info('Info')
+    logging.error('Error')
+    logging.exception('Exception')
+    logging.critical('Critical')
+
+
+
     biometric_monitor = PyTango.DeviceProxy(
         config_helper("BiometricMonitor")['name'])
 

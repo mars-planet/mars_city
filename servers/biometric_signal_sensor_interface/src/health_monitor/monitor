@@ -10,6 +10,10 @@ from threading import Thread
 import monitor as hm
 import time
 import json
+import logging
+
+# Logging Config
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 
 class Monitor(Device):
@@ -41,10 +45,10 @@ class Monitor(Device):
         self._username += user_name_t['objects'][0]['last_name']
         self._recordid = hm.get_rrecordid(self.auth)
 
-        self.log_function("\n")
-        self.log_function("-" * 78)
-        self.log_function('...Starting Biometric Health Monitor...')
-        self.log_function("-" * 78)
+        logging.info("\n")
+        logging.info("-" * 78)
+        logging.info('...Starting Biometric Health Monitor...')
+        logging.info("-" * 78)
         self.start_monitoring()
 
     def read_username(self):
@@ -69,56 +73,56 @@ class Monitor(Device):
         '''
         Atrial Fribillation as a Thread
         '''
-        self.log_function("\nStarting Atrial Fribillation Anomaly "
+        logging.info("\nStarting Atrial Fribillation Anomaly "
                           "Detection in background")
 
         # Call to get Atrial Fribillation Anomaly Detection
         th1 = Thread(target=hm.atrial_fibrillation_helper,
                      args=[self.auth])
         th1.start()
-        self.log_function('Started\n')
+        logging.info('Started\n')
 
     def ventricular_tachycardia(self):
         '''
         Ventricular Tachycardia as a Thread
         '''
-        self.log_function("-" * 78)
-        self.log_function("\nStarting Ventricular Tachycardia Anomaly "
+        logging.info("-" * 78)
+        logging.info("\nStarting Ventricular Tachycardia Anomaly "
                           "Detection in background")
 
         # Call to get Ventricular Tachycardia Anomaly Detection
         th2 = Thread(target=hm.ventricular_tachycardia_helper,
                      args=[self.auth])
         th2.start()
-        self.log_function('Started\n')
+        logging.info('Started\n')
 
     def apc_pvc(self):
         '''
         APC_PVC as a Thread
         '''
-        self.log_function("-" * 78)
-        self.log_function("\nStarting APC PVC Anomaly "
+        logging.info("-" * 78)
+        logging.info("\nStarting APC PVC Anomaly "
                           "Detection in background")
 
         # Call to get Ventricular Tachycardia Anomaly Detection
         th3 = Thread(target=hm._apc_pvc_helper,
                      args=[self.auth])
         th3.start()
-        self.log_function('Started\n')
+        logging.info('Started\n')
 
     def resp_ad(self):
         '''
         Respiration AD as a Thread
         '''
-        self.log_function("-" * 78)
-        self.log_function("\nStarting Respiration Anomaly "
+        logging.info("-" * 78)
+        logging.info("\nStarting Respiration Anomaly "
                           "Detection in background")
 
         # Call to get Ventricular Tachycardia Anomaly Detection
         th4 = Thread(target=hm.resp_helper,
                      args=[self.auth])
         th4.start()
-        self.log_function('Started\n')
+        logging.info('Started\n')
 
     @command(dtype_out=str,
              doc_out="AF AD from DB as JSON")
@@ -185,11 +189,11 @@ class Monitor(Device):
                         monitoring is being done
                         FALSE if astronaut not in real-time session
         '''
-        self.log_function('\nName: %s' % self._username)
+        logging.info('\nName: %s' % self._username)
 
         if self._recordid == -1:
             poll_counter = 10
-            self.log_function(
+            logging.info(
                 "Checking for real-time record of %s" % self._username)
             while poll_counter > 0:
                 poll_counter -= 1
@@ -199,17 +203,17 @@ class Monitor(Device):
                     break
 
             if self._recordid == -1:
-                self.log_function(
+                logging.info(
                     '\n%s is not in a live sesson!' % self._username)
-                self.log_function(
+                logging.info(
                     'Please connect the hexoskin device and try again')
-                self.log_function('-' * 31 + 'X' + '-' * 31)
+                logging.info('-' * 31 + 'X' + '-' * 31)
                 return False
 
-        self.log_function(
+        logging.info(
             'Record ID of current real-time session: %s' % self._recordid)
 
-        self.log_function("-" * 78)
+        logging.info("-" * 78)
 
         # ****************** Atrial Fribillation *******************
         self.atrial_fribillation()
@@ -224,11 +228,10 @@ class Monitor(Device):
         self.resp_ad()
 
         # ****************** ******************
-        self.log_function("-" * 78)
+        logging.info("-" * 78)
 
         return True
 
 
 if __name__ == "__main__":
-    Monitor.log_function = print
     server_run([Monitor])

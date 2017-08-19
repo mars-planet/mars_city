@@ -4,6 +4,7 @@ import datetime
 import hexoskin.client
 import hexoskin.errors
 import requests
+import logging
 import ConfigParser
 
 requests.packages.urllib3.disable_warnings()
@@ -11,6 +12,9 @@ config = ConfigParser.ConfigParser()
 config.read("../health_monitor/config.cfg")
 
 __author__ = 'abhijith'
+
+# Logging Config
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 '''
 utilityHelper provides all methods that retrieves the non-biometric data
@@ -124,7 +128,7 @@ class SessionInfo:
             password, api_version='3.3.x')
         authCode = test_auth(self.api)
         if authCode != '':
-            print("Failed...")
+            logging.critical("Failed...")
             raise
 
 
@@ -146,7 +150,7 @@ def auth_login():
 
     except Exception as error:
         error_msg = error.args
-        print(error_msg[0])
+        logging.exception(error_msg[0])
 
     else:
         auth = SessionInfo(publicKey=publicKey, privateKey=privateKey,
@@ -235,7 +239,7 @@ def config_helper(section):
         try:
             dict_config[option] = config.get(section, option)
         except:
-            print("exception on %s!" % option)
+            logging.exception("exception on %s!" % option)
             dict_config[option] = None
     return dict_config
 

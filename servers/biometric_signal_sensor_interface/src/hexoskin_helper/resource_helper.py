@@ -5,6 +5,7 @@ import time
 import requests
 import ConfigParser
 import calendar
+import logging
 import utility_helper as util
 import pandas as pd
 import numpy as np
@@ -13,6 +14,9 @@ sys.path.insert(0, '../anomaly_detector')
 import respiration_AD as respiration
 
 requests.packages.urllib3.disable_warnings()
+
+# Logging Config
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 __author__ = 'abhijith'
 
@@ -108,7 +112,7 @@ def get_data(auth, recordID, start='', end='', datatypes='',
                 d_items = util.raw_datatypes.items()
                 key = [d_key for d_key, value in d_items if value == [dataID]]
                 raw_flag = 1
-            print("Downloading " + key[0])
+            logging.info("Downloading " + key[0])
             if raw_flag:
                 data = get_unsubsampled_data_helper(
                     auth=auth, userID=record.user, start=start, end=end,
@@ -121,18 +125,18 @@ def get_data(auth, recordID, start='', end='', datatypes='',
     else:
         if downloadRaw is True:
             for rawID in util.raw_datatypes:
-                print("Downloading" + rawID)
+                logging.info("Downloading" + rawID)
                 raw_dat = get_unsubsampled_data_helper(
                     auth=auth, userID=record.user, start=record.start,
                     end=record.end, dataID=util.raw_datatypes[rawID])
                 final_dat[rawID] = raw_dat
         for dataID in util.datatypes:
-            print("Downloading " + dataID)
+            logging.info("Downloading " + dataID)
             data = get_unsubsampled_data_helper(
                 auth=auth, userID=record.user, start=record.start,
                 end=record.end, dataID=util.datatypes[dataID])
             final_dat[dataID] = data
-    print(final_dat)
+    logging.info(final_dat)
     return final_dat
 
 
@@ -291,7 +295,8 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
     '''
     record = auth.api.record.get(recordID)
     if record.status != 'realtime':
-        print("No realtime data available with this record. Already docked.")
+        logging.warning(
+            "No realtime data available with this record. Already docked.")
         return -1
 
     exitCounter = 5
@@ -303,30 +308,28 @@ def AF_realtime(auth, recordID, func, window_size='64', datatypes=''):
 
     for data in realtime_data_generator(auth, recordID, datatypes):
         # For debugging
-        print(len(data), "AF")
+        logging.debug(len(data), "AF")
         if len(data[datatypes[0]]) == 0:
             exitCounter = exitCounter - 1
             if exitCounter == 0:
                 break
         else:
             exitCounter = 5
-            skipFlag = 0
             for a in data[datatypes[0]]:
                 if a[1] is not None:
                     rr_timestamp.append(a[0])
                     rr_values.append(a[1])
                     db.add_data(a[0], a[1], datatypes[0])
 
-            skipFlag = 0
             for a in data[datatypes[1]]:
                 if a[1] is not None:
                     hrq_timestamp.append(a[0])
                     hrq_values.append(a[1])
                     db.add_data(a[0], a[1], datatypes[1])
 
-            print("Added raw data to db")
+            logging.info("Added raw data to db")
 
-            print("Collected {} data points".format(len(rr_timestamp)))
+            logging.debug("Collected {} data points".format(len(rr_timestamp)))
             if (len(rr_timestamp) >= window_size and
                     len(hrq_timestamp) >= window_size):
                 # Pandas Dataframe
@@ -372,7 +375,8 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
     '''
     record = auth.api.record.get(recordID)
     if record.status != 'realtime':
-        print("No realtime data available with this record. Already docked.")
+        logging.warning(
+            "No realtime data available with this record. Already docked.")
         return -1
 
     exitCounter = 5
@@ -391,7 +395,7 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
     beat_analyze_flag = 0
 
     for data in realtime_data_generator(auth, recordID, datatypes):
-        print(len(data))
+        logging.debug(len(data))
         if len(data[datatypes[0]]) == 0:
             exitCounter = exitCounter - 1
             if exitCounter == 0:
@@ -429,16 +433,16 @@ def VT_realtime(auth, recordID, VTBD, datatypes=''):
                     hrq_timestamp.append(int(a[0]))
                     hrq_values.append(int(a[1]))
 
-            print("Added raw data to db")
+            logging.info("Added raw data to db")
             ecg_dict = dict(zip(ecg_timestamp, ecg_values))
 
             rr_dict = {}
-            for time, rr, rrs in zip(rrs_timestamp, rr_values, rrs_values):
-                rr_dict[time] = (rr, rrs)
+            for _time, rr, rrs in zip(rrs_timestamp, rr_values, rrs_values):
+                rr_dict[_time] = (rr, rrs)
 
             hr_dict = {}
-            for time, hr, hrq in zip(hr_timestamp, hr_values, hrq_values):
-                hr_dict[time] = (hr, hrq)
+            for _time, hr, hrq in zip(hr_timestamp, hr_values, hrq_values):
+                hr_dict[_time] = (hr, hrq)
 
             beat_analyze_timestamp = rr_timestamp[0]
 
@@ -486,7 +490,8 @@ def APC_PVC_realtime(auth, recordID, obj, datatypes=''):
     '''
     record = auth.api.record.get(recordID)
     if record.status != 'realtime':
-        print("No realtime data available with this record. Already docked.")
+        logging.warning(
+            "No realtime data available with this record. Already docked.")
         return -1
 
     exitCounter = 5
@@ -499,7 +504,7 @@ def APC_PVC_realtime(auth, recordID, obj, datatypes=''):
     first_analyze_flag = 0
 
     for data in realtime_data_generator(auth, recordID, datatypes):
-        print(len(data[4113]), len(data[1004]))
+        logging.debug(len(data[4113]), len(data[1004]))
 
         if len(data[datatypes[0]]) == 0:
             exitCounter = exitCounter - 1
@@ -578,7 +583,8 @@ def resp_realtime(auth, recordID, obj, datatypes=''):
     '''
     record = auth.api.record.get(recordID)
     if record.status != 'realtime':
-        print("No realtime data available with this record. Already docked.")
+        logging.warning(
+            "No realtime data available with this record. Already docked.")
         return -1
 
     exitCounter = 5
@@ -604,7 +610,7 @@ def resp_realtime(auth, recordID, obj, datatypes=''):
     first_analyze_flag = 0
 
     for data in realtime_data_generator(auth, recordID, datatypes):
-        print(len(data[4129]), len(data[35]))
+        logging.debug(len(data[4129]), len(data[35]))
         if len(data[datatypes[0]]) == 0:
             exitCounter = exitCounter - 1
             if exitCounter == 0:
@@ -683,13 +689,12 @@ def resp_realtime(auth, recordID, obj, datatypes=''):
             exp_timestamp = []
             exp_values = []
 
-
             if not first_analyze_flag:
                 respObj = respiration.RespiratoryAD(config,
-                            first_analyze_timestamp)
+                                                    first_analyze_timestamp)
 
             respObj.populate_DS(tidalv_dict, minv_dict, resp_dict, br_dict,
-                brq_dict, insp_dict, exp_dict)
+                                brq_dict, insp_dict, exp_dict)
 
             try:
                 if first_analyze_flag == 0:
@@ -699,7 +704,7 @@ def resp_realtime(auth, recordID, obj, datatypes=''):
                     th2.start()
 
                     th3 = Thread(target=respObj.minute_ventilation_anomaly,
-                     args=[])
+                                 args=[])
                     th3.start()
 
                     th4 = Thread(target=respObj.resp_variation, args=[])
@@ -717,6 +722,7 @@ def resp_realtime(auth, recordID, obj, datatypes=''):
                 print(e)
                 continue
     return
+
 
 def sleep_ad(auth, recordID):
     '''
@@ -744,16 +750,16 @@ def sleep_ad(auth, recordID):
 
         for a in sleepphase:
             if a[1] is None:
-                sleepphase_file.write(str(int(a[0]))+",null\n")
+                sleepphase_file.write(str(int(a[0])) + ",null\n")
             else:
-                sleepphase_file.write(str(int(a[0]))+","+str(a[1])+"\n")
+                sleepphase_file.write(str(int(a[0])) + "," + str(a[1]) + "\n")
 
         for a in sleeppos:
             if a[1] is None:
-                sleeppos_file.write(str(int(a[0]))+",null\n")
+                sleeppos_file.write(str(int(a[0])) + ",null\n")
             else:
-                sleeppos_file.write(str(int(a[0]))+","+str(a[1])+"\n")
-        
+                sleeppos_file.write(str(int(a[0])) + "," + str(a[1]) + "\n")
+
         sleepphase_file.close()
         sleeppos_file.close()
     except:
@@ -761,12 +767,12 @@ def sleep_ad(auth, recordID):
 
     return
 
+
 def main(argv):
     '''
     Main Function
     '''
     pass
-    
 
 
 if __name__ == "__main__":

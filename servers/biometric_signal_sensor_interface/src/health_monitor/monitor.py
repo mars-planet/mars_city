@@ -238,7 +238,6 @@ def apc_from_db():
             @return :           Retrieve APC/PVC AD data from DB
     '''
     data = db.get_apc()
-    # print(data, "DATA")
     return_json = {}
     for _data in data:
         _data[2] = _data[2].now().strftime('%Y-%m-%d %H:%M:%S')
@@ -252,7 +251,6 @@ def resp_from_db():
             @return :           Retrieve Respiration AD data from DB
     '''
     data = db.get_resp()
-    # print(data, "DATA")
     return_json = {}
     for _data in data:
         _data[2] = _data[2].now().strftime('%Y-%m-%d %H:%M:%S')
@@ -266,7 +264,6 @@ def sleep_from_db():
             @return :           Retrieve Respiration AD data from DB
     '''
     data = db.get_sleep()
-    # print(data, "DATA")
     return_json = {}
     for _data in data:
         _data[2] = _data[2].now().strftime('%Y-%m-%d %H:%M:%S')

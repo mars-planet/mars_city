@@ -1,6 +1,7 @@
 from __future__ import division, print_function
 import sys
 import time
+import logging
 sys.path.insert(0, '../health_monitor')
 from data_model import AtrFibAlarms, VenTacAlarms, APCAlarms
 from data_model import Data, RespAlarms, SleepAlarms
@@ -11,6 +12,9 @@ from datetime import datetime
 # Connecting to the database
 engine = create_engine('sqlite:///../health_monitor/anomalies.db', echo=False)
 Session = sessionmaker(bind=engine)
+
+# Logging Config
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 #
 #
@@ -42,7 +46,7 @@ def add_af(data):
 
             # commit the record the database
             s.commit()
-            print("Inserted AF row successfully")
+            logging.info("Inserted AF row successfully")
             return 0
 
     except:
@@ -76,7 +80,7 @@ def add_vt(data):
 
             # commit the record the database
             s.commit()
-            print("Inserted VT row successfully")
+            logging.info("Inserted VT row successfully")
             return 0
 
     except:
@@ -110,7 +114,7 @@ def add_apc(data):
 
             # commit the record the database
             s.commit()
-            print("Inserted APC row successfully")
+            logging.info("Inserted APC row successfully")
             return 0
 
     except:
@@ -143,7 +147,7 @@ def add_resp(data):
 
             # commit the record the database
             s.commit()
-            print("Inserted Resp row successfully")
+            logging.info("Inserted Resp row successfully")
             return 0
 
     except:
@@ -175,7 +179,7 @@ def add_sleep(data):
 
             # commit the record the database
             s.commit()
-            print("Inserted Sleep row successfully")
+            logging.info("Inserted Sleep row successfully")
             return 0
 
     except:
@@ -316,7 +320,6 @@ def add_data(time, data, _type):
 
             # commit the record the database
             s.commit()
-            # print("Inserted Data row successfully")
             return 0
 
     except:
