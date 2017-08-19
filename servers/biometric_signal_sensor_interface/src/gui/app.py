@@ -429,14 +429,6 @@ if __name__ == "__main__":
     '''
     Main Function
     '''
-    logging.warning('Warning')
-    logging.info('Info')
-    logging.error('Error')
-    logging.exception('Exception')
-    logging.critical('Critical')
-
-
-
     biometric_monitor = PyTango.DeviceProxy(
         config_helper("BiometricMonitor")['name'])
 
