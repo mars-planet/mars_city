@@ -75,41 +75,6 @@ def get_active_record_list(auth, limit="100", user='', deviceFilter=''):
     return response
 
 
-def get_record_info_helper(auth, recordID):
-    '''
-    Returns the information regarding the passed recordID
-        @param auth:        The authentication token to use for the call
-        @param recordID:    Record ID of record
-        @return :           Returns the information regarding the passed
-                            recordID
-    '''
-
-    recordList = get_record_list(auth)
-    response = []
-
-    for record in recordList:
-        if(record['id'] == recordID):
-            response.append(record)
-
-    return response
-
-
-def get_record_data(auth, recordID, downloadRaw=True):
-    """
-    This function allows you to specify a record, and it will manage the
-    retrieval of the different datatypes by itself
-        @param auth:        The authentication token to use for the call
-        @param recordID:    Record ID of record
-        @return :           returns a dictionary containing all datatypes
-                            in separate entries
-    """
-    record = auth.api.record.get(recordID)
-    final_dat = get_data(auth=auth, recordID=recordID,
-                         downloadRaw=downloadRaw)
-    final_dat['info'] = record.fields
-    return final_dat
-
-
 def get_data(auth, recordID, start='', end='', datatypes='',
              downloadRaw=True):
     """

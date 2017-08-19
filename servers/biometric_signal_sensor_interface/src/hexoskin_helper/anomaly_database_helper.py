@@ -363,26 +363,8 @@ def delete_data():
 
 
 # -------------------------------------------------------------
-
-
 def main(argv):
-    data = {}
-    data['Resp_hexo_timestamp'] = 384686420480
-    data['BRstatus_mean'] = 1
-    data['Anomaly_type'] = "Boo ba"
-    add_resp(data)
-
-    data = {}
-    data['Resp_hexo_timestamp'] = 384686420485
-    data['BRstatus_mean'] = 1
-    data['Anomaly_type'] = "Boo ba"
-    add_resp(data)
-
-    data = {}
-    data['Resp_hexo_timestamp'] = 384686420490
-    data['BRstatus_mean'] = 1
-    data['Anomaly_type'] = "Boo ba"
-    add_resp(data)
+    pass
 
 
 if __name__ == "__main__":

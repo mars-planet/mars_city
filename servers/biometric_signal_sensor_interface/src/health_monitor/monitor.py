@@ -11,7 +11,6 @@ import anomaly_database_helper as db
 import vt_helper as vth
 import apc_pvc_helper as apc_pvc
 import pvc_hamilton as pvc_h
-import respiration_AD as respiration
 import sleep_AD as sleepAD
 import ConfigParser
 
@@ -131,7 +130,7 @@ def resp_helper(auth):
                  util.datatypes['expiration'][0]]
 
     resource.resp_realtime(auth, recordID, "",
-        datatypes)
+                           datatypes)
 
     # Successfully finished. Astronaut docked.
     return 1
@@ -247,6 +246,7 @@ def apc_from_db():
 
     return json.dumps((return_json))
 
+
 def resp_from_db():
     '''
             @return :           Retrieve Respiration AD data from DB
@@ -259,6 +259,7 @@ def resp_from_db():
         return_json[_data[0]] = _data[1:]
 
     return json.dumps((return_json))
+
 
 def sleep_from_db():
     '''

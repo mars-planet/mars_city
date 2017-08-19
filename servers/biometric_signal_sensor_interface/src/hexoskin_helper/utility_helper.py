@@ -172,19 +172,6 @@ def test_auth(api):
             return 'key_invalid'
     return ''
 
-
-def user_id(auth):
-    '''
-    Returns list of users under authenticated user's account and respective
-    information such as name, email, profile and resource uri
-        @param auth :   authentication token
-        @return :       JSON response string with account information
-                        of the users under authenticated user's account
-    '''
-    users = auth.api.user.list()[0]
-    return users.id
-
-
 def account_info_helper(auth):
     '''
     Returns only the authenticated user's data such as name, email, uri,
@@ -196,25 +183,10 @@ def account_info_helper(auth):
     users = auth.api.account.list()
     return users.response
 
-
-def user_account_info_helper(auth, userID):
-    '''
-    Param: userID
-    Return value: JSON response string with user's data whose user-id is userID
-
-    Returns only the user's data such as name, email, uri, profile inforation,
-    etc, whose user-id is userID
-        @param auth :   authentication token
-        @param userID : user id
-        @return :       JSON response string with user's data
-                        whose user-id is userID
-    '''
-    raise NotImplementedError
-
-
 def convertTimestamps(arr, format):
     '''
-    Converts timestamps from hexoskin timestamp format to human readable format
+    Converts timestamps from hexoskin timestamp format to human readable
+    format
     Called by other functions
         @param arr :        timestamp
         @param format :     desirec output format

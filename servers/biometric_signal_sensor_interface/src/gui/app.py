@@ -141,6 +141,7 @@ def get_Resp_anomaly():
     _resp_anomaly = sorted(_resp_anomaly, key=lambda x: (x[0]))
     return _resp_anomaly
 
+
 def get_Sleep_anomaly():
     '''
     Calls the Tango device server command to access the Database for the
@@ -160,24 +161,6 @@ def get_Sleep_anomaly():
     _sleep_anomaly = sorted(_sleep_anomaly, key=lambda x: (x[0]))
     return _sleep_anomaly
 
-def get_Sleep_metrics():
-    '''
-    Calls the Tango device server command to access the Database for the
-    Sleep metrics
-        @return :           A list containing rows from the database
-    '''
-    sleep_metric_json = json.loads(biometric_monitor.sleep_to_gui())
-    _sleep_metric = []
-    for key, value in sleep_metric_json.items():
-        _record = []
-        _record.append(time.strftime('%Y-%m-%d %H:%M:%S',
-                                     time.localtime(float(key) / 256)))
-        _record.append(value[0])
-        # For other processing
-        _record.append(float(key) / 256)
-        _sleep_anomaly.append(_record)
-    _sleep_anomaly = sorted(_sleep_anomaly, key=lambda x: (x[0]))
-    return _sleep_anomaly
 
 def get_initial_data(user_info):
     '''
@@ -219,6 +202,7 @@ def get_initial_data(user_info):
     details['resp_val'] = user_info['profile']['fitness'][9]['value']
 
     return details
+
 
 def get_sleep_data(user_info):
     '''
@@ -314,7 +298,8 @@ def anomaly():
     y_sleep = []
     for d in _sleep_anomaly:
         y_sleep.append(d[1])
-        x_sleep.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(d[2])))
+        x_sleep.append(time.strftime(
+            '%Y-%m-%d %H:%M:%S', time.localtime(d[2])))
 
     # For the Plot.ly/javascript graphs
     graphs = [
