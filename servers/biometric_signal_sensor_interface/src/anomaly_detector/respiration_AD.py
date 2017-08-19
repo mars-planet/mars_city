@@ -11,6 +11,8 @@ import ConfigParser
 
 import matplotlib.pyplot as plt
 
+sys.path.insert(0, '../hexoskin_helper')
+import anomaly_database_helper as db
 
 class RespiratoryAD(object):
     def __init__(self, config, init_val):
@@ -107,6 +109,8 @@ class RespiratoryAD(object):
         return
 
     def minute_ventilation_anomaly(self):
+        time.sleep(200)
+        print("minute ventilation begin")
         # check if i+1 is out of (ith +/- delta) range
         # check if i+1 is out of (i-5 to ith window +/- window delta range)
 
@@ -130,8 +134,8 @@ class RespiratoryAD(object):
         prev = self.minute_ventilation_dict[begin]
         begin += 1
 
-        while len(self.minute_ventilation_dict) > 100:
-            time.sleep(20)
+        while len(self.minute_ventilation_dict) > 30:
+            time.sleep(15)
             if begin in self.minute_ventilation_dict:
                 cur = self.minute_ventilation_dict[begin]
 
@@ -183,10 +187,12 @@ class RespiratoryAD(object):
 
             # if begin == 383021389273:
             #   print(self.minute_ventilation_anomaly_dict)
-
+        print("minute ventilation end")
         return
 
     def tidal_volume_anomaly(self):
+        time.sleep(200)
+        print("tidal_volume begin")
         # check if i+1 is out of (ith +/- delta) range
         # check if i+1 is out of (i-5 to ith window +/- window delta range)
 
@@ -208,8 +214,8 @@ class RespiratoryAD(object):
         prev = self.tidal_volume_dict[begin]
         begin += 1
 
-        while len(self.tidal_volume_dict) > 100:
-            time.sleep(20)
+        while len(self.tidal_volume_dict) > 30:
+            time.sleep(15)
             if begin in self.tidal_volume_dict:
                 cur = self.tidal_volume_dict[begin]
 
@@ -260,10 +266,12 @@ class RespiratoryAD(object):
 
             # if begin == 383021389273:
             #   print(self.tidal_volume_anomaly_dict)
-
+        print("tidal_volume end")
         return
 
     def resp_variation(self):
+        time.sleep(200)
+        print("resp_variation begin")
         # finds gap between inspiration and expiration
         inspiration = self.init_val
         while True:
@@ -272,9 +280,9 @@ class RespiratoryAD(object):
             inspiration += 1
 
         timestamp = []
-        while len(self.inspiration_dict) > 100 and\
-                len(self.expiration_dict) > 100:
-            time.sleep(20)
+        while len(self.inspiration_dict) > 20 and\
+                len(self.expiration_dict) > 20:
+            time.sleep(15)
             expiration = inspiration
             # find expiration
             while True:
@@ -338,6 +346,7 @@ class RespiratoryAD(object):
         #           list(self.raw_resp_dict.keys()) if i in timestamp], 'ro')
         # plt.show()
         # print(timestamp)
+        print("resp_variation end")
         return
 
     def get_cur_window(self, init):
@@ -428,9 +437,15 @@ class RespiratoryAD(object):
                             expinner = True
 
                         count += 1
+
                     # current values not found, end of OrderedDict
                     if not (inspinner and expinner):
-                        return (-1, -1, -1)
+                        if window_insp and window_exp:
+                            loopflag = False
+                            ending_val = max(window_insp[len(window_insp)-1][0],
+                                         window_exp[len(window_exp)-1][0])
+                        else:
+                            return (-1, -1, -1)
             # flags haven't been set, so there is no prev
             # basically, it means reached end of OrderedDict
             else:
@@ -485,9 +500,11 @@ class RespiratoryAD(object):
                 [self.breathing_rate_status_dict[minus]]
 
     def resp_classf(self):
+        time.sleep(200)
+        print("resp_classf begin")
         ending_val = self.init_val
         while ending_val != -1:
-            time.sleep(400)
+            time.sleep(100)
             ending_val, window_insp, window_exp =\
                 self.get_cur_window(ending_val)
 
@@ -782,10 +799,12 @@ class RespiratoryAD(object):
 
         # this call for show() is for plots in get_window()
         # plt.show()
+        print("resp_classf end")
         return
 
     def populate_DS(self, tidalv_dict, minv_dict, resp_dict, br_dict,
                         brq_dict, insp_dict, exp_dict):
+    # def populate_DS(self):
         # with open('vt.txt', 'r') as f:
         #     testip = list(csv.reader(f, delimiter='\t'))
         #     for i in testip:
@@ -842,7 +861,8 @@ class RespiratoryAD(object):
 
         self.expiration_dict.update(OrderedDict(exp_dict))
 
-
+        print("len of inspdict", len(self.inspiration_dict))
+        print("len of expdict", len(self.expiration_dict))
         return
 
 
