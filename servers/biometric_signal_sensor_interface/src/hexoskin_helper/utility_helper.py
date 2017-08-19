@@ -173,7 +173,7 @@ def test_auth(api):
     return ''
 
 
-def all_users(auth):
+def user_id(auth):
     '''
     Returns list of users under authenticated user's account and respective
     information such as name, email, profile and resource uri
@@ -181,8 +181,8 @@ def all_users(auth):
         @return :       JSON response string with account information
                         of the users under authenticated user's account
     '''
-    users = auth.api.user.list()
-    return users.response.text
+    users = auth.api.user.list()[0]
+    return users.id
 
 
 def account_info_helper(auth):

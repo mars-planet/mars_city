@@ -138,7 +138,19 @@
                <div class="col s12 m12">
                   <div id="graph-4"></div>
                </div>
-            </div> 
+            </div>
+            <div class="col m6 offset-m3">
+              <div class="card  grey darken-1">
+                <div class="card-content white-text">
+                  <span>Sleep Efficiency: {{ metrics['sleep_efficiency'] }}</span>
+                  <br>
+                  <span>Sleep Latency: {{ metrics['sleep_latency'] }}</span>
+                  <br>
+                  <span>Sleep Percent: {{ metrics['total_sleep_time'] }}</span>
+                  <br>
+                </div>  
+              </div>
+            </div>  
             <table>
               <thead>
                 <tr>

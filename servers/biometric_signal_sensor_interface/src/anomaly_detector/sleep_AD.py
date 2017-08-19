@@ -74,20 +74,6 @@ class SleepAD(object):
         self.anomaly_dict = OrderedDict()
         return
 
-    def get_metrics(self):
-        # get all of these variables
-        # refer <https://api.hexoskin.com/docs/resource/metric/>
-        # self.sleep_efficieny
-        # self.sleep_latency
-        # self.sleep_percent
-        # self.sleep_period
-        # self.sleep_position_changes
-        # self.sleep_total_time
-        # self.sleep_non_REM_time
-        # self.sleep_REM_time
-        # self.sleep_wake_time
-        pass
-
     def calc_woke_up_count(self):
         __total_times = 0
         __sleep_phase_dict = deepcopy(self.sleep_phase_dict)
@@ -162,7 +148,6 @@ class SleepAD(object):
 def initiate_sleepAD():
     SleepObj = SleepAD()
     SleepObj.populate_DS()
-    SleepObj.get_metrics()
     SleepObj.calc_woke_up_count()
     SleepObj.get_possible_anomaly()
 

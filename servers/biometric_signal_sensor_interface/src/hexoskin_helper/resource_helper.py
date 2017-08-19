@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function
 from threading import Thread
 import sys
 import time
+import requests
 import ConfigParser
 import calendar
 import utility_helper as util
@@ -10,6 +11,8 @@ import numpy as np
 import anomaly_database_helper as db
 sys.path.insert(0, '../anomaly_detector')
 import respiration_AD as respiration
+
+requests.packages.urllib3.disable_warnings()
 
 __author__ = 'abhijith'
 
@@ -793,53 +796,11 @@ def sleep_ad(auth, recordID):
 
     return
 
-def sleep_metrics(auth, recordID):
-    '''
-    Param: auth token, record ID of the record/session and the datatype of the
-    metric that needs to be measured.
-
-
-    This function fetches the specified data range.
-        @param auth:        The authentication token to use for the call
-        @param recordID:    recordID ID of record
-        @param datatypes:   Datatypes to be fetched
-        @return :           Runs till the record is active and returns the
-                            data of the user regularly, adding to the record.
-                            -1, if data not being collected in realtime
-    '''
-
-    try:
-
-        data = auth.api.data.list(record=recordID, datatype=[270, 280])
-        sleepphase = data.response.result[0]['data'][str(280)]
-        sleeppos = data.response.result[0]['data'][str(270)]
-
-        for a in sleepphase:
-            if a[1] is None:
-                sleepphase_file.write(str(int(a[0]))+",null\n")
-            else:
-                sleepphase_file.write(str(int(a[0]))+","+str(a[1])+"\n")
-
-        for a in sleeppos:
-            if a[1] is None:
-                sleeppos_file.write(str(int(a[0]))+",null\n")
-            else:
-                sleeppos_file.write(str(int(a[0]))+","+str(a[1])+"\n")
-        
-        sleepphase_file.close()
-        sleeppos_file.close()
-    except:
-        pass
-
-    return
-
-
 def main(argv):
     '''
     Main Function
     '''
-    auth = util.auth_login()
-    sleep_ad(auth)
+    pass
     
 
 
