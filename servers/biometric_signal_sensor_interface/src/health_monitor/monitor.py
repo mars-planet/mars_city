@@ -141,11 +141,11 @@ def sleep_helper(auth):
     '''
             @param auth:        Authentication token
     '''
-    recordID = resource.get_record_list(auth)[0]['id']
-    if recordID in resource.get_active_record_list(auth):
-        # record should not updated in realtime.
-        return -1
-
+    # recordID = resource.get_record_list(auth)[0]['id']
+    # if recordID in resource.get_active_record_list(auth):
+    #     # record should not updated in realtime.
+    #     return -1
+    recordID = 132638
     resource.sleep_ad(auth, recordID)
     sleepAD.initiate_sleepAD()
 

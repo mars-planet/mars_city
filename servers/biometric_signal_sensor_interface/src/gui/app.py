@@ -141,6 +141,24 @@ def get_Resp_anomaly():
     _resp_anomaly = sorted(_resp_anomaly, key=lambda x: (x[0]))
     return _resp_anomaly
 
+def get_Sleep_anomaly():
+    '''
+    Calls the Tango device server command to access the Database for the
+    Slee[] anomalies
+        @return :           A list containing rows from the database
+    '''
+    sleep_anomaly_json = json.loads(biometric_monitor.sleep_to_gui())
+    _sleep_anomaly = []
+    for key, value in sleep_anomaly_json.items():
+        _record = []
+        _record.append(time.strftime('%Y-%m-%d %H:%M:%S',
+                                     time.localtime(float(key) / 256)))
+        _record.append(value[0])
+        # For other processing
+        _record.append(float(key) / 256)
+        _sleep_anomaly.append(_record)
+    _sleep_anomaly = sorted(_sleep_anomaly, key=lambda x: (x[0]))
+    return _sleep_anomaly
 
 def get_initial_data(user_info):
     '''
@@ -224,6 +242,7 @@ def anomaly():
     _vt_anomaly = get_VT_anomaly()[::-1]
     _apc_anomaly = get_APC_anomaly()[::-1]
     _resp_anomaly = get_Resp_anomaly()[::-1]
+    _sleep_anomaly = get_Sleep_anomaly()[::-1]
 
     x_af = []
     y_af_nec = []
@@ -250,6 +269,12 @@ def anomaly():
     for d in _resp_anomaly:
         y_resp.append(d[1])
         x_resp.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(d[4])))
+
+    x_sleep = []
+    y_sleep = []
+    for d in _sleep_anomaly:
+        y_sleep.append(d[1])
+        x_sleep.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(d[2])))
 
     # For the Plot.ly/javascript graphs
     graphs = [
@@ -292,6 +317,14 @@ def anomaly():
                     y=y_resp
                 ),
             ]
+        ),
+        dict(
+            data=[
+                dict(
+                    x=x_sleep,
+                    y=y_sleep
+                ),
+            ]
         )
     ]
 
@@ -306,7 +339,8 @@ def anomaly():
 
     return render_template('anomaly.html', AF=_af_anomaly[:15],
                            VT=_vt_anomaly[:15], APC=_apc_anomaly[:15],
-                           RESP=_resp_anomaly, ids=ids, graphJSON=graphJSON)
+                           RESP=_resp_anomaly, SLEEP=_sleep_anomaly,
+                           ids=ids, graphJSON=graphJSON)
 
 
 @app.route("/raw_data")

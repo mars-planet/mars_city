@@ -1,9 +1,10 @@
 from __future__ import division, print_function
 from collections import OrderedDict
 from copy import deepcopy
-
 import csv
-
+import sys
+import anomaly_database_helper as db
+sys.path.insert(0, '../anomaly_detector')
 
 class SleepAD(object):
     def __init__(self):
@@ -127,7 +128,7 @@ class SleepAD(object):
     def populate_DS(self):
         # cannot filter by activity = sleep
         # hence get record where activity was sleep
-        with open('sleepphase.txt', 'r') as f:
+        with open('../anomaly_detector/sleepphase.txt', 'r') as f:
             testip = list(csv.reader(f, delimiter=','))
             flag = False
             for i in testip:
@@ -145,7 +146,7 @@ class SleepAD(object):
         # print(self.start_sleep_act)
         # print(self.end_sleep_act)
 
-        with open('sleepposition.txt', 'r') as f:
+        with open('../anomaly_detector/sleepposition.txt', 'r') as f:
             testip = list(csv.reader(f, delimiter=','))
             for i in testip:
                 if i[1] == "null":
