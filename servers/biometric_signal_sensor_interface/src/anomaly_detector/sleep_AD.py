@@ -114,6 +114,12 @@ class SleepAD(object):
                     time_gap = ((temp[0] - prev[0])/256.0)/60
                     if not 70 <= time_gap <= 110:
                         self.anomaly_dict[prev[0]] = time_gap
+                        # Saving Anomaly
+                        # Anomaly is detected
+                        anomaly = {}
+                        anomaly['start_hexo_timestamp'] = prev[0]
+                        anomaly['cycle_time'] = time_gap
+                        db.add_sleep(anomaly)
                 prev = temp
         print(self.anomaly_dict)
         return
@@ -152,13 +158,16 @@ class SleepAD(object):
         # print(self.sleep_posn_dict)
         return
 
-
-def main():
+def initiate_sleepAD():
     SleepObj = SleepAD()
     SleepObj.populate_DS()
     SleepObj.get_metrics()
     SleepObj.calc_woke_up_count()
     SleepObj.get_possible_anomaly()
+
+
+def main():
+    initiate_sleepAD()
     return
 
 

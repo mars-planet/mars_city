@@ -2,7 +2,8 @@ from __future__ import division, print_function
 import sys
 import time
 sys.path.insert(0, '../health_monitor')
-from data_model import AtrFibAlarms, VenTacAlarms, APCAlarms, Data, RespAlarms
+from data_model import AtrFibAlarms, VenTacAlarms, APCAlarms
+from data_model import Data, RespAlarms, SleepAlarms
 from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -152,6 +153,38 @@ def add_resp(data):
     finally:
         s.close()
 
+def add_sleep(data):
+    start_hexo_timestamp = data['start_hexo_timestamp']
+    cycle_time = data['cycle_time']
+    doe = datetime.now()
+
+    # Create session
+    s = Session()
+
+    try:
+        query = s.query(SleepAlarms).filter(
+            SleepAlarms.start_hexo_timestamp.in_([start_hexo_timestamp]))
+        result = query.first()
+
+        if result:
+            return -1
+        else:
+            sleep = SleepAlarms(start_hexo_timestamp, cycle_time,
+                            doe)
+            s.add(sleep)
+
+            # commit the record the database
+            s.commit()
+            print("Inserted Sleep row successfully")
+            return 0
+
+    except:
+        s.rollback()
+        return -1
+
+    finally:
+        s.close()
+
 #
 #
 # Anomaly GET functions
@@ -241,7 +274,24 @@ def get_resp():
     except:
         return -1
        
+def get_sleep():
+    return_data = []
 
+    s = Session()
+    try:
+        query = s.query(SleepAlarms)
+        result = query.all()
+        for data in result:
+            _return = []
+            _return.append(data.start_hexo_timestamp)
+            _return.append(data.cycle_time)
+            _return.append(data.doe)
+            return_data.append(_return)
+
+        s.close()
+        return return_data
+    except:
+        return -1
 
 #-------------------------------------------------------------------
 def add_data(time, data, _type):

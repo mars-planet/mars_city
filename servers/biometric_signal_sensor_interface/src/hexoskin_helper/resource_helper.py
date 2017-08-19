@@ -750,7 +750,7 @@ def resp_realtime(auth, recordID, obj, datatypes=''):
                 continue
     return
 
-def sleep_ad(auth):
+def sleep_ad(auth, recordID):
     '''
     Param: auth token, record ID of the record/session and the datatype of the
     metric that needs to be measured.
@@ -765,10 +765,48 @@ def sleep_ad(auth):
                             -1, if data not being collected in realtime
     '''
 
-    recordID = get_record_list(auth)[0]['id']
-
     sleepphase_file = open("../anomaly_detector/sleepphase.txt", "w")
     sleeppos_file = open("../anomaly_detector/sleepposition.txt", "w")
+
+    try:
+
+        data = auth.api.data.list(record=recordID, datatype=[270, 280])
+        sleepphase = data.response.result[0]['data'][str(280)]
+        sleeppos = data.response.result[0]['data'][str(270)]
+
+        for a in sleepphase:
+            if a[1] is None:
+                sleepphase_file.write(str(int(a[0]))+",null\n")
+            else:
+                sleepphase_file.write(str(int(a[0]))+","+str(a[1])+"\n")
+
+        for a in sleeppos:
+            if a[1] is None:
+                sleeppos_file.write(str(int(a[0]))+",null\n")
+            else:
+                sleeppos_file.write(str(int(a[0]))+","+str(a[1])+"\n")
+        
+        sleepphase_file.close()
+        sleeppos_file.close()
+    except:
+        pass
+
+    return
+
+def sleep_metrics(auth, recordID):
+    '''
+    Param: auth token, record ID of the record/session and the datatype of the
+    metric that needs to be measured.
+
+
+    This function fetches the specified data range.
+        @param auth:        The authentication token to use for the call
+        @param recordID:    recordID ID of record
+        @param datatypes:   Datatypes to be fetched
+        @return :           Runs till the record is active and returns the
+                            data of the user regularly, adding to the record.
+                            -1, if data not being collected in realtime
+    '''
 
     try:
 

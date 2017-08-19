@@ -153,6 +153,14 @@ class Monitor(Device):
         return hm.resp_from_db()
 
     @command(dtype_out=str,
+             doc_out="Sleep AD from DB as JSON")
+    def sleep_to_gui(self):
+        '''
+        To send the VT AD data to gui
+        '''
+        return hm.sleep_from_db()
+
+    @command(dtype_out=str,
              doc_out="Realtime data as JSON",
              )
     def rt_to_gui(self):
