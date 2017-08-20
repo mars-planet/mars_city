@@ -244,11 +244,12 @@ def home():
     week_ago = ((week_ago - datetime.datetime(1970, 1, 1)).total_seconds())
 
     safe = True
+
     try:
-        if week_ago > _af_anomaly[0][6]:
-            safe = True
-        else:
+        if week_ago < _af_anomaly[0][6]:
             safe = False
+        else:
+            safe = True
     except:
         pass
 

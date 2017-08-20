@@ -137,7 +137,7 @@ $ python monitor monitor
 - This will start the Tango Device Server, which in turn starts all the Anomaly Detection process, except the Sleep Anomaly Detection. To start the sleep detection, start a cron job. Add the following line into the crontab by first running ``` crontab -e ``` and adding the following line
 
 ```
-0 9 * * * python <path-to-repo>/mars_city/servers/biometric_signal_sensor_interface/src/health_monitor/monitor.py
+0 9 * * * python /home/abhijith-gsoc/Desktop/mars_city/servers/biometric_signal_sensor_interface/src/health_monitor/monitor.py
 ```
 
 This will run the sleep data collection and sleep anomaly detection procedures every morning at 9. This can be changed based on preference.
