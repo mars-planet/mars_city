@@ -80,17 +80,6 @@ doe - DateTime
 3) **Anomaly_type** : Description of the type of anomaly
 4) **doe** : Date of Entry
 
-### Data
-> Raw-data database. Consumed by the GUI 
-```
-hexo_timestamp - Primary key - Integer
-data - Integer
-datatype - Integer
-```
-
-1) **hexo_timestamp** : hexoskin timestamp
-2) **data** :  The raw-data corresponding to the datatype
-3) **datatype** : Hexoskin Biometric Datatype
 
 ### SleepAlarms
 > Sleep based Anomaly Database
@@ -103,6 +92,19 @@ doe - DateTime
 1) **start_hexo_timestamp** : hexoskin timestamp
 2) **cycle_time** :  Sleep cycle time
 3) **doe** : Date of entry
+
+### Data
+> Raw-data database. Consumed by the GUI 
+```
+hexo_timestamp - Primary key - Integer
+data - Integer
+datatype - Integer
+```
+
+1) **hexo_timestamp** : hexoskin timestamp
+2) **data** :  The raw-data corresponding to the datatype
+3) **datatype** : Hexoskin Biometric Datatype
+
 
 # Configurations
 
@@ -131,6 +133,17 @@ $ python register_monitor.py
 ```
 $ python monitor monitor
 ```
+
+- This will start the Tango Device Server, which in turn starts all the Anomaly Detection process, except the Sleep Anomaly Detection. To start the sleep detection, start a cron job. Add the following line into the crontab by first running ``` crontab -e ``` and adding the following line
+
+```
+0 9 * * * python <path-to-repo>/mars_city/servers/biometric_signal_sensor_interface/src/health_monitor/monitor.py
+```
+
+This will run the sleep data collection and sleep anomaly detection procedures every morning at 9. This can be changed based on preference.
+
+> Note: It is important to know that, this ideally works only when the hexoskin is plugged out of shirt and connected to a system for syncing. Ensure that the syncing happens before the time specified in the cron tab.
  
 Proceed to starting the Flask server for starting the web dashboard.
+
 

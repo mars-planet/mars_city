@@ -72,11 +72,15 @@ This should install all necessary dependencies and set up the environment for th
 > Refer [here](https://www.hexoskin.com/pages/start) for more Hexoskin related instructions for getting started  
 
  - Start the Tango Device Server to start the data collection and the anomaly detection (Refer [here](https://github.com/mars-planet/mars_city/blob/master/servers/biometric_signal_sensor_interface/src/health_monitor/README.md) for more details)
- - Start the Python Flask Graphical User Interface (Refer [here](https://github.com/mars-planet/mars_city/blob/master/servers/biometric_signal_sensor_interface/src/gui/README.md))
+ - Start the Python Flask Graphical User Interface (Refer [here](https://github.com/mars-planet/mars_city/blob/master/servers/biometric_signal_sensor_interface/src/gui/README.md) for more details)
+
+#### Recommended 
+
+ - Wear the device everyday (during space exploration) and continue wearing it throughout the night to calculate sleep and anomalies based on sleep. Unplug the hexoskin device from the shirt and sync it by connecting it with a system every morning as soon as you wake up. 
 
 ## Contributing
 
-Please read [Software Engineering Guidelines](http://eras.readthedocs.io/en/latest/doc/guidelines.html) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [Software Engineering Guidelines](http://marscity.readthedocs.io/en/latest/doc/guidelines.html) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
 
@@ -95,3 +99,6 @@ This project is licensed under the Mars City License - see the [LICENSE.md](http
 ## Acknowledgments
 
 * [Antonio](https://github.com/aldebran), [Mario](https://github.com/mtambos) and [Ambar](https://github.com/coder006).
+
+
+
