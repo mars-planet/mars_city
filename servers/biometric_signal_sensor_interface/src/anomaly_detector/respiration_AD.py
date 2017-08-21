@@ -3,16 +3,20 @@ from collections import OrderedDict
 from threading import Thread
 import os
 import sys
-sys.path.insert(0, '../hexoskin_helper')
-import anomaly_database_helper as db
-import csv
+# import csv
 import time
+import logging
 import ConfigParser
-
-import matplotlib.pyplot as plt
-
 sys.path.insert(0, '../hexoskin_helper')
 import anomaly_database_helper as db
+
+# import matplotlib.pyplot as plt
+
+__author__ = "Dipankar Niranjan, https://github.com/Ras-al-Ghul"
+
+# Logging config
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
+
 
 class RespiratoryAD(object):
     def __init__(self, config, init_val):
@@ -110,7 +114,7 @@ class RespiratoryAD(object):
 
     def minute_ventilation_anomaly(self):
         time.sleep(200)
-        print("minute ventilation begin")
+        logging.info("minute ventilation begin")
         # check if i+1 is out of (ith +/- delta) range
         # check if i+1 is out of (i-5 to ith window +/- window delta range)
 
@@ -155,7 +159,7 @@ class RespiratoryAD(object):
                         self.resp_anomaly_dict[begin][1]
 
                     db.add_resp(anomaly_dict)
-                    print(anomaly_dict)
+                    logging.info("%s" % str(anomaly_dict))
 
                 # check for window delta
                 windowmean = sum([i[1] for i in window])/len(window)
@@ -174,7 +178,7 @@ class RespiratoryAD(object):
                         self.resp_anomaly_dict[begin][1]
 
                     db.add_resp(anomaly_dict)
-                    print(anomaly_dict)
+                    logging.info("%s" % str(anomaly_dict))
 
                 # update window
                 window.pop(0)
@@ -187,12 +191,12 @@ class RespiratoryAD(object):
 
             # if begin == 383021389273:
             #   print(self.minute_ventilation_anomaly_dict)
-        print("minute ventilation end")
+        logging.info("minute ventilation end")
         return
 
     def tidal_volume_anomaly(self):
         time.sleep(200)
-        print("tidal_volume begin")
+        logging.info("tidal_volume begin")
         # check if i+1 is out of (ith +/- delta) range
         # check if i+1 is out of (i-5 to ith window +/- window delta range)
 
@@ -235,7 +239,7 @@ class RespiratoryAD(object):
                         self.resp_anomaly_dict[begin][1]
 
                     db.add_resp(anomaly_dict)
-                    print(anomaly_dict)
+                    logging.info("%s" % str(anomaly_dict))
 
                 # check for window delta
                 windowmean = sum([i[1] for i in window])/len(window)
@@ -253,7 +257,7 @@ class RespiratoryAD(object):
                         self.resp_anomaly_dict[begin][1]
 
                     db.add_resp(anomaly_dict)
-                    print(anomaly_dict)
+                    logging.info("%s" % str(anomaly_dict))
 
                 # update window
                 window.pop(0)
@@ -266,12 +270,12 @@ class RespiratoryAD(object):
 
             # if begin == 383021389273:
             #   print(self.tidal_volume_anomaly_dict)
-        print("tidal_volume end")
+        logging.info("tidal_volume end")
         return
 
     def resp_variation(self):
         time.sleep(200)
-        print("resp_variation begin")
+        logging.info("resp_variation begin")
         # finds gap between inspiration and expiration
         inspiration = self.init_val
         while True:
@@ -292,7 +296,7 @@ class RespiratoryAD(object):
 
             # if gap is greater than 3 seconds
             if (expiration - inspiration) > (256*self.resp_variation_thresh):
-                print('exp, insp')
+                logging.info('exp, insp')
                 self.resp_anomaly_dict[inspiration] = (-1, 'exp-insp')
                 # Anomaly is detected
                 anomaly_dict = {}
@@ -305,7 +309,7 @@ class RespiratoryAD(object):
                     self.resp_anomaly_dict[inspiration][1]
 
                 db.add_resp(anomaly_dict)
-                print(anomaly_dict)
+                logging.info("%s" % str(anomaly_dict))
                 timestamp.append(inspiration)
 
             # find inspiration
@@ -317,7 +321,7 @@ class RespiratoryAD(object):
 
             # if gap is greater than 3 seconds
             if (inspiration - expiration) > (256*self.resp_variation_thresh):
-                print('insp, exp')
+                logging.info('insp, exp')
                 self.resp_anomaly_dict[expiration] = (-1, 'insp-exp')
                 # Anomaly is detected
                 anomaly_dict = {}
@@ -330,7 +334,7 @@ class RespiratoryAD(object):
                     self.resp_anomaly_dict[expiration][1]
 
                 db.add_resp(anomaly_dict)
-                print(anomaly_dict)
+                logging.info("%s" % str(anomaly_dict))
                 timestamp.append(expiration)
 
             # if inspiration == 383021388517:
@@ -346,7 +350,7 @@ class RespiratoryAD(object):
         #           list(self.raw_resp_dict.keys()) if i in timestamp], 'ro')
         # plt.show()
         # print(timestamp)
-        print("resp_variation end")
+        logging.info("resp_variation end")
         return
 
     def get_cur_window(self, init):
@@ -442,7 +446,8 @@ class RespiratoryAD(object):
                     if not (inspinner and expinner):
                         if window_insp and window_exp:
                             loopflag = False
-                            ending_val = max(window_insp[len(window_insp)-1][0],
+                            ending_val = max(
+                                         window_insp[len(window_insp)-1][0],
                                          window_exp[len(window_exp)-1][0])
                         else:
                             return (-1, -1, -1)
@@ -501,7 +506,7 @@ class RespiratoryAD(object):
 
     def resp_classf(self):
         time.sleep(200)
-        print("resp_classf begin")
+        logging.info("resp_classf begin")
         ending_val = self.init_val
         while ending_val != -1:
             time.sleep(100)
@@ -570,9 +575,10 @@ class RespiratoryAD(object):
                                 self.get_closest_breathing_rate(begin, end)
 
                         mean_br = sum(breathing_rate)/len(breathing_rate)
-                        print("Above limits")
+                        logging.info("Above limits")
                         if mean_br > 20:
-                            print("possible Hyperventilation", begin)
+                            logging.info("possible Hyperventilation %s" %
+                                         str(begin))
                             mean_br_status =\
                                 sum(breathing_rate_status) / \
                                 len(breathing_rate_status)
@@ -589,7 +595,7 @@ class RespiratoryAD(object):
                                 self.resp_anomaly_dict[begin][1]
 
                             db.add_resp(anomaly_dict)
-                            print(anomaly_dict)
+                            logging.info("%s" % str(anomaly_dict))
                             # if anomaly_window[0] in self.inspiration_dict:
                             #     plt.plot(anomaly_window,
                             #              [self.inspiration_dict[i]
@@ -599,7 +605,8 @@ class RespiratoryAD(object):
                             #              [self.expiration_dict[i]
                             #               for k in anomaly_window])
                         if mean_br < 10:
-                            print("possible Slow deep breathing", begin)
+                            logging.info("possible Slow deep breathing %s" %
+                                         str(begin))
                             mean_br_status =\
                                 sum(breathing_rate_status) / \
                                 len(breathing_rate_status)
@@ -617,7 +624,7 @@ class RespiratoryAD(object):
                                 self.resp_anomaly_dict[begin][1]
 
                             db.add_resp(anomaly_dict)
-                            print(anomaly_dict)
+                            logging.info("%s" % str(anomaly_dict))
                             # if anomaly_window[0] in self.inspiration_dict:
                             #     plt.plot(anomaly_window,
                             #              [self.inspiration_dict[i]
@@ -653,9 +660,9 @@ class RespiratoryAD(object):
                                 self.get_closest_breathing_rate(begin, end)
 
                         mean_br = sum(breathing_rate)/len(breathing_rate)
-                        print("Under limits")
+                        logging.info("Under limits")
                         if mean_br > 20:
-                            print("possible Tachypnea", begin)
+                            logging.info("possible Tachypnea %s" % str(begin))
                             mean_br_status =\
                                 sum(breathing_rate_status) / \
                                 len(breathing_rate_status)
@@ -672,7 +679,7 @@ class RespiratoryAD(object):
                                 self.resp_anomaly_dict[begin][1]
 
                             db.add_resp(anomaly_dict)
-                            print(anomaly_dict)
+                            logging.info("%s" % str(anomaly_dict))
                             # if anomaly_window[0] in self.inspiration_dict:
                             #     plt.plot(anomaly_window,
                             #              [self.inspiration_dict[i]
@@ -682,7 +689,8 @@ class RespiratoryAD(object):
                             #              [self.expiration_dict[i]
                             #               for k in anomaly_window])
                         if mean_br < 10:
-                            print("possible Hypoventilation", begin)
+                            logging.info("possible Hypoventilation %s" %
+                                         str(begin))
                             mean_br_status =\
                                 sum(breathing_rate_status) / \
                                 len(breathing_rate_status)
@@ -699,7 +707,7 @@ class RespiratoryAD(object):
                                 self.resp_anomaly_dict[begin][1]
 
                             db.add_resp(anomaly_dict)
-                            print(anomaly_dict)
+                            logging.info("%s" % str(anomaly_dict))
                             # if anomaly_window[0] in self.inspiration_dict:
                             #     plt.plot(anomaly_window,
                             #              [self.inspiration_dict[i]
@@ -737,7 +745,8 @@ class RespiratoryAD(object):
                         mean_br = sum(breathing_rate)/len(breathing_rate)
                         # print("Within limits")
                         if mean_br > 20:
-                            print("possible rapid breathing", begin)
+                            logging.info("possible rapid breathing %s" %
+                                         str(begin))
                             mean_br_status =\
                                 sum(breathing_rate_status) / \
                                 len(breathing_rate_status)
@@ -754,7 +763,7 @@ class RespiratoryAD(object):
                                 self.resp_anomaly_dict[begin][1]
 
                             db.add_resp(anomaly_dict)
-                            print(anomaly_dict)
+                            logging.info("%s" % str(anomaly_dict))
                             # if anomaly_window[0] in self.inspiration_dict:
                             #     plt.plot(anomaly_window,
                             #              [self.inspiration_dict[i]
@@ -764,7 +773,8 @@ class RespiratoryAD(object):
                             #              [self.expiration_dict[i]
                             #               for k in anomaly_window])
                         if mean_br < 10:
-                            print("possible slow breathing", begin)
+                            logging.info("possible slow breathing %s" %
+                                         str(begin))
                             mean_br_status =\
                                 sum(breathing_rate_status) / \
                                 len(breathing_rate_status)
@@ -781,7 +791,7 @@ class RespiratoryAD(object):
                                 self.resp_anomaly_dict[begin][1]
 
                             db.add_resp(anomaly_dict)
-                            print(anomaly_dict)
+                            logging.info("%s" % str(anomaly_dict))
                             # if anomaly_window[0] in self.inspiration_dict:
                             #     plt.plot(anomaly_window,
                             #              [self.inspiration_dict[i]
@@ -799,12 +809,12 @@ class RespiratoryAD(object):
 
         # this call for show() is for plots in get_window()
         # plt.show()
-        print("resp_classf end")
+        logging.info("resp_classf end")
         return
 
-    def populate_DS(self, tidalv_dict, minv_dict, resp_dict, br_dict,
-                        brq_dict, insp_dict, exp_dict):
     # def populate_DS(self):
+    def populate_DS(self, tidalv_dict, minv_dict, resp_dict, br_dict,
+                    brq_dict, insp_dict, exp_dict):
         # with open('vt.txt', 'r') as f:
         #     testip = list(csv.reader(f, delimiter='\t'))
         #     for i in testip:
@@ -861,8 +871,8 @@ class RespiratoryAD(object):
 
         self.expiration_dict.update(OrderedDict(exp_dict))
 
-        print("len of inspdict", len(self.inspiration_dict))
-        print("len of expdict", len(self.expiration_dict))
+        logging.info("len of inspdict %s" % str(len(self.inspiration_dict)))
+        logging.info("len of expdict %s" % str(len(self.expiration_dict)))
         return
 
 

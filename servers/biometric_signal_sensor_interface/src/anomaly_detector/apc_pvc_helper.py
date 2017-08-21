@@ -4,12 +4,17 @@ from threading import Thread
 
 from apc_pvc import APC
 
-import sys
 import csv
 import time
 import subprocess
+import logging
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
+
+__author__ = "Dipankar Niranjan, https://github.com/Ras-al-Ghul"
+
+# Logging config
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 
 class APC_helper(object):
@@ -150,7 +155,7 @@ class APC_helper(object):
             print(len(self.apcObj.QRSwidth_dict))
             print(len(self.apcObj.QRSarea_dict))
             print(len(self.apcObj.vecg_dict))
-            print(e)
+            logging.exception("%s" % e)
 
     # method to populate ecg and rrint_status dicts for testing
     def populate_DS(self, ecg, rrs):

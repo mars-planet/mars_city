@@ -4,6 +4,8 @@ import numpy as np
 
 from math import floor
 
+__author__ = "Dipankar Niranjan, https://github.com/Ras-al-Ghul"
+
 
 class AtrialFibrillation(object):
     """

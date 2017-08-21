@@ -2,11 +2,15 @@ from __future__ import division, print_function
 from collections import OrderedDict
 
 import sys
-import csv
 import time
+import logging
 sys.path.insert(0, '../hexoskin_helper')
 import anomaly_database_helper as db
-import matplotlib.pyplot as plt
+
+__author__ = "Dipankar Niranjan, https://github.com/Ras-al-Ghul"
+
+# Logging config
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 
 class APC(object):
@@ -149,13 +153,13 @@ class APC(object):
         if (QRSwidthDIFF < 5) or\
            ((QRSwidthDIFF < 10) and (QRSareaDIFF < 25)) or\
            ((vecgDIFF < 25) and (QRSareaDIFF < 50)):
-            print("APC apc test")
+            logging.info("APC apc test")
             nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
             if nearestRR in self.rrint_status_dict:
                 self.anomaly_dict[nearestRR] =\
                     (self.rrint_status_dict[nearestRR], 0)
         else:
-            print("PVC apc test")
+            logging.info("PVC apc test")
             nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
             if nearestRR in self.rrint_status_dict:
                 self.anomaly_dict[nearestRR] =\
@@ -182,13 +186,13 @@ class APC(object):
         else:
             if (iminusone_rr < (0.75*avg_first_five_rr)) and\
                (ith_rr < (0.75*avg_first_five_rr)):
-                print("most likely V single premature heartbeat")
+                logging.info("most likely V single premature heartbeat")
                 nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
                 if nearestRR in self.rrint_status_dict:
                     self.anomaly_dict[nearestRR] =\
                         (self.rrint_status_dict[nearestRR], 1)
             else:
-                print("N or V beat single premature heartbeat")
+                logging.info("N or V beat single premature heartbeat")
 
         return
 
@@ -219,7 +223,7 @@ class APC(object):
             # if QRSArea difference less than 50% and angle less than 25 deg
             if QRSarea_DIFF < 50 and vecg_DIFF < 25:
                 # APC detected
-                print("APC pathologic pause")
+                logging.info("APC pathologic pause")
                 timestamp = temp_beatlist[i][0]
                 nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
                 if nearestRR in self.rrint_status_dict:
@@ -227,7 +231,7 @@ class APC(object):
                         (self.rrint_status_dict[nearestRR], 0)
             else:
                 # PVC detected
-                print("PVC pathologic pause")
+                logging.info("PVC pathologic pause")
                 timestamp = temp_beatlist[i][0]
                 nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
                 if nearestRR in self.rrint_status_dict:
@@ -276,7 +280,7 @@ class APC(object):
                 median_QRSarea = prev_five_QRSarea[2][1]
                 # set the QRSarea_REF to be the median
                 self.QRSarea_REF = median_QRSarea
-                print(self.QRSarea_REF, "median QRS")
+                logging.info("%s median QRS" % self.QRSarea_REF)
 
                 # get previous 5 vecg
                 prev_five_vecg = self.get_window(5, 0, timestamp, 3)
@@ -284,7 +288,7 @@ class APC(object):
                 median_vecg = prev_five_vecg[2][1]
                 # set the vecg_REF to be the median
                 self.vecg_REF = median_vecg
-                print(self.vecg_REF, "median vecg")
+                logging.info("%s median vecg" % self.vecg_REF)
             else:
                 QRSarea = self.get_window(1, 0, timestamp, 2)[0][1]
                 QRSarea_DIFF =\
@@ -297,14 +301,14 @@ class APC(object):
                 # angle less than 25 deg
                 if QRSarea_DIFF < 50 and vecg_DIFF < 25:
                     # APC detected
-                    print("APC supraventricular tachycardia")
+                    logging.info("APC supraventricular tachycardia")
                     nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
                     if nearestRR in self.rrint_status_dict:
                         self.anomaly_dict[nearestRR] =\
                             (self.rrint_status_dict[nearestRR], 0)
                 else:
                     # PVC detected
-                    print("PVC supraventricular tachycardia")
+                    logging.info("PVC supraventricular tachycardia")
                     nearestRR = self.get_window(1, 0, timestamp, 0)[0][0]
                     if nearestRR in self.rrint_status_dict:
                         self.anomaly_dict[nearestRR] =\
@@ -354,8 +358,7 @@ class APC(object):
             else:
                 # fill in db entry
                 # might be N or V beat
-                print("N or V beat from absolute arrythmia")
-                pass
+                logging.info("N or V beat from absolute arrythmia")
 
             # move the window further
             # since 5th is current in 0 based indexing,
@@ -365,7 +368,7 @@ class APC(object):
             while self.anomaly_dict:
                 k, v = self.anomaly_dict.popitem()
                 anomaly = {}
-                anomaly['RRPeak_hexo_timestamp'] = k 
+                anomaly['RRPeak_hexo_timestamp'] = k
                 anomaly['RR_Quality'] = v[0]
                 anomaly['PVC_from'] = v[1]
 

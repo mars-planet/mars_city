@@ -27,6 +27,8 @@ A lot of things are not up to quality and need to be improved
 while implementing
 """
 
+__author__ = "Dipankar Niranjan, https://github.com/Ras-al-Ghul"
+
 
 class BeatAnalyzer(object):
     # this is a slightly modified copy of the
@@ -182,8 +184,6 @@ class VTBeatDetector(object):
         5 min buffer where nothing is deleted
         create a three more threads maybe?
         """
-        print("DELETE called")
-        return
 
         limit = 1000
 
@@ -370,7 +370,7 @@ class VTBeatDetector(object):
                         self.vt_dict[counter][0].vt_result
 
                     db.add_vt(anomaly_dict)
-                    print(anomaly_dict)
+                    # print(anomaly_dict)
                     thr2 = Thread(target=self.analyze_six_second,
                                   args=[self.vt_dict[counter][1] + 256 * 6])
                     thr2.start()

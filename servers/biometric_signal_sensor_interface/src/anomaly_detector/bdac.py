@@ -19,6 +19,12 @@ from fractions import gcd
 
 import ctypes
 import csv
+import logging
+
+__author__ = "Dipankar Niranjan, https://github.com/Ras-al-Ghul"
+
+# Logging config
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 
 class BDAC(object):
@@ -108,6 +114,7 @@ class BDAC(object):
 
                 DetectionTime *= ip_freq
                 DetectionTime /= op_freq
+                # logging.info("%s %s" % (DetectionTime, beatType))
                 # print(DetectionTime, beatType)
                 beatTypeList.append(beatType)
                 detectionTimeList.append(DetectionTime)
