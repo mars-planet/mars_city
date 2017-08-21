@@ -5,6 +5,7 @@ from copy import deepcopy
 
 import os
 import sys
+import logging
 import ConfigParser
 import pandas as pd
 import numpy as np
@@ -13,6 +14,11 @@ import numpy as np
 # import matplotlib.pyplot as plt
 
 import bdac
+
+__author__ = "Dipankar Niranjan, https://github.com/Ras-al-Ghul"
+
+# Logging config
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 
 # ecg is a pd dataframe with hexoskin_timestamps and ecg_val as the columns
@@ -427,7 +433,7 @@ def main():
     if not further_analyze:
         return False
 
-    print("Doing further analysis")
+    logging.info("Doing further analysis")
     VTobj.signal_preprocess()
     cur_ampl, stop_cur = VTobj.DHA_detect(1400)
 

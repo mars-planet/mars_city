@@ -3,13 +3,19 @@ from collections import OrderedDict
 from fractions import gcd
 
 import ctypes
-import csv
+# import csv
+import logging
 import time
 import sys
 sys.path.insert(0, '../hexoskin_helper')
 import anomaly_database_helper as db
 
 # import matplotlib.pyplot as plt
+
+__author__ = "Dipankar Niranjan, https://github.com/Ras-al-Ghul"
+
+# Logging config
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 
 class BeatAnalyzer(object):
@@ -157,7 +163,7 @@ class PVC(object):
 
                 # 5 is PVC beatType
                 if beatType == 5:
-                    print("PVC", DetectionTime)
+                    logging.info("PVC %s" % str(DetectionTime))
                     timestamp = self.\
                         get_nearest_Rpeak(init_hexo_time + int(DetectionTime))
                     self.anomaly_dict[timestamp] =\
@@ -169,7 +175,7 @@ class PVC(object):
             while self.anomaly_dict:
                 k, v = self.anomaly_dict.popitem()
                 anomaly = {}
-                anomaly['RRPeak_hexo_timestamp'] = k 
+                anomaly['RRPeak_hexo_timestamp'] = k
                 anomaly['RR_Quality'] = v[0]
                 anomaly['PVC_from'] = v[1]
 

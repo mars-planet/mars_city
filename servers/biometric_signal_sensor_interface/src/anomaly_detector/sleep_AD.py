@@ -6,6 +6,9 @@ import sys
 import anomaly_database_helper as db
 sys.path.insert(0, '../anomaly_detector')
 
+__author__ = "Dipankar Niranjan, https://github.com/Ras-al-Ghul"
+
+
 class SleepAD(object):
     def __init__(self):
         # key:value = timestamp:sleep_phase
@@ -144,6 +147,7 @@ class SleepAD(object):
             f.close()
         # print(self.sleep_posn_dict)
         return
+
 
 def initiate_sleepAD():
     SleepObj = SleepAD()
