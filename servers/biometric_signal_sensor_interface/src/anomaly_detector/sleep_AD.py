@@ -1,9 +1,10 @@
 from __future__ import division, print_function
 from collections import OrderedDict
 from copy import deepcopy
-
 import csv
-
+import sys
+import anomaly_database_helper as db
+sys.path.insert(0, '../anomaly_detector')
 
 class SleepAD(object):
     def __init__(self):
@@ -73,20 +74,6 @@ class SleepAD(object):
         self.anomaly_dict = OrderedDict()
         return
 
-    def get_metrics(self):
-        # get all of these variables
-        # refer <https://api.hexoskin.com/docs/resource/metric/>
-        # self.sleep_efficieny
-        # self.sleep_latency
-        # self.sleep_percent
-        # self.sleep_period
-        # self.sleep_position_changes
-        # self.sleep_total_time
-        # self.sleep_non_REM_time
-        # self.sleep_REM_time
-        # self.sleep_wake_time
-        pass
-
     def calc_woke_up_count(self):
         __total_times = 0
         __sleep_phase_dict = deepcopy(self.sleep_phase_dict)
@@ -114,6 +101,12 @@ class SleepAD(object):
                     time_gap = ((temp[0] - prev[0])/256.0)/60
                     if not 70 <= time_gap <= 110:
                         self.anomaly_dict[prev[0]] = time_gap
+                        # Saving Anomaly
+                        # Anomaly is detected
+                        anomaly = {}
+                        anomaly['start_hexo_timestamp'] = prev[0]
+                        anomaly['cycle_time'] = time_gap
+                        db.add_sleep(anomaly)
                 prev = temp
         print(self.anomaly_dict)
         return
@@ -121,7 +114,7 @@ class SleepAD(object):
     def populate_DS(self):
         # cannot filter by activity = sleep
         # hence get record where activity was sleep
-        with open('sleepphase.txt', 'r') as f:
+        with open('../anomaly_detector/sleepphase.txt', 'r') as f:
             testip = list(csv.reader(f, delimiter=','))
             flag = False
             for i in testip:
@@ -139,7 +132,7 @@ class SleepAD(object):
         # print(self.start_sleep_act)
         # print(self.end_sleep_act)
 
-        with open('sleepposition.txt', 'r') as f:
+        with open('../anomaly_detector/sleepposition.txt', 'r') as f:
             testip = list(csv.reader(f, delimiter=','))
             for i in testip:
                 if i[1] == "null":
@@ -152,13 +145,15 @@ class SleepAD(object):
         # print(self.sleep_posn_dict)
         return
 
-
-def main():
+def initiate_sleepAD():
     SleepObj = SleepAD()
     SleepObj.populate_DS()
-    SleepObj.get_metrics()
     SleepObj.calc_woke_up_count()
     SleepObj.get_possible_anomaly()
+
+
+def main():
+    initiate_sleepAD()
     return
 
 

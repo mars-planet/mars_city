@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function
 from flask import Flask, render_template
 import ConfigParser
 import datetime
+import logging
 import requests
 import PyTango
 import json
@@ -18,6 +19,9 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.config.from_object(__name__)
 DEBUG = True
+
+# Logging config
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 requests.packages.urllib3.disable_warnings()
 
@@ -40,7 +44,7 @@ def config_helper(section):
         try:
             dict_config[option] = config.get(section, option)
         except:
-            print("exception on %s!" % option)
+            logging.exception("exception on %s!" % option)
             dict_config[option] = None
     return dict_config
 
@@ -142,6 +146,26 @@ def get_Resp_anomaly():
     return _resp_anomaly
 
 
+def get_Sleep_anomaly():
+    '''
+    Calls the Tango device server command to access the Database for the
+    Sleep anomalies
+        @return :           A list containing rows from the database
+    '''
+    sleep_anomaly_json = json.loads(biometric_monitor.sleep_to_gui())
+    _sleep_anomaly = []
+    for key, value in sleep_anomaly_json.items():
+        _record = []
+        _record.append(time.strftime('%Y-%m-%d %H:%M:%S',
+                                     time.localtime(float(key) / 256)))
+        _record.append(value[0])
+        # For other processing
+        _record.append(float(key) / 256)
+        _sleep_anomaly.append(_record)
+    _sleep_anomaly = sorted(_sleep_anomaly, key=lambda x: (x[0]))
+    return _sleep_anomaly
+
+
 def get_initial_data(user_info):
     '''
     Helper function to cleanly retrieve the user_info JSON object as a
@@ -184,6 +208,23 @@ def get_initial_data(user_info):
     return details
 
 
+def get_sleep_data(user_info):
+    '''
+    Helper function to cleanly retrieve the user_info JSON object as a
+    dictionary
+        @param user_info :  JSON object of the user info
+        @return :           Dictionary containing the necessary items from
+                            the JSON
+    '''
+    details = {}
+    # ------ Sleep details
+    details['sleep_efficiency'] = user_info['profile']['fitness'][1]['value']
+    details['sleep_latency'] = user_info['profile']['fitness'][2]['value']
+    details['total_sleep_time'] = user_info['profile']['fitness'][3]['value']
+
+    return details
+
+
 @app.route("/")
 def home():
     '''
@@ -203,11 +244,12 @@ def home():
     week_ago = ((week_ago - datetime.datetime(1970, 1, 1)).total_seconds())
 
     safe = True
+
     try:
-        if week_ago > _af_anomaly[0][6]:
-            safe = True
-        else:
+        if week_ago < _af_anomaly[0][6]:
             safe = False
+        else:
+            safe = True
     except:
         pass
 
@@ -224,6 +266,12 @@ def anomaly():
     _vt_anomaly = get_VT_anomaly()[::-1]
     _apc_anomaly = get_APC_anomaly()[::-1]
     _resp_anomaly = get_Resp_anomaly()[::-1]
+    _sleep_anomaly = get_Sleep_anomaly()[::-1]
+
+    user_info = json.loads(biometric_monitor.userinfo)
+    user_info = user_info['objects'][0]
+
+    sleep_metrics = get_sleep_data(user_info)
 
     x_af = []
     y_af_nec = []
@@ -251,6 +299,13 @@ def anomaly():
         y_resp.append(d[1])
         x_resp.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(d[4])))
 
+    x_sleep = []
+    y_sleep = []
+    for d in _sleep_anomaly:
+        y_sleep.append(d[1])
+        x_sleep.append(time.strftime(
+            '%Y-%m-%d %H:%M:%S', time.localtime(d[2])))
+
     # For the Plot.ly/javascript graphs
     graphs = [
         dict(
@@ -273,7 +328,7 @@ def anomaly():
             data=[
                 dict(
                     x=x_vt,
-                    y=y_vt
+                    y=y_vt,
                 ),
             ]
         ),
@@ -292,6 +347,14 @@ def anomaly():
                     y=y_resp
                 ),
             ]
+        ),
+        dict(
+            data=[
+                dict(
+                    x=x_sleep,
+                    y=y_sleep
+                ),
+            ]
         )
     ]
 
@@ -306,7 +369,8 @@ def anomaly():
 
     return render_template('anomaly.html', AF=_af_anomaly[:15],
                            VT=_vt_anomaly[:15], APC=_apc_anomaly[:15],
-                           RESP=_resp_anomaly, ids=ids, graphJSON=graphJSON)
+                           RESP=_resp_anomaly, SLEEP=_sleep_anomaly,
+                           metrics=sleep_metrics, ids=ids, graphJSON=graphJSON)
 
 
 @app.route("/raw_data")

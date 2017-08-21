@@ -1,8 +1,10 @@
 from __future__ import division, print_function
 import sys
 import time
+import logging
 sys.path.insert(0, '../health_monitor')
-from data_model import AtrFibAlarms, VenTacAlarms, APCAlarms, Data, RespAlarms
+from data_model import AtrFibAlarms, VenTacAlarms, APCAlarms
+from data_model import Data, RespAlarms, SleepAlarms
 from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -10,6 +12,9 @@ from datetime import datetime
 # Connecting to the database
 engine = create_engine('sqlite:///../health_monitor/anomalies.db', echo=False)
 Session = sessionmaker(bind=engine)
+
+# Logging Config
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 #
 #
@@ -41,7 +46,7 @@ def add_af(data):
 
             # commit the record the database
             s.commit()
-            print("Inserted AF row successfully")
+            logging.info("Inserted AF row successfully")
             return 0
 
     except:
@@ -75,7 +80,7 @@ def add_vt(data):
 
             # commit the record the database
             s.commit()
-            print("Inserted VT row successfully")
+            logging.info("Inserted VT row successfully")
             return 0
 
     except:
@@ -109,7 +114,7 @@ def add_apc(data):
 
             # commit the record the database
             s.commit()
-            print("Inserted APC row successfully")
+            logging.info("Inserted APC row successfully")
             return 0
 
     except:
@@ -142,7 +147,39 @@ def add_resp(data):
 
             # commit the record the database
             s.commit()
-            print("Inserted Resp row successfully")
+            logging.info("Inserted Resp row successfully")
+            return 0
+
+    except:
+        s.rollback()
+        return -1
+
+    finally:
+        s.close()
+
+def add_sleep(data):
+    start_hexo_timestamp = data['start_hexo_timestamp']
+    cycle_time = data['cycle_time']
+    doe = datetime.now()
+
+    # Create session
+    s = Session()
+
+    try:
+        query = s.query(SleepAlarms).filter(
+            SleepAlarms.start_hexo_timestamp.in_([start_hexo_timestamp]))
+        result = query.first()
+
+        if result:
+            return -1
+        else:
+            sleep = SleepAlarms(start_hexo_timestamp, cycle_time,
+                            doe)
+            s.add(sleep)
+
+            # commit the record the database
+            s.commit()
+            logging.info("Inserted Sleep row successfully")
             return 0
 
     except:
@@ -241,7 +278,24 @@ def get_resp():
     except:
         return -1
        
+def get_sleep():
+    return_data = []
 
+    s = Session()
+    try:
+        query = s.query(SleepAlarms)
+        result = query.all()
+        for data in result:
+            _return = []
+            _return.append(data.start_hexo_timestamp)
+            _return.append(data.cycle_time)
+            _return.append(data.doe)
+            return_data.append(_return)
+
+        s.close()
+        return return_data
+    except:
+        return -1
 
 #-------------------------------------------------------------------
 def add_data(time, data, _type):
@@ -266,7 +320,6 @@ def add_data(time, data, _type):
 
             # commit the record the database
             s.commit()
-            # print("Inserted Data row successfully")
             return 0
 
     except:
@@ -313,26 +366,8 @@ def delete_data():
 
 
 # -------------------------------------------------------------
-
-
 def main(argv):
-    data = {}
-    data['Resp_hexo_timestamp'] = 384686420480
-    data['BRstatus_mean'] = 1
-    data['Anomaly_type'] = "Boo ba"
-    add_resp(data)
-
-    data = {}
-    data['Resp_hexo_timestamp'] = 384686420485
-    data['BRstatus_mean'] = 1
-    data['Anomaly_type'] = "Boo ba"
-    add_resp(data)
-
-    data = {}
-    data['Resp_hexo_timestamp'] = 384686420490
-    data['BRstatus_mean'] = 1
-    data['Anomaly_type'] = "Boo ba"
-    add_resp(data)
+    pass
 
 
 if __name__ == "__main__":

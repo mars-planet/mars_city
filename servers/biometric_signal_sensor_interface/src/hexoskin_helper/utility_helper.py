@@ -4,6 +4,7 @@ import datetime
 import hexoskin.client
 import hexoskin.errors
 import requests
+import logging
 import ConfigParser
 
 requests.packages.urllib3.disable_warnings()
@@ -11,6 +12,9 @@ config = ConfigParser.ConfigParser()
 config.read("../health_monitor/config.cfg")
 
 __author__ = 'abhijith'
+
+# Logging Config
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 '''
 utilityHelper provides all methods that retrieves the non-biometric data
@@ -124,7 +128,7 @@ class SessionInfo:
             password, api_version='3.3.x')
         authCode = test_auth(self.api)
         if authCode != '':
-            print("Failed...")
+            logging.critical("Failed...")
             raise
 
 
@@ -146,7 +150,7 @@ def auth_login():
 
     except Exception as error:
         error_msg = error.args
-        print(error_msg[0])
+        logging.exception(error_msg[0])
 
     else:
         auth = SessionInfo(publicKey=publicKey, privateKey=privateKey,
@@ -172,19 +176,6 @@ def test_auth(api):
             return 'key_invalid'
     return ''
 
-
-def all_users(auth):
-    '''
-    Returns list of users under authenticated user's account and respective
-    information such as name, email, profile and resource uri
-        @param auth :   authentication token
-        @return :       JSON response string with account information
-                        of the users under authenticated user's account
-    '''
-    users = auth.api.user.list()
-    return users.response.text
-
-
 def account_info_helper(auth):
     '''
     Returns only the authenticated user's data such as name, email, uri,
@@ -196,25 +187,10 @@ def account_info_helper(auth):
     users = auth.api.account.list()
     return users.response
 
-
-def user_account_info_helper(auth, userID):
-    '''
-    Param: userID
-    Return value: JSON response string with user's data whose user-id is userID
-
-    Returns only the user's data such as name, email, uri, profile inforation,
-    etc, whose user-id is userID
-        @param auth :   authentication token
-        @param userID : user id
-        @return :       JSON response string with user's data
-                        whose user-id is userID
-    '''
-    raise NotImplementedError
-
-
 def convertTimestamps(arr, format):
     '''
-    Converts timestamps from hexoskin timestamp format to human readable format
+    Converts timestamps from hexoskin timestamp format to human readable
+    format
     Called by other functions
         @param arr :        timestamp
         @param format :     desirec output format
@@ -263,7 +239,7 @@ def config_helper(section):
         try:
             dict_config[option] = config.get(section, option)
         except:
-            print("exception on %s!" % option)
+            logging.exception("exception on %s!" % option)
             dict_config[option] = None
     return dict_config
 

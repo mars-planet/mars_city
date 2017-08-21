@@ -11,7 +11,7 @@ import anomaly_database_helper as db
 import vt_helper as vth
 import apc_pvc_helper as apc_pvc
 import pvc_hamilton as pvc_h
-import respiration_AD as respiration
+import sleep_AD as sleepAD
 import ConfigParser
 
 
@@ -130,10 +130,22 @@ def resp_helper(auth):
                  util.datatypes['expiration'][0]]
 
     resource.resp_realtime(auth, recordID, "",
-        datatypes)
+                           datatypes)
 
     # Successfully finished. Astronaut docked.
     return 1
+
+
+def sleep_helper(auth):
+    '''
+            @param auth:        Authentication token
+    '''
+    recordID = resource.get_record_list(auth)[0]['id']
+    if recordID in resource.get_active_record_list(auth):
+        # record should not updated in realtime.
+        return -1
+    resource.sleep_ad(auth, recordID)
+    sleepAD.initiate_sleepAD()
 
 
 def get_user_info(auth):
@@ -226,7 +238,6 @@ def apc_from_db():
             @return :           Retrieve APC/PVC AD data from DB
     '''
     data = db.get_apc()
-    # print(data, "DATA")
     return_json = {}
     for _data in data:
         _data[2] = _data[2].now().strftime('%Y-%m-%d %H:%M:%S')
@@ -234,12 +245,25 @@ def apc_from_db():
 
     return json.dumps((return_json))
 
+
 def resp_from_db():
     '''
             @return :           Retrieve Respiration AD data from DB
     '''
     data = db.get_resp()
-    # print(data, "DATA")
+    return_json = {}
+    for _data in data:
+        _data[2] = _data[2].now().strftime('%Y-%m-%d %H:%M:%S')
+        return_json[_data[0]] = _data[1:]
+
+    return json.dumps((return_json))
+
+
+def sleep_from_db():
+    '''
+            @return :           Retrieve Respiration AD data from DB
+    '''
+    data = db.get_sleep()
     return_json = {}
     for _data in data:
         _data[2] = _data[2].now().strftime('%Y-%m-%d %H:%M:%S')
@@ -269,15 +293,9 @@ def main(argv):
     '''
     auth = util.auth_login()
 
-    if argv[1] == 'af':
-        th1 = Thread(target=atrial_fibrillation_helper, args=[auth])
-        th1.start()
-    elif argv[1] == 'vt':
-        ventricular_tachycardia_helper(auth)
-    elif argv[1] == 'apc':
-        _apc_pvc_helper(auth)
-    elif argv[1] == 'data':
-        print(data_from_db())
+    # For sleep detection
+    # Will be called using a CRONJOB
+    sleep_helper(auth)
 
 
 if __name__ == "__main__":

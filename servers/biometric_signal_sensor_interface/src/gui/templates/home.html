@@ -50,7 +50,6 @@
           <div class="card red darken-1">
             <div class="card-content white-text">
               <span><strong>Astronaut is not healthy!</strong></span>
-              <br>
               <span><strong>Anomaly Detected in Last 7 Days</strong></span>
               <hr>
     {% endif %}
@@ -79,18 +78,17 @@
           <span><strong>BMI: {{ details['bmi_val'] }}</strong></span><br>
           <span><strong>Height: {{ details['height'] }}</strong></span><br>
           <span><strong>Weight: {{ details['weight'] }} ({{ details['weight_desc'] }})</strong></span><br>
-          <span><strong>HR Max: {{ details['hr_max_val'] }} ({{ details['hr_max_desc'] }})</strong></span><br>
         </div>  
       </div>
   </div> 
   <div class="col m6">
       <div class="card  grey darken-1">
         <div class="card-content white-text">
-          <span><strong>Total Sleep Time: {{ details['sleep_val'] }} ({{ details['sleep_desc'] }})</strong></span><br>
+          <span><strong>HR Max: {{ details['hr_max_val'] }} ({{ details['hr_max_desc'] }})</strong></span><br>
           <span><strong>Heart Rate Recovery: {{ details['hr_rec_val'] }} ({{ details['hr_rec_desc'] }})</strong></span><br>
           <span><strong>VO2 Max: {{ details['vo2_max_val'] }} ({{ details['vo2_max_desc'] }})</strong></span><br>
           <span><strong>Respiration Coefficient: {{ details['resp_val'] }}</strong></span><br>
-          <br>
+
         </div>
       </div>
   </div> 
