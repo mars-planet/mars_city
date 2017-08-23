@@ -13,8 +13,8 @@ for i in data:
     x.append(float(i[1]))
     y.append(float(i[-2]))
     if float(i[-2]) > float(0.068):
-    	y1.append(float(i[-2]))
-    	x1.append(float(i[1]))
+        y1.append(float(i[-2]))
+        x1.append(float(i[1]))
 
 x = np.array(x)
 y = np.array(y)

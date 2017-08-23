@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+
+<head>
+</head>
+
+<body>
+
+    {% for id in ids %}
+        <h3>{{id}}</h3>
+        <div id="{{id}}"></div>
+    {% endfor %}
+
+</body>
+
+
+<footer>
+    <!-- D3.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- Plotly.js -->
+    <script src="https://d14fo0winaifog.cloudfront.net/plotly-basic.js"></script>
+
+    <script type="text/javascript">
+
+        var graphs = {{graphJSON | safe}};
+        var ids = {{ids | safe}};
+        var data = {{data | safe}};
+
+        for(var i in graphs) {
+            Plotly.plot(ids[i], // the ID of the div, created above
+                        graphs[i].data,
+                        graphs[i].layout || {});
+        }
+        
+    </script>
+</footer>
+<div style ="float:left;width: 50%">
+    <table style="width:70%" id="myTable" cellpadding="0" cellspacing="0" border="1" onclick="tester()"  border-collapse="collapse"></table>
+        <script>
+            
+            var student;
+            
+           
+            var table = document.getElementById("myTable");
+            var row = table.insertRow(0);
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            
+            cell1.innerHTML = 'time of arrival',
+            cell2.innerHTML = data['data']['time of arrival'];
+
+            var row = table.insertRow(1);
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            
+            cell1.innerHTML = 'prediccs-alarm',
+            cell2.innerHTML = data['data']['alarm'];
+
+            var row = table.insertRow(2);
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            
+            cell1.innerHTML = 'all-clear',
+            cell2.innerHTML = data['data']['clear'];
+
+        </script>
+</div>
+<div style = "float:left;width:50%">
+        <table  style="width:70%" id="Table" cellpadding="0" cellspacing="0" border="1" onclick="tester()"  border-collapse="collapse"></table>
+        <script>
+
+            var table = document.getElementById("Table");
+            var row = table.insertRow(0);
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            
+            cell1.innerHTML = 'SEP probability threshold',
+            cell2.innerHTML = data['data']['SEP threshold'];
+
+            var row = table.insertRow(1);
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            
+            cell1.innerHTML = 'Thin spacesuit shielding threshold',
+            cell2.innerHTML = data['data']['suit threshold'];
+
+            var row = table.insertRow(2);
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            
+            cell1.innerHTML = 'Storm shelter shielding threshold',
+            cell2.innerHTML = data['data']['shelter threshold'];
+
+        </script>
+</div>
+</html>

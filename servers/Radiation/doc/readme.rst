@@ -20,85 +20,42 @@ For installing the dependencies::
 
 	pip install -r requirements.txt
 
-Client Side
-===========
 
-Install requests package
-------------------------
-
-Installing using pip::
-
-	pip install requests
-
-
-Running the Code
+Running the Radiation Forecasting Server
 ----------------
 
-Open two terminals one for the gunicorn WSGI server and the other one for the 
-client. The client script will send a get request to the server in intervals of 
-1 hour.
+Running the startercode.py for hosting the server::
 
-Running the Server::
-
-	gunicorn api:app
-
-Running the client::
+	python startercode.py
 	
-	python client
-
-For the plot open a new terminal and run::
-
-        python plot
-	
-Running testapi
----------------
-
-Similar to the api case open two clients one for the client and the
-other one for the client 
-Running the testServer::
-
-         gunicorn testapi::app
-	
-Running the client::
-
-         python client
-
-
-For the plot open a new terminal and run::
-
-        python plot
 
 Example code
 ------------
 
-Here is an example plot for the test data `plot. <plots_test.pdf/>`_
+Here is the screen once hosting is successful `plot. <image.png/>`_
 
-The output for client `client_output. <client_output.txt/>`_
  	
 Contents of the client_output
 -----------------------------
 
-thresholds::
+time of arrival::
 
-	SEP probability threshold
+	None            :-  when the SEP probability threshold(provided by forspef) is below threshold
 
-	Thin spacesuit shielding threshold
+	Time in seconds :-  when the probability is above the threshold value
 
-	Storm shelter shielding threshold
-
-data::
+prediccs-alarm::
 	
-	1st entry:- Returns Time of arrival if the FORSPEF probability if above the SEP probability threshold
+	None       :- When the radiation dosage is below the threshold 
 
-	2nd entry:- Return 1 if prediccs radiation dosage is above the given threshold else zero or None
+	Warning!!! :- When the radiation dosage is below the threshold 
 
-	3rd entry:- Return 1 in case of all-clear signal else zero or None
 	
-time::
+all-clear	::
 	
-	Time at which the spiders were called
+	None       :- When there is no  event occuring
 
-
+	all-clear  :- When the event has passed 
 
 	
 	

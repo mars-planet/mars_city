@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Scrapy settings for scrapper project
+# Scrapy settings for archive_scrapper project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -9,13 +9,13 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'scrapper'
+BOT_NAME = 'archive_scrapper'
 
-SPIDER_MODULES = ['scrapper.spiders']
-NEWSPIDER_MODULE = 'scrapper.spiders'
+SPIDER_MODULES = ['archive_scrapper.spiders']
+NEWSPIDER_MODULE = 'archive_scrapper.spiders'
 
 
-# USER_AGENT = 'scrapper (+http://www.yourdomain.com)'
+# USER_AGENT = 'archive_scrapper (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -44,13 +44,13 @@ ROBOTSTXT_OBEY = True
 # Enable or disable spider middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 # SPIDER_MIDDLEWARES = {
-#    'scrapper.middlewares.ScrapperSpiderMiddleware': 543,
+#    'archive_scrapper.middlewares.ArchiveScrapperSpiderMiddleware': 543,
 # }
 
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 # DOWNLOADER_MIDDLEWARES = {
-#    'scrapper.middlewares.MyCustomDownloaderMiddleware': 543,
+#    'archive_scrapper.middlewares.MyCustomDownloaderMiddleware': 543,
 # }
 
 # Enable or disable extensions
@@ -62,11 +62,8 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'scrapper.pipelines.ScrapperPipeline': 300,
-    # 'scrapper.pipelines.ForspefPipeline': 400,
-    # 'scrapper.pipelines.CactusPipeline': 500,
-    # 'scrapper.pipelines.PrediccsPipeline': 600,
-    'scrapper.pipelines.MongoPipeline': 400,
+    'archive_scrapper.pipelines.ArchiveScrapperPipeline': 300,
+    'archive_scrapper.pipelines.MongoPipeline': 400,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -89,4 +86,5 @@ ITEM_PIPELINES = {
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 MONGO_URI = 'localhost'
-MONGO_DATABASE = 'scrapper'
+MONGO_DATABASE = 'ascrapper'
+ROBOTSTXT_OBEY = False

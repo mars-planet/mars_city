@@ -1,9 +1,0 @@
-{u'date': u'        Issued at: Sun Jun 11 10:15:24 2017 UT\n', u'data': [[u'N09W35', u'   42.2', u' 0.005']]}
-{u'date': u'        Issued at: Sun Jun 11 11:15:30 2017 UT\n', u'data': [[u'N08W36', u'   39.9', u' 0.003']]}
-{u'date': u'        Issued at: Sun Jun 11 12:15:27 2017 UT\n', u'data': [[u'N08W36', u'   41.1', u' 0.005']]}
-{u'date': u'        Issued at: Sun Jun 11 13:15:20 2017 UT\n', u'data': [[u'N08W37', u'   39.5', u' 0.003']]}
-{u'date': u'        Issued at: Sun Jun 11 14:15:23 2017 UT\n', u'data': [[u'N08W37', u'   41.1', u' 0.003']]}
-{u'date': u'        Issued at: Sun Jun 11 15:15:18 2017 UT\n', u'data': [[u'N08W38', u'   46.6', u' 0.003']]}
-{u'date': u'        Issued at: Sun Jun 11 16:15:22 2017 UT\n', u'data': [[u'N08W38', u'   37.0', u' 0.003']]}
-{u'date': u'        Issued at: Sun Jun 11 17:15:22 2017 UT\n', u'data': [[u'N08W39', u'   31.8', u' 0.003']]}
-{u'date': u'        Issued at: Sun Jun 11 18:15:16 2017 UT\n', u'data': [[u'N08W39', u'   33.4', u' 0.003']]}
