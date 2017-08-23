@@ -35,8 +35,8 @@ for data in pre.find():
                 flag2 = 1
                 if flag2:
                     if float(i[-2]) > Al_3_threshold or flag == 1:
-                            stack.append(i)
-                            flag = 1
+                        stack.append(i)
+                        flag = 1
                 if stack:
                     if float(i[-2]) < Al_3_threshold:
                         stack2.append(i)

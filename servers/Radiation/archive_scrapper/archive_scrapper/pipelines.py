@@ -48,4 +48,4 @@ class MongoPipeline(object):
 
         if spider.name == 'NOAA':
             self.db['noaa'].insert(dict(item))
-            return item 
+            return item

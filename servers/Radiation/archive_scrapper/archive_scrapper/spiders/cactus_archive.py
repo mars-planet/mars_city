@@ -1,5 +1,6 @@
 import scrapy
 
+
 class CactusArchiveScrapper(scrapy.Spider):
 
     name = "cactus"
@@ -15,12 +16,12 @@ class CactusArchiveScrapper(scrapy.Spider):
     def parse(self, response):
 
         if not self.flag:
-        	self.flag = 1
-        	linkobj = response.css('li')[2:24]
-        	self.links.append(linkobj.css("a::attr(href)").extract())
-        	if self.count<len(self.links[0]):
-        		self.count = self.count + 1
-        		yield scrapy.Request(self.links[0][self.count], self.parse)
+            self.flag = 1
+            linkobj = response.css('li')[2:24]
+            self.links.append(linkobj.css("a::attr(href)").extract())
+            if self.count < len(self.links[0]):
+                self.count = self.count + 1
+                yield scrapy.Request(self.links[0][self.count], self.parse)
         table = response.css("pre::text")
         data = []
         for i in range(len(table) - 2):
@@ -31,7 +32,6 @@ class CactusArchiveScrapper(scrapy.Spider):
         yield{
             'data': data,
         }
-        if self.count<len(self.links[0]):
-        	self.count = self.count + 1
-        	yield scrapy.Request(self.links[0][self.count], self.parse)
-
+        if self.count < len(self.links[0]):
+            self.count = self.count + 1
+            yield scrapy.Request(self.links[0][self.count], self.parse)
