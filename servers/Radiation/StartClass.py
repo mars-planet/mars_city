@@ -81,7 +81,7 @@ class start():
             if self.last_data == i[0]:
                 count = 1
             if count:
-                if float(i[-2]) > self.Al_3_threshold or self.lag == 1:
+                if float(i[-2]) > self.Al_3_threshold or self.flag == 1:
                     stack.append(i)
                     self.flag = 1
 
