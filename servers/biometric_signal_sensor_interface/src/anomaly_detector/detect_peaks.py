@@ -2,6 +2,10 @@
 
 from __future__ import division, print_function
 import numpy as np
+import logging
+
+# Logging config
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 __author__ = "Marcos Duarte, https://github.com/demotu/BMC"
 __version__ = "1.0.4"
@@ -154,7 +158,7 @@ def _plot(x, mph, mpd, threshold, edge, valley, ax, ind):
     try:
         import matplotlib.pyplot as plt
     except ImportError:
-        print('matplotlib is not available.')
+        logging.exception('matplotlib is not available.')
     else:
         if ax is None:
             _, ax = plt.subplots(1, 1, figsize=(8, 4))

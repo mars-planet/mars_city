@@ -1,14 +1,25 @@
 from __future__ import division, print_function
+from threading import Thread
 
 import os
-import sys
 import ConfigParser
+import logging
 
 import numpy as np
 import pandas as pd
 
 from atrial_fibrillation import AtrialFibrillation
 from ventricular_tachycardia import VentricularTachycardia
+from apc_pvc_helper import APC_helper
+from pvc_hamilton import PVC
+from respiration_AD import RespiratoryAD
+from sleep_AD import SleepAD
+
+__author__ = "Dipankar Niranjan, https://github.com/Ras-al-Ghul"
+
+# Logging config
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
+
 
 class AnomalyDetector(object):
     """
@@ -17,10 +28,11 @@ class AnomalyDetector(object):
 
     def __init__(self):
         self.config = ConfigParser.RawConfigParser()
-        dirname = dir_path = os.path.dirname(os.path.realpath(__file__))
+        dirname = os.path.dirname(os.path.realpath(__file__))
         cfg_filename = os.path.join(dirname, 'anomaly_detector.cfg')
         self.config.read(cfg_filename)
-        self.window_size = self.config.getint('Atrial Fibrillation', 'window_size')
+        self.window_size =\
+            self.config.getint('Atrial Fibrillation', 'window_size')
         self.vt_result = None
 
     def af_anomaly_detect(self, rr_intervals, hr_quality_indices):
@@ -80,9 +92,10 @@ class AnomalyDetector(object):
                 rr_intervals['hexoskin_timestamps'][len(rr_intervals)-1] <=
                 hr_quality_indices
                 ['hexoskin_timestamps'][len(hr_quality_indices)-1]):
-                raise ValueError("first rr_interval timestamp\
-                 and last rr_interval timestamp must lie within first \
-                 and last timestamp of hr_quality")
+                pass
+                # raise ValueError("first rr_interval timestamp\
+                #  and last rr_interval timestamp must lie within first \
+                #  and last timestamp of hr_quality")
 
         AF = AtrialFibrillation(rr_intervals, hr_quality_indices,
                                 self.config)
@@ -163,8 +176,7 @@ class AnomalyDetector(object):
             __zero_one_count = False
             self.vt_result = __zero_one_count
 
-        # the print can be commented out
-        print("Doing further analysis")
+        logging.info("Doing further analysis")
 
         # perform the preprocessing
         VTobj.signal_preprocess()
@@ -185,15 +197,131 @@ class AnomalyDetector(object):
         # to analyze next six second epoch
         if vtvfres == 'VT/VF':
             # A VT episode has been found
-            # the print can be omitted
-            print(vtvfres)
+            logging.info("%s" % str(vtvfres))
             __zero_one_count = VTobj.zero_one_count
             self.vt_result = __zero_one_count
         else:
             # not a VT episode
-            # the print can be omitted
-            print(vtvfres)
+            logging.info("%s" % str(vtvfres))
             self.vt_result = __zero_one_count
+
+    def apc_pvc(self, init_timestamp):
+        """
+        this is only for testing and reference purpose,
+        in actuality, create APC_helper object and call
+        directly - no need to create AD object for this
+        Input:
+            timestamp:  the first timestamp
+
+        Output:
+            stores to the results dict of the APC class
+
+        Notes:
+            based on the following paper:
+
+            'Automatic detection of premature atrial
+            contractions in the electrocardiogram'
+            by Krasteva et. al.
+
+            Refer to readme for more details
+        """
+        apcHelperObj = APC_helper()
+        apcHelperObj.populate_DS()
+        apcHelperObj.popluate_aux_structures(init_timestamp)
+
+        apcHelperObj.apcObj.absolute_arrhythmia()
+
+    def pvc_Hamilton(self, init_timestamp):
+        """
+        this is only for testing and reference purpose,
+        in actuality, create PVC object and call
+        directly - no need to create AD object for this
+        Input:
+            timestamp:  the first timestamp
+
+        Output:
+            stores to the results dict of the PVC class
+
+        Notes:
+            based on:
+
+            'Open Source ECG Analysis Software
+            Documentation'
+            by Patrick S. Hamilton
+
+            Refer to readme for more details
+        """
+        pvcObj = PVC()
+        pvcObj.populate_data()
+        pvcObj.beat_classf_analyzer(init_timestamp)
+
+    def resp_AD(self, init_timestamp):
+        """
+        this is only for testing and reference purpose,
+        in actuality, create RespiratoryAD object and call
+        directly - no need to create AD object for this
+        Input:
+            timestamp:  the first timestamp
+
+        Output:
+            stores to the results dict of the RespiratoryAD class
+
+        Notes:
+            based on:
+
+            'http://wps.prenhall.com/wps/media/objects\
+            /2791/2858109/toolbox/Box15_1.pdf'
+
+            Refer to readme for more details
+        """
+        respObj = RespiratoryAD(self.config, init_timestamp)
+        th1 = Thread(target=respObj.populate_DS, args=[])
+        th1.start()
+        th1.join()
+
+        th2 = Thread(target=respObj.tidal_volume_anomaly, args=[])
+        th2.start()
+
+        th3 = Thread(target=respObj.minute_ventilation_anomaly, args=[])
+        th3.start()
+
+        th4 = Thread(target=respObj.resp_variation, args=[])
+        th4.start()
+
+        th5 = Thread(target=respObj.resp_classf, args=[])
+        th5.start()
+
+        th6 = Thread(target=respObj.delete_DS, args=[])
+        th6.start()
+
+    def sleep_AD(self):
+        """
+        this is only for testing and reference purpose,
+        in actuality, create SleepAD object and call
+        directly - no need to create AD object for this
+        Input:
+            None
+
+        Output:
+            stores to the anomaly_dict of the SleepAD class
+
+        Notes:
+            based on:
+
+            'https://www.sleepcycle.com/how-it-works/'
+            'http://blog.doctoroz.com/oz-experts/calculating-your-
+            perfect-bedtime-and-sleep-efficiency'
+            'https://api.hexoskin.com/docs/resource/sleepphase/'
+            'https://api.hexoskin.com/docs/resource/sleepposition/''
+            'https://api.hexoskin.com/docs/resource/metric/'
+
+            Refer to readme for more details
+        """
+        SleepObj = SleepAD()
+        SleepObj.populate_DS()
+        SleepObj.get_metrics()
+        SleepObj.calc_woke_up_count()
+        SleepObj.get_possible_anomaly()
 
 
 def main():
@@ -217,7 +345,8 @@ def main():
                                       names=["hexoskin_timestamps",
                                              "quality_ind"]))
     # call the Atrial Fibrillation anomaly detection method
-    # print(AD.af_anomaly_detect(rr_intervals, hr_quality_indices))
+    logging.info("%s" %
+                 str(AD.af_anomaly_detect(rr_intervals, hr_quality_indices)))
 
     ecg = (pd.read_csv('ecg.txt',
                        sep="\t",
@@ -253,6 +382,14 @@ def main():
                                              "rr_status"]))
     # call the Ventricular Tachycardia anomaly detection method
     AD.vt_anomaly_detect(ecg, rr_intervals, rr_interval_status, 1400)
+
+    AD.apc_pvc(383021266184)
+
+    AD.pvc_Hamilton(383021266184)
+
+    AD.resp_AD(383021140185)
+
+    AD.sleep_AD()
 
 
 if __name__ == '__main__':

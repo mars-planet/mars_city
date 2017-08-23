@@ -1,0 +1,422 @@
+{% extends "base.html" %}
+
+{% block mainHead %} 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <!-- Plotly.js -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+{% endblock %}
+
+{% block mainBody %}
+  <div class="row">
+    <div class="col s6 m6">
+      <div id="graph-1"></div>
+    </div>
+    <div class="col s6 m6">
+      <div id="graph-2"></div>
+    </div>
+  </div>    
+  <hr>
+  <div class="row">
+    <div class="col s6 m6">
+      <div id="graph-3"></div>
+    </div>
+    <div class="col s6 m6">
+      <div id="graph-4"></div>
+    </div>
+  </div>
+  <hr>      
+  <div class="row">
+    <div class="col s6 m6">
+      <div id="graph-5"></div>
+    </div>
+    <div class="col s6 m6">
+      <div id="graph-6"></div>
+    </div>
+  </div> 
+
+  <script>
+    function rand() {
+     return Math.random();
+    }
+
+   
+    var cnt = 0;
+
+    var ecg_t = [];
+    var ecg_v = [];
+    var hr_t = [];
+    var hr_v = [];
+    var hrq_t = [];
+    var hrq_v = [];
+    var rr_t = [];
+    var rr_v = [];
+    var resp_t = [];
+    var resp_v = [];
+    var insp_t = [];
+    var insp_v = [];
+    var exp_t = [];
+    var exp_v = [];
+    var min_t = [];
+    var min_v = [];
+    var tv_t = [];
+    var tv_v = [];
+
+    var af_time;
+    var vt_time;
+    var apc_time;
+    var resp_time;
+
+    $.get("/raw_data/fetch", function(data) {
+        var res = $.parseJSON(data)
+        af_time = res['2']
+        vt_time = res['3']
+        apc_time = res['4']
+        resp_time = res['5']
+
+        if(vt_time == 0){
+          vt_time = '';
+        }
+        if(af_time == 0){
+          af_time = '';
+        }
+        if(apc_time == 0){
+          apc_time = '';
+        }
+        if(resp_time == 0){
+          resp_time = '';
+        }
+
+        var J = $.parseJSON(res['1'])
+        var ecg = J['4113']
+        var hr = J['19']
+        var hrq = J['1000']
+        var rr = J['18']
+        var resp = J['4129']
+        var insp = J['34']
+        var exp = J['35']
+        var min = J['36']
+        var tv = J['37']
+
+        for (var i=0;i<ecg.length;i++){
+          ecg_t.push(ecg[i][0]);
+          ecg_v.push(ecg[i][1]);
+        }
+        for (var i=0;i<hrq.length;i++){
+          hrq_t.push(hrq[i][0]);
+          hrq_v.push(hrq[i][1]);
+        }
+        for (var i=0;i<hr.length;i++){
+          hr_t.push(hr[i][0]);
+          hr_v.push(hr[i][1]);
+        }
+        for (var i=0;i<rr.length;i++){
+          rr_t.push(rr[i][0]);
+          rr_v.push(rr[i][1]);
+        }
+        for (var i=0;i<resp.length;i++){
+          resp_t.push(resp[i][0]);
+          resp_v.push(resp[i][1]);
+        }
+        for (var i=0;i<insp.length;i++){
+          insp_t.push(insp[i][0]);
+          insp_v.push(insp[i][1]);
+        }
+        for (var i=0;i<exp.length;i++){
+          exp_t.push(exp[i][0]);
+          exp_v.push(exp[i][1]);
+                    
+        }
+        for (var i=0;i<min.length;i++){
+          min_t.push(min[i][0]);
+          min_v.push(min[i][1]);
+          console.log(min_v)
+          console.log("MIN")
+        }
+        for (var i=0;i<tv.length;i++){
+          tv_t.push(tv[i][0]);
+          tv_v.push(tv[i][1]);
+        }
+
+      });
+
+    Plotly.plot('graph-1', [{
+      x: [ecg_t[cnt]],
+      y: [ecg_v[cnt]],
+      name: 'ECG'
+    },{
+      x: [vt_time],
+      y: [ecg_v[cnt]],
+      name: 'Ventricular Tachycardia'
+    },{
+      x: [apc_time],
+      y: [ecg_v[cnt]],
+      name: 'APC_PVC'
+    }], {
+      title: 'ECG',
+      yaxis: {range: [1000, 2000]}
+    });
+
+    var update = {
+      opacity: 1.4,
+      'marker.color': 'red',
+      'marker.size' : 10,
+      'marker.symbol' : 'triangle-down'
+    };
+    Plotly.restyle("graph-1", update, 1);
+
+    var update = {
+      opacity: 1.4,
+      'marker.color': 'black',
+      'marker.size' : 10,
+      'marker.symbol' : 'triangle-down'
+    };
+    Plotly.restyle("graph-1", update, 2);
+
+    //--------------------------------------------------------
+
+    Plotly.plot('graph-2', [{
+      x: [hrq_t[cnt]],
+      y: [hrq_v[cnt]],
+      name: 'Heart Rate Quality'
+    },{
+      x: [hr_t[cnt]],
+      y: [hr_v[cnt]],
+      name: 'Heart Rate'
+    },{
+      x: [af_time],
+      y: [hr_v[cnt]],
+      name: 'Atrial Fribillation'
+    },{
+      x: [vt_time],
+      y: [hrq_v[cnt]],
+      name: 'Ventricular Tachycardia'
+    }], {
+      title: 'Heart Rate Quality and Heart Rate',
+      yaxis: {range: [30, 220]}
+    });
+
+    var update = {
+      opacity: 1.4,
+      'marker.color': 'green'
+    };
+    Plotly.restyle("graph-2", update, 1);
+
+    var update = {
+      opacity: 1.4,
+      'marker.color': 'purple',
+      'marker.size' : 10,
+      'marker.symbol' : 'triangle-down'
+    };
+    Plotly.restyle("graph-2", update, 2);
+
+    var update = {
+      opacity: 1.4,
+      'marker.color': 'red',
+      'marker.size' : 10,
+      'marker.symbol' : 'triangle-down'
+    };
+    Plotly.restyle("graph-2", update, 3);
+
+    //--------------------------------------------------------
+
+    Plotly.plot('graph-3', [{
+      x: [rr_t[cnt]],
+      y: [rr_v[cnt]],
+      name: 'RR Interval'
+    },{
+      x: [af_time],
+      y: [rr_v[cnt]],
+      name: 'Atrial Fribillation'
+    },{
+      x: [vt_time],
+      y: [rr_v[cnt]],
+      name: 'Ventricular Tachycardia '
+    }], {
+      title: 'RR Interval',
+      yaxis: {range: [0.265, 4]}
+    });
+
+    var update = {
+      opacity: 1.4,
+      'marker.color': 'purple',
+      'marker.size' : 10,
+      'marker.symbol' : 'triangle-down'
+    };
+    Plotly.restyle("graph-3", update, 1);
+
+    var update = {
+      opacity: 1.4,
+      'marker.color': 'red',
+      'marker.size' : 10,
+      'marker.symbol' : 'triangle-down'
+    };
+    Plotly.restyle("graph-3", update, 2);
+
+    //--------------------------------------------------------
+
+    Plotly.plot('graph-4', [{
+      x: [resp_t[cnt]],
+      y: [resp_v[cnt]],
+      name: 'Respiration'
+    },{
+      x: [resp_time],
+      y: [resp_v[cnt]-200],
+      name: 'Respiration AD'
+    }], {
+      title: 'Respiration',
+      yaxis: {range: [23000, 26000]}
+    });
+
+    var update = {
+      opacity: 1.4,
+      'marker.color': 'pink',
+      'marker.size' : 10,
+      'marker.symbol' : 'triangle-down'
+    };
+    Plotly.restyle("graph-4", update, 1);
+
+    //--------------------------------------------------------
+
+    Plotly.plot('graph-5', [{
+      x: [insp_t[cnt]],
+      y: [insp_v[cnt]],
+      name: 'Inspiration'
+    },{
+      x: [exp_t[cnt]],
+      y: [exp_v[cnt]],
+      name: 'Expiration'
+    }], {
+      title: 'Inspiration and Expiration',
+      yaxis: {range: [20000, 23000]}
+    });
+
+    //--------------------------------------------------------
+
+    Plotly.plot('graph-6', [{
+      x: [min_t[cnt]],
+      y: [min_v[cnt]],
+      name: 'Minute Ventilation'
+    },{
+      x: [tv_t[cnt]],
+      y: [tv_v[cnt]],
+      name: 'Tidal Volume'
+    }], {
+      title: 'Minute Ventilation and Tidal Volume'
+    });
+
+    //--------------------------------------------------------
+
+    var f1=0;
+    var f2=0;
+    var f3=0;
+    var f4=0;
+
+    var interval = setInterval(function() {
+          
+        Plotly.extendTraces("graph-1", {
+          x: [[ecg_t[cnt]]],
+          y: [[ecg_v[cnt]]]
+        }, [0], 50);
+
+        if(f1 == 0 && af_time > ecg_t[0] && af_time < ecg_t[ecg_t.length - 1]){
+          Plotly.extendTraces("graph-1", {
+            x: [[vt_time]],
+            y: [[ecg_v[cnt]+50]]
+          }, [1], 50);
+
+          Plotly.extendTraces("graph-1", {
+            x: [[apc_time]],
+            y: [[ecg_v[cnt]+50]]
+          }, [2], 50);
+          f1 = 1;
+        }
+   
+        //--------------------------------------------------------
+
+        if(cnt < hrq_t.length){
+          Plotly.extendTraces("graph-2", {
+            x: [[hrq_t[cnt]], [hr_t[cnt]]],
+            y: [[hrq_v[cnt]], [hr_v[cnt]]]
+          }, [0, 1], 15);
+        }
+
+        if(f3 == 0 && (af_time > ecg_t[0] || vt_time > ecg_t[0])){
+          Plotly.extendTraces("graph-2", {
+            x: [[af_time]],
+            y: [[hr_v[cnt]+5]]
+          }, [2], 50);
+          Plotly.extendTraces("graph-2", {
+            x: [[vt_time]],
+            y: [[hr_v[cnt]+5]]
+          }, [3], 50);
+          f3 = 1;
+        }
+
+        //--------------------------------------------------------
+
+        if(cnt < rr_t.length){
+          Plotly.extendTraces("graph-3", {
+            x: [[rr_t[cnt]]],
+            y: [[rr_v[cnt]]]
+          }, [0], 50);
+        }
+
+        if(f2 == 0 && (af_time > ecg_t[0] || vt_time > ecg_t[0])){
+          Plotly.extendTraces("graph-3", {
+            x: [[af_time]],
+            y: [[rr_v[cnt]+0.2]]
+          }, [1], 50);
+
+          Plotly.extendTraces("graph-3", {
+            x: [[vt_time]],
+            y: [[rr_v[cnt]+0.2]]
+          }, [2], 50);
+          f2 = 1;
+        }
+
+        //--------------------------------------------------------
+
+        if(f4 == 0 && (resp_time > resp_t[0])){
+          if(cnt < resp_t.length){
+            Plotly.extendTraces("graph-4", {
+              x: [[resp_t[cnt]]],
+              y: [[resp_v[cnt]]]
+            }, [0], 50);
+            Plotly.extendTraces("graph-4", {
+              x: [[resp_time]],
+              y: [[resp_v[cnt]+500]]
+            }, [1], 50);
+            f4 = 1;
+          }
+        }
+
+        //--------------------------------------------------------
+
+        if(cnt < insp_v.length){
+          Plotly.extendTraces("graph-5", {
+            x: [[insp_t[cnt]], [exp_t[cnt]]],
+            y: [[insp_v[cnt]], [exp_v[cnt]]]
+          }, [0, 1], 50);
+        }
+
+        //--------------------------------------------------------
+
+        if(cnt < min_v.length){
+          Plotly.extendTraces("graph-6", {
+            x: [[min_t[cnt]], [tv_t[cnt]]],
+            y: [[min_v[cnt]], [tv_v[cnt]]]
+          }, [0, 1], 50);
+        }
+
+        //--------------------------------------------------------
+
+        cnt++;
+
+        if(cnt > Math.max(ecg_t.length, hr_t.length, hrq_t.length, rr_t.length, resp_t.length)){
+            location.reload();
+          }
+      }, 1500);
+
+  </script>
+{% endblock %}

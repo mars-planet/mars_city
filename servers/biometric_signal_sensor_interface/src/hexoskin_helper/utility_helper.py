@@ -4,13 +4,17 @@ import datetime
 import hexoskin.client
 import hexoskin.errors
 import requests
+import logging
 import ConfigParser
 
 requests.packages.urllib3.disable_warnings()
 config = ConfigParser.ConfigParser()
-config.read("../health_monitor/login_config.cfg")
+config.read("../health_monitor/config.cfg")
 
 __author__ = 'abhijith'
+
+# Logging Config
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 '''
 utilityHelper provides all methods that retrieves the non-biometric data
@@ -34,7 +38,7 @@ TIMESTAMP_FORMAT = '%Y:%m:%d\t%H:%M:%S:%f'
 if MODEL == 'Hexoskin':
     raw_datatypes = {'acc': [4145, 4146, 4147],
                      'ecg': [4113],
-                     'resp': [4129, 4130]}
+                     'resp': [4129]}
     datatypes = {'activity': [49],
                  'cadence': [53],
                  'heartrate': [19],
@@ -119,13 +123,12 @@ class SessionInfo:
             apiurl = 'https://dapi.hexoskin.com'
         else:
             raise NotImplementedError
-        print("Fetching...")
         self.api = hexoskin.client.HexoApi(
             publicKey, privateKey, base_url=apiurl, auth=username + ':' +
             password, api_version='3.3.x')
         authCode = test_auth(self.api)
         if authCode != '':
-            print("Failed...")
+            logging.critical("Failed...")
             raise
 
 
@@ -135,7 +138,7 @@ def auth_login():
     Requires the credentials mentioned below.
         @return :   auth (authentication token)
     '''
-    # Credentials should be added in ../biometric_monitor/login_config.cfg
+    # Credentials should be added in ../biometric_monitor/health_monitor/config.cfg
     username = config_helper("Credentials")['username']
     password = config_helper("Credentials")['password']
     publicKey = config_helper("Credentials")['publickey']
@@ -147,7 +150,7 @@ def auth_login():
 
     except Exception as error:
         error_msg = error.args
-        print(error_msg[0])
+        logging.exception(error_msg[0])
 
     else:
         auth = SessionInfo(publicKey=publicKey, privateKey=privateKey,
@@ -161,7 +164,8 @@ def test_auth(api):
     Tests whether the login to hexoskin servers was successful or not.
     Called by auth_login()
     Requires the credentials mentioned below.
-        @return : empty string (if valid) or 'login_invalid'
+        @param api :    auth token    
+        @return :       empty string (if valid) or 'login_invalid'
     '''
     try:
         api.account.list()
@@ -171,19 +175,6 @@ def test_auth(api):
         elif e.response.result['error'] == 'API signature failed.':
             return 'key_invalid'
     return ''
-
-
-def all_users(auth):
-    '''
-    Returns list of users under authenticated user's account and respective
-    information such as name, email, profile and resource uri
-        @param auth :   authentication token
-        @return :       JSON response string with account information
-                        of the users under authenticated user's account
-    '''
-    users = auth.api.user.list()
-    return users.response
-
 
 def account_info_helper(auth):
     '''
@@ -196,37 +187,10 @@ def account_info_helper(auth):
     users = auth.api.account.list()
     return users.response
 
-
-def user_account_info_helper(auth, userID):
-    '''
-    Param: userID
-    Return value: JSON response string with user's data whose user-id is userID
-
-    Returns only the user's data such as name, email, uri, profile inforation,
-    etc, whose user-id is userID
-        @param auth :   authentication token
-        @param userID : user id
-        @return :       JSON response string with user's data
-                        whose user-id is userID
-    '''
-    raise NotImplementedError
-
-
-def hexoskin_datatypes_helper():
-    '''
-    Returns all the datatypes that the hexoskin allows. Datatypes in Hexoskin
-    are the biometric resources it provides, such as Breathing rate, etc.
-
-    Useful for adding new biometric resource support to the project.
-        @return :       JSON response string containing datatypes and
-                        associated IDs
-    '''
-    not NotImplementedError
-
-
 def convertTimestamps(arr, format):
     '''
-    Converts timestamps from hexoskin timestamp format to human readable format
+    Converts timestamps from hexoskin timestamp format to human readable
+    format
     Called by other functions
         @param arr :        timestamp
         @param format :     desirec output format
@@ -264,8 +228,10 @@ def config_helper(section):
     '''
     Returns a dictonary of the configuration stored in
     ../biometric_monitor/config.cfg
-        @param section: configuration section from the config file that,
-                        has to be read
+        @param section:     configuration section from the config file that,
+                            has to be read
+        @return :           Dictionary containing the values from the config
+                            file 
     '''
     dict_config = {}
     options = config.options(section)
@@ -273,12 +239,15 @@ def config_helper(section):
         try:
             dict_config[option] = config.get(section, option)
         except:
-            print("exception on %s!" % option)
+            logging.exception("exception on %s!" % option)
             dict_config[option] = None
     return dict_config
 
 
 def main(argv):
+    '''
+    Main function
+    '''
     pass
 
 

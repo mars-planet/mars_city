@@ -1,6 +1,4 @@
 # Hexoskin Helper Module
-=======================
-
 
 This module acts as helper module to the main Tango Device Server.
 

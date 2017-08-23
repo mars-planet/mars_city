@@ -5,12 +5,14 @@ from fractions import gcd
 # import matplotlib.pyplot as plt
 from anomaly_detector import AnomalyDetector
 from ventricular_tachycardia import get_Ampl
+import anomaly_database_helper as db
+
 import ctypes
 import pandas as pd
 import numbers
 import sys
 sys.path.insert(0, '../hexoskin_helper')
-import anomaly_database_helper as db
+
 is_py2 = sys.version[0] == '2'
 if is_py2:
     import Queue as queue
@@ -24,6 +26,8 @@ method of the Anomaly Detector class.
 A lot of things are not up to quality and need to be improved
 while implementing
 """
+
+__author__ = "Dipankar Niranjan, https://github.com/Ras-al-Ghul"
 
 
 class BeatAnalyzer(object):
@@ -180,11 +184,11 @@ class VTBeatDetector(object):
         5 min buffer where nothing is deleted
         create a three more threads maybe?
         """
-        limit = 1000
-        ecg_limit = 25000
 
-        if len(self.ecg_dict) > ecg_limit:
-            ecg_lim = 2500
+        limit = 1000
+
+        if len(self.ecg_dict) > limit:
+            ecg_lim = 200
             for key in sorted(self.ecg_dict):
                 if ecg_lim != 0:
                     del self.ecg_dict[key]
@@ -209,6 +213,7 @@ class VTBeatDetector(object):
                     hr_lim = hr_lim - 1
                 else:
                     break
+        return
 
     def __get_key(self, rr_flag, hexo_time, flag):
         try:
@@ -351,8 +356,8 @@ class VTBeatDetector(object):
                     thr1 = Thread(target=self.analyze_six_second,
                                   args=[self.vt_dict[counter][1] + 256 * 6])
                     thr1.start()
-                elif isinstance(
-                    self.vt_dict[counter][0].vt_result, numbers.Integral):
+                elif isinstance(self.vt_dict[counter][0].vt_result,
+                                numbers.Integral):
                     # Anomaly is detected
                     anomaly_dict = {}
                     anomaly_dict['start_hexo_timestamp'] = \
@@ -365,7 +370,7 @@ class VTBeatDetector(object):
                         self.vt_dict[counter][0].vt_result
 
                     db.add_vt(anomaly_dict)
-                    print(anomaly_dict)
+                    # print(anomaly_dict)
                     thr2 = Thread(target=self.analyze_six_second,
                                   args=[self.vt_dict[counter][1] + 256 * 6])
                     thr2.start()

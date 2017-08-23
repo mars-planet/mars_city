@@ -228,9 +228,9 @@ using the user interfaces, with the help of :term:`AI` assistants. When a
 plan is needed, this person will then create a plan instantiation, using the
 same :term:`UI` and assistants, by filling in the template's missing parameters.
 In order to build the templates, the user shall use the information provided by
-the Configurations Subsystem about the device's and crew member's capabilities,
+the Resources Subsystem about the device's and crew member's capabilities,
 as well as the macros. To allow this, the planning :term:`UI` s must pull this
-information from the Configurations Subsystem.
+information from the Resources Subsystem.
 
 
 .. figure:: images/MOCC_Planning.png
@@ -265,7 +265,7 @@ components and the other subsystems in the :term:`MOCC` are shown in
 .. figure:: images/MOCC_Operations-Configurations.png
   :name: Figure 3.2
 
-  Figure 3.2. Operations interaction with Configurations
+  Figure 3.2. Operations interaction with Resources
 
 
 .. figure:: images/MOCC_Operations-Telemetry.png
@@ -298,7 +298,7 @@ correct time. For commands that cannot be automatically sent, the Execution
 component should send a cue to one of the :term:`UI` in order for a user to
 manually send the command. Part of the Execution component's task is to pull
 from the Planning Subsystem information about the next plans to execute.
-Moreover the Execution component needs to pull from the Configurations Subsystem
+Moreover the Execution component needs to pull from the Resources Subsystem
 information about the TANGO device addresses and other interface requirements.
 Finally, the automated commands are sent though the Commands Subsystem.
 
@@ -307,7 +307,7 @@ expected outcomes from the plan in execution match the telemetry readings
 obtained. If a deviation occurs, the Control component should send an alarm to
 one of the :term:`UI`, in order to allow the users to perform the necessary
 corrections. To carry its tasks, the Control component needs to pull from the
-Configurations Subsystem information about the TANGO device addresses and other
+Resources Subsystem information about the TANGO device addresses and other
 interface requirements. The Control component must obtain the device's
 telemetry readings from the Telemetry Subsystem, whereas the plan steps'
 expected outcomes come from the Planning Subsystem.
@@ -322,7 +322,7 @@ The Operations Subsystem's **user interfaces** have four tasks:
 * Allow the user to build, review and execute corrective measures, in case of a
   plan deviation.
 
-These :term:`UI` s get the information about the devices from the Configurations
+These :term:`UI` s get the information about the devices from the Resources
 Subsystem. They also interface with the Telemetry Subsystem to obtain telemetry
 readings, as well as with the Commands Subsystem allow manually sending
 commands. Finally, the :term:`UI` s have to interface with the Planning Subsystem
@@ -338,7 +338,7 @@ The :term:`AI` **assistants** in the Operations Subsystem are of two types:
 * **Corrective Assistants** help the users build and execute corrective
   measures, in case of a plan deviation.
 
-The assistants need to interface with the Configurations Subsystem, to obtain
+The assistants need to interface with the Resources Subsystem, to obtain
 devices' addresses and other interface requirements, and with the Telemetry
 Subsystem, to obtain the devices' readings.
 
@@ -361,7 +361,7 @@ scenario would be as follows:
 These corrective plans should be built based on both the devices' and crew
 members' properties, as well as on the original plan.
 
-The Configurations Subsystem
+The Resources Subsystem
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This subsystem is in charge of storing and making available information about
@@ -377,13 +377,13 @@ of the macros is twofold:
 * Encapsulate the details of the devices.
 
 
-The Configurations Subsystem's internal structure is shown in `Figure 4`_.
+The Resources Subsystem's internal structure is shown in `Figure 4`_.
 
 
-.. figure:: images/MOCC_Configurations.png
+.. figure:: images/MOCC_Resources.png
   :name: Figure 4
 
-  Figure 4. The Configurations Subsystem
+  Figure 4. The Resources Subsystem
 
 
 Therefore a macro is a higher level interface to the devices. For instance,
@@ -394,7 +394,7 @@ those devices. With macros, the user could request an RF setup-macro and use
 that instead, without having to have knowledge of how the devices in the chain
 need to be setup.
 
-The Configurations Subsystem comprises three components:
+The Resources Subsystem comprises three components:
 
 * The **Devices** component stores and provides information about the commands
   a device can receive and how those commands must be sent: channel the command
@@ -476,7 +476,7 @@ The other five deal with each subsystem:
 
 #. The Planning Subsystem Design Document.
 #. The Operations Subsystem Design Document.
-#. The Configurations Subsystem Design Document.
+#. The Resources Subsystem Design Document.
 #. The Telemetry Subsystem Design Document.
 #. The Commands Subsystem Design Document.
 

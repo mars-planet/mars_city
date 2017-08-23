@@ -1,0 +1,237 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""Health Monitor Tango Service"""
+from __future__ import division, print_function
+from PyTango.server import Device, DeviceMeta, command, server_run
+from PyTango.server import attribute
+from PyTango import AttrWriteType
+from threading import Thread
+import monitor as hm
+import time
+import json
+import logging
+
+# Logging Config
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
+
+
+class Monitor(Device):
+    __metaclass__ = DeviceMeta
+
+    username = attribute(label="Username", dtype=str,
+                         doc="Username of the astronaut",
+                         access=AttrWriteType.READ)
+
+    recordID = attribute(label="Record ID", dtype=int,
+                         doc="Record ID of the current live session",
+                         access=AttrWriteType.READ)
+
+    userinfo = attribute(label="User Info", dtype=str,
+                         doc="Astronaut account information in JSON",
+                         access=AttrWriteType.READ)
+
+    def init_device(self):
+        '''
+        Monitor device server class constructor
+        '''
+        Device.init_device(self)
+        self.auth = hm.get_auth_token()
+
+        self._user_info = hm.get_user_info(self.auth)
+        user_name_t = json.loads(self._user_info)
+        self._username = user_name_t['objects'][0]['first_name']
+        self._username = self._username + " "
+        self._username += user_name_t['objects'][0]['last_name']
+        self._recordid = hm.get_rrecordid(self.auth)
+
+        logging.info("\n")
+        logging.info("-" * 78)
+        logging.info('...Starting Biometric Health Monitor...')
+        logging.info("-" * 78)
+        self.start_monitoring()
+
+    def read_username(self):
+        '''
+            @return :       Username
+        '''
+        return self._username
+
+    def read_recordID(self):
+        '''
+            @return :       RecordID
+        '''
+        return self._recordid
+
+    def read_userinfo(self):
+        '''
+            @return :       User Info
+        '''
+        return self._user_info
+
+    def atrial_fribillation(self):
+        '''
+        Atrial Fribillation as a Thread
+        '''
+        logging.info("\nStarting Atrial Fribillation Anomaly "
+                          "Detection in background")
+
+        # Call to get Atrial Fribillation Anomaly Detection
+        th1 = Thread(target=hm.atrial_fibrillation_helper,
+                     args=[self.auth])
+        th1.start()
+        logging.info('Started\n')
+
+    def ventricular_tachycardia(self):
+        '''
+        Ventricular Tachycardia as a Thread
+        '''
+        logging.info("-" * 78)
+        logging.info("\nStarting Ventricular Tachycardia Anomaly "
+                          "Detection in background")
+
+        # Call to get Ventricular Tachycardia Anomaly Detection
+        th2 = Thread(target=hm.ventricular_tachycardia_helper,
+                     args=[self.auth])
+        th2.start()
+        logging.info('Started\n')
+
+    def apc_pvc(self):
+        '''
+        APC_PVC as a Thread
+        '''
+        logging.info("-" * 78)
+        logging.info("\nStarting APC PVC Anomaly "
+                          "Detection in background")
+
+        # Call to get Ventricular Tachycardia Anomaly Detection
+        th3 = Thread(target=hm._apc_pvc_helper,
+                     args=[self.auth])
+        th3.start()
+        logging.info('Started\n')
+
+    def resp_ad(self):
+        '''
+        Respiration AD as a Thread
+        '''
+        logging.info("-" * 78)
+        logging.info("\nStarting Respiration Anomaly "
+                          "Detection in background")
+
+        # Call to get Ventricular Tachycardia Anomaly Detection
+        th4 = Thread(target=hm.resp_helper,
+                     args=[self.auth])
+        th4.start()
+        logging.info('Started\n')
+
+    @command(dtype_out=str,
+             doc_out="AF AD from DB as JSON")
+    def af_to_gui(self):
+        '''
+        To send the AF AD data to gui
+        '''
+        return hm.af_from_db()
+
+    @command(dtype_out=str,
+             doc_out="VT AD from DB as JSON")
+    def vt_to_gui(self):
+        '''
+        To send the VT AD data to gui
+        '''
+        return hm.vt_from_db()
+
+    @command(dtype_out=str,
+             doc_out="APC AD from DB as JSON")
+    def apc_to_gui(self):
+        '''
+        To send the VT AD data to gui
+        '''
+        return hm.apc_from_db()
+
+    @command(dtype_out=str,
+             doc_out="Respiration AD from DB as JSON")
+    def resp_to_gui(self):
+        '''
+        To send the VT AD data to gui
+        '''
+        return hm.resp_from_db()
+
+    @command(dtype_out=str,
+             doc_out="Sleep AD from DB as JSON")
+    def sleep_to_gui(self):
+        '''
+        To send the VT AD data to gui
+        '''
+        return hm.sleep_from_db()
+
+    @command(dtype_out=str,
+             doc_out="Realtime data as JSON",
+             )
+    def rt_to_gui(self):
+        '''
+        Data to GUI
+        '''
+        return hm.data_from_db()
+
+    @command
+    def delete_from_db(self):
+        '''
+        Data to GUI
+        '''
+        hm.delete_from_db()
+
+    @command(dtype_out=bool,
+             doc_out="True if Real-time biometric session is active")
+    def start_monitoring(self):
+        '''
+        Device server command to start biometric monitoring
+            @return	-	TRUE if Real-time biometric session is active and
+                        monitoring is being done
+                        FALSE if astronaut not in real-time session
+        '''
+        logging.info('\nName: %s' % self._username)
+
+        if self._recordid == -1:
+            poll_counter = 10
+            logging.info(
+                "Checking for real-time record of %s" % self._username)
+            while poll_counter > 0:
+                poll_counter -= 1
+                time.sleep(2)
+                if hm.get_rrecordid(self.auth) != -1:
+                    self._recordid = hm.get_rrecordid(self.auth)
+                    break
+
+            if self._recordid == -1:
+                logging.info(
+                    '\n%s is not in a live sesson!' % self._username)
+                logging.info(
+                    'Please connect the hexoskin device and try again')
+                logging.info('-' * 31 + 'X' + '-' * 31)
+                return False
+
+        logging.info(
+            'Record ID of current real-time session: %s' % self._recordid)
+
+        logging.info("-" * 78)
+
+        # ****************** Atrial Fribillation *******************
+        self.atrial_fribillation()
+
+        # ****************** Ventricular Tachycardia *******************
+        self.ventricular_tachycardia()
+
+        # ****************** APC PVC *******************
+        self.apc_pvc()
+
+        # ****************** Respiration *******************
+        self.resp_ad()
+
+        # ****************** ******************
+        logging.info("-" * 78)
+
+        return True
+
+
+if __name__ == "__main__":
+    server_run([Monitor])
