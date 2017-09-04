@@ -29,12 +29,10 @@ Describes the scope of this requirements specification.
 Reference Documents
 -------------------
 
-- [1] -- `GOES Data warehouse. <http://www.swpc.noaa.gov/ftpmenu/warehouse.html>`_
-- [2] -- `SXI Solar X-ray imager. <http://www.swpc.noaa.gov/sxi/index.html>`_
-- [3] -- `Software Engineering Practices Guidelines. <https://eras.readthedocs.org/en/latest/doc/guidelines.html>`_
-- [4] -- `ERAS 2013 GSoC Strategic Plan. <https://bitbucket.org/italianmarssociety/eras/wiki/Google%20Summer%20of%20Code%202013>`_
-- [5] -- `Solar Dynamics Observatory Data. <http://sdo.gsfc.nasa.gov/data/>`_
-- [6] -- `Example DSD. <http://www.swpc.noaa.gov/ftpdir/warehouse/2012/2012_DSD.txt>`_
+- [1] -- `PREDICCS. <http://prediccs.sr.unh.edu/index.html#what>`_
+- [2] -- `CACTUS. <http://www.sidc.oma.be/cactus/>`_
+- [3] -- `FORSPEF. <http://tromos.space.noa.gr/forspef/main/>`_
+- [4] -- `Software Engineering Practices Guidelines. <https://eras.readthedocs.org/en/latest/doc/guidelines.html>`_
 
 
 Glossary
@@ -48,23 +46,12 @@ Glossary
     ``IMS``
         Italian Mars Society
 
-    ``GOES``
-        Geostationary Operational Environmental Satellite
-
-    ``NGDC``
-	National Geophysical Data Center
-
-    ``SDO``
-        Solar Dynamics Observatory
-
-    ``DSD``
-        Daily Solar Data
-
-    ``SESC``
-	   Space Environment Services Center
+    ``FORSPEF``
+        FORecasting Solar Particle Events and Flares TOOL
 
     ``SEP``
         Solar Energy Particles
+
 *Overview*
 ----------
 
@@ -90,8 +77,8 @@ the issue of radiation effectively in simulated environments(Mars city project).
 Functional Description
 ----------------------
 
-The goal of the module is to implement the radiation forecast either using a 
-deterministic approach or a machine learning(Neural Network) using the data
+The goal of the module is to implement the radiation forecast using a 
+deterministic model using the data
 provided by sources like FORSPEF,PREDICCS and CACTUS.The model will give a 
 heads up for SEP events and also issues an all-clear signal when the event has 
 settled down.
@@ -105,37 +92,31 @@ in providing a simulation of the Martian environment for preparing the crew.
 Constraints
 -----------
 
-Although, the archive data for the training is readily available in [1].
 The module is constrained by the continued availability of functional data
 from the respective satellites.
 
+Functional Description
+----------------------
 
-*Functional Requirements*
-====================================
+The package takes in the continuous data stream from sources and returns 
+the time of arrival as the output. In case if the event has already been
+recorded by the sources the package alarms when the event has subsided.
 
-.. This section lists the functional requirements in ranked order. Functional
-.. requirements describe the possible effects of a software system, in other
-.. words, what the system must accomplish. Other kinds of requirements (such as
-.. interface requirements, performance requirements, or reliability requirements)
-.. describe how the system accomplishes its functional requirements.
-.. Each functional requirement should be specified in a format similar to the
-.. following.:
+Environment
+-----------
 
-.. Requirement
-.. -----------
+The package currently is intended to run in simulation environments 
+of the marscity project. The package can be used in the V-ERAS project
+to alert throgh occulus or other VR gadgets. 
 
-.. Description
-.. ~~~~~~~~~~~
+User objectives
+---------------
 
-.. Criticality
-.. ~~~~~~~~~~~
-
-.. * High | Normal | Low
-
-.. Dependency
-.. ~~~~~~~~~~
-.. Indicate if this requirement is dependant on another.
-
+Crew
+~~~~
+The user is the crew in simulated environments and the package is 
+expected to give information of SEP events for preparing the crew
+for the same.
 
 Interface Requirements
 ==========================
@@ -147,200 +128,55 @@ Interface Requirements
 *User Interfaces*
 -----------------------
 
-.. Describes how this product interfaces with the user.
+GUI (Graphical User Interface)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Diagnostics
-~~~~~~~~~~~
+At present a web based GUI is used for representing the streaming data 
+and the alarms.In future the package could be used in VR systems.
 
-A validation set of data will be maintained for the diagnostic requirements.
+API (Application Programming Interface)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+The falcon REST API provides the user with data as well as alarms
+after analysing data from the sources.
 
-Software Interfaces
--------------------
+**Alarms end point**::
+    
+    request         : GET
+    URL             : http://localhost:8000/test 
+    example output  : {u'thresholds': {u'SEP probability threshold': 0.25, u'Thin spacesuit shielding threshold': 0.068, u'Storm shelter shielding threshold': 0.068}, u'data': {u'all-clear': None, u'time of arrival': None, u'prediccs-alarm': 0}, u'time': u'2017-08-19 11:07:09.483405'}
 
-Communication Interfaces
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-The module is to be implementhed as a Python Tango server, which issues
-appropriate warnings in case of forecasted Solar storm.
-
-
-Development and Test Factors
-============================
-
-Standards Compliance
---------------------
-
-The Software Engineering Practices Guidelines for the ERAS Project in [3] to be followed.
+**Data end point**::
+    
+    request         : GET
+    URL             : http://localhost:8000/test
 
 
-Planning
---------
+**Flask API for web based GUI**::
+    
+    request         : GET
+    URL             : http://0.0.0.0:9999/
+    output          : graph generated with plotly.js library and alarm data.
+   
+    Alarm  data description
 
-The planned steps for the design and implementation of the model :
+    time of arrival
 
-1. Variable selection
-2. Data collection
-3. Data preprocessing
-4. Training and validation sets
-5. Neural network paradigms
-6. Evaluation criteria
-7. Neural network training
-8. Implementation
+        None            :-  when the SEP probability threshold(provided by forspef) is below threshold
 
-This procedure is not a single-pass one, and may require the revisiting of
-previous steps especially between training and variable selection. Although,
-the implementation step is listed as last one, it is being given careful
-consideration prior to collecting data.
+        Time in seconds :-  when the probability is above the threshold value
 
+    prediccs-alarm
+    
+        None       :- When the radiation dosage is below the threshold 
 
+        Warning!!! :- When the radiation dosage is below the threshold 
 
-Use-Cases
-=========
+    
+    all-clear   
+    
+        None       :- When there is no  event occuring
 
-Use Case: Data collection and integration
------------------------------------------
-
-The main focus is Data colection and preprocessing.
-
-Actors
-~~~~~~
-Raw data, local database
-
-Priority
-~~~~~~~~
-High
-
-Preconditions
-~~~~~~~~~~~~~
-The raw data (txt files) must be downloaded on lacal machine.
-
-Basic Course
-~~~~~~~~~~~~
-
-The raw data from the warehouse in [1] is to be parsed and the data to be
-stored on local database (preferably using Mysql ). The data collected from
-the txt files will be integrated in database using the date as key. An example
-of the :term:`DSD` file is in [5]. Using this:
-
-The following feature sets will be extarcted
-
-1. Radio flux
-2. :term:`SESC` Sunspot number
-3. Sunspot area
-4. New regions
-5. X-ray background flux
-6. C-forecast
-7. M-forecast
-8. X-forecast
-
-The database will then be seperated into training and validation sets to be used
-for the neural network training.
+        all-clear  :- When the event has passed 
 
 
-Alternate Course
-~~~~~~~~~~~~~~~~
-
-Although, it was initially thought of using image data from :term:`SDO` in [4]. But,
-it is presently generating about 1.5TB of data daily and even the downsampled images
-would require immense processing power and bandwidth (SDO is receiving about 700Mb every
-36 secs). Such processing power is not currently available for this implementation.Still,
-attempts wil be made to find any source of processed data access points or APIs which may
-provide us the preprocessed data.
-
-
-Postconditions
-~~~~~~~~~~~~~~
-The database split into training and validation sets.
-
-
-
-
-Use Case: Neural network training
----------------------------------
-The focus will be to train the neural network to classify the Solar flares.
-
-Actors
-~~~~~~
-Neural network, local database
-
-Priority
-~~~~~~~~
-High
-
-Preconditions
-~~~~~~~~~~~~~
-The training database must be available.
-
-Basic Course
-~~~~~~~~~~~~
-
-Using the training database, four different Neural networks will be trained
-where each neural net will be trained to classify the features into a different
-class ( classes to be trained for X, M, C, A&B ). Each of these neural nets will
-be trained for one class only. The extracted feature set in the database will be
-used to identify the class as the output.
-
-The following Neural Network paradigms will be considered :
-
-1. number of hidden layers
-2. number of hidden neurons
-3. transfer functions
-
-Additional factors considered for the training :
-
-1. number of training iterations
-2. learning rate
-3. momentum
-
-After the training, the validation set will be used to verify the performance
-for the neural network.
-
-
-Alternate Course
-~~~~~~~~~~~~~~~~
-
-As an alternate course, a neural network consisting of multiple outputs to
-classify the features into the respective classes can be trained. Based on
-the input feature set, the output will be the corresponding class. The
-performance of both the implementations can be analysed to identify the
-most suitable solution.
-
-Postconditions
-~~~~~~~~~~~~~~
-A trained neural network implementation.
-
-
-
-
-Use Case: Solar storm warning
------------------------------
-
-Actors
-~~~~~~
-Trained neural network as server,
-client that responds to warning
-
-Priority
-~~~~~~~~
-Normal
-
-Preconditions
-~~~~~~~~~~~~~
-The neural network has access to input data feed.
-
-Basic Course
-~~~~~~~~~~~~
-
-The input features would be fed to the trained neural network. As the 
-network has already been trained offline, the implemented neural network
-should be able to provide fast response. In case of a warning, the 
-relevant warning will be issued specifying the type of forecast.
-
-Alternate Course
-~~~~~~~~~~~~~~~~
-None
-
-Postconditions
-~~~~~~~~~~~~~~
-None
