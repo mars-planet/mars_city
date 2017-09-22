@@ -43,7 +43,7 @@ def save(tango_addr):
         lookup_table.execute('INSERT INTO lookup VALUES (?,?,?)', values)
         conn.commit()
     except Exception as e:
-        print e
+        print(e)
         conn.close()
         return "Failed"
     conn.close()
