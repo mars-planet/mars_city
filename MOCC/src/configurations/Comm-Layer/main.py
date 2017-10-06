@@ -1,10 +1,10 @@
-import sqlite3
-from flask import Flask, request, jsonify
 import datetime
 import os
+import sqlite3
+from urllib.parse import quote_plus
+
 from flasgger import Swagger
-
-
+from flask import Flask, jsonify, request
 
 if 'tango.db' not in os.listdir('.'):
     conn = sqlite3.connect('tango.db', check_same_thread=False)
@@ -39,7 +39,7 @@ def save(tango_addr):
     lookup_table = conn.cursor()
     ip_addr = request.remote_addr
     try:
-        values = (datetime.datetime.now(), tango_addr, ip_addr)
+        values = (datetime.datetime.now(), quote_plus(tango_addr), ip_addr)
         lookup_table.execute('INSERT INTO lookup VALUES (?,?,?)', values)
         conn.commit()
     except Exception as e:
@@ -89,7 +89,7 @@ def get(tango_addr):
     """
     conn = sqlite3.connect('tango.db', check_same_thread=False)
     lookup_table = conn.cursor()
-    tango_addr = (unicode(tango_addr), )
+    tango_addr = (quote_plus(tango_addr), )
     results = lookup_table.execute("SELECT * FROM lookup WHERE tango_addr=?", tango_addr)
     results = list(results)
     if len(results) == 0:
