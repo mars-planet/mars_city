@@ -31,21 +31,33 @@ def save(tango_addr):
       200:
         description: Device address successfully saved.
         type: string
-      500:
+    500:
         description: Internal server error
         type: string
     """
     conn = sqlite3.connect('tango.db', check_same_thread=False)
     lookup_table = conn.cursor()
     ip_addr = request.remote_addr
-    try:
-        values = (datetime.datetime.now(), quote_plus(tango_addr), ip_addr)
-        lookup_table.execute('INSERT INTO lookup VALUES (?,?,?)', values)
-        conn.commit()
-    except Exception as e:
-        print(e)
-        conn.close()
-        return "Failed"
+    existing_results = lookup_table.execute("SELECT * FROM lookup WHERE tango_addr=?", (quote_plus(tango_addr),))
+    if len(list(existing_results)) == 0:
+        try:
+            values = (datetime.datetime.now(), quote_plus(tango_addr), ip_addr)
+            lookup_table.execute('INSERT INTO lookup VALUES (?,?,?)', values)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            conn.close()
+            return "Failed"
+    else:
+        try:
+            values = (ip_addr, datetime.datetime.now(), quote_plus(tango_addr), )
+            lookup_table.execute('UPDATE lookup SET ip_addr=?,timestamp=? WHERE tango_addr=?', values)
+            conn.commit()
+        except Exception as e:
+            print(e)
+            conn.close()
+            return "Failed"
+    
     conn.close()
     return "Successfully saved device address"
 
@@ -89,14 +101,14 @@ def get(tango_addr):
     """
     conn = sqlite3.connect('tango.db', check_same_thread=False)
     lookup_table = conn.cursor()
-    tango_addr = (quote_plus(tango_addr), )
-    results = lookup_table.execute("SELECT * FROM lookup WHERE tango_addr=?", tango_addr)
+    query_param = (quote_plus(tango_addr), )
+    results = lookup_table.execute("SELECT * FROM lookup WHERE tango_addr=?", query_param)
     results = list(results)
     if len(results) == 0:
         conn.close()
         return jsonify({})
     conn.close()
-    return jsonify([{'tango_addr': tango_addr[0], 'ip_addr': e[2], 'timestamp': e[0]} for e in results])
+    return jsonify([{'tango_addr': tango_addr, 'ip_addr': e[2], 'timestamp': e[0]} for e in results])
 
 if __name__ == '__main__':
     app.run(debug=True)
