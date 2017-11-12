@@ -1,9 +1,11 @@
 import requests
+from config_manager import ConfigManager
 
 
 class DeviceProxy:
     def __init__(self, dev_name):
         self._name = dev_name
+        self.config = ConfigManager(dev_name)
         self.bind_functions()
 
     def test_connection(self):
@@ -12,7 +14,7 @@ class DeviceProxy:
     def add_fn(self, name):
         def fn():
             # Make appropriate REST call here
-            uri = 'http://127.0.0.1:5000' + self._name
+            uri = self.config.ip_addr + '/' + self.dev_name
             uri += '/functions/' + name
             req = requests.get(uri)
             return req.json()
@@ -67,7 +69,8 @@ class DeviceProxy:
 
     # Getting the attributes of the device server
     def get_attribute_list(self):
-        uri = 'http://127.0.0.1:5000' + self.resource_path_URI + '/attributes'
+        uri = self.config.ip_addr + '/' + \
+                self.dev_name + '/attributes'
         req = requests.get(uri)
         return req.json()
 
@@ -85,7 +88,7 @@ class DeviceProxy:
 
     # Getting the functions of the device server
     def get_function_list(self):
-        uri = 'http://127.0.0.1:5000' + self.resource_path_URI + '/functions'
+        uri = self.config.ip_addr + '/' + self.dev_name + '/functions'
         req = requests.get(uri)
         return req.json()
 
