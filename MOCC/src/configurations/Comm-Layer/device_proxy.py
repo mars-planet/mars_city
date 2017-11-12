@@ -4,7 +4,7 @@ from config_manager import ConfigManager
 
 class DeviceProxy:
     def __init__(self, dev_name):
-        self._name = dev_name
+        self.dev_name = dev_name
         self.config = ConfigManager(dev_name)
         self.bind_functions()
 
@@ -106,7 +106,7 @@ class DeviceProxy:
 
     # Return the device name from the device itself
     def name(self):
-        return self._name
+        return self.dev_name
 
     # A method which sends a ping to the device
     def ping(self):
