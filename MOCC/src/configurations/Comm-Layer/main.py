@@ -1,20 +1,26 @@
 import datetime
 import os
 import sqlite3
-from urllib.parse import quote_plus
-
+import tango_db_helper as DbHelper
 from flasgger import Swagger
 from flask import Flask, jsonify, request
+try:
+    from urllib import quote  # Python 2.X
+except ImportError:
+    from urllib.parse import    quote  # Python 3+
+
 
 if 'tango.db' not in os.listdir('.'):
-    conn = sqlite3.connect('tango.db', check_same_thread=False)
-    lookup_table = conn.cursor()
-    lookup_table.execute('''CREATE TABLE lookup(timestamp datetime,tango_addr varchar,ip_addr varchar)''')
-    conn.commit()
-    conn.close()
+    DbHelper.create()
 
 app = Flask(__name__)
 swagger = Swagger(app)
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    return "HTTP 500: Internal Server Error"
+
 
 @app.route('/save/<path:tango_addr>/', methods=['GET'])
 def save(tango_addr):
@@ -28,42 +34,25 @@ def save(tango_addr):
         type: string
         required: true
     responses:
-      200:
-        description: Device address successfully saved.
-        type: string
-    500:
-        description: Internal server error
-        type: string
+        200:
+            description: Device address successfully saved.
+            type: string
+        500:
+            description: Internal server error
+            type: string
     """
-    conn = sqlite3.connect('tango.db', check_same_thread=False)
-    lookup_table = conn.cursor()
+    
     ip_addr = request.remote_addr
-    existing_results = lookup_table.execute("SELECT * FROM lookup WHERE tango_addr=?", (quote_plus(tango_addr),))
-    if len(list(existing_results)) == 0:
-        try:
-            values = (datetime.datetime.now(), quote_plus(tango_addr), ip_addr)
-            lookup_table.execute('INSERT INTO lookup VALUES (?,?,?)', values)
-            conn.commit()
-        except Exception as e:
-            print(e)
-            conn.close()
+    existing_results = DbHelper.get(quote(tango_addr))
+    if len(existing_results) == 0:
+        if DbHelper.add(datetime.datetime.now(), quote(tango_addr), ip_addr) == -1:
             return "Failed"
     else:
-        try:
-            values = (ip_addr, datetime.datetime.now(), quote_plus(tango_addr), )
-            lookup_table.execute('UPDATE lookup SET ip_addr=?,timestamp=? WHERE tango_addr=?', values)
-            conn.commit()
-        except Exception as e:
-            print(e)
-            conn.close()
+        if DbHelper.update(quote(tango_addr), datetime.datetime.now()) == -1:
             return "Failed"
     
-    conn.close()
     return "Successfully saved device address"
 
-@app.errorhandler(500)
-def internal_error(error):
-    return "HTTP 500: Internal Server Error"
 
 @app.route('/get_addr/<path:tango_addr>/', methods=['GET'])
 def get(tango_addr):
@@ -99,15 +88,13 @@ def get(tango_addr):
                         timestamp: 'Sun, 17 Sep 2017 16:04:39 GMT'
 
     """
-    conn = sqlite3.connect('tango.db', check_same_thread=False)
-    lookup_table = conn.cursor()
-    query_param = (quote_plus(tango_addr), )
-    results = lookup_table.execute("SELECT * FROM lookup WHERE tango_addr=?", query_param)
+
+    results = DbHelper.get(quote(tango_addr))
     results = list(results)
+    
     if len(results) == 0:
-        conn.close()
         return jsonify({})
-    conn.close()
+
     return jsonify([{'tango_addr': tango_addr, 'ip_addr': e[2], 'timestamp': e[0]} for e in results])
 
 if __name__ == '__main__':
