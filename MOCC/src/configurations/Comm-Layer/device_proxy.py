@@ -31,7 +31,7 @@ class DeviceProxy:
 
     # Query the device for info on all attributes
     def attribute_list_query(self):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     def bind_functions(self):
         functions_dict = self.get_function_list()
@@ -42,23 +42,23 @@ class DeviceProxy:
 
     # Returns n previous commands
     def black_box(self, n):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Retreive command history from the comman polling buffer
     def command_history(self):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Query the device for information in all commands
     def command_list_query(self):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Query the device for information about a single command
     def command_query(self, command):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Delete a given property of this device
     def delete_property(self, value):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Get device description
     def description(self):
@@ -66,7 +66,7 @@ class DeviceProxy:
 
     # Return the attribute configuration for a single attribute
     def get_attribute_config(self, names):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Getting the attributes of the device server
     def get_attribute_list(self):
@@ -77,7 +77,7 @@ class DeviceProxy:
 
     # Return the command configuration for all commands
     def get_command_config(self):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Return the names of all commands implemented for this device
     def get_command_list(self):
@@ -85,7 +85,7 @@ class DeviceProxy:
 
     # Returns the internal database reference
     def get_device_db(self):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Getting the functions of the device server
     def get_function_list(self):
@@ -95,11 +95,11 @@ class DeviceProxy:
 
     # Get a (list) of property(ies) for a device
     def get_property(self, propname, value=None):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Get the list of property names for this device
     def get_property_list(self, filter, array=None):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Method which returns information on the device
     def info(self):
@@ -111,51 +111,51 @@ class DeviceProxy:
 
     # A method which sends a ping to the device
     def ping(self):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Read a single attribute
     def read_attribute(slef, attr_name):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Read a single attribute async
     def read_attribute_asynch(self, attr_name):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     def read_attribute_reply():
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Read the list of specified attributes
     def read_attributes(self, attr_names):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Set attribute configuration for the specified attribute
     def set_attribute_config(self, attr_info):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Returns the state of the device
     def state(self):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Returns the status of the device as a string
     def status(self):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Write a single attribute
     def write_attribute(self, attr_name, value):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Write a single attribute async
     def write_attribute_asynch(attr_name, value, cb=None):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Write the specified attributes
     def write_attributes(self, name_val):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Write then read a single attribute in a single network call.
     def write_read_attribute(self, attr_name, value):
-        raise (NotImplementedError)
+        raise NotImplementedError()
 
     # Write then read attribute(s) in a single network call
     def write_read_attributes(self, name_val, attr_names):
-        raise (NotImplementedError)
+        raise NotImplementedError()
