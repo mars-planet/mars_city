@@ -93,9 +93,12 @@ def get(tango_addr):
     results = list(results)
     
     if len(results) == 0:
-        return jsonify({})
+        return "Does not exist"
 
     return jsonify([{'tango_addr': tango_addr, 'ip_addr': e[2], 'timestamp': e[0]} for e in results])
 
-if __name__ == '__main__':
+def main():
     app.run(debug=True)
+
+if __name__ == '__main__':
+    main()
