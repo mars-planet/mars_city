@@ -1,32 +1,33 @@
 import unittest
-import requests
 import json
-
+import tempfile
 
 class ConfigManagerTest(unittest.TestCase):
+	def setUp(self):
+		config_manager.app.testing = True
+		self.app = config_manager.app.test_client()
 
-    def test_get_addr_path(self):
+	def test_save_path(self):
+		print("Testing /save")
+
+		response = self.app.get('/save/test_config_manager', follow_redirects=True)
+		assert b'Successfully saved device address' in response.data
+
+	def test_get_addr_path(self):
 		print("Testing /get_addr")
 		
 		# Localhost
 		ip_addr = "127.0.0.1"
 		# ConfigManagerTest file name
 		tango_addr = "test_config_manager"
-
-		response = requests.get('http://localhost:5000/get_addr/test_config_manager/')
-		response_json = json.loads(response.text) 
+		self.app.get('/save/test_config_manager', follow_redirects=True)
+		response = self.app.get('/get_addr/test_config_manager', follow_redirects=True)
+		response_json = json.loads(response.data) 
 		response_json = response_json[0]
-		self.assertEqual(ip_addr, response_json['ip_addr'])
-		self.assertEqual(tango_addr, response_json['tango_addr'])
+		assert ip_addr in response_json['ip_addr']
+		assert tango_addr in response_json['tango_addr']
 		
-
-    def test_save_path(self):
-    	print("Testing /save")
-
-        response = requests.get('http://localhost:5000/save/test_config_manager/')
-        self.assertEqual("Successfully saved device address", response.text)
-
+	
 	
 if __name__ == '__main__':
-	suite = unittest.TestLoader().loadTestsFromTestCase(ConfigManagerTest)
-	unittest.TextTestRunner(verbosity=2).run(suite)
+	unittest.main()
