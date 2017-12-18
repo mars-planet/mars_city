@@ -11,6 +11,12 @@ Session = sessionmaker(bind=engine)
 def create():
 	create_db()
 
+def delete():
+	# Create session
+    s = Session()
+    s.query(Lookup).delete(synchronize_session=False)
+    s.commit()
+
 def add(ts, taddr, ipaddr):
     # Create session
     s = Session()
