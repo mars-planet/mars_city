@@ -1,5 +1,5 @@
 import requests
-
+from typing import List, Dict
 
 class DeviceProxy:
     def __init__(self, dev_name, rest_server_add):
@@ -12,7 +12,7 @@ class DeviceProxy:
     def test_connection(self):
         return 'SUCCESS'
 
-    def add_fn(self, name):
+    def add_fn(self, name: str):
         def fn():
             # Make appropriate REST call here
             uri = self.ip_addr + '/' + self.dev_name
@@ -41,7 +41,7 @@ class DeviceProxy:
             self.add_fn(name)
 
     # Returns n previous commands
-    def black_box(self, n):
+    def black_box(self, n: int) -> List[Dict]: 
         url = self.ip_addr + '/' + self.dev_name + '/black_box?n=' + str(n)
         req = requests.get(url)
         return req.json()
@@ -71,7 +71,7 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Getting the attributes of the device server
-    def get_attribute_list(self):
+    def get_attribute_list(self) -> List[str]:
         uri = self.ip_addr + '/' + \
                 self.dev_name + '/attributes'
         req = requests.get(uri)
@@ -90,7 +90,7 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Getting the functions of the device server
-    def get_function_list(self):
+    def get_function_list(self) -> List[str]:
         uri = self.ip_addr + '/' + self.dev_name + '/functions'
         req = requests.get(uri)
         return req.json()
