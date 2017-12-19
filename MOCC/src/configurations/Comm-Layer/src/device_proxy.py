@@ -42,7 +42,9 @@ class DeviceProxy:
 
     # Returns n previous commands
     def black_box(self, n):
-        raise NotImplementedError()
+        url = self.ip_addr + '/' + self.dev_name + '/black_box?n=' + str(n)
+        req = requests.get(url)
+        return req.json()
 
     # Retreive command history from the comman polling buffer
     def command_history(self):
