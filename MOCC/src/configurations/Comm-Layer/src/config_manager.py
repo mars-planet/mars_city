@@ -19,6 +19,11 @@ swagger = Swagger(app)
 
 @app.errorhandler(500)
 def internal_error(error):
+    """500 Internal Server Handler
+    ---
+    tags:
+      - 500
+    """
     return "HTTP 500: Internal Server Error"
 
 
@@ -52,6 +57,68 @@ def save(tango_addr):
             return "Failed"
     
     return "Successfully saved device address"
+
+
+@app.route('/insert/<path:tango_addr>/', methods=['GET'])
+def insert(tango_addr):
+    """Endpoint to map a Tango device address to the sender's IP address
+    ---
+    tags:
+      - insert
+    parameters:
+      - name: tango_addr
+        in: path
+        type: string
+        required: true
+    responses:
+        200:
+            description: Device address successfully inserted.
+            type: string
+        500:
+            description: Internal server error
+            type: string
+    """
+    
+    ip_addr = request.remote_addr
+    existing_results = DbHelper.get(quote(tango_addr))
+    if len(existing_results) == 0:
+        if DbHelper.add(datetime.datetime.now(), quote(tango_addr), ip_addr) == -1:
+            return "Failed"
+    else:
+        return "Device address exist"
+    
+    return "Successfully inserted device address"
+
+
+@app.route('/update/<path:tango_addr>/', methods=['GET'])
+def update(tango_addr):
+    """Endpoint to map a Tango device address to the sender's IP address
+    ---
+    tags:
+      - update
+    parameters:
+      - name: tango_addr
+        in: path
+        type: string
+        required: true
+    responses:
+        200:
+            description: Device address successfully updated.
+            type: string
+        500:
+            description: Internal server error
+            type: string
+    """
+    
+    ip_addr = request.remote_addr
+    existing_results = DbHelper.get(quote(tango_addr))
+    if len(existing_results) == 0:
+        return "Device address doesn't exist"
+    else:
+        if DbHelper.update(quote(tango_addr), datetime.datetime.now()) == -1:
+            return "Failed"
+    
+    return "Successfully updated device address"
 
 
 @app.route('/get_addr/<path:tango_addr>/', methods=['GET'])

@@ -1,22 +1,55 @@
 import unittest
+import os
 import json
-import tempfile
 import sys
 sys.path.insert(0, '..')
 import config_manager
+import tango_db_helper as DBHelper
 
 class ConfigManagerTest(unittest.TestCase):
+
 	def setUp(self):
+		"""Method to set up the test app before every test."""
 		config_manager.app.testing = True
 		self.app = config_manager.app.test_client()
-
+		
 	def test_save_path(self):
+		"""Calls the /save API to test saving of device address."""
 		print("Testing /save")
 
 		response = self.app.get('/save/test_config_manager', follow_redirects=True)
 		assert b'Successfully saved device address' in response.data
 
+	def test_insert_path(self):
+		"""Calls the /insert API to test inserting of device address."""
+		print("Testing /insert")
+
+		response = self.app.get('/insert/test_config_manager_insert', follow_redirects=True)
+		assert b'Successfully inserted device address' in response.data
+
+	def test_insert_path_fail(self):
+		"""Calls the /insert API to test failure of inserting of device address."""
+		print("Testing /insert")
+		self.app.get('/insert/test_config_manager_insert', follow_redirects=True)
+		response = self.app.get('/insert/test_config_manager_insert', follow_redirects=True)
+		assert b'Device address exist' in response.data
+
+	def test_update_path(self):
+		"""Calls the /update API to test updating of device address."""
+		print("Testing /update")
+		self.app.get('/insert/test_config_manager', follow_redirects=True)
+		response = self.app.get('/update/test_config_manager', follow_redirects=True)
+		assert b'Successfully updated device address' in response.data
+
+	def test_update_path_fail(self):
+		"""Calls the /insert API to test inserting of device address."""
+		print("Testing /update")
+
+		response = self.app.get('/update/test_config_manager_update', follow_redirects=True)
+		assert b'Device address doesn\'t exist' in response.data
+
 	def test_get_addr_path(self):
+		"""Calls the /get_addr API to test retrieval of device address."""
 		print("Testing /get_addr")
 		
 		# Localhost
@@ -31,6 +64,7 @@ class ConfigManagerTest(unittest.TestCase):
 		assert tango_addr in response_json['tango_addr']
 		
 	def test_get_addr_path_fail(self):
+		"""Calls the /get_addr API to test the failur of retrieval of device address."""
 		print("Testing /get_addr with dummy data not in database")
 		
 		# Localhost
@@ -42,4 +76,6 @@ class ConfigManagerTest(unittest.TestCase):
 	
 	
 if __name__ == '__main__':
-	unittest.main()
+	DBHelper.create()
+	unittest.main(exit=False)
+	DBHelper.delete()

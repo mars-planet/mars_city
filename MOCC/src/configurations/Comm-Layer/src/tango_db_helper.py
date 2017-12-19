@@ -9,35 +9,77 @@ engine = create_engine('sqlite:///tango.db', echo=True) #Change to False in prod
 Session = sessionmaker(bind=engine)
 
 def create():
+	"""Facilitates creation of the database."""
 	create_db()
 
+def delete():
+	"""Deletes the contents of the database."""
+	# Create session
+	s = Session()
+	s.query(Lookup).delete(synchronize_session=False)
+	s.commit()
+
 def add(ts, taddr, ipaddr):
+	"""Function to add an entry into tango database
+	---
+    tags:
+      - add
+    parameters:
+      - name: ts
+        in: timestamp
+        type: string
+        required: true
+      - name: taddr
+        in: tango address
+        type: string
+        required: true
+      - name: ipaddr
+        in: ip address
+        type: string
+        required: true
+    responses:
+        0:	Successful addition of entry into the database.
+        -1: Failure. 
+    """
     # Create session
-    s = Session()
+	s = Session()
 
-    try:
-        query = s.query(Lookup).filter(
-            Lookup.timestamp.in_([ts]))
-        result = query.first()
+	try:
+	    query = s.query(Lookup).filter(
+	        Lookup.timestamp.in_([ts]))
+	    result = query.first()
 
-        if result:
-            return -1
-        else:
-            af = Lookup(ts, taddr, ipaddr)
-            s.add(af)
+	    if result:
+	        return -1
+	    else:
+	        af = Lookup(ts, taddr, ipaddr)
+	        s.add(af)
 
-            # commit the record the database
-            s.commit()
-            return 0
+	        # commit the record the database
+	        s.commit()
+	        return 0
 
-    except:
-        s.rollback()
-        return -1
+	except:
+	    s.rollback()
+	    return -1
 
-    finally:
-        s.close()
+	finally:
+		s.close()
 
 def get(tango_address):
+	"""Function to retrieve an entry from the tango database
+	---
+    tags:
+      - get
+    parameters:
+      - name: tango_address
+        in: tango address
+        type: string
+        required: true
+    responses:
+        return_data:	Returns entry corresponding to the tango_address.
+        -1: Failure. 
+    """
 	return_data = []
 
 	s = Session()
@@ -57,6 +99,23 @@ def get(tango_address):
 	    return -1
 
 def update(tango_address, ts):
+	"""Function to update an entry of tango database
+	---
+    tags:
+      - update
+    parameters:
+      - name: tango_address
+        in: tango address
+        type: string
+        required: true
+      - name: ts
+        in: timestamp
+        type: string
+        required: true
+    responses:
+        0:	Successful updation of entry into the database.
+        -1: Failure. 
+    """
 	s = Session()
 
 	try:
