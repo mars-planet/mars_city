@@ -25,8 +25,8 @@ class Lookup(Base):
         self.ip_addr = ip_addr
 # ----------------------------------------------------------------------------
 
-# create tables
 def create_db():
+    """Creates the databases"""
 	Base.metadata.create_all(engine)
 
 def main():

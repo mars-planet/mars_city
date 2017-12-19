@@ -19,6 +19,11 @@ swagger = Swagger(app)
 
 @app.errorhandler(500)
 def internal_error(error):
+    """500 Internal Server Handler
+    ---
+    tags:
+      - 500
+    """
     return "HTTP 500: Internal Server Error"
 
 
@@ -67,7 +72,7 @@ def insert(tango_addr):
         required: true
     responses:
         200:
-            description: Device address successfully saved.
+            description: Device address successfully inserted.
             type: string
         500:
             description: Internal server error
@@ -98,7 +103,7 @@ def update(tango_addr):
         required: true
     responses:
         200:
-            description: Device address successfully saved.
+            description: Device address successfully updated.
             type: string
         500:
             description: Internal server error
