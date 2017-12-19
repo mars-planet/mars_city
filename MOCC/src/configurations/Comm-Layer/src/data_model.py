@@ -27,7 +27,7 @@ class Lookup(Base):
 
 def create_db():
     """Creates the databases"""
-	Base.metadata.create_all(engine)
+    Base.metadata.create_all(engine)
 
 def main():
 	create_db()

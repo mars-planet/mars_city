@@ -15,9 +15,9 @@ def create():
 def delete():
 	"""Deletes the contents of the database."""
 	# Create session
-    s = Session()
-    s.query(Lookup).delete(synchronize_session=False)
-    s.commit()
+	s = Session()
+	s.query(Lookup).delete(synchronize_session=False)
+	s.commit()
 
 def add(ts, taddr, ipaddr):
 	"""Function to add an entry into tango database
@@ -42,29 +42,29 @@ def add(ts, taddr, ipaddr):
         -1: Failure. 
     """
     # Create session
-    s = Session()
+	s = Session()
 
-    try:
-        query = s.query(Lookup).filter(
-            Lookup.timestamp.in_([ts]))
-        result = query.first()
+	try:
+	    query = s.query(Lookup).filter(
+	        Lookup.timestamp.in_([ts]))
+	    result = query.first()
 
-        if result:
-            return -1
-        else:
-            af = Lookup(ts, taddr, ipaddr)
-            s.add(af)
+	    if result:
+	        return -1
+	    else:
+	        af = Lookup(ts, taddr, ipaddr)
+	        s.add(af)
 
-            # commit the record the database
-            s.commit()
-            return 0
+	        # commit the record the database
+	        s.commit()
+	        return 0
 
-    except:
-        s.rollback()
-        return -1
+	except:
+	    s.rollback()
+	    return -1
 
-    finally:
-        s.close()
+	finally:
+		s.close()
 
 def get(tango_address):
 	"""Function to retrieve an entry from the tango database
