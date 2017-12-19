@@ -30,14 +30,14 @@ class ConfigManagerTest(unittest.TestCase):
 	def test_insert_path_fail(self):
 		"""Calls the /insert API to test failure of inserting of device address."""
 		print("Testing /insert")
-
+		self.app.get('/insert/test_config_manager_insert', follow_redirects=True)
 		response = self.app.get('/insert/test_config_manager_insert', follow_redirects=True)
 		assert b'Device address exist' in response.data
 
 	def test_update_path(self):
 		"""Calls the /update API to test updating of device address."""
 		print("Testing /update")
-
+		self.app.get('/insert/test_config_manager', follow_redirects=True)
 		response = self.app.get('/update/test_config_manager', follow_redirects=True)
 		assert b'Successfully updated device address' in response.data
 
