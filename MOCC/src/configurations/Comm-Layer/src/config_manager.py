@@ -164,6 +164,14 @@ def get(tango_addr):
 
     return jsonify([{'tango_addr': tango_addr, 'ip_addr': e[2], 'timestamp': e[0]} for e in results])
 
+
+@app.route('/add_attr/<path:tango_addr>/<string:name>/<string:attrtype>', methods=['GET'])
+def add_attr(tango_addr, name, attrtype):
+    response = DbHelper.add_attr(tango_addr, name, attrtype)
+    if response == -1:
+        return "Attribute exists"
+    return "Attribute added"
+
 def main():
     app.run(debug=True)
 
