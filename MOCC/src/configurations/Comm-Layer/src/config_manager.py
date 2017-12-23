@@ -167,6 +167,32 @@ def get(tango_addr):
 
 @app.route('/add_attr/<path:tango_addr>/<string:name>/<string:attrtype>', methods=['GET'])
 def add_attr(tango_addr, name, attrtype):
+     """Endpoint to add attributes to saved Device
+    ---
+    tags:
+      - add_attr
+    parameters:
+      - name: tango_addr
+        in: path
+        type: string
+        required: true
+      - name: name
+        in: attribute name
+        type: string
+        required: true
+      - name: attrtype
+        in: attribute
+        type: string
+        required: true
+    responses:
+      200:
+            description: Attribute added
+            type: string
+      500:
+            description: Internal server error
+            type: string
+
+    """
     response = DbHelper.add_attr(tango_addr, name, attrtype)
     if response == -1:
         return "Attribute exists"

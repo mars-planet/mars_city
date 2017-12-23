@@ -17,6 +17,7 @@ def delete():
 	# Create session
 	s = Session()
 	s.query(Lookup).delete(synchronize_session=False)
+	s.query(Attributes).delete(synchronize_session=False)
 	s.commit()
 
 def add(ts, taddr, ipaddr):
