@@ -31,7 +31,9 @@ class DeviceProxy:
 
     # Query the device for info on all attributes
     def attribute_list_query(self):
-        raise NotImplementedError()
+        url = self.ip_addr + '/' + self.dev_name + '/attr_list'
+        req = requests.get(url)
+        return req.json()
 
     def bind_functions(self):
         functions_dict = self.get_function_list()
