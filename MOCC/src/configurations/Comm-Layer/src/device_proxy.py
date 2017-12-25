@@ -148,7 +148,9 @@ class DeviceProxy:
 
     # Write a single attribute
     def write_attribute(self, attr_name, value):
-        raise NotImplementedError()
+        url = self.ip_addr + '/' + self.dev_name + '/write_attr?' + attr_name + '=' + str(value)
+        req = requests.get(url)
+        return req.json()
 
     # Write a single attribute async
     def write_attribute_asynch(attr_name, value, cb=None):

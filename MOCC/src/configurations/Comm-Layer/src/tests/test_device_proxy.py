@@ -34,6 +34,20 @@ def read_attr_mock(url, request):
     return json.dumps(attr_value_dict[attr_name])
 
 
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1.*$', path='/tango_dev_test/write_attr')
+def write_attr_mock(url, request):
+    attr_value_dict = {'abc': 4.0, 'def': 10}
+    attr_name = url[3].split('=')[0]
+    attr_value = url[3].split('=')[1]
+
+    if attr_name in attr_value_dict:
+        attr_value_dict[attr_name] = attr_value
+    else:
+        return json.dumps({'message': 'error', 'error': 'Attribute ' + str(attr_name) + ' is undefined'})
+
+    return json.dumps({'message': 'successful'})
+
+
 class DeviceProxyTest(unittest.TestCase):
     def setUp(self):
         with HTTMock(server_mock, functions_mock):
@@ -61,7 +75,6 @@ class DeviceProxyTest(unittest.TestCase):
             assert attr_list[2] == 'attr3'
             assert attr_list[3] == 'attr4'
 
-
     def test_read_attribute(self):
         print("Testing <device>/read_attribute")
         with HTTMock(read_attr_mock):
@@ -72,6 +85,17 @@ class DeviceProxyTest(unittest.TestCase):
             attribute_value = self.dev_proxy.read_attribute('def')
             assert type(attribute_value) is int
             assert attribute_value == 10
+
+    def test_write_attribute(self):
+        print("Testing <device>/write_attribute")
+        with HTTMock(write_attr_mock):
+            write_result = self.dev_proxy.write_attribute('abc', 5.0)
+            assert 'successful' in write_result['message']
+            assert write_result.get('error', None) is None
+
+            write_result = self.dev_proxy.write_attribute('xyz', 'on')
+            assert 'error' in write_result['message']
+            assert write_result.get('error', None) is not None
 
 
 if __name__ == '__main__':
