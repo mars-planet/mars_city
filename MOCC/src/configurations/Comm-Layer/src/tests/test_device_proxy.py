@@ -27,6 +27,13 @@ def functions_mock(url, request):
     return json.dumps({'functions': ['xyz', 'abc']})
 
 
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1.*$', path='/tango_dev_test/read_attr')
+def read_attr_mock(url, request):
+    attr_value_dict = {'abc': 4.0, 'def': 10}
+    attr_name = url[3].split('=')[1]
+    return json.dumps(attr_value_dict[attr_name])
+
+
 class DeviceProxyTest(unittest.TestCase):
     def setUp(self):
         with HTTMock(server_mock, functions_mock):
@@ -34,11 +41,11 @@ class DeviceProxyTest(unittest.TestCase):
                     , 'http://127.0.0.1')
 
     def test_black_box(self):
-        print("Testing /<device>/black_box")
+        print("Testing <device>/black_box")
         with HTTMock(black_box_mock):
             n = 2
             black_box_commands = self.dev_proxy.black_box(n)
-            assert type(black_box_commands) is list 
+            assert type(black_box_commands) is list
             assert len(black_box_commands) == n
             assert black_box_commands[0]['command'] == 'xyz'
             assert black_box_commands[1]['command'] == 'abc'
@@ -55,6 +62,16 @@ class DeviceProxyTest(unittest.TestCase):
             assert attr_list[3] == 'attr4'
 
 
+    def test_read_attribute(self):
+        print("Testing <device>/read_attribute")
+        with HTTMock(read_attr_mock):
+            attribute_value = self.dev_proxy.read_attribute('abc')
+            assert type(attribute_value) is float
+            assert attribute_value == 4.0
+
+            attribute_value = self.dev_proxy.read_attribute('def')
+            assert type(attribute_value) is int
+            assert attribute_value == 10
 
 
 if __name__ == '__main__':

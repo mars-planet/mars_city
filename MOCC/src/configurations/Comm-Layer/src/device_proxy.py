@@ -48,7 +48,7 @@ class DeviceProxy:
         req = requests.get(url)
         return req.json()
 
-    # Retreive command history from the comman polling buffer
+    # Retreive command history from the command polling buffer
     def command_history(self):
         raise NotImplementedError()
 
@@ -118,8 +118,10 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Read a single attribute
-    def read_attribute(slef, attr_name):
-        raise NotImplementedError()
+    def read_attribute(self, attr_name):
+        url = self.ip_addr + '/' + self.dev_name + '/read_attr?name=' + attr_name
+        req = requests.get(url)
+        return req.json()
 
     # Read a single attribute async
     def read_attribute_asynch(self, attr_name):
