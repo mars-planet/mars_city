@@ -118,7 +118,7 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Read a single attribute
-    def read_attribute(self, attr_name):
+    def read_attribute(self, attr_name: str) -> Object:
         url = self.ip_addr + '/' + self.dev_name + '/read_attr?name=' + attr_name
         req = requests.get(url)
         return req.json()
@@ -147,7 +147,7 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Write a single attribute
-    def write_attribute(self, attr_name, value):
+    def write_attribute(self, attr_name: str, value: Object) -> Dict:
         url = self.ip_addr + '/' + self.dev_name + '/write_attr?' + attr_name + '=' + str(value)
         req = requests.get(url)
         return req.json()
