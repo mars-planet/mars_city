@@ -48,6 +48,11 @@ def write_attr_mock(url, request):
     return json.dumps({'message': 'successful'})
 
 
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1.*$', path='/tango_dev_test/information')
+def info_mock(url, request):
+    return json.dumps({'last_updated': datetime.datetime.now().isoformat(), 'description': 'Hello world! This is a description of the device tango_dev_test'})
+
+
 class DeviceProxyTest(unittest.TestCase):
     def setUp(self):
         with HTTMock(server_mock, functions_mock):
@@ -97,6 +102,12 @@ class DeviceProxyTest(unittest.TestCase):
             assert 'error' in write_result['message']
             assert write_result.get('error', None) is not None
 
+    def test_information(self):
+        print("Testing <device>/information")
+        with HTTMock(info_mock):
+            information = self.dev_proxy.info()
+            assert information['last_updated'] is not None
+            assert type(information['description']) is str
 
 if __name__ == '__main__':
     unittest.main()

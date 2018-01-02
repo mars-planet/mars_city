@@ -106,8 +106,10 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Method which returns information on the device
-    def info(self):
-        return self._info
+    def info(self) -> Dict:
+        url = self.ip_addr + '/' + self.dev_name + '/information'
+        req = requests.get(url)
+        return req.json()
 
     # Return the device name from the device itself
     def name(self):
@@ -118,7 +120,7 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Read a single attribute
-    def read_attribute(self, attr_name: str) -> Object:
+    def read_attribute(self, attr_name: str) -> Dict:
         url = self.ip_addr + '/' + self.dev_name + '/read_attr?name=' + attr_name
         req = requests.get(url)
         return req.json()
@@ -147,7 +149,7 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Write a single attribute
-    def write_attribute(self, attr_name: str, value: Object) -> Dict:
+    def write_attribute(self, attr_name: str, value: str) -> Dict:
         url = self.ip_addr + '/' + self.dev_name + '/write_attr?' + attr_name + '=' + str(value)
         req = requests.get(url)
         return req.json()
