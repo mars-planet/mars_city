@@ -145,8 +145,10 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Returns the status of the device as a string
-    def status(self):
-        raise NotImplementedError()
+    def status(self) -> Dict:
+        url = self.ip_addr + '/' + self.dev_name + '/status'
+        _status = requests.get(url)
+        return _status.json()
 
     # Write a single attribute
     def write_attribute(self, attr_name: str, value: str) -> Dict:

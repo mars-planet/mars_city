@@ -53,6 +53,12 @@ def info_mock(url, request):
     return json.dumps({'last_updated': datetime.datetime.now().isoformat(), 'description': 'Hello world! This is a description of the device tango_dev_test'})
 
 
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1.*$', path='/tango_dev_test/status')
+def status_mock(url, request):
+    return json.dumps({'status': 'active', 'last_updated': datetime.datetime.now().isoformat()})
+
+
+
 class DeviceProxyTest(unittest.TestCase):
     def setUp(self):
         with HTTMock(server_mock, functions_mock):
@@ -108,6 +114,14 @@ class DeviceProxyTest(unittest.TestCase):
             information = self.dev_proxy.info()
             assert information['last_updated'] is not None
             assert type(information['description']) is str
+
+    def test_status(self):
+        print("Testing <device>/status")
+        with HTTMock(status_mock):
+            status = self.dev_proxy.status()
+            assert status['last_updated'] is not None
+            assert status['status'] == 'active'
+
 
 if __name__ == '__main__':
     unittest.main()
