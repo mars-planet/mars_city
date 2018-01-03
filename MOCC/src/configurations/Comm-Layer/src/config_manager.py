@@ -1,6 +1,7 @@
 import datetime
 import os
 import sqlite3
+import json
 import tango_db_helper as DbHelper
 from flasgger import Swagger
 from flask import Flask, jsonify, request
@@ -167,7 +168,7 @@ def get(tango_addr):
 
 @app.route('/add_attr/<path:tango_addr>/<string:name>/<string:attrtype>', methods=['GET'])
 def add_attr(tango_addr, name, attrtype):
-     """Endpoint to add attributes to saved Device
+    """Endpoint to add attributes to saved Device
     ---
     tags:
       - add_attr
@@ -197,6 +198,49 @@ def add_attr(tango_addr, name, attrtype):
     if response == -1:
         return "Attribute exists"
     return "Attribute added"
+
+
+@app.route('/add_command/<path:tango_addr>/<string:name>/<string:cmd_params>', methods=['GET'])
+def add_command(tango_addr, name, cmd_params):
+    """Endpoint to add commands to saved Device
+    ---
+    tags:
+      - add_command
+    parameters:
+      - name: tango_addr
+        in: path
+        type: string
+        required: true
+      - name: name
+        in: command name
+        type: string
+        required: true
+      - name: cmd_params
+        in: list of command params
+        type: string
+        required: true
+        Eg: "param1-type1,param2-type2..."
+    responses:
+      200:
+            description: Command added
+            type: string
+      500:
+            description: Internal server error
+            type: string
+
+    """
+    cmd_arr = cmd_params.split(",")
+    cmd_param_string = {}
+    for cmd in cmd_arr:
+        cmdparam = cmd.split("-")
+        cmd_param_string[cmdparam[0]] = cmdparam[1]
+
+    # Eg: "{"name": "type", "name": "type", "name": "type", ...}"
+    response = DbHelper.add_command(tango_addr, name, json.dumps(cmd_param_string))
+    if response == -1:
+        return "Command exists"
+    return "Command added"
+
 
 def main():
     app.run(debug=True)

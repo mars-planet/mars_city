@@ -42,6 +42,22 @@ class Attributes(Base):
         self.attr_type = attr_type
 # ----------------------------------------------------------------------------
 
+class Commands(Base):
+    __tablename__ = 'Commands'
+    tango_addr = Column(String, primary_key=True)
+    cmd_name = Column(String, primary_key=True)
+    cmd_params = Column(String)
+
+    def __repr__(self):
+        return ("<Attributes('%s', '%s' ,'%s')>"
+                % (self.tango_addr, self.cmd_name, self.cmd_params))
+
+    def __init__(self, tango_addr, cmd_name, cmd_params):
+        self.cmd_name = cmd_name 
+        self.tango_addr = tango_addr
+        self.cmd_params = cmd_params
+# ----------------------------------------------------------------------------
+
 def create_db():
     """Creates the databases"""
     Base.metadata.create_all(engine)
