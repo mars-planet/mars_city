@@ -1,5 +1,5 @@
 import requests
-
+from typing import List, Dict
 
 class DeviceProxy:
     def __init__(self, dev_name, rest_server_add):
@@ -12,7 +12,7 @@ class DeviceProxy:
     def test_connection(self):
         return 'SUCCESS'
 
-    def add_fn(self, name):
+    def add_fn(self, name: str):
         def fn():
             # Make appropriate REST call here
             uri = self.ip_addr + '/' + self.dev_name
@@ -31,7 +31,9 @@ class DeviceProxy:
 
     # Query the device for info on all attributes
     def attribute_list_query(self):
-        raise NotImplementedError()
+        url = self.ip_addr + '/' + self.dev_name + '/attr_list'
+        req = requests.get(url)
+        return req.json()
 
     def bind_functions(self):
         functions_dict = self.get_function_list()
@@ -41,10 +43,12 @@ class DeviceProxy:
             self.add_fn(name)
 
     # Returns n previous commands
-    def black_box(self, n):
-        raise NotImplementedError()
+    def black_box(self, n: int) -> List[Dict]: 
+        url = self.ip_addr + '/' + self.dev_name + '/black_box?n=' + str(n)
+        req = requests.get(url)
+        return req.json()
 
-    # Retreive command history from the comman polling buffer
+    # Retreive command history from the command polling buffer
     def command_history(self):
         raise NotImplementedError()
 
@@ -69,7 +73,7 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Getting the attributes of the device server
-    def get_attribute_list(self):
+    def get_attribute_list(self) -> List[str]:
         uri = self.ip_addr + '/' + \
                 self.dev_name + '/attributes'
         req = requests.get(uri)
@@ -88,7 +92,7 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Getting the functions of the device server
-    def get_function_list(self):
+    def get_function_list(self) -> List[str]:
         uri = self.ip_addr + '/' + self.dev_name + '/functions'
         req = requests.get(uri)
         return req.json()
@@ -102,8 +106,10 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Method which returns information on the device
-    def info(self):
-        return self._info
+    def info(self) -> Dict:
+        url = self.ip_addr + '/' + self.dev_name + '/information'
+        req = requests.get(url)
+        return req.json()
 
     # Return the device name from the device itself
     def name(self):
@@ -114,8 +120,10 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Read a single attribute
-    def read_attribute(slef, attr_name):
-        raise NotImplementedError()
+    def read_attribute(self, attr_name: str) -> Dict:
+        url = self.ip_addr + '/' + self.dev_name + '/read_attr?name=' + attr_name
+        req = requests.get(url)
+        return req.json()
 
     # Read a single attribute async
     def read_attribute_asynch(self, attr_name):
@@ -137,12 +145,16 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Returns the status of the device as a string
-    def status(self):
-        raise NotImplementedError()
+    def status(self) -> Dict:
+        url = self.ip_addr + '/' + self.dev_name + '/status'
+        _status = requests.get(url)
+        return _status.json()
 
     # Write a single attribute
-    def write_attribute(self, attr_name, value):
-        raise NotImplementedError()
+    def write_attribute(self, attr_name: str, value: str) -> Dict:
+        url = self.ip_addr + '/' + self.dev_name + '/write_attr?' + attr_name + '=' + str(value)
+        req = requests.get(url)
+        return req.json()
 
     # Write a single attribute async
     def write_attribute_asynch(attr_name, value, cb=None):
