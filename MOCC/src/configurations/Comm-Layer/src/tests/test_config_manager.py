@@ -67,12 +67,38 @@ class ConfigManagerTest(unittest.TestCase):
 		"""Calls the /get_addr API to test the failur of retrieval of device address."""
 		print("Testing /get_addr with dummy data not in database")
 		
-		# Localhost
-		ip_addr = "127.0.0.1"
-		# ConfigManagerTest file name
-		tango_addr = "test_config_manager"
 		response = self.app.get('/get_addr/test_config_manager_dummy', follow_redirects=True)
 		assert "Does not exist" in response.data
+	
+	def test_add_attr(self):
+		"""Calls the /add_attr API to test the addition of attributes."""
+		print("Testing /add_attr")
+		
+		response = self.app.get('/add_attr/test_config_manager/attr_name/attr_type', follow_redirects=True)
+		assert "Attribute added" in response.data
+	
+	def test_add_attr_fail(self):
+		"""Calls the /add_attr API to test the failure of the addition of attributes."""
+		print("Testing /add_attr with data already in database")
+
+		self.app.get('/add_attr/test_config_manager/attr_name/attr_type', follow_redirects=True)
+		response = self.app.get('/add_attr/test_config_manager/attr_name/attr_type', follow_redirects=True)
+		assert "Attribute exists" in response.data
+
+	def test_add_command(self):
+		"""Calls the /add_command API to test the addition of commands."""
+		print("Testing /add_command")
+		
+		response = self.app.get('/add_command/test_config_manager/command_name/param1-type1,param2-type2', follow_redirects=True)
+		assert "Command added" in response.data
+	
+	def test_add_command_fail(self):
+		"""Calls the /add_command API to test the failure of the addition of commands."""
+		print("Testing /add_command with data already in database")
+
+		self.app.get('/add_command/test_config_manager/command_name/param1-type1,param2-type2', follow_redirects=True)
+		response = self.app.get('/add_command/test_config_manager/command_name/param1-type1,param2-type2', follow_redirects=True)
+		assert "Command exists" in response.data
 	
 	
 if __name__ == '__main__':
