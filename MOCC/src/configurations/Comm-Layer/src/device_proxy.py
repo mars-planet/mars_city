@@ -152,8 +152,8 @@ class DeviceProxy:
 
     # Write a single attribute
     def write_attribute(self, attr_name: str, value: str) -> Dict:
-        url = self.ip_addr + '/' + self.dev_name + '/write_attr?' + attr_name + '=' + str(value)
-        req = requests.get(url)
+        url = self.ip_addr + '/' + self.dev_name + '/write_attr'
+        req = requests.post(url, data={attr_name: value})
         return req.json()
 
     # Write a single attribute async
