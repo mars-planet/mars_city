@@ -34,12 +34,11 @@ def read_attr_mock(url, request):
     return json.dumps(attr_value_dict[attr_name])
 
 
-@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1.*$', path='/tango_dev_test/write_attr')
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1.*$', path='/tango_dev_test/write_attr', method='post')
 def write_attr_mock(url, request):
     attr_value_dict = {'abc': 4.0, 'def': 10}
-    attr_name = url[3].split('=')[0]
-    attr_value = url[3].split('=')[1]
-
+    attr_name = request.body.split('=')[0]
+    attr_value = request.body.split('=')[1]
     if attr_name in attr_value_dict:
         attr_value_dict[attr_name] = attr_value
     else:
