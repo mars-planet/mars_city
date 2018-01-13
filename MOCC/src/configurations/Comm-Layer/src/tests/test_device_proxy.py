@@ -57,6 +57,20 @@ def status_mock(url, request):
     return json.dumps({'status': 'active', 'last_updated': datetime.datetime.now().isoformat()})
 
 
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1.*$', path='/tango_dev_test/write_attrs')
+def write_attrs_mock(url, request):
+    attr_value_dict = {'abc': 4.0, 'def': 11}
+    pairs = request.body.split('&')
+    count = 0
+    for pair in pairs:
+        attr_name = pair.split('=')[0]
+        attr_value = pair.split('=')[1]
+        try:
+            attr_value_dict[attr_name] = attr_value
+        except Exception as e:
+            return json.dumps({'message': 'error', 'error': 'Attribute ' + str(attr_name) + ' is undefined'})
+        count += 1
+    return json.dumps({'message': 'successful', 'count': count})
 
 class DeviceProxyTest(unittest.TestCase):
     def setUp(self):
@@ -106,6 +120,14 @@ class DeviceProxyTest(unittest.TestCase):
             write_result = self.dev_proxy.write_attribute('xyz', 'on')
             assert 'error' in write_result['message']
             assert write_result.get('error', None) is not None
+
+    def test_write_attributes(self):
+        print("Testing <device>/write_attributes")
+        with HTTMock(write_attrs_mock):
+            write_result = self.dev_proxy.write_attributes({'abc': 5.0, 'def': 10})
+            assert 'error' not in write_result.keys()
+            assert 'successful' in write_result['message']
+            assert write_result['count'] == 2
 
     def test_information(self):
         print("Testing <device>/information")

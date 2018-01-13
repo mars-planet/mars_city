@@ -161,8 +161,10 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Write the specified attributes
-    def write_attributes(self, name_val):
-        raise NotImplementedError()
+    def write_attributes(self, name_val_dict: Dict) -> Dict:
+        url = self.ip_addr + '/' + self.dev_name + '/write_attrs'
+        req = requests.post(url, data=name_val_dict)
+        return req.json()
 
     # Write then read a single attribute in a single network call.
     def write_read_attribute(self, attr_name, value):
