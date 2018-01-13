@@ -172,5 +172,6 @@ class DeviceProxy:
         return self.read_attribute(read_attr_name)
 
     # Write then read attribute(s) in a single network call
-    def write_read_attributes(self, name_val, attr_names):
-        raise NotImplementedError()
+    def write_read_attributes(self, write_attr_dict, read_attr_names):
+        self.write_attributes(write_attr_dict)
+        return self.read_attributes(read_attr_names)
