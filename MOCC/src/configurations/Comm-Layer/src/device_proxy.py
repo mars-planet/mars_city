@@ -167,8 +167,9 @@ class DeviceProxy:
         return req.json()
 
     # Write then read a single attribute in a single network call.
-    def write_read_attribute(self, attr_name, value):
-        raise NotImplementedError()
+    def write_read_attribute(self, write_attr_name: str, read_attr_name: str, value: str) -> Dict:
+        self.write_attribute(write_attr_name, value)
+        return self.read_attribute(read_attr_name)
 
     # Write then read attribute(s) in a single network call
     def write_read_attributes(self, name_val, attr_names):
