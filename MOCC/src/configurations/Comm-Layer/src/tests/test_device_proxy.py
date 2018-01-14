@@ -57,7 +57,7 @@ def status_mock(url, request):
     return json.dumps({'status': 'active', 'last_updated': datetime.datetime.now().isoformat()})
 
 
-@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1.*$', path='/tango_dev_test/write_attrs')
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1.*$', path='/tango_dev_test/write_attrs', method='post')
 def write_attrs_mock(url, request):
     attr_value_dict = {'abc': 4.0, 'def': 11}
     pairs = request.body.split('&')
@@ -72,11 +72,22 @@ def write_attrs_mock(url, request):
         count += 1
     return json.dumps({'message': 'successful', 'count': count})
 
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1\.*$', path='/tango_dev_test/read_attrs')
+def read_attrs_mock(url, request):
+    attr_value_dict = {'abc': 4.0, 'def': 10}
+    attr_names = eval(url[3].split('=')[1])
+    return_dict = dict()
+    for name in attr_names:
+        try:
+            return_dict[name] = attr_value_dict[name]
+        except Exception as e:
+            return json.dumps({'_error': e.message()})
+    return json.dumps(return_dict)
+
 class DeviceProxyTest(unittest.TestCase):
     def setUp(self):
         with HTTMock(server_mock, functions_mock):
-            self.dev_proxy = device_proxy.DeviceProxy('tango_dev_test'
-                    , 'http://127.0.0.1')
+            self.dev_proxy = device_proxy.DeviceProxy('tango_dev_test', 'http://127.0.0.1')
 
     def test_black_box(self):
         print("Testing <device>/black_box")
@@ -109,6 +120,15 @@ class DeviceProxyTest(unittest.TestCase):
             attribute_value = self.dev_proxy.read_attribute('def')
             assert type(attribute_value) is int
             assert attribute_value == 10
+
+    def test_read_attributes(self):
+        print("Testing <device>/read_attributes")
+        with HTTMock(read_attrs_mock):
+            attr_list = ['abc', 'def']
+            attribute_values = self.dev_proxy.read_attributes(attr_list)
+            assert '_error' not in attribute_values.keys()
+            assert type(attribute_values) is dict
+            assert len(attribute_values.keys()) == len(attr_list)
 
     def test_write_attribute(self):
         print("Testing <device>/write_attribute")

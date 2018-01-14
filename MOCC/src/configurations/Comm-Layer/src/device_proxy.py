@@ -133,8 +133,10 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Read the list of specified attributes
-    def read_attributes(self, attr_names):
-        raise NotImplementedError()
+    def read_attributes(self, attr_names: list) -> Dict:
+        url = self.ip_addr + '/' + self.dev_name + '/read_attrs?list=' + str(attr_names).replace(' ', '')
+        req = requests.get(url)
+        return req.json()
 
     # Set attribute configuration for the specified attribute
     def set_attribute_config(self, attr_info):
