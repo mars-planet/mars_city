@@ -60,7 +60,9 @@ class DeviceProxy:
 
     # Query the device for information about a single command
     def command_query(self, command):
-        raise NotImplementedError()
+        url = self.ip_addr + '/' + self.dev_name + '/command_query?name=' + str(command)
+        req = requests.get(url)
+        return req.json()
 
     # Delete a given property of this device
     def delete_property(self, value):

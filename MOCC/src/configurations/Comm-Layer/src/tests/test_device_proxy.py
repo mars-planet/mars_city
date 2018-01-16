@@ -93,6 +93,17 @@ def cmd_hist_mock(url, request):
         ]
     return json.dumps(cmd_history)
 
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1\.*$', path='/tango_dev_test/command_query')
+def cmd_query_mock(url, request):
+    cmd_description_dict = {
+        'abc': {
+            'description': 'This command performs the function abc',
+            'last_used': datetime.datetime.isoformat(datetime.datetime.now())
+        }
+    }
+    command_name = url[3].split('=')[1]
+    return json.dumps(cmd_description_dict[command_name])
+
 class DeviceProxyTest(unittest.TestCase):
     def setUp(self):
         with HTTMock(server_mock, functions_mock):
@@ -177,6 +188,13 @@ class DeviceProxyTest(unittest.TestCase):
         with HTTMock(cmd_hist_mock):
             cmd_history = self.dev_proxy.command_history()
             assert len(cmd_history) == 2
+
+    def test_command_query(self):
+        print("Testing <device>/command_query")
+        with HTTMock(cmd_query_mock):
+            cmd_query_result = self.dev_proxy.command_query('abc')
+            assert type(cmd_query_result['description']) is str
+            assert type(cmd_query_result) is dict
 
 if __name__ == '__main__':
     unittest.main()
