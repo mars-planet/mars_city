@@ -50,7 +50,9 @@ class DeviceProxy:
 
     # Retreive command history from the command polling buffer
     def command_history(self):
-        raise NotImplementedError()
+        url = self.ip_addr + '/' + self.dev_name + '/command_history'
+        req = requests.get(url)
+        return req.json()
 
     # Query the device for information in all commands
     def command_list_query(self):

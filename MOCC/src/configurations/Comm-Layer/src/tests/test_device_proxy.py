@@ -84,6 +84,15 @@ def read_attrs_mock(url, request):
             return json.dumps({'_error': e.message()})
     return json.dumps(return_dict)
 
+
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1\.*$', path='/tango_dev_test/command_history')
+def cmd_hist_mock(url, request):
+    cmd_history = [
+        {'name': 'abc', 'time': datetime.datetime.isoformat(datetime.datetime.now())}, 
+        {'name': 'def', 'time': datetime.datetime.isoformat(datetime.datetime.now())}
+        ]
+    return json.dumps(cmd_history)
+
 class DeviceProxyTest(unittest.TestCase):
     def setUp(self):
         with HTTMock(server_mock, functions_mock):
@@ -163,6 +172,11 @@ class DeviceProxyTest(unittest.TestCase):
             assert status['last_updated'] is not None
             assert status['status'] == 'active'
 
+    def test_command_history(self):
+        print("Testing <device>/command_history")
+        with HTTMock(cmd_hist_mock):
+            cmd_history = self.dev_proxy.command_history()
+            assert len(cmd_history) == 2
 
 if __name__ == '__main__':
     unittest.main()
