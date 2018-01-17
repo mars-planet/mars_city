@@ -65,8 +65,10 @@ class DeviceProxy:
         return req.json()
 
     # Delete a given property of this device
-    def delete_property(self, value):
-        raise NotImplementedError()
+    def delete_property(self, prop_name):
+        url = self.ip_addr + '/' + self.dev_name + '/delete_property'
+        req = requests.delete(url, data={'prop_name': prop_name})
+        return req.json()
 
     # Get device description
     def description(self):
@@ -78,8 +80,7 @@ class DeviceProxy:
 
     # Getting the attributes of the device server
     def get_attribute_list(self) -> List[str]:
-        uri = self.ip_addr + '/' + \
-                self.dev_name + '/attributes'
+        uri = self.ip_addr + '/' + self.dev_name + '/attributes'
         req = requests.get(uri)
         return req.json()
 

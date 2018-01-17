@@ -104,6 +104,17 @@ def cmd_query_mock(url, request):
     command_name = url[3].split('=')[1]
     return json.dumps(cmd_description_dict[command_name])
 
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1\.*$', path='/tango_dev_test/delete_property', method='delete')
+def del_prop_mock(url, request):
+    available_properties = set(['property1', 'property2'])
+    prop_name = request.body.split('=')[1]
+    try:
+        available_properties.remove(prop_name)
+    except KeyError:
+        return json.dumps({'message': 'error', 'error': 'The requested property is not available'})
+
+    return json.dumps({'message': 'Successfully removes property ' + prop_name})
+
 class DeviceProxyTest(unittest.TestCase):
     def setUp(self):
         with HTTMock(server_mock, functions_mock):
@@ -195,6 +206,14 @@ class DeviceProxyTest(unittest.TestCase):
             cmd_query_result = self.dev_proxy.command_query('abc')
             assert type(cmd_query_result['description']) is str
             assert type(cmd_query_result) is dict
+
+    def test_delete_propert(self):
+        print("Testing <device>/delete_property")
+        with HTTMock(del_prop_mock):
+            del_prop_result = self.dev_proxy.delete_property('property1')
+            assert type(del_prop_result) is dict
+            assert 'error' not in del_prop_result
+            assert 'Successfully' in del_prop_result['message']
 
 if __name__ == '__main__':
     unittest.main()
