@@ -76,8 +76,10 @@ class DeviceProxy:
         return self._description
 
     # Return the attribute configuration for a single attribute
-    def get_attribute_config(self, names):
-        raise NotImplementedError()
+    def get_attribute_config(self, name):
+        url = self.ip_addr + '/' + self.dev_name + '/attribute_config?name=' + str(name)
+        req = requests.get(url)
+        return req.json()
 
     # Getting the attributes of the device server
     def get_attribute_list(self) -> List[str]:

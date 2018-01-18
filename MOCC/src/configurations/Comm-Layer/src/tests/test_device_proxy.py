@@ -123,6 +123,17 @@ def cmd_list_mock(url, request):
         {'name': 'cmd3', 'description': 'This is command 3'},
         {'name': 'cmd4', 'description': 'This is command 4'}])
 
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1\.*$', path='/tango_dev_test/attribute_config')
+def attr_cfg_mock(url, request):
+    attr_name = url[3].split('=')[1]
+    attr_value_dict = {'abc': 
+            {
+                'possible_values': list(range(10, 20)),
+                'description': 'This is attrbute abc'
+            }
+        }
+    return json.dumps(attr_value_dict[attr_name])
+
 class DeviceProxyTest(unittest.TestCase):
     def setUp(self):
         with HTTMock(server_mock, functions_mock):
@@ -229,6 +240,14 @@ class DeviceProxyTest(unittest.TestCase):
             cmd_list = self.dev_proxy.get_command_list()
             assert type(cmd_list) is list
             assert len(cmd_list) == 4
+
+    def test_attribute_config(self):
+        print("Testing <device>/attribute_config")
+        with HTTMock(attr_cfg_mock):
+            config = self.dev_proxy.get_attribute_config('abc')
+            assert type(config) is dict
+            assert 'possible_values' in config.keys()
+            assert 'description' in config.keys()
 
 if __name__ == '__main__':
     unittest.main()
