@@ -90,7 +90,9 @@ class DeviceProxy:
 
     # Return the names of all commands implemented for this device
     def get_command_list(self):
-        raise NotImplementedError
+        url = self.ip_addr + '/' + self.dev_name + '/command_list'
+        req = requests.get(url)
+        return req.json()
 
     # Returns the internal database reference
     def get_device_db(self):

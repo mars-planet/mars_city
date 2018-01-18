@@ -115,6 +115,14 @@ def del_prop_mock(url, request):
 
     return json.dumps({'message': 'Successfully removes property ' + prop_name})
 
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1\.*$', path='/tango_dev_test/command_list')
+def cmd_list_mock(url, request):
+    return json.dumps([
+        {'name': 'cmd1', 'description': 'This is command 1'},
+        {'name': 'cmd2', 'description': 'This is command 2'},
+        {'name': 'cmd3', 'description': 'This is command 3'},
+        {'name': 'cmd4', 'description': 'This is command 4'}])
+
 class DeviceProxyTest(unittest.TestCase):
     def setUp(self):
         with HTTMock(server_mock, functions_mock):
@@ -214,6 +222,13 @@ class DeviceProxyTest(unittest.TestCase):
             assert type(del_prop_result) is dict
             assert 'error' not in del_prop_result
             assert 'Successfully' in del_prop_result['message']
+
+    def test_command_list(self):
+        print("Testing <device>/command_list")
+        with HTTMock(cmd_list_mock):
+            cmd_list = self.dev_proxy.get_command_list()
+            assert type(cmd_list) is list
+            assert len(cmd_list) == 4
 
 if __name__ == '__main__':
     unittest.main()
