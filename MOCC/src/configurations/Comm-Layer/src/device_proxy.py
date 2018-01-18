@@ -22,7 +22,7 @@ class DeviceProxy:
         setattr(self, name, fn)
 
     # Get admin name of the device to send admin commands
-    def adm_name(self):
+    def adm_name(self) -> str:
         return self._admin_name
 
     # Get device alias if defined
@@ -30,7 +30,7 @@ class DeviceProxy:
         return self._alias
 
     # Query the device for info on all attributes
-    def attribute_list_query(self):
+    def attribute_list_query(self) -> Dict:
         url = self.ip_addr + '/' + self.dev_name + '/attr_list'
         req = requests.get(url)
         return req.json()
@@ -49,7 +49,7 @@ class DeviceProxy:
         return req.json()
 
     # Retreive command history from the command polling buffer
-    def command_history(self):
+    def command_history(self) -> Dict:
         url = self.ip_addr + '/' + self.dev_name + '/command_history'
         req = requests.get(url)
         return req.json()
@@ -60,23 +60,23 @@ class DeviceProxy:
       #  raise NotImplementedError()
 
     # Query the device for information about a single command
-    def command_query(self, command):
+    def command_query(self, command: str) -> Dict:
         url = self.ip_addr + '/' + self.dev_name + '/command_query?name=' + str(command)
         req = requests.get(url)
         return req.json()
 
     # Delete a given property of this device
-    def delete_property(self, prop_name):
+    def delete_property(self, prop_name: str) -> Dict:
         url = self.ip_addr + '/' + self.dev_name + '/delete_property'
         req = requests.delete(url, data={'prop_name': prop_name})
         return req.json()
 
     # Get device description
-    def description(self):
+    def description(self) -> str:
         return self._description
 
     # Return the attribute configuration for a single attribute
-    def get_attribute_config(self, name):
+    def get_attribute_config(self, name) -> Dict:
         url = self.ip_addr + '/' + self.dev_name + '/attribute_config?name=' + str(name)
         req = requests.get(url)
         return req.json()
@@ -92,7 +92,7 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Return the names of all commands implemented for this device
-    def get_command_list(self):
+    def get_command_list(self) -> Dict:
         url = self.ip_addr + '/' + self.dev_name + '/command_list'
         req = requests.get(url)
         return req.json()
@@ -112,7 +112,7 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Get the list of property names for this device
-    def get_property_list(self, filter, array=None):
+    def get_property_list(self, filter: str, array=None) -> List[str]:
         raise NotImplementedError()
 
     # Method which returns information on the device
@@ -122,7 +122,7 @@ class DeviceProxy:
         return req.json()
 
     # Return the device name from the device itself
-    def name(self):
+    def name(self) -> str:
         return self.dev_name
 
     # A method which sends a ping to the device
@@ -185,6 +185,6 @@ class DeviceProxy:
         return self.read_attribute(read_attr_name)
 
     # Write then read attribute(s) in a single network call
-    def write_read_attributes(self, write_attr_dict, read_attr_names):
+    def write_read_attributes(self, write_attr_dict: Dict, read_attr_names: List) -> Dict:
         self.write_attributes(write_attr_dict)
         return self.read_attributes(read_attr_names)
