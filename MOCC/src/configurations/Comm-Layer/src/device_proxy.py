@@ -55,8 +55,9 @@ class DeviceProxy:
         return req.json()
 
     # Query the device for information in all commands
-    def command_list_query(self):
-        raise NotImplementedError()
+    ## Redundant with DeviceProxy.get_command_list()
+    # def command_list_query(self):
+      #  raise NotImplementedError()
 
     # Query the device for information about a single command
     def command_query(self, command):
@@ -123,8 +124,8 @@ class DeviceProxy:
         return self.dev_name
 
     # A method which sends a ping to the device
-    def ping(self):
-        raise NotImplementedError()
+    # def ping(self):
+      #  raise NotImplementedError()
 
     # Read a single attribute
     def read_attribute(self, attr_name: str) -> Dict:
@@ -136,8 +137,8 @@ class DeviceProxy:
     def read_attribute_asynch(self, attr_name):
         raise NotImplementedError()
 
-    def read_attribute_reply():
-        raise NotImplementedError()
+    # def read_attribute_reply():
+      #  raise NotImplementedError()
 
     # Read the list of specified attributes
     def read_attributes(self, attr_names: list) -> Dict:
@@ -150,8 +151,9 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Returns the state of the device
-    def state(self):
-        raise NotImplementedError()
+    ## Redundant with DeviceProxy.status()?
+    # def state(self):
+      #  raise NotImplementedError()
 
     # Returns the status of the device as a string
     def status(self) -> Dict:
@@ -166,8 +168,8 @@ class DeviceProxy:
         return req.json()
 
     # Write a single attribute async
-    def write_attribute_asynch(attr_name, value, cb=None):
-        raise NotImplementedError()
+    # def write_attribute_asynch(attr_name, value, cb=None):
+      #  raise NotImplementedError()
 
     # Write the specified attributes
     def write_attributes(self, name_val_dict: Dict) -> Dict:
