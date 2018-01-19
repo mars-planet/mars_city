@@ -57,12 +57,87 @@ def status_mock(url, request):
     return json.dumps({'status': 'active', 'last_updated': datetime.datetime.now().isoformat()})
 
 
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1.*$', path='/tango_dev_test/write_attrs', method='post')
+def write_attrs_mock(url, request):
+    attr_value_dict = {'abc': 4.0, 'def': 11}
+    pairs = request.body.split('&')
+    count = 0
+    for pair in pairs:
+        attr_name = pair.split('=')[0]
+        attr_value = pair.split('=')[1]
+        try:
+            attr_value_dict[attr_name] = attr_value
+        except Exception as e:
+            return json.dumps({'message': 'error', 'error': 'Attribute ' + str(attr_name) + ' is undefined'})
+        count += 1
+    return json.dumps({'message': 'successful', 'count': count})
+
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1\.*$', path='/tango_dev_test/read_attrs')
+def read_attrs_mock(url, request):
+    attr_value_dict = {'abc': 4.0, 'def': 10}
+    attr_names = eval(url[3].split('=')[1])
+    return_dict = dict()
+    for name in attr_names:
+        try:
+            return_dict[name] = attr_value_dict[name]
+        except Exception as e:
+            return json.dumps({'_error': e.message()})
+    return json.dumps(return_dict)
+
+
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1\.*$', path='/tango_dev_test/command_history')
+def cmd_hist_mock(url, request):
+    cmd_history = [
+        {'name': 'abc', 'time': datetime.datetime.isoformat(datetime.datetime.now())}, 
+        {'name': 'def', 'time': datetime.datetime.isoformat(datetime.datetime.now())}
+        ]
+    return json.dumps(cmd_history)
+
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1\.*$', path='/tango_dev_test/command_query')
+def cmd_query_mock(url, request):
+    cmd_description_dict = {
+        'abc': {
+            'description': 'This command performs the function abc',
+            'last_used': datetime.datetime.isoformat(datetime.datetime.now())
+        }
+    }
+    command_name = url[3].split('=')[1]
+    return json.dumps(cmd_description_dict[command_name])
+
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1\.*$', path='/tango_dev_test/delete_property', method='delete')
+def del_prop_mock(url, request):
+    available_properties = set(['property1', 'property2'])
+    prop_name = request.body.split('=')[1]
+    try:
+        available_properties.remove(prop_name)
+    except KeyError:
+        return json.dumps({'message': 'error', 'error': 'The requested property is not available'})
+
+    return json.dumps({'message': 'Successfully removes property ' + prop_name})
+
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1\.*$', path='/tango_dev_test/command_list')
+def cmd_list_mock(url, request):
+    return json.dumps([
+        {'name': 'cmd1', 'description': 'This is command 1'},
+        {'name': 'cmd2', 'description': 'This is command 2'},
+        {'name': 'cmd3', 'description': 'This is command 3'},
+        {'name': 'cmd4', 'description': 'This is command 4'}])
+
+@urlmatch(netloc=r'(.*\.)?192\.168\.1\.1\.*$', path='/tango_dev_test/attribute_config')
+def attr_cfg_mock(url, request):
+    attr_name = url[3].split('=')[1]
+    attr_value_dict = {'abc': 
+            {
+                'possible_values': list(range(10, 20)),
+                'description': 'This is attrbute abc'
+            }
+        }
+    return json.dumps(attr_value_dict[attr_name])
 
 class DeviceProxyTest(unittest.TestCase):
     def setUp(self):
         with HTTMock(server_mock, functions_mock):
-            self.dev_proxy = device_proxy.DeviceProxy('tango_dev_test'
-                    , 'http://127.0.0.1')
+            self.dev_proxy = device_proxy.DeviceProxy('tango_dev_test', 'http://127.0.0.1')
 
     def test_black_box(self):
         print("Testing <device>/black_box")
@@ -96,6 +171,15 @@ class DeviceProxyTest(unittest.TestCase):
             assert type(attribute_value) is int
             assert attribute_value == 10
 
+    def test_read_attributes(self):
+        print("Testing <device>/read_attributes")
+        with HTTMock(read_attrs_mock):
+            attr_list = ['abc', 'def']
+            attribute_values = self.dev_proxy.read_attributes(attr_list)
+            assert '_error' not in attribute_values.keys()
+            assert type(attribute_values) is dict
+            assert len(attribute_values.keys()) == len(attr_list)
+
     def test_write_attribute(self):
         print("Testing <device>/write_attribute")
         with HTTMock(write_attr_mock):
@@ -106,6 +190,14 @@ class DeviceProxyTest(unittest.TestCase):
             write_result = self.dev_proxy.write_attribute('xyz', 'on')
             assert 'error' in write_result['message']
             assert write_result.get('error', None) is not None
+
+    def test_write_attributes(self):
+        print("Testing <device>/write_attributes")
+        with HTTMock(write_attrs_mock):
+            write_result = self.dev_proxy.write_attributes({'abc': 5.0, 'def': 10})
+            assert 'error' not in write_result.keys()
+            assert 'successful' in write_result['message']
+            assert write_result['count'] == 2
 
     def test_information(self):
         print("Testing <device>/information")
@@ -121,6 +213,41 @@ class DeviceProxyTest(unittest.TestCase):
             assert status['last_updated'] is not None
             assert status['status'] == 'active'
 
+    def test_command_history(self):
+        print("Testing <device>/command_history")
+        with HTTMock(cmd_hist_mock):
+            cmd_history = self.dev_proxy.command_history()
+            assert len(cmd_history) == 2
+
+    def test_command_query(self):
+        print("Testing <device>/command_query")
+        with HTTMock(cmd_query_mock):
+            cmd_query_result = self.dev_proxy.command_query('abc')
+            assert type(cmd_query_result['description']) is str
+            assert type(cmd_query_result) is dict
+
+    def test_delete_propert(self):
+        print("Testing <device>/delete_property")
+        with HTTMock(del_prop_mock):
+            del_prop_result = self.dev_proxy.delete_property('property1')
+            assert type(del_prop_result) is dict
+            assert 'error' not in del_prop_result
+            assert 'Successfully' in del_prop_result['message']
+
+    def test_command_list(self):
+        print("Testing <device>/command_list")
+        with HTTMock(cmd_list_mock):
+            cmd_list = self.dev_proxy.get_command_list()
+            assert type(cmd_list) is list
+            assert len(cmd_list) == 4
+
+    def test_attribute_config(self):
+        print("Testing <device>/attribute_config")
+        with HTTMock(attr_cfg_mock):
+            config = self.dev_proxy.get_attribute_config('abc')
+            assert type(config) is dict
+            assert 'possible_values' in config.keys()
+            assert 'description' in config.keys()
 
 if __name__ == '__main__':
     unittest.main()

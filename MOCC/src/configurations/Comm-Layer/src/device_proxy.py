@@ -22,7 +22,7 @@ class DeviceProxy:
         setattr(self, name, fn)
 
     # Get admin name of the device to send admin commands
-    def adm_name(self):
+    def adm_name(self) -> str:
         return self._admin_name
 
     # Get device alias if defined
@@ -30,7 +30,7 @@ class DeviceProxy:
         return self._alias
 
     # Query the device for info on all attributes
-    def attribute_list_query(self):
+    def attribute_list_query(self) -> Dict:
         url = self.ip_addr + '/' + self.dev_name + '/attr_list'
         req = requests.get(url)
         return req.json()
@@ -49,33 +49,41 @@ class DeviceProxy:
         return req.json()
 
     # Retreive command history from the command polling buffer
-    def command_history(self):
-        raise NotImplementedError()
+    def command_history(self) -> Dict:
+        url = self.ip_addr + '/' + self.dev_name + '/command_history'
+        req = requests.get(url)
+        return req.json()
 
     # Query the device for information in all commands
-    def command_list_query(self):
-        raise NotImplementedError()
+    ## Redundant with DeviceProxy.get_command_list()
+    # def command_list_query(self):
+      #  raise NotImplementedError()
 
     # Query the device for information about a single command
-    def command_query(self, command):
-        raise NotImplementedError()
+    def command_query(self, command: str) -> Dict:
+        url = self.ip_addr + '/' + self.dev_name + '/command_query?name=' + str(command)
+        req = requests.get(url)
+        return req.json()
 
     # Delete a given property of this device
-    def delete_property(self, value):
-        raise NotImplementedError()
+    def delete_property(self, prop_name: str) -> Dict:
+        url = self.ip_addr + '/' + self.dev_name + '/delete_property'
+        req = requests.delete(url, data={'prop_name': prop_name})
+        return req.json()
 
     # Get device description
-    def description(self):
+    def description(self) -> str:
         return self._description
 
     # Return the attribute configuration for a single attribute
-    def get_attribute_config(self, names):
-        raise NotImplementedError()
+    def get_attribute_config(self, name) -> Dict:
+        url = self.ip_addr + '/' + self.dev_name + '/attribute_config?name=' + str(name)
+        req = requests.get(url)
+        return req.json()
 
     # Getting the attributes of the device server
     def get_attribute_list(self) -> List[str]:
-        uri = self.ip_addr + '/' + \
-                self.dev_name + '/attributes'
+        uri = self.ip_addr + '/' + self.dev_name + '/attributes'
         req = requests.get(uri)
         return req.json()
 
@@ -84,8 +92,10 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Return the names of all commands implemented for this device
-    def get_command_list(self):
-        raise NotImplementedError
+    def get_command_list(self) -> Dict:
+        url = self.ip_addr + '/' + self.dev_name + '/command_list'
+        req = requests.get(url)
+        return req.json()
 
     # Returns the internal database reference
     def get_device_db(self):
@@ -102,7 +112,7 @@ class DeviceProxy:
         raise NotImplementedError()
 
     # Get the list of property names for this device
-    def get_property_list(self, filter, array=None):
+    def get_property_list(self, filter: str, array=None) -> List[str]:
         raise NotImplementedError()
 
     # Method which returns information on the device
@@ -112,12 +122,12 @@ class DeviceProxy:
         return req.json()
 
     # Return the device name from the device itself
-    def name(self):
+    def name(self) -> str:
         return self.dev_name
 
     # A method which sends a ping to the device
-    def ping(self):
-        raise NotImplementedError()
+    # def ping(self):
+      #  raise NotImplementedError()
 
     # Read a single attribute
     def read_attribute(self, attr_name: str) -> Dict:
@@ -129,20 +139,23 @@ class DeviceProxy:
     def read_attribute_asynch(self, attr_name):
         raise NotImplementedError()
 
-    def read_attribute_reply():
-        raise NotImplementedError()
+    # def read_attribute_reply():
+      #  raise NotImplementedError()
 
     # Read the list of specified attributes
-    def read_attributes(self, attr_names):
-        raise NotImplementedError()
+    def read_attributes(self, attr_names: list) -> Dict:
+        url = self.ip_addr + '/' + self.dev_name + '/read_attrs?list=' + str(attr_names).replace(' ', '')
+        req = requests.get(url)
+        return req.json()
 
     # Set attribute configuration for the specified attribute
     def set_attribute_config(self, attr_info):
         raise NotImplementedError()
 
     # Returns the state of the device
-    def state(self):
-        raise NotImplementedError()
+    ## Redundant with DeviceProxy.status()?
+    # def state(self):
+      #  raise NotImplementedError()
 
     # Returns the status of the device as a string
     def status(self) -> Dict:
@@ -157,17 +170,21 @@ class DeviceProxy:
         return req.json()
 
     # Write a single attribute async
-    def write_attribute_asynch(attr_name, value, cb=None):
-        raise NotImplementedError()
+    # def write_attribute_asynch(attr_name, value, cb=None):
+      #  raise NotImplementedError()
 
     # Write the specified attributes
-    def write_attributes(self, name_val):
-        raise NotImplementedError()
+    def write_attributes(self, name_val_dict: Dict) -> Dict:
+        url = self.ip_addr + '/' + self.dev_name + '/write_attrs'
+        req = requests.post(url, data=name_val_dict)
+        return req.json()
 
     # Write then read a single attribute in a single network call.
-    def write_read_attribute(self, attr_name, value):
-        raise NotImplementedError()
+    def write_read_attribute(self, write_attr_name: str, read_attr_name: str, value: str) -> Dict:
+        self.write_attribute(write_attr_name, value)
+        return self.read_attribute(read_attr_name)
 
     # Write then read attribute(s) in a single network call
-    def write_read_attributes(self, name_val, attr_names):
-        raise NotImplementedError()
+    def write_read_attributes(self, write_attr_dict: Dict, read_attr_names: List) -> Dict:
+        self.write_attributes(write_attr_dict)
+        return self.read_attributes(read_attr_names)
