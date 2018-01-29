@@ -201,3 +201,228 @@ class Device:
         :return seq<str>: a COPY of the list of polled commands
         """
         raise NotImplementedError()
+
+    def get_prev_state(self):
+        """
+        Get a COPY of the device’s previous state.
+        :return DevState: the device's previous state
+        """
+        raise NotImplementedError()
+
+    def get_state(self):
+        """
+        Get a COPY of the device's state
+        :return DevState: Current device state
+        """
+        raise NotImplementedError()
+
+    def get_status(self):
+        """
+        Get a COPY of the device status.
+        :return str: the device status
+        """
+        return self.status
+
+    def info_stream(self, msg):
+        """
+        Sends the given message to the info stream.
+        :param msg str: the given message to the info
+        """
+        raise NotImplementedError()
+
+    def init_device(self):
+        """"""
+        raise NotImplementedError()
+
+    def initialize_dynamic_attributes(self):
+        """
+        Method executed at initializion phase to create dynamic attributes. 
+        Default implementation does nothing. Overwrite when necessary.
+        """
+        raise NotImplementedError()
+
+    def is_device_locked(self):
+        """
+        Returns if this device is locked by a client.
+        :return bool: True if it is locked or False otherwise
+        """
+        raise NotImplementedError()
+
+    def is_polled(self):
+        """
+        Returns if it is polled
+        :return bool: True if it is polled or False otherwise
+        """
+    
+    def is_there_subscriber(self, att_name, event_type):
+        """
+        Check if there is subscriber(s) listening for the event.
+        :param str att_name: the attribute name
+        :param EventType event_type: the event type
+        :return bool: True if there is at least one listener or False otherwise
+        """
+        raise NotImplementedError()
+
+    def push_archive_event(self, **kwargs):
+        """
+        Push an archive event for the given attribute name. The event is pushed to the notification daemon.
+        :param str attr_name:	(str) attribute name
+        :param Object data:	the data to be sent as attribute event data. Data must be compatible with the attribute type and format. for SPECTRUM and IMAGE attributes, data can be any type of sequence of elements compatible with the attribute type
+        :param str str_data:	(str) special variation for DevEncoded data type. In this case ‘data’ must be a str or an object with the buffer interface.
+        :param DevFailed except:	(DevFailed) Instead of data, you may want to send an exception.
+        :param int dim_x:	(int) the attribute x length. Default value is 1
+        :param int dim_y:	(int) the attribute y length. Default value is 0
+        :param double time_stamp:	(double) the time stamp
+        :param AttrQuality quality:	(AttrQuality) the attribute quality factor
+        """
+        raise NotImplementedError()
+    
+    def push_att_conf_event(self, attr):
+        """
+        Push an attribute configuration event
+        :param Attribute attr: the attribute for which the configuration event will be sent
+        """
+        raise NotImplementedError()
+
+    def push_change_event(self, **kwargs):
+        """
+        Push a change event for the given attribute name. The event is pushed to the notification daemon.
+        :param str attr_name: (str) attribute name
+        :param Object data:	the data to be sent as attribute event data. Data must be compatible with the attribute type and format. for SPECTRUM and IMAGE attributes, data can be any type of sequence of elements compatible with the attribute type
+        :param str str_data: (str) special variation for DevEncoded data type. In this case ‘data’ must be a str or an object with the buffer interface.
+        :param DevFailed except: (DevFailed) Instead of data, you may want to send an exception.
+        :param int dim_x: (int) the attribute x length. Default value is 1
+        :param int dim_y: (int) the attribute y length. Default value is 0
+        :param double time_stamp:	(double) the time stamp
+        :param AttrQuality quality: (AttrQuality) the attribute quality factor
+        """
+        raise NotImplementedError()
+
+    def push_data_ready_event(self, attr_name, counter=0):
+        """
+        Push a data ready event for the given attribute name. The event is pushed to the notification daemon.
+        The method needs only the attribue name and an optional “counter” which will be passed unchanged within the event.
+        :param str attr_name: the attribute name
+        :param int counter: the user counter
+        """
+        raise NotImplementedError()
+
+    def push_event(self, **kwargs):
+        """
+        :param str attr_name: (str) attribute name
+        :param sequence<str> filt_names: (sequence<str>) the filterable fields name
+        :param sequence<double> filt_vals: (sequence<double>) the filterable fields value
+        :param Object data:	the data to be sent as attribute event data. Data must be compatible with the attribute type and format. for SPECTRUM and IMAGE attributes, data can be any type of sequence of elements compatible with the attribute type
+        :param str str_data: (str) special variation for DevEncoded data type. In this case ‘data’ must be a str or an object with the buffer interface.
+        :param int dim_x: (int) the attribute x length. Default value is 1
+        :param int dim_y: (int) the attribute y length. Default value is 0
+        :param double time_stamp: (double) the time stamp
+        :param AttrQuality quality: (AttrQuality) the attribute quality factor
+        """
+        raise NotImplementedError()
+
+    def push_pipe_event(self, blob):
+        """
+        Push a pipe event
+        :param object blob: the blob which pipe event will be send
+        """
+        raise NotImplementedError()
+
+    def register_signal(self, signo):
+        """
+        Register a signal. Register this device as device to be informed when signal signo is sent to to the device server process.
+        :param int signo: signal identifier
+        """
+        raise NotImplementedError()
+
+    def remove_attribute(self, attr_name):
+        """
+        Remove one attribute from the device ttribute list
+        :param str attr_name: the attribute name
+        """
+        # TO-DO: Raise DevFailed if `remove` raises KeyError
+        self.attr_list.remove(attr_name)
+
+    def remove_command(self,cmd_name):
+        """
+        Remove one command from the device command list.
+        :param str cmd_name: the command name to remove
+        """
+        # TO-DO: Raise DevFailed if `remove` raises KeyError
+        self.command_list.remove(cmd_name)
+
+    def run_server(self, args=None, **kwargs):
+        """
+        Run the class as a device server
+        The difference is that the device class and server name are automatically given
+        """
+        raise NotImplementedError()
+
+    def set_archive_event(self, attr_name, implemented, detect=True):
+        """
+        Set an implemented flag for the attribute to indicate that the server fires archive events manually, without the polling to be started. 
+        If the detect parameter is set to true, the criteria specified for the archive event are verified 
+        and the event is only pushed if they are fullfilled. 
+        If detect is set to false the event is fired without any value checking!
+        :param str attr_name: (str) attribute name
+        :param bool implemented: (bool) True when the server fires change events manually.
+        :param bool detect: (bool) Triggers the verification of the change event properties when set to true. Default value is true.
+        """
+        raise NotImplementedError()
+
+    def set_change_event(self, attr_name, implemented, detect=True):
+        """
+        Set an implemented flag for the attribute to indicate that the server fires change events manually, without the polling to be started. 
+        If the detect parameter is set to true, the criteria specified for the change event are verified and the 
+        event is only pushed if they are fullfilled. If detect is set to false the event is fired without any value checking!
+        :param str attr_name: (str) attribute name
+        :param bool implemented: (bool) True when the server fires change events manually.
+        :param bool detect: (bool) Triggers the verification of the change event properties when set to true. Default value is true.
+        """
+        raise NotImplementedError()
+
+    def set_status(self, new_status):
+        """
+        Set device status
+        :param str new_status: (str) the new device status
+        """
+        self.status = new_status
+
+    def signal_handler(self, signo):
+        """
+        Signal handler. The method executed when the signal arrived in the device server process. 
+        This method is defined as virtual and then, can be redefined following device needs.
+        :param int signo: the signal number 
+        """
+        raise NotImplementedError()
+
+    def stop_polling(self, with_db_upd):
+        """
+        Stop all polling for a device. if the device is polled, call this method before deleting it.
+        :param bool with_db_upd: (bool) Is it necessary to update db ?
+        """
+        raise NotImplementedError()
+
+    def unregister_signal(self, signo):
+        """
+        Unregister a signal. Unregister this device as device to be informed when signal signo is 
+        sent to to the device server process
+        :param int signo: the signal identifier
+        """
+        raise NotImplementedError()
+
+    def warn_stream(self, msg, *args):
+        """
+        Sends the given message to the tango warn stream.
+        :param str msg: (str) the message to be sent to the warn stream
+        """
+        raise NotImplementedError()
+
+    def write_attr_hardware(self, attr_list):
+        """
+        Write the hardware for attributes. Default method to implement an action necessary on a device to 
+        write the hardware involved in a a write attribute. This method must be redefined in sub-classes in order 
+        to support writable attribute
+        :param sequence<int> attr_list: list of indices in the device object attribute vector of an attribute to be written.
+        """
+        raise NotImplementedError()
