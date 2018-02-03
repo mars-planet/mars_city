@@ -263,7 +263,7 @@ class Device:
         """
         raise NotImplementedError()
 
-    def push_archive_event(self, **kwargs):
+    def push_archive_event(self, attr_name, data=None, str_data=None, except=None, dim_x=None, dim_y=None, time_stamp=None, quality=None):
         """
         Push an archive event for the given attribute name. The event is pushed to the notification daemon.
         :param str attr_name:	(str) attribute name
@@ -284,7 +284,7 @@ class Device:
         """
         raise NotImplementedError()
 
-    def push_change_event(self, **kwargs):
+    def push_change_event(self, attr_name, data=None, str_data=None, except=None, dim_x=None, dim_y=None, time_stamp=None, quality=None):
         """
         Push a change event for the given attribute name. The event is pushed to the notification daemon.
         :param str attr_name: (str) attribute name
@@ -307,7 +307,7 @@ class Device:
         """
         raise NotImplementedError()
 
-    def push_event(self, **kwargs):
+    def push_event(self, attr_name, filt_names=None, filt_vals=None, data=None, str_data=None, dim_x=None, dim_y=None, time_stamp=None, quality=None):
         """
         :param str attr_name: (str) attribute name
         :param sequence<str> filt_names: (sequence<str>) the filterable fields name
