@@ -463,4 +463,4 @@ class attribute:
         self.build_from_dict(kwargs)
 
     def __call__(self):
-        self.device.set_attr(self.attr_func())
+        raise NotImplementedError()
