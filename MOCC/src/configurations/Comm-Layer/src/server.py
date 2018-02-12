@@ -426,3 +426,41 @@ class Device:
         :param sequence<int> attr_list: list of indices in the device object attribute vector of an attribute to be written.
         """
         raise NotImplementedError()
+
+
+class attribute:
+    """
+    Attribute class to be used as a decorator
+    """
+    def __init__(self, fget=None, **kwargs):
+        self._kwargs = kwargs
+        self.name = kwargs.pop("name", None)
+        self.class_name = kwargs.pop("class_name", None)
+        forward = kwargs.pop("forward", False)
+        if forward:
+            expected = 2 if "label" in kwargs else 1
+            if len(kwargs) > expected:
+                raise TypeError("Only forwarded attributes support label argument")
+
+        else:
+            green_mode = kwargs.pop("green_mode", True)
+            self.read_green_mode = kwargs.pop("read_green_mode", green_mode)
+            self.write_green_mode = kwargs.pop("write_green_mode", green_mode)
+
+            if fget:
+                if inspect.isroutine(fget):
+                    self.fget = fget
+                    if 'doc' not in kwargs and 'description' not in kwargs:
+                        if fget.__doc__ is not None:
+                            kwargs['doc'] = fget.__doc__
+                kwargs['fget'] = fget
+        super(attribute, self).__init__(self.name, class_name)
+        self.__doc__ = kwargs.get('doc', kwargs.get('description',
+                                                    'TANGO attribute'))
+        if 'dtype' in kwargs:
+            kwargs['dtype'], kwargs['dformat'] = \
+                _get_tango_type_format(kwargs['dtype'], kwargs.get('dformat'))
+        self.build_from_dict(kwargs)
+
+    def __call__(self):
+        raise NotImplementedError()
