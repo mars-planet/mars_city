@@ -466,24 +466,8 @@ class attribute:
         raise NotImplementedError()
 
 
-class command:
+def command(fget=None, dtype_in=None, dformat_in=None, doc_in="", dtype_out=None, dformat_out=None, doc_out="", display_level=None, polling_period=None, green_mode=None):
     """
     Declares a new tango command in a Device. To be used like a decorator in the methods you want to declare as tango commands.
-    
     """
-    def __init__(self, fget=None, dtype_in=None, dformat_in=None, doc_in, dtype_out=None, dformat_out=None, doc_out, display_level, polling_period, green_mode=None):
-        """
-        :param object dtype_in: A data type describing the type of parameter. Default is None meaning no parameter. 
-        :param AttrDataFormat dformat_in: parameter data format. Default is None.
-        :param str doc_in: parameter documentation
-        :param object dtype_out: a data type desrcibing the type of return value. Default is None meaning no return value.
-        :param AttrDataFormat dformat_out: return value data format. Default is None.
-        :param str doc_out: return value documentation
-        :param DispLevel display_leve: display level for the command (optional)
-        :param int polling_period: polling period in milliseconds (optional)
-        :param object green_mode: set green mode on this specific command. Default value is None meaning use the server green mode. Set it to GreenMode.Synchronous to force a non green command in a green server.
-        """
-        raise NotImplementedError()
-
-    def __call__(self):
-        raise NotImplementedError()
+    raise NotImplementedError()
