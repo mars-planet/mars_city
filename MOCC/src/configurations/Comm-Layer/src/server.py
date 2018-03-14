@@ -1,4 +1,9 @@
 """Module for Device based classes"""
+from flask import Flask
+from flasgger import Swagger, swag_from
+import requests
+import inspect
+
 class Device:
     """
     Device Class for the high-level API
@@ -10,6 +15,8 @@ class Device:
         self.command_list = set()
         self.status = ""
         self.name = ""
+        self.server_app = Flask(__name__)
+        self.swagger = Swagger(self.server_app)
 
     def add_attribute(self, attr: str, r_meth=None, w_meth=None, is_allo_meth=None):
         """
@@ -466,8 +473,49 @@ class attribute:
         raise NotImplementedError()
 
 
-def command(fget=None, dtype_in=None, dformat_in=None, doc_in="", dtype_out=None, dformat_out=None, doc_out="", display_level=None, polling_period=None, green_mode=None):
+def command(dtype_in=None, dformat_in=None, doc_in="", dtype_out=None, dformat_out=None, doc_out="", display_level=None, polling_period=None, green_mode=None):
     """
     Declares a new tango command in a Device. To be used like a decorator in the methods you want to declare as tango commands.
     """
-    raise NotImplementedError()
+    def command_wrapper(_command):
+        argspec = inspect.getargspec(_command.__code__)
+        default_values = argspec[3]
+        args = argspec[0][1:len(default_values) - 1]
+        args_with_default_values = zip(argspec[0][len(default_values) - 1:], default_values)
+
+        swagger_dict = {
+            'parameters': [],
+            'definitions': {},
+            'responses': {}
+        }
+
+        for arg in args:
+            swagger_dict['parameters'].append({
+                "name": arg,
+                "in": form,
+                "type": obj,
+                "required": false,
+            })
+
+        for arg, def_value in args_with_default_values:
+            swagger_dict['parameters'].append({
+                "name": arg,
+                "in": form,
+                "type": obj,
+                "required": true,
+                "default": def_value
+            })
+
+        swagger_dict['responses'] = {
+            '200': {
+                'description': inspect.getdoc(_command)
+            }
+        }
+        command_ip = '/command/' + str(_command.__name__)
+        calling_device.server_app.route(command_ip)(_command) 
+        swag_from()(swagger_dict)
+        def _command_executor():
+            req = requests.request('POST', command_ip)
+            return req.json()
+        return _command_executor
+    return command_wrapper
