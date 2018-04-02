@@ -1,8 +1,10 @@
 """Module for Device based classes"""
 from flask import Flask
 from flasgger import Swagger, swag_from
+from decorator import decorator
 import requests
 import inspect
+
 
 class Device:
     """
@@ -472,50 +474,48 @@ class attribute:
     def __call__(self):
         raise NotImplementedError()
 
-
-def command(dtype_in=None, dformat_in=None, doc_in="", dtype_out=None, dformat_out=None, doc_out="", display_level=None, polling_period=None, green_mode=None):
+@decorator
+def command(f, dtype_in=None, dformat_in=None, doc_in="", dtype_out=None, dformat_out=None, doc_out="", display_level=None, polling_period=None, green_mode=None, *args, **kwargs):
     """
-    Declares a new tango command in a Device. To be used like a decorator in the methods you want to declare as tango commands.
+    Declares a new command in a Device. To be used like a decorator in the methods you want to declare as tango commands.
     """
-    def command_wrapper(_command):
-        argspec = inspect.getargspec(_command.__code__)
-        default_values = argspec[3]
-        args = argspec[0][1:len(default_values) - 1]
-        args_with_default_values = zip(argspec[0][len(default_values) - 1:], default_values)
+    argspec = inspect.getargspec(f.__code__)
+    default_values = argspec[3]
+    args = argspec[0][1:len(default_values) - 1]
+    args_with_default_values = zip(argspec[0][len(default_values) - 1:], default_values)
 
-        swagger_dict = {
-            'parameters': [],
-            'definitions': {},
-            'responses': {}
+    swagger_dict = {
+        'parameters': [],
+        'definitions': {},
+        'responses': {}
+    }
+
+    for arg in args:
+        swagger_dict['parameters'].append({
+            "name": arg,
+            "in": form,
+            "type": obj,
+            "required": false,
+        })
+
+    for arg, def_value in args_with_default_values:
+        swagger_dict['parameters'].append({
+            "name": arg,
+            "in": form,
+            "type": obj,
+            "required": true,
+            "default": def_value
+        })
+
+    swagger_dict['responses'] = {
+        '200': {
+            'description': inspect.getdoc(_command)
         }
-
-        for arg in args:
-            swagger_dict['parameters'].append({
-                "name": arg,
-                "in": form,
-                "type": obj,
-                "required": false,
-            })
-
-        for arg, def_value in args_with_default_values:
-            swagger_dict['parameters'].append({
-                "name": arg,
-                "in": form,
-                "type": obj,
-                "required": true,
-                "default": def_value
-            })
-
-        swagger_dict['responses'] = {
-            '200': {
-                'description': inspect.getdoc(_command)
-            }
-        }
-        command_ip = '/command/' + str(_command.__name__)
-        calling_device.server_app.route(command_ip)(_command) 
-        swag_from()(swagger_dict)
-        def _command_executor():
-            req = requests.request('POST', command_ip)
-            return req.json()
-        return _command_executor
-    return command_wrapper
+    }
+    command_ip = '/command/' + str(_command.__name__)
+    calling_device.server_app.route(command_ip)(_command)
+    swag_from()(swagger_dict)
+    def _command_executor(*args, **kwargs):
+        req = requests.request('POST', command_ip)
+        return req.json()
+    return _command_executor
