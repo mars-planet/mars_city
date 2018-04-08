@@ -515,8 +515,7 @@ def command(f, dtype_in=None, dformat_in=None, doc_in="", dtype_out=None, dforma
     
     def _command_executor():
         arg_dict = request.values.to_dict()
-        result = f(arg_dict)
-        return flask.jsonify(result)
+        return flask.jsonify(f(arg_dict))
     
     command_ip = '/command/' + str(_command.__name__)
     calling_device.server_app.route(command_ip)(_command_executor)
