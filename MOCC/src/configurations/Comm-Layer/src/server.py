@@ -512,10 +512,13 @@ def command(f, dtype_in=None, dformat_in=None, doc_in="", dtype_out=None, dforma
             'description': inspect.getdoc(_command)
         }
     }
+    
+    def _command_executor():
+        arg_dict = request.values.to_dict()
+        result = f(arg_dict)
+        return flask.jsonify(result)
+    
     command_ip = '/command/' + str(_command.__name__)
-    calling_device.server_app.route(command_ip)(_command)
-    swag_from()(swagger_dict)
-    def _command_executor(*args, **kwargs):
-        req = requests.request('POST', command_ip)
-        return req.json()
+    calling_device.server_app.route(command_ip)(_command_executor)
+    swag_from(f)(swagger_dict)
     return _command_executor
