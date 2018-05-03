@@ -272,13 +272,13 @@ class Device:
         """
         raise NotImplementedError()
 
-    def push_archive_event(self, attr_name, data=None, str_data=None, except=None, dim_x=None, dim_y=None, time_stamp=None, quality=None):
+    def push_archive_event(self, attr_name, data=None, str_data=None, exception=None, dim_x=None, dim_y=None, time_stamp=None, quality=None):
         """
         Push an archive event for the given attribute name. The event is pushed to the notification daemon.
         :param str attr_name:	(str) attribute name
         :param Object data:	the data to be sent as attribute event data. Data must be compatible with the attribute type and format. for SPECTRUM and IMAGE attributes, data can be any type of sequence of elements compatible with the attribute type
         :param str str_data:	(str) special variation for DevEncoded data type. In this case ‘data’ must be a str or an object with the buffer interface.
-        :param DevFailed except:	(DevFailed) Instead of data, you may want to send an exception.
+        :param DevFailed exception:	(DevFailed) Instead of data, you may want to send an exception.
         :param int dim_x:	(int) the attribute x length. Default value is 1
         :param int dim_y:	(int) the attribute y length. Default value is 0
         :param double time_stamp:	(double) the time stamp
@@ -293,13 +293,13 @@ class Device:
         """
         raise NotImplementedError()
 
-    def push_change_event(self, attr_name, data=None, str_data=None, except=None, dim_x=None, dim_y=None, time_stamp=None, quality=None):
+    def push_change_event(self, attr_name, data=None, str_data=None, exception=None, dim_x=None, dim_y=None, time_stamp=None, quality=None):
         """
         Push a change event for the given attribute name. The event is pushed to the notification daemon.
         :param str attr_name: (str) attribute name
         :param Object data:	the data to be sent as attribute event data. Data must be compatible with the attribute type and format. for SPECTRUM and IMAGE attributes, data can be any type of sequence of elements compatible with the attribute type
         :param str str_data: (str) special variation for DevEncoded data type. In this case ‘data’ must be a str or an object with the buffer interface.
-        :param DevFailed except: (DevFailed) Instead of data, you may want to send an exception.
+        :param DevFailed exception: (DevFailed) Instead of data, you may want to send an exception.
         :param int dim_x: (int) the attribute x length. Default value is 1
         :param int dim_y: (int) the attribute y length. Default value is 0
         :param double time_stamp:	(double) the time stamp
@@ -365,8 +365,20 @@ class Device:
         Run the class as a device server
         The difference is that the device class and server name are automatically given
         """
-        raise NotImplementedError()
-
+        #  raise NotImplementedError()
+        import sys
+        code_file = open(sys.argv[0], 'r')
+        next_line = False
+        for line in code_file:
+            if next_line:
+                _line = line.strip().split()
+                func_name = _line[1][:_line[1].find('(')]
+                self.server_app.route('/' + func_name, methods=['POST'])(eval('self.' + func_name))
+                next_line = False
+            if 'command_decorator' in line and 'def' not in line:
+                next_line = True
+        self.server_app.run(debug=True)
+    
     def set_archive_event(self, attr_name, implemented, detect=True):
         """
         Set an implemented flag for the attribute to indicate that the server fires archive events manually, without the polling to be started. 
@@ -475,13 +487,13 @@ class attribute:
         raise NotImplementedError()
 
 @decorator
-def command(f, dtype_in=None, dformat_in=None, doc_in="", dtype_out=None, dformat_out=None, doc_out="", display_level=None, polling_period=None, green_mode=None, *args, **kwargs):
+def command(_command, *args, **kwargs):
     """
     Declares a new command in a Device. To be used like a decorator in the methods you want to declare as tango commands.
     """
-    argspec = inspect.getargspec(f.__code__)
+    argspec = inspect.getargspec(_command)
     default_values = argspec[3]
-    args = argspec[0][1:len(default_values) - 1]
+    args_without_default_values = argspec[0][1:len(default_values) - 1]
     args_with_default_values = zip(argspec[0][len(default_values) - 1:], default_values)
 
     swagger_dict = {
@@ -490,20 +502,20 @@ def command(f, dtype_in=None, dformat_in=None, doc_in="", dtype_out=None, dforma
         'responses': {}
     }
 
-    for arg in args:
+    for arg in args_without_default_values:
         swagger_dict['parameters'].append({
             "name": arg,
-            "in": form,
-            "type": obj,
-            "required": false,
+            "in": "form",
+            "type": object,
+            "required": False,
         })
 
     for arg, def_value in args_with_default_values:
         swagger_dict['parameters'].append({
             "name": arg,
-            "in": form,
-            "type": obj,
-            "required": true,
+            "in": "form",
+            "type": object,
+            "required": True,
             "default": def_value
         })
 
@@ -513,11 +525,11 @@ def command(f, dtype_in=None, dformat_in=None, doc_in="", dtype_out=None, dforma
         }
     }
     
-    def _command_executor():
+    def _command_executor(*args, **kwargs):
         arg_dict = request.values.to_dict()
         return flask.jsonify(f(arg_dict))
-    
-    command_ip = '/command/' + str(_command.__name__)
-    calling_device.server_app.route(command_ip)(_command_executor)
-    swag_from(f)(swagger_dict)
+    #  calling_device = args[0]
+    #  command_ip = '/command/' + str(_command.__name__)
+    #  calling_device.server_app.route(command_ip)(_command_executor)
+    swag_from(_command)(swagger_dict)
     return _command_executor
