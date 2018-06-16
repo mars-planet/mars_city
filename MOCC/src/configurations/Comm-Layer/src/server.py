@@ -1,5 +1,6 @@
 """Module for Device based classes"""
-from flask import Flask
+from flask import Flask, request, jsonify
+from flask_restful import Api, Resource
 from flasgger import Swagger, swag_from
 from decorator import decorator
 import requests
@@ -20,7 +21,7 @@ class Device:
         self.server_app = Flask(__name__)
         self.swagger = Swagger(self.server_app)
 
-    def add_attribute(self, attr: str, r_meth=None, w_meth=None, is_allo_meth=None):
+    def add_attribute(self, attr, r_meth=None, w_meth=None, is_allo_meth=None):
         """
         Add a new attribute to the device attribute list
         :param Attr attr: the new attribute to add
@@ -486,50 +487,126 @@ class attribute:
     def __call__(self):
         raise NotImplementedError()
 
-@decorator
-def command(_command, *args, **kwargs):
+class Command(object):
     """
-    Declares a new command in a Device. To be used like a decorator in the methods you want to declare as tango commands.
+    Command decorator. It returns a new `flask_restful.Resource` class
+    (not an instance). The returned class is callable, therefore, methods
+    decorated with `@Command` can be called directly or through an HTTP POST
+    request.
     """
-    argspec = inspect.getargspec(_command)
-    default_values = argspec[3]
-    args_without_default_values = argspec[0][1:len(default_values) - 1]
-    args_with_default_values = zip(argspec[0][len(default_values) - 1:], default_values)
+    def __init__(self, func):
+        """
+        The type of the class declaring a method decorated with `@Command`
+        is `None` at declaration time, so we need to declare the `__get__`
+        magic and the `owner_type` property (which must be set) to get around
+        the problem (cf. https://stackoverflow.com/questions/2366713/can-a-python-decorator-of-an-instance-method-access-the-class).
+        """
+        swagger_specs_dict = {}
+        index = 0
+        argspec = inspect.getargspec(func)
+        all_args = argspec.args[1:]
+        number_of_args = len(all_args)
+        number_of_defaults = len(argspec.defaults) if argspec.defaults != None else 0 
+        # Non Default Args
+        while index != number_of_args - number_of_defaults:
+            parameters = swagger_specs_dict.get('parameters', [])
+            parameters.append({
+                'name': all_args[index],
+                'in': 'path',
+                'required': True
+            })
+            index += 1
+            swagger_specs_dict['parameters'] = parameters
+        while index != number_of_args:
+            parameters = swaggerspecs_dict.get('parameters', [])
+            parameters.append({
+                'name': all_args[index],
+                'in': 'path',
+                'required': False,
+                'default': argspec.defaults[index]
+            })
+            swagger_specs_dict['parameters'] = parameters
+        
+        class _Command(Resource):
+            @swag_from(swagger_specs_dict)
+            def post(inner_self): 
+                params = request.json        
+                ret_val = func(self._owner_type(), **params)
+                return jsonify(ret_val)
 
-    swagger_dict = {
-        'parameters': [],
-        'definitions': {},
-        'responses': {}
-    }
+        self.func = func
+        self._owner_type = None
+        self.resource = _Command
+        self.route = func.__name__
 
-    for arg in args_without_default_values:
-        swagger_dict['parameters'].append({
-            "name": arg,
-            "in": "form",
-            "type": object,
-            "required": False,
-        })
+    @property
+    def owner_type(self):
+        return self._owner_type
 
-    for arg, def_value in args_with_default_values:
-        swagger_dict['parameters'].append({
-            "name": arg,
-            "in": "form",
-            "type": object,
-            "required": True,
-            "default": def_value
-        })
+    @owner_type.setter
+    def owner_type(self, val):
+        self._owner_type = val
 
-    swagger_dict['responses'] = {
-        '200': {
-            'description': inspect.getdoc(_command)
+    def __get__(self, obj, type_=None):
+        func = self.func.__get__(obj, type_)
+        return self.__class__(func)
+
+    def __call__(self, *args, **kwargs):
+        return self.func(*args, **kwargs)
+
+
+class ServerMeta(type):
+    """
+    Classes using `ServerMeta` as a metaclass will be singletons, i.e. at most
+    one instance of the class will exists at any given time.
+    """
+    _instances: dict = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(ServerMeta, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class ServerBase(Flask, metaclass=ServerMeta):
+    """
+    Base class for servers.
+    Users need to inherit from this class to create their own servers.
+    """
+    def __init__(self, name):
+        """
+        `__init__` bounds any `@Command`-decorated methods on child classes to HTTP
+        routes, and assigns the correct `owner_type` to them.
+        """
+        super().__init__(name)
+        self.api = Api(self)
+        self.swagger = Swagger(self)
+        self.config['Swagger'] = {
+            'title': 'Mars City',
+            'uiversion': 2
         }
-    }
-    
-    def _command_executor(*args, **kwargs):
-        arg_dict = request.values.to_dict()
-        return flask.jsonify(f(**arg_dict))
-    #  calling_device = args[0]
-    #  command_ip = '/command/' + str(_command.__name__)
-    #  calling_device.server_app.route(command_ip)(_command_executor)
-    swag_from(_command)(swagger_dict)
-    return _command_executor
+        for attr in self.__class__.__dict__.values():
+            try:
+                self.api.add_resource(attr.resource, f'/{attr.route}')
+                if attr.owner_type is None:
+                    attr.owner_type = self.__class__
+            except AttributeError as e:
+                pass
+
+
+class Server(ServerBase):
+    """
+    Sample server.
+    """
+    @Command
+    def cmd1(self, arg1, arg2):
+        ret_val = {
+            'arg1': arg1,
+            'arg2': arg2,
+        }
+        return ret_val
+
+
+if __name__ == '__main__':
+    s = Server(__name__)
+    s.run('localhost', 8080)

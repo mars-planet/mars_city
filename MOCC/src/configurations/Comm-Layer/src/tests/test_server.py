@@ -1,17 +1,39 @@
-import unittest
+import pytest
 import sys
+import uuid
 sys.path.insert(0, '..')
-from server import Device, command
 
-class DeviceProxy(Device):
-    def __init__(self):
-        super().__init__()
+from server import ServerBase, Command
+class Server(ServerBase):
+    """
+    Sample server.
+    """
+    @Command
+    def cmd1(self, arg1, arg2):
+        ret_val = {
+            'arg1': arg1,
+            'arg2': arg2,
+        }
+        return ret_val
 
-    @command
-    def test_command(self, arg1, arg2=None):
-        return "999"
+
+@pytest.fixture
+def client():
+    server = Server(__name__)
+    server.config['TESTING'] = True
+    client = server.test_client()
+
+    yield client
 
 
-dp = DeviceProxy()
-dp.test_command(10)
-dp.run_server()
+def test_cmd1(client):
+    data = {
+        'arg1': str(uuid.uuid4()),
+        'arg2': str(uuid.uuid4()),
+    }
+    rv = client.post('/cmd1')
+    assert data == rv.json
+
+if __name__ == '__main__':
+    pytest.main([__file__])
+
