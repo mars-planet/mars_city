@@ -1,6 +1,6 @@
 """Module for Device based classes"""
 from flask import Flask, request, jsonify
-from flask_restful import Api, Resource
+from flask_restful import Api, Resource, reqparse
 from flasgger import Swagger, swag_from
 from decorator import decorator
 import requests
@@ -527,10 +527,11 @@ class Command(object):
             })
             swagger_specs_dict['parameters'] = parameters
         
+        parser = reqparse.RequestParser()
         class _Command(Resource):
             @swag_from(swagger_specs_dict)
-            def post(inner_self): 
-                params = request.json        
+            def post(inner_self):
+                params = request.json       
                 ret_val = func(self._owner_type(), **params)
                 return jsonify(ret_val)
 
