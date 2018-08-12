@@ -1,6 +1,7 @@
 import requests
 from multiprocessing import Process
 from time import sleep
+import unittest
 from unittest import TestCase
 import uuid
 
@@ -143,3 +144,7 @@ class ServerTests(TestCase):
             self.assertEqual(expected_value, rv.json())
         finally:
             p.terminate()
+
+
+if __name__ == '__main__':
+    unittest.main()
