@@ -1,0 +1,7 @@
+click==6.7
+decorator==4.3.0
+flasgger==0.8.3
+Flask==1.0.2
+Flask-RESTful==0.3.6
+pytest==3.5.1
+requests==2.18.4
