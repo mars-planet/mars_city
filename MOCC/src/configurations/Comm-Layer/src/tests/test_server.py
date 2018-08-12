@@ -1,4 +1,7 @@
-import pytest
+import requests
+from multiprocessing import Process
+from time import sleep
+from unittest import TestCase
 import uuid
 
 from server import ServerBase, Command
@@ -17,24 +20,33 @@ class Server(ServerBase):
         return ret_val
 
 
-@pytest.fixture
-def client():
-    server = Server(__name__)
-    server.config['TESTING'] = True
-    client = server.test_client()
+class ServerTests(TestCase):
+    def setUp(self):
+        server = Server(__name__)
+        server.config['TESTING'] = True
+        self.client = server.test_client()
 
-    yield client
+    def test_cmd1(self):
+        data = {
+            'arg1': str(uuid.uuid4()),
+            'arg2': str(uuid.uuid4()),
+        }
+        rv = self.client.post('/cmd1', json=data)
+        self.assertEqual(data, rv.json)
 
-
-def test_cmd1(client):
-    data = {
-        'arg1': str(uuid.uuid4()),
-        'arg2': str(uuid.uuid4()),
-    }
-    rv = client.post('/cmd1', json=data)
-    assert data == rv.json
-
-
-if __name__ == '__main__':
-    pytest.main([__file__])
-
+    def test_run_server(self):
+        server = Server(__name__)
+        host = 'localhost'
+        port = 9090
+        p = Process(target=server.run, kwargs={'host': host, 'port': port})
+        try:
+            p.start()
+            sleep(1)
+            data = {
+                'arg1': str(uuid.uuid4()),
+                'arg2': str(uuid.uuid4()),
+            }
+            rv = requests.post(f'http://{host}:{port}/cmd1', json=data)
+            self.assertEqual(data, rv.json())
+        finally:
+            p.terminate()
