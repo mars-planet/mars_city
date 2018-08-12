@@ -26,7 +26,7 @@ class ServerTests(TestCase):
         server.config['TESTING'] = True
         self.client = server.test_client()
 
-    def test_cmd1(self):
+    def test_cmd1_client(self):
         data = {
             'arg1': str(uuid.uuid4()),
             'arg2': str(uuid.uuid4()),
@@ -34,7 +34,16 @@ class ServerTests(TestCase):
         rv = self.client.post('/cmd1', json=data)
         self.assertEqual(data, rv.json)
 
-    def test_run_server(self):
+    def test_cmd1_instance(self):
+        data = {
+            'arg1': str(uuid.uuid4()),
+            'arg2': str(uuid.uuid4()),
+        }
+        server = Server(__name__)
+        rv = server.cmd1(**data)
+        self.assertEqual(data, rv)
+
+    def test_cmd1_app_server(self):
         server = Server(__name__)
         host = 'localhost'
         port = 9090
