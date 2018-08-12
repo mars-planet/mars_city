@@ -1,10 +1,10 @@
 """Module for Device based classes"""
-from flask import Flask, request, jsonify
-from flask_restful import Api, Resource, reqparse
-from flasgger import Swagger, swag_from
-from decorator import decorator
-import requests
 import inspect
+import sys
+
+from flask import Flask, request, jsonify
+from flask_restful import Api, Resource
+from flasgger import Swagger, swag_from
 
 
 class Device:
@@ -21,9 +21,13 @@ class Device:
         self.server_app = Flask(__name__)
         self.swagger = Swagger(self.server_app)
 
+    # noinspection PyUnusedLocal
     def add_attribute(self, attr, r_meth=None, w_meth=None, is_allo_meth=None):
         """
         Add a new attribute to the device attribute list
+        :param is_allo_meth:
+        :param w_meth:
+        :param r_meth:
         :param Attr attr: the new attribute to add
         """
         self.attr_list.add(attr)
@@ -53,8 +57,8 @@ class Device:
     def check_command_exists(self, cmd_name: str) -> bool:
         """
         This method checks if a command is supported by the device.
-        It does not need any input value and throws an exception if the command is not defined
-        or needs an input value
+        It does not need any input value and throws an exception if the command
+        is not defined or needs an input value
         :param str cmd_name: the command name to check
         """
         return cmd_name in self.command_list
@@ -106,7 +110,8 @@ class Device:
 
     def get_attribute_poll_period(self, attr_name):
         """
-        Returns the attribute polling period (ms) or 0 if the attribute is not polled.
+        Returns the attribute polling period (ms) or 0 if the attribute
+        is not polled.
         :param str attr_name: the attribute name
         :return int: the attribute poll period (ms) or 0 if not polled.
         """
@@ -129,9 +134,11 @@ class Device:
 
     def get_command_poll_period(self, cmd_name):
         """
-        Returns the command polling period (ms) or 0 if the command is not polled.
+        Returns the command polling period (ms) or 0 if the command
+        is not polled.
         :param str cmd_name: the name of the command
-        :return int: the command polling period (ms) or 0 if the command is not polled.
+        :return int: the command polling period (ms) or 0 if the command
+                     is not polled.
         """
         raise NotImplementedError()
 
@@ -236,7 +243,7 @@ class Device:
     def info_stream(self, msg):
         """
         Sends the given message to the info stream.
-        :param msg str: the given message to the info
+        :param msg: the given message to the info
         """
         raise NotImplementedError()
 
@@ -246,7 +253,7 @@ class Device:
 
     def initialize_dynamic_attributes(self):
         """
-        Method executed at initializion phase to create dynamic attributes. 
+        Method executed at initialization phase to create dynamic attributes.
         Default implementation does nothing. Overwrite when necessary.
         """
         raise NotImplementedError()
@@ -273,57 +280,90 @@ class Device:
         """
         raise NotImplementedError()
 
-    def push_archive_event(self, attr_name, data=None, str_data=None, exception=None, dim_x=None, dim_y=None, time_stamp=None, quality=None):
+    def push_archive_event(self, attr_name, data=None, str_data=None,
+                           exception=None, dim_x=None, dim_y=None,
+                           time_stamp=None, quality=None):
         """
-        Push an archive event for the given attribute name. The event is pushed to the notification daemon.
-        :param str attr_name:	(str) attribute name
-        :param Object data:	the data to be sent as attribute event data. Data must be compatible with the attribute type and format. for SPECTRUM and IMAGE attributes, data can be any type of sequence of elements compatible with the attribute type
-        :param str str_data:	(str) special variation for DevEncoded data type. In this case ‘data’ must be a str or an object with the buffer interface.
-        :param DevFailed exception:	(DevFailed) Instead of data, you may want to send an exception.
-        :param int dim_x:	(int) the attribute x length. Default value is 1
-        :param int dim_y:	(int) the attribute y length. Default value is 0
-        :param double time_stamp:	(double) the time stamp
-        :param AttrQuality quality:	(AttrQuality) the attribute quality factor
+        Push an archive event for the given attribute name. The event is pushed
+        to the notification daemon.
+        :param str attr_name: (str) attribute name
+        :param Object data: the data to be sent as attribute event data.
+                            Data must be compatible with the attribute type and
+                            format. for SPECTRUM and IMAGE attributes, data can
+                            be any type of sequence of elements compatible with
+                            the attribute type
+        :param str str_data: (str) special variation for DevEncoded data type.
+                             In this case ‘data’ must be a str or an object
+                             with the buffer interface.
+        :param DevFailed exception: (DevFailed) Instead of data, you may want
+                                    to send an exception.
+        :param int dim_x: (int) the attribute x length. Default value is 1
+        :param int dim_y: (int) the attribute y length. Default value is 0
+        :param double time_stamp: (double) the time stamp
+        :param AttrQuality quality: (AttrQuality) the attribute quality factor
         """
         raise NotImplementedError()
     
     def push_att_conf_event(self, attr):
         """
         Push an attribute configuration event
-        :param Attribute attr: the attribute for which the configuration event will be sent
+        :param Attribute attr: the attribute for which the configuration event
+                               will be sent
         """
         raise NotImplementedError()
 
-    def push_change_event(self, attr_name, data=None, str_data=None, exception=None, dim_x=None, dim_y=None, time_stamp=None, quality=None):
+    def push_change_event(self, attr_name, data=None, str_data=None,
+                          exception=None, dim_x=None, dim_y=None,
+                          time_stamp=None, quality=None):
         """
-        Push a change event for the given attribute name. The event is pushed to the notification daemon.
+        Push a change event for the given attribute name. The event is pushed
+        to the notification daemon.
         :param str attr_name: (str) attribute name
-        :param Object data:	the data to be sent as attribute event data. Data must be compatible with the attribute type and format. for SPECTRUM and IMAGE attributes, data can be any type of sequence of elements compatible with the attribute type
-        :param str str_data: (str) special variation for DevEncoded data type. In this case ‘data’ must be a str or an object with the buffer interface.
-        :param DevFailed exception: (DevFailed) Instead of data, you may want to send an exception.
+        :param Object data: the data to be sent as attribute event data.
+                            Data must be compatible with the attribute type and
+                            format. for SPECTRUM and IMAGE attributes, data can
+                            be any type of sequence of elements compatible with
+                            the attribute type.
+        :param str str_data: (str) special variation for DevEncoded data type.
+                             In this case ‘data’ must be a str or an object
+                             with the buffer interface.
+        :param DevFailed exception: (DevFailed) Instead of data, you may want
+                                    to send an exception.
         :param int dim_x: (int) the attribute x length. Default value is 1
         :param int dim_y: (int) the attribute y length. Default value is 0
-        :param double time_stamp:	(double) the time stamp
+        :param double time_stamp: (double) the time stamp
         :param AttrQuality quality: (AttrQuality) the attribute quality factor
         """
         raise NotImplementedError()
 
     def push_data_ready_event(self, attr_name, counter=0):
         """
-        Push a data ready event for the given attribute name. The event is pushed to the notification daemon.
-        The method needs only the attribue name and an optional “counter” which will be passed unchanged within the event.
+        Push a data ready event for the given attribute name. The event is
+        pushed to the notification daemon.
+        The method needs only the attribute name and an optional “counter”
+        which will be passed unchanged within the event.
         :param str attr_name: the attribute name
         :param int counter: the user counter
         """
         raise NotImplementedError()
 
-    def push_event(self, attr_name, filt_names=None, filt_vals=None, data=None, str_data=None, dim_x=None, dim_y=None, time_stamp=None, quality=None):
+    def push_event(self, attr_name, filt_names=None, filt_vals=None, data=None,
+                   str_data=None, dim_x=None, dim_y=None, time_stamp=None,
+                   quality=None):
         """
         :param str attr_name: (str) attribute name
-        :param sequence<str> filt_names: (sequence<str>) the filterable fields name
-        :param sequence<double> filt_vals: (sequence<double>) the filterable fields value
-        :param Object data:	the data to be sent as attribute event data. Data must be compatible with the attribute type and format. for SPECTRUM and IMAGE attributes, data can be any type of sequence of elements compatible with the attribute type
-        :param str str_data: (str) special variation for DevEncoded data type. In this case ‘data’ must be a str or an object with the buffer interface.
+        :param sequence<str> filt_names: (sequence<str>) the filterable fields
+                                         name
+        :param sequence<double> filt_vals: (sequence<double>) the filterable
+                                           fields value
+        :param Object data: the data to be sent as attribute event data.
+                            Data must be compatible with the attribute type and
+                            format. for SPECTRUM and IMAGE attributes, data can
+                            be any type of sequence of elements compatible with
+                            the attribute type.
+        :param str str_data: (str) special variation for DevEncoded data type.
+                             In this case ‘data’ must be a str or an object
+                             with the buffer interface.
         :param int dim_x: (int) the attribute x length. Default value is 1
         :param int dim_y: (int) the attribute y length. Default value is 0
         :param double time_stamp: (double) the time stamp
@@ -340,20 +380,21 @@ class Device:
 
     def register_signal(self, signo):
         """
-        Register a signal. Register this device as device to be informed when signal signo is sent to to the device server process.
+        Register a signal. Register this device as device to be informed when
+        signal signo is sent to to the device server process.
         :param int signo: signal identifier
         """
         raise NotImplementedError()
 
     def remove_attribute(self, attr_name):
         """
-        Remove one attribute from the device ttribute list
+        Remove one attribute from the device attribute list
         :param str attr_name: the attribute name
         """
         # TO-DO: Raise DevFailed if `remove` raises KeyError
         self.attr_list.remove(attr_name)
 
-    def remove_command(self,cmd_name):
+    def remove_command(self, cmd_name):
         """
         Remove one command from the device command list.
         :param str cmd_name: the command name to remove
@@ -361,20 +402,22 @@ class Device:
         # TO-DO: Raise DevFailed if `remove` raises KeyError
         self.command_list.remove(cmd_name)
 
+    # noinspection PyUnusedLocal
     def run_server(self, args=None, **kwargs):
         """
         Run the class as a device server
-        The difference is that the device class and server name are automatically given
+        The difference is that the device class and server name are
+        automatically given
         """
-        #  raise NotImplementedError()
-        import sys
         code_file = open(sys.argv[0], 'r')
         next_line = False
         for line in code_file:
             if next_line:
                 _line = line.strip().split()
                 func_name = _line[1][:_line[1].find('(')]
-                self.server_app.route('/' + func_name, methods=['POST'])(eval('self.' + func_name))
+                self.server_app.route('/' + func_name, methods=['POST'])(
+                    eval('self.' + func_name)
+                )
                 next_line = False
             if 'command_decorator' in line and 'def' not in line:
                 next_line = True
@@ -382,24 +425,35 @@ class Device:
     
     def set_archive_event(self, attr_name, implemented, detect=True):
         """
-        Set an implemented flag for the attribute to indicate that the server fires archive events manually, without the polling to be started. 
-        If the detect parameter is set to true, the criteria specified for the archive event are verified 
-        and the event is only pushed if they are fullfilled. 
-        If detect is set to false the event is fired without any value checking!
+        Set an implemented flag for the attribute to indicate that the server
+        fires archive events manually, without the polling to be started.
+        If the detect parameter is set to true, the criteria specified for the
+        archive event are verified
+        and the event is only pushed if they are fulfilled.
+        If detect is set to false the event is fired WITHOUT any value checking
         :param str attr_name: (str) attribute name
-        :param bool implemented: (bool) True when the server fires change events manually.
-        :param bool detect: (bool) Triggers the verification of the change event properties when set to true. Default value is true.
+        :param bool implemented: (bool) True when the server fires change
+                                 events manually.
+        :param bool detect: (bool) Triggers the verification of the change
+                            event properties when set to true. Default value is
+                            true.
         """
         raise NotImplementedError()
 
     def set_change_event(self, attr_name, implemented, detect=True):
         """
-        Set an implemented flag for the attribute to indicate that the server fires change events manually, without the polling to be started. 
-        If the detect parameter is set to true, the criteria specified for the change event are verified and the 
-        event is only pushed if they are fullfilled. If detect is set to false the event is fired without any value checking!
+        Set an implemented flag for the attribute to indicate that the server
+        fires change events manually, without the polling to be started.
+        If the detect parameter is set to true, the criteria specified for the
+        change event are verified and the event is only pushed if they are
+        fulfilled. If detect is set to false the event is fired without any
+        value checking!
         :param str attr_name: (str) attribute name
-        :param bool implemented: (bool) True when the server fires change events manually.
-        :param bool detect: (bool) Triggers the verification of the change event properties when set to true. Default value is true.
+        :param bool implemented: (bool) True when the server fires change
+                                 events manually.
+        :param bool detect: (bool) Triggers the verification of the change
+                            event properties when set to true. Default value
+                            is true.
         """
         raise NotImplementedError()
 
@@ -412,23 +466,26 @@ class Device:
 
     def signal_handler(self, signo):
         """
-        Signal handler. The method executed when the signal arrived in the device server process. 
-        This method is defined as virtual and then, can be redefined following device needs.
+        Signal handler. The method executed when the signal arrived in the
+        device server process.
+        This method is defined as virtual and then, can be redefined following
+        device needs.
         :param int signo: the signal number 
         """
         raise NotImplementedError()
 
     def stop_polling(self, with_db_upd):
         """
-        Stop all polling for a device. if the device is polled, call this method before deleting it.
-        :param bool with_db_upd: (bool) Is it necessary to update db ?
+        Stop all polling for a device. if the device is polled, call this
+        method before deleting it.
+        :param bool with_db_upd: (bool) Is it necessary to update db?
         """
         raise NotImplementedError()
 
     def unregister_signal(self, signo):
         """
-        Unregister a signal. Unregister this device as device to be informed when signal signo is 
-        sent to to the device server process
+        Unregister a signal. Unregister this device as device to be informed
+        when signal signo is sent to to the device server process
         :param int signo: the signal identifier
         """
         raise NotImplementedError()
@@ -442,50 +499,60 @@ class Device:
 
     def write_attr_hardware(self, attr_list):
         """
-        Write the hardware for attributes. Default method to implement an action necessary on a device to 
-        write the hardware involved in a a write attribute. This method must be redefined in sub-classes in order 
+        Write the hardware for attributes. Default method to implement an
+        action necessary on a device to write the hardware involved in a
+        write attribute. This method must be redefined in sub-classes in order
         to support writable attribute
-        :param sequence<int> attr_list: list of indices in the device object attribute vector of an attribute to be written.
+        :param sequence<int> attr_list: list of indices in the device object
+                                        attribute vector of an attribute to be
+                                        written.
         """
         raise NotImplementedError()
 
 
-class attribute:
+class Attribute:
     """
     Attribute class to be used as a decorator
     """
+    # noinspection PyUnusedLocal
     def __init__(self, fget=None, **kwargs):
-        self._kwargs = kwargs
-        self.name = kwargs.pop("name", None)
-        self.class_name = kwargs.pop("class_name", None)
-        forward = kwargs.pop("forward", False)
-        if forward:
-            expected = 2 if "label" in kwargs else 1
-            if len(kwargs) > expected:
-                raise TypeError("Only forwarded attributes support label argument")
-
-        else:
-            green_mode = kwargs.pop("green_mode", True)
-            self.read_green_mode = kwargs.pop("read_green_mode", green_mode)
-            self.write_green_mode = kwargs.pop("write_green_mode", green_mode)
-
-            if fget:
-                if inspect.isroutine(fget):
-                    self.fget = fget
-                    if 'doc' not in kwargs and 'description' not in kwargs:
-                        if fget.__doc__ is not None:
-                            kwargs['doc'] = fget.__doc__
-                kwargs['fget'] = fget
-        super(attribute, self).__init__(self.name, class_name)
-        self.__doc__ = kwargs.get('doc', kwargs.get('description',
-                                                    'TANGO attribute'))
-        if 'dtype' in kwargs:
-            kwargs['dtype'], kwargs['dformat'] = \
-                _get_tango_type_format(kwargs['dtype'], kwargs.get('dformat'))
-        self.build_from_dict(kwargs)
+        raise NotImplementedError()
+        # self._kwargs = kwargs
+        # self.name = kwargs.pop("name", None)
+        # self.class_name = kwargs.pop("class_name", None)
+        # forward = kwargs.pop("forward", False)
+        # if forward:
+        #     expected = 2 if "label" in kwargs else 1
+        #     if len(kwargs) > expected:
+        #         raise TypeError(
+        #             "Only forwarded attributes support label argument"
+        #         )
+        #
+        # else:
+        #     green_mode = kwargs.pop("green_mode", True)
+        #     self.read_green_mode = kwargs.pop("read_green_mode", green_mode)
+        #     self.write_green_mode = kwargs.pop("write_green_mode",
+        #                                        green_mode)
+        #
+        #     if fget:
+        #         if inspect.isroutine(fget):
+        #             self.fget = fget
+        #             if 'doc' not in kwargs and 'description' not in kwargs:
+        #                 if fget.__doc__ is not None:
+        #                     kwargs['doc'] = fget.__doc__
+        #         kwargs['fget'] = fget
+        # super(Attribute, self).__init__(self.name, self.class_name)
+        # self.__doc__ = kwargs.get('doc', kwargs.get('description',
+        #                                             'TANGO attribute'))
+        # if 'dtype' in kwargs:
+        #     kwargs['dtype'], kwargs['dformat'] = \
+        #         _get_tango_type_format(kwargs['dtype'],
+        #                                kwargs.get('dformat'))
+        # self.build_from_dict(kwargs)
 
     def __call__(self):
         raise NotImplementedError()
+
 
 class Command(object):
     """
@@ -495,18 +562,21 @@ class Command(object):
     request.
     """
     def __init__(self, func):
-        """
-        The type of the class declaring a method decorated with `@Command`
-        is `None` at declaration time, so we need to declare the `__get__`
-        magic and the `owner_type` property (which must be set) to get around
-        the problem (cf. https://stackoverflow.com/questions/2366713/can-a-python-decorator-of-an-instance-method-access-the-class).
-        """
+        # The type of the class declaring a method decorated with `@Command`
+        #  is `None` at declaration time, so we need to declare the
+        # `__get__` magic and the `owner_type` property (which must be set)
+        # to get around the problem (cf.
+        # https://stackoverflow.com/questions/2366713/can-a-python-decorator
+        # -of-an-instance-method-access-the-class).
         swagger_specs_dict = {}
         index = 0
-        argspec = inspect.getargspec(func)
+        argspec = inspect.getfullargspec(func)
         all_args = argspec.args[1:]
         number_of_args = len(all_args)
-        number_of_defaults = len(argspec.defaults) if argspec.defaults != None else 0 
+        number_of_defaults = 0
+        if argspec.defaults is not None:
+            number_of_defaults = len(argspec.defaults)
+
         # Non Default Args
         while index != number_of_args - number_of_defaults:
             parameters = swagger_specs_dict.get('parameters', [])
@@ -518,7 +588,7 @@ class Command(object):
             index += 1
             swagger_specs_dict['parameters'] = parameters
         while index != number_of_args:
-            parameters = swaggerspecs_dict.get('parameters', [])
+            parameters = swagger_specs_dict.get('parameters', [])
             parameters.append({
                 'name': all_args[index],
                 'in': 'path',
@@ -527,7 +597,9 @@ class Command(object):
             })
             swagger_specs_dict['parameters'] = parameters
         
-        parser = reqparse.RequestParser()
+        # parser = reqparse.RequestParser()
+
+        # noinspection PyMethodParameters
         class _Command(Resource):
             @swag_from(swagger_specs_dict)
             def post(inner_self):
@@ -565,7 +637,8 @@ class ServerMeta(type):
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
-            cls._instances[cls] = super(ServerMeta, cls).__call__(*args, **kwargs)
+            cls._instances[cls] =\
+                super(ServerMeta, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
 
 
@@ -576,10 +649,11 @@ class ServerBase(Flask, metaclass=ServerMeta):
     """
     def __init__(self, name):
         """
-        `__init__` bounds any `@Command`-decorated methods on child classes to HTTP
-        routes, and assigns the correct `owner_type` to them.
+        `__init__` bounds any `@Command`-decorated methods on child classes to
+        HTTP routes, and assigns the correct `owner_type` to them.
         """
         super().__init__(name)
+        # noinspection PyTypeChecker
         self.api = Api(self)
         self.swagger = Swagger(self)
         self.config['Swagger'] = {
@@ -591,23 +665,5 @@ class ServerBase(Flask, metaclass=ServerMeta):
                 self.api.add_resource(attr.resource, f'/{attr.route}')
                 if attr.owner_type is None:
                     attr.owner_type = self.__class__
-            except AttributeError as e:
+            except AttributeError:
                 pass
-
-
-class Server(ServerBase):
-    """
-    Sample server.
-    """
-    @Command
-    def cmd1(self, arg1, arg2):
-        ret_val = {
-            'arg1': arg1,
-            'arg2': arg2,
-        }
-        return ret_val
-
-
-if __name__ == '__main__':
-    s = Server(__name__)
-    s.run('localhost', 8080)
