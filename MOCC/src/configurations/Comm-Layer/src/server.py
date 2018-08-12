@@ -1,56 +1,122 @@
 """Module for Device based classes"""
 import inspect
+from types import MethodType, FunctionType
+from typing import Union
 
 from flask import Flask, request, jsonify
 from flask_restful import Api, Resource
 from flasgger import Swagger, swag_from
 
 
-class Attribute:
+def _build_swagger_spec(func):
+    index = 0
+    argspec = inspect.getfullargspec(func)
+    all_args = argspec.args[1:]
+    number_of_args = len(all_args)
+    number_of_defaults = 0
+    if argspec.defaults is not None:
+        number_of_defaults = len(argspec.defaults)
+
+    swagger_specs_dict = {}
+    # Non Default Args
+    while index != number_of_args - number_of_defaults:
+        parameters = swagger_specs_dict.get('parameters', [])
+        parameters.append({
+            'name': all_args[index],
+            'in': 'path',
+            'required': True
+        })
+        index += 1
+        swagger_specs_dict['parameters'] = parameters
+    while index != number_of_args:
+        parameters = swagger_specs_dict.get('parameters', [])
+        parameters.append({
+            'name': all_args[index],
+            'in': 'path',
+            'required': False,
+            'default': argspec.defaults[index]
+        })
+        swagger_specs_dict['parameters'] = parameters
+    return swagger_specs_dict
+
+
+class ServerDecorator(object):
+    func: Union[MethodType, FunctionType]
+    _owner_type: type
+    resource: Resource
+    route: str
+
+
+class Attribute(ServerDecorator):
     """
-    Attribute class to be used as a decorator
+    Attribute decorator. It returns a new `flask_restful.Resource` class
+    (not an instance). The returned class is callable, therefore, methods
+    decorated with `@Attribute` can be called directly or through an HTTP POST
+    request.
+    If only the property's getter is needed, use Attribute to decorate the
+    method with the @property decoration. If both getter and setter are to be
+    accessible through REST, decorate the method with the
+    @[property_name].setter decoration.
     """
-    # noinspection PyUnusedLocal
-    def __init__(self, fget=None, **kwargs):
-        raise NotImplementedError()
-        # self._kwargs = kwargs
-        # self.name = kwargs.pop("name", None)
-        # self.class_name = kwargs.pop("class_name", None)
-        # forward = kwargs.pop("forward", False)
-        # if forward:
-        #     expected = 2 if "label" in kwargs else 1
-        #     if len(kwargs) > expected:
-        #         raise TypeError(
-        #             "Only forwarded attributes support label argument"
-        #         )
-        #
-        # else:
-        #     green_mode = kwargs.pop("green_mode", True)
-        #     self.read_green_mode = kwargs.pop("read_green_mode", green_mode)
-        #     self.write_green_mode = kwargs.pop("write_green_mode",
-        #                                        green_mode)
-        #
-        #     if fget:
-        #         if inspect.isroutine(fget):
-        #             self.fget = fget
-        #             if 'doc' not in kwargs and 'description' not in kwargs:
-        #                 if fget.__doc__ is not None:
-        #                     kwargs['doc'] = fget.__doc__
-        #         kwargs['fget'] = fget
-        # super(Attribute, self).__init__(self.name, self.class_name)
-        # self.__doc__ = kwargs.get('doc', kwargs.get('description',
-        #                                             'TANGO attribute'))
-        # if 'dtype' in kwargs:
-        #     kwargs['dtype'], kwargs['dformat'] = \
-        #         _get_tango_type_format(kwargs['dtype'],
-        #                                kwargs.get('dformat'))
-        # self.build_from_dict(kwargs)
+    def __init__(self, func):
+        # The type of the class declaring a method decorated with `@Attribute`
+        #  is `None` at declaration time, so we need to declare the
+        # `__get__` magic and the `owner_type` property (which must be set)
+        # to get around the problem (cf.
+        # https://stackoverflow.com/questions/2366713/can-a-python-decorator
+        # -of-an-instance-method-access-the-class).
 
-    def __call__(self):
-        raise NotImplementedError()
+        if not isinstance(func, property):
+            raise ValueError(f'{func} must be decorated with @property')
+
+        get_swagger_specs_dict = _build_swagger_spec(func.fget)
+
+        # noinspection PyMethodParameters
+        class _AttributeGetInner(Resource):
+            @swag_from(get_swagger_specs_dict)
+            def get(inner_self):
+                ret_val = func.fget(self._owner_type())
+                return jsonify(ret_val)
+
+        self.func = func
+        self.func_get = func.fget
+        self._owner_type = None
+        self.resource = _AttributeGetInner
+        self.route = f'{func.fget.__name__}'
+
+        self.func_set = None
+        self.resource_set = None
+        if func.fset is not None:
+            set_swagger_specs_dict = _build_swagger_spec(func.fset)
+
+            # noinspection PyMethodParameters
+            class _AttributeSetInner(Resource):
+                @swag_from(set_swagger_specs_dict)
+                def put(inner_self):
+                    param = request.json
+                    func.fset(self._owner_type(), param)
+                    return 200
+
+            self.func_set = func.fset
+            self.resource_set = _AttributeSetInner
+
+    @property
+    def owner_type(self):
+        return self._owner_type
+
+    @owner_type.setter
+    def owner_type(self, val):
+        self._owner_type = val
+
+    def __get__(self, obj, type_=None):
+        ret_val = self.func.__get__(obj, type_)
+        return ret_val
+
+    def __call__(self, *args, **kwargs):
+        self.func_set(*args, **kwargs)
 
 
-class Command(object):
+class Command(ServerDecorator):
     """
     Command decorator. It returns a new `flask_restful.Resource` class
     (not an instance). The returned class is callable, therefore, methods
@@ -64,39 +130,11 @@ class Command(object):
         # to get around the problem (cf.
         # https://stackoverflow.com/questions/2366713/can-a-python-decorator
         # -of-an-instance-method-access-the-class).
-        swagger_specs_dict = {}
-        index = 0
-        argspec = inspect.getfullargspec(func)
-        all_args = argspec.args[1:]
-        number_of_args = len(all_args)
-        number_of_defaults = 0
-        if argspec.defaults is not None:
-            number_of_defaults = len(argspec.defaults)
 
-        # Non Default Args
-        while index != number_of_args - number_of_defaults:
-            parameters = swagger_specs_dict.get('parameters', [])
-            parameters.append({
-                'name': all_args[index],
-                'in': 'path',
-                'required': True
-            })
-            index += 1
-            swagger_specs_dict['parameters'] = parameters
-        while index != number_of_args:
-            parameters = swagger_specs_dict.get('parameters', [])
-            parameters.append({
-                'name': all_args[index],
-                'in': 'path',
-                'required': False,
-                'default': argspec.defaults[index]
-            })
-            swagger_specs_dict['parameters'] = parameters
-        
-        # parser = reqparse.RequestParser()
+        swagger_specs_dict = _build_swagger_spec(func)
 
         # noinspection PyMethodParameters
-        class _Command(Resource):
+        class _CommandInner(Resource):
             @swag_from(swagger_specs_dict)
             def post(inner_self):
                 params = request.json       
@@ -105,7 +143,7 @@ class Command(object):
 
         self.func = func
         self._owner_type = None
-        self.resource = _Command
+        self.resource = _CommandInner
         self.route = func.__name__
 
     @property
@@ -156,10 +194,18 @@ class ServerBase(Flask, metaclass=ServerMeta):
             'title': 'Mars City',
             'uiversion': 2
         }
+        self.commands = []
+        self.attributes = []
         for attr in self.__class__.__dict__.values():
-            try:
+            if isinstance(attr, ServerDecorator):
+                # noinspection PyTypeChecker
                 self.api.add_resource(attr.resource, f'/{attr.route}')
                 if attr.owner_type is None:
                     attr.owner_type = self.__class__
-            except AttributeError:
-                pass
+            if isinstance(attr, Command):
+                self.commands.append(attr)
+            elif isinstance(attr, Attribute):
+                if attr.resource_set is not None:
+                    # noinspection PyTypeChecker
+                    self.api.add_resource(attr.resource_set, f'/{attr.route}')
+                self.attributes.append(attr)
