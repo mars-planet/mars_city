@@ -16,4 +16,4 @@ The MARS CITY  project is an extension of the Mars Society Mars Analog Research 
 
 ### Contribution Guidelines 
 
-* [Software Engineering Guidelines](http://eras.readthedocs.org/en/latest/doc/guidelines.html)
+* [Software Engineering Guidelines](http://marscity.readthedocs.io/en/latest/doc/guidelines.html)
