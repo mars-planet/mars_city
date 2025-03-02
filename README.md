@@ -1,6 +1,7 @@
 # ![Logo Nuovo A.jpg](https://user-images.githubusercontent.com/17204042/34071258-9e00ad4e-e299-11e7-88e4-e83583e3d8ff.png) #
 
-MARS CITY is a system of systems and a key enabler for Mars exploration, carried out by Mars Planet Technologies (http://www.marsplanet.org). It will serve as a state-of-the-art test bed for international researchers working on the five main obstacles for Mars exploration.
+MARS CITY is a system of systems and a key enabler for Mars exploration, carried out by Mars Planet Technologies (http://www.marsplanet.org). 
+It will serve as a state-of-the-art test bed for international researchers working on the five main obstacles for Mars exploration.
 
 For more information, please visit: http://www.mars-city.org/
 
